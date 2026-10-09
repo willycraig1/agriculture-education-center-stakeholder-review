@@ -30,7 +30,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - Sheet registration: `tools/register.py` → `tools/registration.json`. Survey→study plan matched on 59 trees (≈0.6 ft); survey→fencing plan fit on the pond and the campus turnout fence (≈3–4 ft).
 - Fencing sheet scale ≈ 2.59 ft/pt (≈1" = 186'), calibrated from the 14.4 AC and 4.9 AC labels.
 - Orientation for all graphics: **north to the left**, so the campus entry is approached from the bottom. On the fencing sheet survey north points right, so map layers are turned 180°.
-- `source/Site Aerial from SCPA.jpg`: north-up County Property Appraiser aerial with parcel lines. To be registered as a canopy underlay.
+- `source/Site Aerial from SCPA.jpg`: north-up County Property Appraiser aerial. Registered to the survey (`registration.json` → `survey_to_aerial`): seeded on the Red House, long barn and pond, refined against the yellow parcel lines (≈3 px median).
+- Site map `drawings/site-layers.svg` (built by `tools/build_site_map.py`): aerial · veil · soils · water · trees · paddocks · campus · labels, north left. Soils are rebuilt from the survey's soil map and grouped by NRCS drainage class (`drawings/data/soils.json`). The soil sheet covers the parcel, not the bonus pasture. About 25% of the mapped site is very poorly drained (Delray; Floridana & Gator).
+- `tools/siteframe.py` holds the shared geometry and transforms for every map graphic.
 - Tooling: Python with pymupdf, numpy, scipy, openpyxl (`tools/requirements.txt`).
 
 ## Design system
@@ -57,10 +59,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - 2026-10-09: Infographic stays CE-only; the Owner will weigh in on animal weights
 - 2026-10-09: Current study plan is `Clark Farm Study Plan-A0.1 (3)1.pdf` minus the west 17-pen barn and its turnout yards
 - 2026-10-09: Source documents may be committed to the public repo
+- 2026-10-09: Pens confirmed 7 / 21 / 35 (one new 14-pen barn at Level 2, a second at Level 3). Barns are two rows of 7 facing a 14' tractor aisle (worked at the previous project)
+- 2026-10-09: Corral, squeeze chute and scale are Level 1. New swine housing and the dedicated small animal barn are one building at Level 2 (existing barn becomes storage). Horticulture Level 2 = beds with irrigation
 
 ## Open questions
-- Confirm the pen split by Level (7 / 21 / 35) and the 14' barn aisle assumption
-- Which Level gets each of: dedicated small animal barn, arena, chute + scale, rough-stock corral, new swine housing (see dashed cells on `slides/levels.html`)
-- Where do hogs go once the existing barn becomes storage?
-- Horticulture Level 2 (proposed: beds with irrigation)
+- Arena: which Level? (Level 3 proposed)
 - Paddock boundaries as closed polylines (user working on it); barn plans (user collecting)

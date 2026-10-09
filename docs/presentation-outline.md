@@ -23,7 +23,7 @@ Two separate cattle groups drive the plan:
 | # | Section | Time | Key slide / visual | Status |
 |---|---------|------|--------------------|--------|
 | 1 | **Why we're here.** Owner goals, and what we'd like from IFAS today | 2 min | Project goals + the questions we're bringing | Content ready |
-| 2 | **The site.** Parcel, Cowpen Slough, soils, flood zone, woods | 5 min | Aerial → survey/soils, drawn layer by layer → trees | Drawings ready |
+| 2 | **The site.** Parcel, Cowpen Slough, soils, flood zone, woods | 5 min | `slides/site.html`: aerial → paddocks → water → soils → trees → campus | **Done (draft)** |
 | 3 | **What the land can carry.** Beginning Rancher herd | 6 min | Fencing plan with trees → capacity infographic, Level 1/2/3 = **7 / 14 / 27 CE** | **Done (draft)** |
 | 4 | **4-H cow & calf projects.** Pen count by Level | 4 min | `slides/cattle-pens.html`: 7 / 21 / 35 pens on the 7-pen module, 12'×24' vs Ag Guide minimum | **Done (draft)**, L2/L3 split to confirm |
 | 5 | **Cattle facilities.** Pens, handling/chute/scale, washdown, turnout, rough-stock corral | 6 min | Cattle barn plan, handling flow diagram, 3D massing | **Barn plans coming** |
@@ -71,5 +71,5 @@ CE-to-head conversion is shown unless an average animal weight is agreed.
 
 **P3: nice to have**
 11. Rough 3D massing of the campus for scale (three.js).
-12. Site photos of existing conditions. The aerial is in hand (`source/Site Aerial from SCPA.jpg`) and still needs registering as a canopy underlay.
+12. Site photos of existing conditions.
 13. Order-of-magnitude cost by Level.

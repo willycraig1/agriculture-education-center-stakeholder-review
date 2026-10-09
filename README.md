@@ -20,6 +20,7 @@ python3 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt
 .venv/bin/python tools/build_fencing_trees.py # drawings/fencing-plan-trees.svg
 .venv/bin/python tools/build_palette.py       # design/palette.css + palette.html
 .venv/bin/python tools/build_capacity_data.py # slides/data/pasture-capacity.js from the pasture worksheet
+.venv/bin/python tools/build_site_map.py      # drawings/site-layers.svg + slides/data/site-map.js
 ```
 
 ## Viewing

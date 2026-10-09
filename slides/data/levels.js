@@ -9,12 +9,12 @@ window.LEVELS = {
   ],
   // pen module: 7 pens; a new barn is 14 pens (2 modules). Existing 7 pens stay in use at every Level.
   pens: {
-    module: 7, barn: 14, pen_ft: [12, 24], aisle_ft: 14, aisle_confirmed: false,
+    module: 7, barn: 14, pen_ft: [12, 24], aisle_ft: 14, aisle_confirmed: true,
     existing: 7,
     byLevel: [
       { level: 1, newBarns: 0, confirmed: true },
-      { level: 2, newBarns: 1, confirmed: false },
-      { level: 3, newBarns: 2, confirmed: false },
+      { level: 2, newBarns: 1, confirmed: true },
+      { level: 3, newBarns: 2, confirmed: true },
     ],
   },
   rows: [
@@ -24,20 +24,20 @@ window.LEVELS = {
       { text: "Add the bonus pasture", ce: 3, confirmed: true } ] },
     { key: "cattle", label: "4-H cow & calf pens", cells: [
       { text: "Reuse the 7 existing pens", pens: 1, confirmed: true },
-      { text: "Add one 14-pen barn", pens: 2, confirmed: false },
-      { text: "Add a second 14-pen barn", pens: 3, confirmed: false } ] },
+      { text: "Add one 14-pen barn", pens: 2, confirmed: true },
+      { text: "Add a second 14-pen barn", pens: 3, confirmed: true } ] },
     { key: "cattle", label: "Pasture-stock handling", cells: [
-      { text: "Existing corral for processing", confirmed: true },
-      { text: "Permanent squeeze chute + scale", confirmed: false },
-      { text: "Add a rough-stock corral", confirmed: false } ] },
+      { text: "Corral, squeeze chute + scale for processing", confirmed: true },
+      { text: "Same as Level 1", confirmed: true },
+      { text: "Same as Level 1", confirmed: true } ] },
     { key: "swine", label: "Swine", cells: [
       { text: "Reuse hog enclosures; hog pens in the existing barn", confirmed: true },
-      { text: "Same as Level 1", confirmed: false },
-      { text: "New swine housing; existing barn becomes storage", confirmed: false } ] },
+      { text: "Move to the new small animal & swine barn; existing barn becomes storage", confirmed: true },
+      { text: "Same as Level 2", confirmed: true } ] },
     { key: "small_animal", label: "Small animals & poultry", cells: [
       { text: "Poultry in the small unfinished barns", confirmed: true },
-      { text: "Dedicated small animal barn", confirmed: false },
-      { text: "Same as Level 2", confirmed: false } ] },
+      { text: "New small animal & swine barn", confirmed: true },
+      { text: "Same as Level 2", confirmed: true } ] },
     { key: "arena", label: "Arena / demonstration", cells: [
       { text: "None (use the turnout yards)", confirmed: false },
       { text: "None", confirmed: false },
@@ -48,7 +48,7 @@ window.LEVELS = {
       { text: "Add event space / classroom addition + equipment carport", confirmed: true } ] },
     { key: "horticulture", label: "Horticulture", cells: [
       { text: "Raised beds and pots", confirmed: true },
-      { text: "Beds with irrigation", confirmed: false },
+      { text: "Beds with irrigation", confirmed: true },
       { text: "Structured shade area, planting tables, irrigation", confirmed: true } ] },
   ],
 };
