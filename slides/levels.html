@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investment Levels</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .grid { display: grid; grid-template-columns: 300px repeat(3, 1fr); gap: 8px 14px; margin-top: 26px; align-content: start; }
+  .colhead { padding: 0 4px 6px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .colhead h2 { font: 600 28px/1.1 var(--serif); margin: 0; }
+  .colhead p { font: 500 15px/1.3 var(--sans); color: var(--muted); margin: 0; }
+  .rowhead { display: flex; align-items: center; gap: 12px; font: 600 19px/1.2 var(--sans); padding-right: 6px; }
+  .rowhead i { flex: none; width: 14px; align-self: stretch; border-radius: 4px; }
+  .cell { position: relative; background: #fff; border-radius: 10px; padding: 10px 16px; min-height: 60px;
+          font: 500 18px/1.3 var(--sans); display: flex; flex-direction: column; justify-content: center; border-left: 6px solid; }
+  .cell .fig { font: 600 24px/1.1 var(--serif); margin-top: 2px; }
+  .cell.same { color: var(--muted); background: transparent; border-left-color: var(--line) !important; }
+  .cell.tbc { outline-offset: -2px; padding-top: 19px; }
+  .cell .tbc-tag { position: absolute; top: 6px; right: 10px; font-size: 10.5px; }
+  .key { display: flex; gap: 26px; align-items: center; margin-top: auto; padding-top: 14px; font: 500 15px/1 var(--sans); color: var(--muted); }
+  .key .sw { display: inline-block; width: 26px; height: 16px; border-radius: 4px; background: #fff; margin-right: 8px; vertical-align: -3px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">09 · Phasing</div>
+  <h1 data-step="0">What each Level buys</h1>
+  <p class="lede" data-step="0">Planned from the best case down. Level 1 is the lightest touch that meets the program,
+    and each Level above adds facilities as funding and demand allow.</p>
+  <div class="grid" id="grid"></div>
+  <div class="key" data-step="4"><span><span class="sw tbc"></span>Dashed outline: proposed placement, to confirm with the Owner</span>
+    <span>CE from the pasture worksheet (UF/IFAS AN155); pens on the 7-pen module</span></div>
+</div>
+
+<script src="data/pasture-capacity.js"></script>
+<script src="data/levels.js"></script>
+<script src="../design/deck.js"></script>
+<script>
+(function () {
+  const L = window.LEVELS, C = window.PASTURE_CAPACITY;
+  const pens = n => { const b = L.pens.byLevel.find(x => x.level === n); return L.pens.existing + b.newBarns * L.pens.barn; };
+  let html = `<div></div>` + L.levels.map(l =>
+    `<div class="colhead" data-step="${l.n}"><span class="badge">${l.name}</span><h2>${l.title}</h2><p>${l.note}</p></div>`).join("");
+  L.rows.forEach(r => {
+    html += `<div class="rowhead" data-step="1"><i style="background:var(--${r.key.replace("_", "-")})"></i>${r.label}</div>`;
+    r.cells.forEach((c, i) => {
+      const same = /^Same as|^None$/.test(c.text);
+      let fig = "";
+      if (c.ce) fig = `<span class="fig num" style="color:var(--pasture)">≈ ${C.levels[c.ce - 1].ce_planning} CE</span>`;
+      if (c.pens) fig = `<span class="fig num" style="color:var(--cattle)">${pens(c.pens)} pens</span>`;
+      html += `<div class="cell${same ? " same" : ""}${c.confirmed ? "" : " tbc"}" data-step="${i + 1}"
+        style="border-left-color:var(--${r.key.replace("_", "-")})">${c.confirmed ? "" : '<span class="tbc-tag">to confirm</span>'}${c.text}${fig}</div>`;
+    });
+  });
+  document.getElementById("grid").innerHTML = html;
+  Deck.start();
+})();
+</script>
+</body>
+</html>

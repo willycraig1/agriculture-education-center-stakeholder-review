@@ -51,10 +51,16 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - 2026-10-09: Cattle pen module fixed at 12'×24' (Owner direction, previous educational barn), above the commercial minimum
 - 2026-10-09: West barn on study plan A0.2 dropped
 - 2026-10-09: North to the left on all graphics
+- 2026-10-09: Existing: 7 cattle pens in the covered dirt-floor horse barn (attached to the garage with 32 hog pens). New cattle barns are 14 pens (two 7-pen modules) for fire code and demand-based growth. Proposal: L1 7, L2 7+14 = 21, L3 7+28 = 35 pens (L2/L3 split to confirm)
+- 2026-10-09: Level 1 = lightest touch: reuse all existing buildings with minimum renovation. Reuse hog enclosures + hog pens in the existing barn, reuse the 7 cattle pens, poultry in the small unfinished barns, existing corral for processing pasture stock, horticulture in raised beds and pots
+- 2026-10-09: Above Level 1: dedicated small animal barn, new cattle pen barns, arena; existing barn becomes storage. Horticulture Level 3 = structured shade area with planting tables and irrigation. Red House Levels as drawn
+- 2026-10-09: Infographic stays CE-only; the Owner will weigh in on animal weights
+- 2026-10-09: Current study plan is `Clark Farm Study Plan-A0.1 (3)1.pdf` minus the west 17-pen barn and its turnout yards
 - 2026-10-09: Source documents may be committed to the public repo
 
 ## Open questions
-- How many 4-H cow & calf projects (pens) at each Level?
-- Level 1 / 2 / 3 definitions for the other program elements (barns, arena, horticulture, site)
-- Updated study plan without the west barn
+- Confirm the pen split by Level (7 / 21 / 35) and the 14' barn aisle assumption
+- Which Level gets each of: dedicated small animal barn, arena, chute + scale, rough-stock corral, new swine housing (see dashed cells on `slides/levels.html`)
+- Where do hogs go once the existing barn becomes storage?
+- Horticulture Level 2 (proposed: beds with irrigation)
 - Paddock boundaries as closed polylines (user working on it); barn plans (user collecting)
