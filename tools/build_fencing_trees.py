@@ -47,6 +47,12 @@ WATER_BOXES = [(225, 215, 350, 335),    # 13.0 AC pond
                (1150, 1150, 1275, 1290),  # retention area beside campus (in the 2.1 AC paddock)
                (1700, 1350, 1800, 1420)]  # existing pond in the 12.4 AC paddock
 STUDY_SHEET = (530, 32, 2372, 1697)     # drawing area of the study-plan sheet (its own coords)
+# Presentation orientation: north to the LEFT, so the campus entry is approached from the bottom.
+# On the fencing sheet survey north points to +x, so every map layer is turned 180 degrees about the
+# view centre. Text (tags, legend) is placed at rotated positions but stays upright.
+CX, CY = (VIEW[0] + VIEW[2]) / 2, (VIEW[1] + VIEW[3]) / 2
+ROT = f"rotate(180 {CX} {CY})"
+rot = lambda x, y: (2 * CX - x, 2 * CY - y)
 
 
 def inside(r, box):
@@ -62,8 +68,10 @@ def paths(ds):
     return "".join(f'<path d="{cadpdf.path_d(d)}"/>' for d in ds if cadpdf.path_d(d))
 
 
-def layer(id_, label, body, **attrs):
+def layer(id_, label, body, transform=None, **attrs):
     a = " ".join(f'{k.replace("_", "-")}="{v}"' for k, v in attrs.items())
+    if transform:
+        a += f' transform="{transform}"'
     return (f'<g id="{id_}" inkscape:groupmode="layer" inkscape:label="{label}" {a}>{body}</g>')
 
 
@@ -164,39 +172,39 @@ svg = [f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
 svg.append(layer("woodland-edge", "Woodland edge (survey tree line)",
                  f'<g transform="{mat(M_SF, T_SF)}" fill="none" stroke="{P["woodland"]["base"]}" '
                  f'stroke-width="{2.2/abs(M_SF):.3f}" stroke-dasharray="{6/abs(M_SF):.2f} {3/abs(M_SF):.2f}" '
-                 f'stroke-linecap="round">{paths(sv.get("TREE LINE", []))}</g>'))
+                 f'stroke-linecap="round">{paths(sv.get("TREE LINE", []))}</g>', ROT))
 svg.append(layer("water", "Water / stormwater",
-                 f'<g fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="1.4">{paths(water_ds)}</g>'))
+                 f'<g fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="1.4">{paths(water_ds)}</g>', ROT))
 svg.append(layer("drive", "Drives",
-                 f'<g fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.4" stroke-linejoin="round">{paths(drive_ds)}</g>'))
+                 f'<g fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.4" stroke-linejoin="round">{paths(drive_ds)}</g>', ROT))
 svg.append(layer("fence", "Proposed pasture fencing",
-                 f'<g fill="none" stroke="{N["ink"]}" stroke-width="1.6" stroke-linecap="round">{paths(fence_ds)}</g>'))
+                 f'<g fill="none" stroke="{N["ink"]}" stroke-width="1.6" stroke-linecap="round">{paths(fence_ds)}</g>', ROT))
 svg.append(layer("buildings", "Existing structures",
                  f'<g fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" stroke-width="1">{paths(bldg_ds)}</g>'
                  f'<g transform="{mat(M_SF, T_SF)}" fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" '
-                 f'stroke-width="{0.8/abs(M_SF):.3f}">{paths(sv.get("BUILDING", []))}</g>'))
+                 f'stroke-width="{0.8/abs(M_SF):.3f}">{paths(sv.get("BUILDING", []))}</g>', ROT))
 
 tree_svg = []
 for src, x, y, s in trees:
     r = 5.2 if s > 20 else 3.6
     tree_svg.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}"/>')
 svg.append(layer("trees", "Existing trees (surveyed)",
-                 f'<g fill="{P["woodland"]["base"]}" fill-opacity="0.78" stroke="{P["woodland"]["base"]}" stroke-width="0.6">{"".join(tree_svg)}</g>'))
+                 f'<g fill="{P["woodland"]["base"]}" fill-opacity="0.78" stroke="{P["woodland"]["base"]}" stroke-width="0.6">{"".join(tree_svg)}</g>', ROT))
 
-svg.append(layer("labels", "Paddock labels", "".join(tag(*l) for l in labels) +
-                 f'<text x="1365" y="1205" text-anchor="middle" font-size="17" font-weight="700" letter-spacing="2" '
+svg.append(layer("labels", "Paddock labels", "".join(tag(ac, *rot(x, y)) for ac, x, y in labels) +
+                 f'<text x="1095" y="292" text-anchor="middle" font-size="17" font-weight="700" letter-spacing="2" '
                  f'fill="{P["cattle"]["base"]}">CAMPUS</text>'))
 
-# legend / title block in the empty upper-right of the sheet
-lx, ly = 1500, 175
+# legend / title block in the empty lower-left of the (rotated) sheet
+lx, ly = 110, 905
 site_ac = sum(a for a, (g, _) in canopy.items() if g == "Site Pasture")
 bonus_ac = sum(a for a, (g, _) in canopy.items() if g == "Bonus Pasture")
 bar_ft = 500
 bar_pt = bar_ft / FT_PER_PT
 leg = [f'<text x="{lx}" y="{ly}" font-size="34" font-weight="700" fill="{N["ink"]}">Pasture Fencing &amp; Existing Trees</text>',
        f'<text x="{lx}" y="{ly+30}" font-size="16" fill="{N["muted"]}">Clark Farm · Agriculture Education Center · stakeholder review draft</text>']
-rows = [("swatch", P["pasture"], f"Site pasture · Level 1 · {site_ac:.1f} ac"),
-        ("swatch", P["bonus"], f"Bonus pasture · Ultimate · {bonus_ac:.1f} ac"),
+rows = [("swatch", P["pasture"], f"Site pasture · Levels 1–3 · {site_ac:.1f} ac"),
+        ("swatch", P["bonus"], f"Bonus pasture · Level 3 · {bonus_ac:.1f} ac"),
         ("tree", P["woodland"], f"Existing tree, surveyed ({len(trees)} shown)"),
         ("edge", P["woodland"], "Edge of wooded area (survey tree line)"),
         ("fence", None, "Proposed pasture fence"),
@@ -224,6 +232,9 @@ leg.append(f'<g transform="translate({lx} {yy})"><rect width="{bar_pt/2:.1f}" he
            f'<text y="26" font-size="13" fill="{N["muted"]}">0</text>'
            f'<text x="{bar_pt/2:.1f}" y="26" font-size="13" text-anchor="middle" fill="{N["muted"]}">250</text>'
            f'<text x="{bar_pt:.1f}" y="26" font-size="13" text-anchor="middle" fill="{N["muted"]}">500 ft</text></g>')
+# north arrow: survey north points left in this orientation
+leg.append(f'<g transform="translate({lx + bar_pt + 90:.1f} {yy + 4})"><path d="M-22 0 L10 -11 L4 0 L10 11 Z" fill="{N["ink"]}"/>'
+           f'<text x="24" y="6" font-size="17" font-weight="700" fill="{N["ink"]}">N</text></g>')
 yy += 58
 notes = ["Trees: Seibert study plan A0.2 (campus) and survey A0.1 (rest of parcel), overlaid by matching",
          "the CAD sheets (see tools/registration.json). Symbols are schematic, not canopy to scale.",
