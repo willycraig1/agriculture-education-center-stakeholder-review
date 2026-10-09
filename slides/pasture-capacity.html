@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pasture Capacity</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .row { display: grid; grid-template-columns: 1fr 124px 1fr 124px 1fr; align-items: stretch; margin-top: 34px; }
+  .lvl { padding: 24px 30px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .lvl header { display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+  .badge { font: 700 18px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: var(--ink); padding: 8px 12px; border-radius: 8px; }
+  .lvl h2 { font: 600 34px/1.1 var(--serif); margin: 0; }
+  .land { display: flex; align-items: center; gap: 14px; }
+  .land .big { font: 600 44px/1 var(--serif); white-space: nowrap; }
+  .land .what { font: 500 19px/1.25 var(--sans); color: var(--muted); }
+  .bar { position: relative; height: 30px; border-radius: 7px; background: #f1ede4; overflow: hidden; }
+  .bar .seg { position: absolute; top: 0; bottom: 0; width: 0; transition: width 1s var(--ease), left 1s var(--ease); }
+  .seg.open { background: var(--pasture); } .seg.wooded { background: var(--woodland); }
+  .seg.bonus { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.45) 0 5px, transparent 5px 11px); }
+  .key { display: flex; gap: 18px; font: 500 16px/1 var(--sans); color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
+  .key i { display: inline-block; width: 13px; height: 13px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
+  .mgmt { display: flex; align-items: center; gap: 12px; }
+  .chip.cons { background: var(--circulation-tint); color: var(--ink); }
+  .chip.impr { background: var(--pasture-tint); color: #2f4a1c; }
+  .math { font: 500 20px/1.55 var(--sans); color: var(--ink); }
+  .math .r { color: var(--muted); }
+  .result { display: flex; align-items: baseline; gap: 12px; border-top: 1.5px solid var(--line); padding-top: 14px; }
+  .result .ce { font: 600 76px/0.9 var(--serif); color: var(--cattle); }
+  .result .unit { font: 600 24px/1.2 var(--sans); color: var(--cattle); }
+  .result .exact { font: 500 18px/1.2 var(--sans); color: var(--muted); margin-left: auto; }
+  .herd { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px 4px; align-content: start; min-height: 100px; }
+  .herd svg { width: 100%; height: auto; color: var(--cattle); opacity: 0; transform: scale(.6); transition: opacity .35s var(--ease), transform .35s var(--ease); }
+  .herd svg.in, .static .herd svg { opacity: 1; transform: none; }
+  .lever { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+  .lever svg.arrow { width: 56px; color: var(--muted); }
+  .lever span { font: 600 14px/1.3 var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  footer { display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; margin-top: auto; padding-top: 22px; }
+  footer b { color: var(--ink); font-weight: 600; }
+  .icon { width: 46px; height: 46px; flex: none; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="cow" viewBox="0 0 64 40">
+        <path fill="currentColor" d="M12 11c0-2 2-3.5 4-3.5h25c3 0 4.5 1 6 3l2-3.5c.6-1 2-1 2.6 0l.8 1.6h3.2c2 0 3.4 1.6 3.4 3.4v6.6c0 1.6-1.2 2.9-2.8 2.9h-5.4l-2.3 2.7V35a1.5 1.5 0 0 1-1.5 1.5h-1.8A1.5 1.5 0 0 1 43.7 35v-7.6H21V35a1.5 1.5 0 0 1-1.5 1.5h-1.8A1.5 1.5 0 0 1 16.2 35V25.6C13.6 24 12 21.4 12 18.4z"/>
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12.5 12.5c-3 1-4.5 4.5-4 10.5"/>
+        <circle cx="56.3" cy="14.2" r="1.3" fill="#fff"/>
+      </symbol>
+      <symbol id="grass" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="23" fill="var(--pasture-tint)"/>
+        <path fill="none" stroke="var(--pasture)" stroke-width="3" stroke-linecap="round" d="M14 36c0-7 1-12 4-17M22 36c0-9 0-15 2-22M30 36c0-8 2-13 6-17M18 36c-1-5-3-8-6-10M34 36c1-4 3-6 6-8"/>
+      </symbol>
+      <symbol id="woods" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="23" fill="var(--woodland-tint)"/>
+        <path fill="var(--woodland)" d="M17 10l-7 12h4l-5 9h16l-5-9h4zM32 13a7 7 0 0 0-7 7 6 6 0 0 0 1 11h12a6 6 0 0 0 1-11 7 7 0 0 0-7-7z"/>
+        <path stroke="var(--woodland)" stroke-width="2.5" d="M17 31v6M32 31v6"/>
+      </symbol>
+      <symbol id="rotate" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="23" fill="var(--pasture-tint)"/>
+        <path fill="none" stroke="var(--pasture)" stroke-width="3" stroke-linecap="round" d="M14 22a10 10 0 0 1 18-5M34 26a10 10 0 0 1-18 5"/>
+        <path fill="var(--pasture)" d="M33 11v8h-8zM15 37v-8h8z"/>
+      </symbol>
+      <symbol id="hold" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="23" fill="var(--circulation-tint)"/>
+        <path fill="none" stroke="var(--circulation)" stroke-width="3" stroke-linecap="round" d="M12 18h24M12 30h24M16 14v20M32 14v20"/>
+      </symbol>
+      <symbol id="arrow" viewBox="0 0 56 24">
+        <path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M2 12h48M40 3l10 9-10 9"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="eyebrow" data-step="0">03 · What the land can carry</div>
+  <h1 data-step="0">Pasture-based cattle capacity</h1>
+  <p class="lede" data-step="0">Mature-cow equivalents (CE) the fenced pasture can carry at each investment Level.
+    Level 3 is the best case. Level 1 is the minimum needed to operate.</p>
+
+  <div class="row" id="row"></div>
+
+  <footer data-step="4">
+    <p class="footnote"><b>CE</b> is mature-cow-equivalent grazing demand. The pasture herd belongs to the
+      <b>Beginning Rancher</b> program. <b>4-H cow &amp; calf projects</b> are housed in 12'×24' pens and sized separately.
+      Head count may be higher where cattle are lighter, but the final number should be set from expected animal weights and forage demand.</p>
+    <p class="footnote">Stocking rates: UF/IFAS AN155 planning values (conservative 4 ac/CE open, 25 ac/CE wooded;
+      improved rotational 2 and 10), to be refined with UF/IFAS for forage condition and animal type.
+      Acreages: fencing plan A0.1 and the pasture worksheet.</p>
+  </footer>
+</div>
+
+<script src="data/pasture-capacity.js"></script>
+<script src="../design/deck.js"></script>
+<script>
+(function () {
+  const D = window.PASTURE_CAPACITY;
+  const max = Math.max(...D.levels.map(l => l.acres));
+  const fmt = n => (Math.round(n * 10) / 10).toFixed(1).replace(/\.0$/, "");
+  const lever = (step, text) => `<div class="lever" data-step="${step}"><svg class="arrow"><use href="#arrow"/></svg><span>${text}</span></div>`;
+
+  function card(l, step) {
+    const site = l.split.site, bonus = l.split.bonus;
+    const land = bonus ? "fenced site +<br>bonus pasture" : "fenced<br>site pasture";
+    const mg = l.management === "improved"
+      ? `<svg class="icon"><use href="#rotate"/></svg><span class="chip impr">Improved rotational grazing</span>`
+      : `<svg class="icon"><use href="#hold"/></svg><span class="chip cons">Conservative management</span>`;
+    const segs = [["open", site.open, ""], ["wooded", site.wooded, ""]];
+    if (bonus) segs.push(["open", bonus.open, " bonus"], ["wooded", bonus.wooded, " bonus"]);
+    const key = bonus
+      ? `<span><i style="background:var(--pasture)"></i>${fmt(l.open)} open</span><span><i style="background:var(--woodland)"></i>${fmt(l.wooded)} wooded</span><span><i style="background:repeating-linear-gradient(135deg,#bbb 0 3px,#fff 3px 6px)"></i>bonus land</span>`
+      : `<span><i style="background:var(--pasture)"></i>${fmt(l.open)} open</span><span><i style="background:var(--woodland)"></i>${fmt(l.wooded)} wooded</span>`;
+    return `<article class="card lvl" data-step="${step}" data-level="${l.level}">
+      <header><span class="badge">${l.name}</span><h2>${l.subtitle}</h2></header>
+      <div class="land"><svg class="icon"><use href="#${bonus ? "woods" : "grass"}"/></svg>
+        <span class="big num">${fmt(l.acres)} ac</span><span class="what">${land}</span></div>
+      <div><div class="bar">${segs.map(([k, a, b]) => `<div class="seg ${k}${b}" data-ac="${a}"></div>`).join("")}</div>
+        <div class="key">${key}</div></div>
+      <div class="mgmt">${mg}</div>
+      <div class="math num">${fmt(l.open)} ac open <span class="r">÷ ${l.rate_open} ac/CE</span> = ${fmt(l.ce_open)} CE<br>
+        ${fmt(l.wooded)} ac wooded <span class="r">÷ ${l.rate_wooded} ac/CE</span> = ${fmt(l.ce_wooded)} CE</div>
+      <div class="result"><span class="ce num" data-ce="${l.ce_planning}">≈ ${l.ce_planning}</span><span class="unit">CE</span>
+        <span class="exact num">${fmt(l.ce)} calculated</span></div>
+      <div class="herd">${Array.from({ length: l.ce_planning }, () => `<svg viewBox="0 0 64 40"><use href="#cow"/></svg>`).join("")}</div>
+    </article>`;
+  }
+
+  const [l1, l2, l3] = D.levels;
+  document.getElementById("row").innerHTML =
+    card(l1, 1) + lever(2, "+ better<br>management") + card(l2, 2) + lever(3, "+ bonus<br>pasture") + card(l3, 3);
+
+  // When a card appears: grow its bar, count up its CE, then bring in the herd one animal at a time.
+  const done = new Set();
+  function animate(cardEl, instant) {
+    let left = 0;
+    cardEl.querySelectorAll(".seg").forEach(s => {
+      const w = (+s.dataset.ac / max) * 100;
+      s.style.left = left + "%"; s.style.width = w + "%"; left += w;
+    });
+    const ce = cardEl.querySelector(".ce"), target = +ce.dataset.ce;
+    const cows = [...cardEl.querySelectorAll(".herd svg")];
+    if (instant) { cows.forEach(c => c.classList.add("in")); return; }
+    const t0 = performance.now();
+    (function tick(t) {
+      const k = Math.min(1, (t - t0) / 900);
+      ce.textContent = "≈ " + Math.round(target * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(tick);
+    })(t0);
+    cows.forEach((c, i) => setTimeout(() => c.classList.add("in"), 300 + i * 45));
+  }
+  function reset(cardEl) {
+    cardEl.querySelectorAll(".seg").forEach(s => { s.style.width = 0; s.style.left = 0; });
+    cardEl.querySelectorAll(".herd svg").forEach(c => c.classList.remove("in"));
+  }
+  Deck.onStep(n => {
+    document.querySelectorAll(".lvl").forEach(c => {
+      const on = +c.dataset.step <= n;
+      if (on && !done.has(c)) { done.add(c); animate(c, document.documentElement.classList.contains("static")); }
+      if (!on && done.has(c)) { done.delete(c); reset(c); }
+    });
+  });
+  Deck.start();
+})();
+</script>
+</body>
+</html>
