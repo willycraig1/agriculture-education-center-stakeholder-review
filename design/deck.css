@@ -39,6 +39,13 @@ h1 { font: 600 64px/1.05 var(--serif); margin: 14px 0 10px; letter-spacing: -.01
   font: 600 17px/1 var(--sans); letter-spacing: .02em;
 }
 
+/* Level badge: same treatment on every slide */
+.badge { font: 700 18px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: var(--ink); padding: 8px 12px; border-radius: 8px; white-space: nowrap; }
+
+/* "to confirm" marker for proposals not yet confirmed by the Owner */
+.tbc { outline: 2px dashed var(--muted); outline-offset: -2px; }
+.tbc-tag { font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
 /* Build steps: elements with data-step="n" appear when the slide reaches step n.
    .static on <html> (or ?static in the URL, or reduced motion) shows everything at once. */
 [data-step] { opacity: 0; transform: translateY(14px); transition: opacity .6s var(--ease), transform .6s var(--ease); }

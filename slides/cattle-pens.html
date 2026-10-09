@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4-H Cattle Pens</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
+  .levels { display: flex; flex-direction: column; gap: 18px; }
+  .lv { display: grid; grid-template-columns: 190px 1fr 170px; align-items: center; padding: 14px 26px; flex: 1; }
+  .lv .who { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .lv .who span { font: 600 22px/1.2 var(--serif); }
+  .lv .who small { font: 500 15px/1.3 var(--sans); color: var(--muted); }
+  .lv svg.plan { width: 100%; height: 178px; overflow: visible; }
+  .lv .total { text-align: right; }
+  .lv .total b { display: block; font: 600 72px/0.9 var(--serif); color: var(--cattle); }
+  .lv .total span { font: 600 18px/1.3 var(--sans); color: var(--cattle); }
+  .lv .total em { display: block; font: 500 15px/1.3 var(--sans); font-style: normal; color: var(--muted); margin-top: 4px; }
+  .pen { opacity: 0; transition: opacity .3s var(--ease); }
+  .in .pen, .static .pen { opacity: 1; }
+  .side { display: flex; flex-direction: column; gap: 18px; }
+  .side .card { padding: 24px 28px; }
+  .side h3 { font: 600 28px/1.15 var(--serif); margin: 0 0 12px; }
+  .side p { font: 400 19px/1.45 var(--sans); margin: 0 0 10px; }
+  .side p.footnote { font-size: 15px; margin: 0; }
+  .why { display: grid; grid-template-columns: 150px 1fr; gap: 22px; align-items: center; }
+  .stat { font: 600 52px/1 var(--serif); color: var(--cattle); }
+  .legend { display: flex; gap: 22px; font: 500 15px/1 var(--sans); color: var(--muted); margin-top: 18px; }
+  .legend i { display: inline-block; width: 16px; height: 12px; margin-right: 7px; vertical-align: -1px; border: 1.5px solid var(--cattle); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">04 · 4-H cow &amp; calf projects</div>
+  <h1 data-step="0">Pens grow with 4-H demand</h1>
+  <p class="lede" data-step="0">The Beginning Rancher herd lives on pasture. 4-H cow &amp; calf projects get pens,
+    added in 7-pen modules as enrollment grows.</p>
+
+  <div class="body">
+    <div class="levels" id="levels"></div>
+    <div class="side" data-step="4">
+      <div class="card">
+        <h3>Why 12' × 24'</h3>
+        <div class="why">
+          <svg viewBox="-4 -4 128 248" width="150" aria-label="12 by 24 foot pen compared with the Ag Guide minimum">
+            <rect x="0" y="0" width="120" height="240" rx="2" fill="var(--cattle-tint)" stroke="var(--cattle)" stroke-width="2.5"/>
+            <rect x="24.6" y="84.6" width="70.7" height="70.7" fill="#fff" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="5 3"/>
+            <text x="60" y="124" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)" font-family="var(--sans)">50 sf</text>
+            <text x="60" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="var(--cattle)" font-family="var(--sans)">288 sf</text>
+          </svg>
+          <div>
+            <div class="stat num">≈ 6×</div>
+            <p>the commercial minimum. The Ag Guide calls for 35–50 sf per 1,000–1,300 lb cow in an enclosed, bedded barn.</p>
+            <p>Room to stand, lie, groom and halter-train, with space for youth working alongside. The module comes from a previous educational barn, by Owner direction.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>The 7-pen module</h3>
+        <p>Each new barn is <b>14 pens</b>: two 7-pen rows facing a tractor aisle. The second barn is built only when demand fills the first.</p>
+        <p class="footnote">Keeping barns to 14 pens is intended to stay within fire-code area limits; this will be confirmed with the AHJ.
+          The aisle is shown at 14' as an assumption. Ag Guide 4th ed., Table 6-1.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data/levels.js"></script>
+<script src="../design/deck.js"></script>
+<script>
+(function () {
+  const P = window.LEVELS.pens, L = window.LEVELS.levels;
+  const [pw, pd] = P.pen_ft, aisle = P.aisle_ft, perRow = P.module;
+  const k = 2.35;                                  // px per foot: every plan on this slide shares one scale
+  const gap = 22 * k, barnW = perRow * pw * k, barnD = (2 * pd + aisle) * k;
+  let delay = 0;
+  const pen = (x, y, existing) => {
+    const r = `<rect class="pen" x="${x}" y="${y}" width="${pw * k}" height="${pd * k}" style="transition-delay:${(delay++) * 35}ms"
+      fill="${existing ? "var(--cattle-tint)" : "#fff"}" stroke="var(--cattle)" stroke-width="1.5"/>`;
+    return r;
+  };
+  function existingRow(x, y) {
+    let s = `<text x="${x}" y="${y - 8}" font-size="14" font-weight="600" fill="var(--muted)" font-family="var(--sans)">EXISTING</text>`;
+    for (let i = 0; i < perRow; i++) s += pen(x + i * pw * k, y, true);
+    return s;
+  }
+  function barn(x, y, label) {
+    let s = `<rect x="${x - 4}" y="${y - 4}" width="${barnW + 8}" height="${barnD + 8}" rx="4" fill="none" stroke="var(--cattle)" stroke-width="1" stroke-dasharray="6 4"/>`;
+    s += `<text x="${x}" y="${y - 12}" font-size="14" font-weight="600" fill="var(--muted)" font-family="var(--sans)">${label}</text>`;
+    for (let i = 0; i < perRow; i++) s += pen(x + i * pw * k, y, false);
+    s += `<line x1="${x}" x2="${x + barnW}" y1="${y + (pd + aisle / 2) * k}" y2="${y + (pd + aisle / 2) * k}" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="8 6"/>`;
+    for (let i = 0; i < perRow; i++) s += pen(x + i * pw * k, y + (pd + aisle) * k, false);
+    return s;
+  }
+  const rows = P.byLevel.map(b => {
+    delay = 0;
+    const lv = L.find(l => l.n === b.level);
+    const total = P.existing + b.newBarns * P.barn;
+    const top = barnD - pd * k;                    // align existing row with the bottom of the barns
+    let svg = existingRow(0, top);
+    for (let i = 0; i < b.newBarns; i++) svg += barn(barnW + gap + i * (barnW + gap), 0, `NEW BARN ${"AB"[i]} · 14 PENS`);
+    const sub = b.newBarns ? `7 existing + ${b.newBarns * P.barn} new` : "existing horse barn";
+    return `<article class="card lv${b.confirmed ? "" : " tbc"}" data-step="${b.level}">
+      <div class="who"><span class="badge">${lv.name}</span><span>${lv.title}</span>${b.confirmed ? "" : '<small class="tbc-tag">Proposed, to confirm</small>'}</div>
+      <svg class="plan" viewBox="-6 -24 ${3 * barnW + 2 * gap + 12} ${barnD + 30}" preserveAspectRatio="xMinYMid meet">${svg}</svg>
+      <div class="total"><b class="num">${total}</b><span>pens</span><em>${sub}</em></div>
+    </article>`;
+  });
+  document.getElementById("levels").innerHTML = rows.join("") +
+    `<div class="legend" data-step="1"><span><i style="background:var(--cattle-tint)"></i>Existing pen</span><span><i></i>New pen, 12' × 24'</span><span>All plans at the same scale</span></div>`;
+  Deck.start();
+})();
+</script>
+</body>
+</html>

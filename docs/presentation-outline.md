@@ -25,12 +25,12 @@ Two separate cattle groups drive the plan:
 | 1 | **Why we're here.** Owner goals, and what we'd like from IFAS today | 2 min | Project goals + the questions we're bringing | Content ready |
 | 2 | **The site.** Parcel, Cowpen Slough, soils, flood zone, woods | 5 min | Aerial → survey/soils, drawn layer by layer → trees | Drawings ready |
 | 3 | **What the land can carry.** Beginning Rancher herd | 6 min | Fencing plan with trees → capacity infographic, Level 1/2/3 = **7 / 14 / 27 CE** | **Done (draft)** |
-| 4 | **4-H cow & calf projects.** Pen count by Level | 4 min | 12'×24' pen module, why it beats the commercial minimum (Ag Guide Table 6-1), pen count per Level | Needs project counts |
+| 4 | **4-H cow & calf projects.** Pen count by Level | 4 min | `slides/cattle-pens.html`: 7 / 21 / 35 pens on the 7-pen module, 12'×24' vs Ag Guide minimum | **Done (draft)**, L2/L3 split to confirm |
 | 5 | **Cattle facilities.** Pens, handling/chute/scale, washdown, turnout, rough-stock corral | 6 min | Cattle barn plan, handling flow diagram, 3D massing | **Barn plans coming** |
 | 6 | **Other animals.** Small animal barn, swine, horses (if any) | 4 min | Small animal and hog barn plans, existing barn reuse | **Plans coming** |
 | 7 | **The Red House.** Education and outreach | 4 min | Existing → Level 1 → 2 → 3 floor plans, morphing in sequence | Drawings ready |
-| 8 | **The campus.** Circulation, public vs. animal zones, water quality | 4 min | Updated study plan drawn in stages; zone diagram | Needs updated study plan (west barn removed) |
-| 9 | **Phasing and what each Level buys** | 3 min | Level 1 / 2 / 3 side by side | Needs Level definitions per element |
+| 8 | **The campus.** Circulation, public vs. animal zones, water quality | 4 min | Study plan A0.2 (minus west barn) drawn in stages; zone diagram | Drawing ready |
+| 9 | **Phasing and what each Level buys** | 3 min | `slides/levels.html`: matrix of program × Level, dashed cells to confirm | **Done (draft)** |
 | 10 | **Your input** | 2 min + discussion | The IFAS questions below, one per card | Draft below |
 
 ## Questions to bring to IFAS (section 10, and woven in earlier)
@@ -58,11 +58,9 @@ CE-to-head conversion is shown unless an average animal weight is agreed.
 ## Missing pieces, prioritized
 
 **P1: needed for the core story (sections 3–5)**
-1. Number of 4-H cow & calf projects (and pens) at each Level.
+1. Confirm pens by Level (proposed 7 / 21 / 35) and the Level placement of the dashed cells on the Levels slide.
 2. Cattle barn plan(s) on the 12'×24' module: pen layout, center aisle for tractor access, waterers, fans, overhangs. *(User collecting)*
 3. Handling area: squeeze chute + scale, alleys, and the rough-stock corral with its links to pasture and trailer access.
-4. Definitions of Level 1 / 2 / 3 for every program element.
-5. Updated study plan with the west barn removed.
 
 **P2: needed for completeness (sections 6–9)**
 6. Small animal barn plan (6'×10' module) and hog barn plan. *(User collecting)*
