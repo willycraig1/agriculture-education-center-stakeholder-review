@@ -1,0 +1,32 @@
+{
+  "_about": "Register the three Seibert CAD sheets to one coordinate frame and write tools/registration.json.",
+  "survey_to_study": {
+    "m": [
+      6.693451,
+      0.001311
+    ],
+    "t": [
+      -7677.358796,
+      -6426.584499
+    ],
+    "scale": 6.693450960269924,
+    "rotation_deg": 0.011223644362700696,
+    "tree_inliers": 59,
+    "median_residual_pt": 0.19523469745568314
+  },
+  "survey_to_fence": {
+    "m": [
+      -0.002039,
+      1.15555
+    ],
+    "t": [
+      2544.436758,
+      -211.589089
+    ],
+    "scale": 1.1555521848046073,
+    "rotation_deg": 90.10107872033275,
+    "median_residual_pt": 1.3987606782928257
+  },
+  "fence_ft_per_pt": 2.59,
+  "fence_ft_per_pt_note": "Calibrated from the 14.4 AC and 4.9 AC paddock labels (2.586 and 2.592 ft/pt); about 1 in = 186 ft on the 36x24 sheet."
+}
