@@ -2,6 +2,9 @@
 
 The sheets come from the same CAD model plotted at different scales and rotations:
   survey -> study plan : matched on surveyed tree symbols (RANSAC on tree centroids, then least squares)
+  survey -> aerial     : seeded on three features read off the County aerial (Red House, long barn, pond),
+                         refined by ICP of the survey BOUNDARY / RIGHT OF WAY / EASEMENT lines onto the
+                         yellow parcel lines in the aerial (pixel coordinates).
   survey -> fencing    : seeded on the existing pond (survey EDGE OF WATER vs. the small pond in the
                          12.4 AC paddock), refined by ICP on the pond outline plus the campus turnout-yard
                          fence line, which appears on both the study plan and the fencing plan.
@@ -91,6 +94,22 @@ def survey_to_study():
     return m, t, int((d < abs(m)).sum()), float(np.median(d[d < abs(m)]))
 
 
+AERIAL = os.path.join(SRC, "Site Aerial from SCPA.jpg")
+
+
+def survey_to_aerial():
+    from PIL import Image
+    im = np.asarray(Image.open(AERIAL).convert("RGB")).astype(int)
+    r, g, b = im[..., 0], im[..., 1], im[..., 2]
+    ys, xs = np.nonzero((r > 200) & (g > 150) & (b < 110) & (r - b > 110))   # parcel-line yellow
+    Y = np.c_[xs, ys].astype(float)
+    src = np.array([(1358, 1137), (1254.5, 1596), (1384.5, 690)])   # Red House, long barn, pond (survey pt)
+    dst = np.array([(1167, 885), (1070, 1293), (1180, 477)])        # same, read off the aerial (px)
+    m0, t0 = lsq(src[:, 0] + 1j * src[:, 1], dst[:, 0] + 1j * dst[:, 1])
+    B = sample(SURVEY, ["BOUNDARY", "RIGHT OF WAY", "EASEMENT"], 1.0)
+    return icp(B, Y, m0, t0, iters=60, trim=0.5)
+
+
 def survey_to_fence(m_ss, t_ss):
     # seed: survey pond centre -> fencing-plan small pond centre, survey north -> sheet +x
     m0 = 1.17j
@@ -107,6 +126,7 @@ def survey_to_fence(m_ss, t_ss):
 if __name__ == "__main__":
     m_ss, t_ss, n_in, res_ss = survey_to_study()
     m_sf, t_sf, res_sf = survey_to_fence(m_ss, t_ss)
+    m_sa, t_sa, res_sa = survey_to_aerial()
     c = lambda z: [round(z.real, 6), round(z.imag, 6)]
     out = {
         "_about": __doc__.strip().splitlines()[0],
@@ -116,6 +136,10 @@ if __name__ == "__main__":
         "survey_to_fence": {"m": c(m_sf), "t": c(t_sf), "scale": abs(m_sf),
                             "rotation_deg": float(np.degrees(np.angle(m_sf))),
                             "median_residual_pt": res_sf},
+        "survey_to_aerial": {"m": c(m_sa), "t": c(t_sa), "scale": abs(m_sa),
+                             "rotation_deg": float(np.degrees(np.angle(m_sa))),
+                             "median_residual_px": res_sa, "image": "source/Site Aerial from SCPA.jpg",
+                             "image_size": [1748, 1706]},
         "fence_ft_per_pt": 2.59,
         "fence_ft_per_pt_note": "Calibrated from the 14.4 AC and 4.9 AC paddock labels (2.586 and 2.592 ft/pt); about 1 in = 186 ft on the 36x24 sheet.",
     }

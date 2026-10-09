@@ -2,3 +2,6 @@ pymupdf
 numpy
 scipy
 openpyxl
+shapely
+scikit-image
+pillow

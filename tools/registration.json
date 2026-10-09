@@ -27,6 +27,24 @@
     "rotation_deg": 90.10107872033275,
     "median_residual_pt": 1.3987606782928257
   },
+  "survey_to_aerial": {
+    "m": [
+      0.897196,
+      -0.011647
+    ],
+    "t": [
+      -55.43295,
+      -128.571498
+    ],
+    "scale": 0.8972714542286006,
+    "rotation_deg": -0.7437546054430035,
+    "median_residual_px": 2.6896597859564992,
+    "image": "source/Site Aerial from SCPA.jpg",
+    "image_size": [
+      1748,
+      1706
+    ]
+  },
   "fence_ft_per_pt": 2.59,
   "fence_ft_per_pt_note": "Calibrated from the 14.4 AC and 4.9 AC paddock labels (2.586 and 2.592 ft/pt); about 1 in = 186 ft on the 36x24 sheet."
 }

@@ -1,0 +1,109 @@
+[
+  {
+    "codes": [
+      "8"
+    ],
+    "names": [
+      "Delray fine sand"
+    ],
+    "drainage": "very poorly",
+    "color_on_survey": [
+      0.68,
+      0.87,
+      0.97
+    ],
+    "acres_in_map": 16.7
+  },
+  {
+    "codes": [
+      "22"
+    ],
+    "names": [
+      "Holopaw fine sand"
+    ],
+    "drainage": "poorly",
+    "color_on_survey": [
+      0.93,
+      0.93,
+      0.6
+    ],
+    "acres_in_map": 31.8
+  },
+  {
+    "codes": [
+      "4"
+    ],
+    "names": [
+      "Bradenton fine sand"
+    ],
+    "drainage": "poorly",
+    "color_on_survey": [
+      0.84,
+      0.92,
+      0.82
+    ],
+    "acres_in_map": 17.7
+  },
+  {
+    "codes": [
+      "31"
+    ],
+    "names": [
+      "Pineda & Pineda wet fine sand"
+    ],
+    "drainage": "poorly",
+    "color_on_survey": [
+      0.87,
+      0.7,
+      0.83
+    ],
+    "acres_in_map": 6.9
+  },
+  {
+    "codes": [
+      "27"
+    ],
+    "names": [
+      "Matlacha gravelly fine sand (fill), urban land"
+    ],
+    "drainage": "somewhat poorly",
+    "color_on_survey": [
+      0.97,
+      0.67,
+      0.68
+    ],
+    "acres_in_map": 16.3
+  },
+  {
+    "codes": [
+      "10",
+      "55"
+    ],
+    "names": [
+      "EauGallie & Myakka fine sands",
+      "EauGallie & Myakka fine sands, urban land complex"
+    ],
+    "drainage": "poorly",
+    "color_on_survey": [
+      0.81,
+      0.8,
+      0.9
+    ],
+    "acres_in_map": 14.6
+  },
+  {
+    "codes": [
+      "15"
+    ],
+    "names": [
+      "Floridana & Gator soils"
+    ],
+    "drainage": "very poorly",
+    "color_on_survey": [
+      1.0,
+      0.92,
+      0.73
+    ],
+    "acres_in_map": 11.9
+  }
+]
