@@ -28,7 +28,7 @@ Two separate cattle groups drive the plan:
 | 4 | **4-H cow & calf projects.** Pen count by Level | 4 min | `slides/cattle-pens.html`: 7 / 21 / 35 pens on the 7-pen module, 12'×24' vs Ag Guide minimum | **Done (draft)**, L2/L3 split to confirm |
 | 5 | **Cattle facilities.** Pens, handling/chute/scale, washdown, turnout, rough-stock corral | 6 min | Cattle barn plan, handling flow diagram, 3D massing | **Barn plans coming** |
 | 6 | **Other animals.** Small animal barn, swine, horses (if any) | 4 min | Small animal and hog barn plans, existing barn reuse | **Plans coming** |
-| 7 | **The Red House.** Education and outreach | 4 min | Existing → Level 1 → 2 → 3 floor plans, morphing in sequence | Drawings ready |
+| 7 | **The Red House.** Education and outreach | 4 min | `slides/red-house.html`: Existing → Level 1 → 2 → 3, new and removed walls highlighted | **Done (draft)** |
 | 8 | **The campus.** Circulation, public vs. animal zones, water quality | 4 min | Study plan A0.2 (minus west barn) drawn in stages; zone diagram | Drawing ready |
 | 9 | **Phasing and what each Level buys** | 3 min | `slides/levels.html`: matrix of program × Level, dashed cells to confirm | **Done (draft)** |
 | 10 | **Your input** | 2 min + discussion | The IFAS questions below, one per card | Draft below |

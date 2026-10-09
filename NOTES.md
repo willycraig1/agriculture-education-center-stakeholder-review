@@ -60,8 +60,13 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - 2026-10-09: Current study plan is `Clark Farm Study Plan-A0.1 (3)1.pdf` minus the west 17-pen barn and its turnout yards
 - 2026-10-09: Source documents may be committed to the public repo
 - 2026-10-09: Pens confirmed 7 / 21 / 35 (one new 14-pen barn at Level 2, a second at Level 3). Barns are two rows of 7 facing a 14' tractor aisle (worked at the previous project)
+- 2026-10-09: Arena at Level 3
 - 2026-10-09: Corral, squeeze chute and scale are Level 1. New swine housing and the dedicated small animal barn are one building at Level 2 (existing barn becomes storage). Horticulture Level 2 = beds with irrigation
 
+## Review link
+- Deck: https://willycraig1.github.io/agriculture-education-center-stakeholder-review/ (GitHub Pages from `main`). → / space / click step through builds then slides; ← back; F fullscreen; Slides menu in the bottom bar.
+- Red House slide: `tools/build_red_house.py` aligns sheets A1.0–A1.0-3 by wall cross-correlation (offsets in `drawings/data/red-house.json`) and diffs walls Level to Level. The Level 3 addition is cut off at the sheet edge on A1.0-3, so its full outline isn't shown.
+
 ## Open questions
-- Arena: which Level? (Level 3 proposed)
 - Paddock boundaries as closed polylines (user working on it); barn plans (user collecting)
+- Uncut Level 3 sheet (or the addition placed fully on the sheet) for the Red House slide
