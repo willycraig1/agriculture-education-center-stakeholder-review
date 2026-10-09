@@ -167,11 +167,11 @@ def g_paths(ds, m, t, attrs):
     return (f'<g transform="{mat(m, t)}" {attrs}>' + paths(ds) + "</g>")
 
 
-water = (g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{2.4/abs(M_SP):.3f}"')
-         + g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="1.6"')
+water = (g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{6/abs(M_SP):.3f}" stroke-opacity="0.9"')
+         + g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3"')
          + g_paths(sv.get("FEMA FLOOD ZONE", []), M_SP, T_SP,
-                   f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{2.2/abs(M_SP):.3f}" '
-                   f'stroke-dasharray="{10/abs(M_SP):.2f} {6/abs(M_SP):.2f}"'))
+                   f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{5/abs(M_SP):.3f}" '
+                   f'stroke-dasharray="{18/abs(M_SP):.2f} {10/abs(M_SP):.2f}"'))
 
 # ---------------------------------------------------------------- trees
 tree_svg = "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s > 20 else 3.8}"/>'
