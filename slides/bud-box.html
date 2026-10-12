@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bud Box</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1180px 1fr; gap: 36px; margin-top: 22px; flex: 1; min-height: 0; }
+  .plan { position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; align-self: start; }
+  .plan > svg { display: block; width: 100%; height: 816px; }
+  .fence { fill: none; stroke: var(--ink); stroke-width: .45; stroke-linecap: square; }
+  .zone { stroke: none; }
+  .lbl { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: .5px; }
+  .lbl.sub { font-weight: 500; fill: var(--muted); }
+  .cow, .handler, .gate { transition: transform 1.6s cubic-bezier(.45, .05, .25, 1); }
+  .gate { transform-origin: 20px 0px; }
+  .cow ellipse { fill: var(--cattle); } .cow circle { fill: var(--cattle); }
+  .handler circle { fill: var(--ink); stroke: #fff; stroke-width: .35; }
+  .handler .reach { fill: none; stroke: var(--ink); stroke-width: .18; stroke-dasharray: .6 .6; }
+  .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .steps li { display: grid; grid-template-columns: 40px 1fr; gap: 0 12px; padding: 12px 16px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .steps li .n { width: 32px; height: 32px; border-radius: 50%; border: 2px solid currentColor; display: grid; place-items: center; font: 700 15px/1 var(--sans); margin-top: 1px; }
+  .steps li h3 { font: 600 24px/1.25 var(--serif); margin: 0; }
+  .steps li p { grid-column: 2; font: 400 17px/1.45 var(--sans); margin: 5px 0 0; display: none; }
+  .steps li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .steps li.now .n { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .steps li.now p { display: block; }
+  .steps li.done { color: var(--ink); }
+  .static .steps li p { display: block; font-size: 15px; }
+  .why { margin-top: 18px; padding: 16px 20px; border-left: 6px solid var(--cattle); background: var(--cattle-tint); border-radius: 0 10px 10px 0; font: 500 18px/1.45 var(--sans); }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <h1 data-step="0">Working cattle: the Bud Box</h1>
+  <div class="body">
+    <div class="plan card" data-step="0" id="plan">
+      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span>
+    </div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="steps" id="steps"></ol>
+      <div class="why" data-step="4">Cattle want to go back the way they came, and to move around the person working them. The box uses both instincts, so they load themselves, calmly, without a crowd tub.</div>
+      <p class="src" data-step="0">Diagram to scale, in feet, from the handling layout on the study plan: 12' lead-up alley, 12' × 20' box, single-file alley to the chute and scale.
+        Handler positions and group size are schematic.</p>
+    </div>
+  </div>
+</div>
+
+<script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
+<script>
+(function () {
+  // geometry in feet: box 12 x 20 with its dead end to the west, lead-up alley from the east,
+  // single-file alley leaving the south side of the box beside the gate
+  const BOX = { x: 0, y: 0, w: 20, h: 12 }, LEAD = { x: 20, y: 0, w: 42, h: 12 }, PEN = { x: 62, y: -10, w: 34, h: 32 };
+  const AL = { x: 16, y: 12, w: 2.6, h: 16 }, CH = { x: 15.3, y: 28, w: 4, h: 9 }, OUT = { x: 6, y: 37, w: 24, h: 12 };
+  const t = (x, y, s, cls, txt, extra) => `<text class="lbl ${cls || ""}" x="${x}" y="${y}" font-size="${s}" ${extra || 'text-anchor="middle"'}>${txt}</text>`;
+  const cow = i => `<g class="cow" id="cow${i}"><ellipse rx="3.5" ry="1.25"/><circle cx="3.9" r=".95"/></g>`;
+  const svg = `<svg viewBox="-12 -16 116 72" preserveAspectRatio="xMidYMid meet" aria-label="Bud Box diagram">
+    <rect class="zone" x="${PEN.x}" y="${PEN.y}" width="${PEN.w}" height="${PEN.h}" fill="var(--arena-tint)"/>
+    <rect class="zone" x="${LEAD.x}" y="${LEAD.y}" width="${LEAD.w}" height="${LEAD.h}" fill="#f6f1e6"/>
+    <rect class="zone" x="${BOX.x}" y="${BOX.y}" width="${BOX.w}" height="${BOX.h}" fill="var(--cattle-tint)"/>
+    <rect class="zone" x="${AL.x}" y="${AL.y}" width="${AL.w}" height="${AL.h}" fill="#f6f1e6"/>
+    <rect class="zone" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" fill="var(--cattle)" opacity=".28"/>
+    <rect class="zone" x="${OUT.x}" y="${OUT.y}" width="${OUT.w}" height="${OUT.h}" fill="var(--pasture-tint)"/>
+    <path class="fence" d="M${PEN.x} ${LEAD.y}V${PEN.y}H${PEN.x + PEN.w}V${PEN.y + PEN.h}H${PEN.x}V${LEAD.y + LEAD.h}"/>
+    <path class="fence" d="M${LEAD.x + LEAD.w} 0H0V12H${AL.x}M${AL.x + AL.w} 12H${LEAD.x + LEAD.w}"/>
+    <path class="fence" d="M${AL.x} 12V${CH.y}M${AL.x + AL.w} 12V${CH.y}"/>
+    <rect class="fence" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" style="stroke-width:.7"/>
+    <path class="fence" d="M${OUT.x} ${OUT.y}H${CH.x}M${CH.x + CH.w} ${OUT.y}H${OUT.x + OUT.w}V${OUT.y + OUT.h}H${OUT.x}V${OUT.y}" stroke-dasharray="1.2 .8"/>
+    <line class="fence gate" id="gate" x1="20" y1="0" x2="20" y2="12" style="stroke-width:.8;stroke:var(--education)"/>
+    <circle cx="20" cy="0" r=".55" fill="var(--education)"/>
+    ${t(10, -4.4, 2.6, "", "Bud Box")}${t(10, -1.6, 1.7, "sub", "12' × 20', dead end")}
+    ${t(41, -4.4, 2.6, "", "Lead-up alley")}${t(41, -1.6, 1.7, "sub", "12' wide")}
+    ${t(PEN.x + PEN.w / 2, PEN.y - 2.2, 2.6, "", "Holding pen")}
+    ${t(AL.x + AL.w + 1.6, 21, 2.2, "", "Single-file alley", 'text-anchor="start"')}
+    ${t(CH.x + CH.w + 1.6, 33.2, 2.2, "", "Squeeze chute on the scale", 'text-anchor="start"')}
+    ${t(OUT.x + OUT.w / 2, OUT.y + OUT.h - 4.2, 2.2, "sub", "Release back to pasture")}
+    ${t(20.9, 14.6, 1.7, "sub", "gate", 'text-anchor="start" style="fill:var(--education)"')}
+    ${[0, 1, 2, 3].map(cow).join("")}
+    <g class="handler" id="handler"><circle r="2.6" class="reach"/><circle r="1"/></g>
+  </svg>`;
+  document.getElementById("plan").insertAdjacentHTML("afterbegin", svg);
+  const el = document.querySelector("#plan > svg");
+  Viewer(el, { ftPerUnit: 1, damp: 0 });
+
+  // per step: gate angle (deg, 0 = closed), handler [x, y], cattle [x, y, heading]  (heading 180 = facing west)
+  const S = [
+    { gate: -82, h: [70, 16], c: [[74, -3, 200], [82, 6, 170], [88, -1, 185], [90, 12, 150]] },
+    { gate: -82, h: [30, 6], c: [[5, 3.2, 180], [7, 8.8, 180], [13, 3.4, 180], [15, 8.6, 180]] },
+    { gate: 0, h: [12.2, 9.4], c: [[3.8, 3, 60], [4.2, 9, -40], [10, 2.6, 10], [9, 6.4, 0]] },
+    { gate: 0, h: [11.6, 9.6], c: [[17.3, 17, 90], [16.4, 9.6, 65], [12.5, 3, 15], [6, 3.4, 5]] },
+    { gate: 0, h: [10.5, 8.6], c: [[17.3, 32.5, 90], [17.3, 23.5, 90], [17.3, 15.2, 90], [15.6, 9, 60]] },
+  ];
+  const steps = [
+    ["Bring in a small group", "Only as many as the single-file alley can hold. They walk down the wide alley past the gate and into the box."],
+    ["Close the gate", "The cattle reach the dead end. The handler steps inside and stands beside the mouth of the single-file alley."],
+    ["They turn back", "With nowhere to go, the cattle turn back toward the way they came in, which is where the alley opens."],
+    ["Around the handler", "The handler steps toward them. The cattle curve around the handler and into the alley on their own."],
+    ["Single file to the chute", "One at a time through the squeeze chute, which sits on the scale, then out to pasture."],
+  ];
+  document.getElementById("steps").innerHTML = steps.map((s, i) =>
+    `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s[0]}</h3><p>${s[1]}</p></li>`).join("");
+
+  function apply(n) {
+    const s = S[Math.min(n, S.length - 1)];
+    el.querySelector("#gate").style.transform = `rotate(${s.gate}deg)`;
+    el.querySelector("#handler").style.transform = `translate(${s.h[0]}px, ${s.h[1]}px)`;
+    s.c.forEach((c, i) => { el.querySelector("#cow" + i).style.transform = `translate(${c[0]}px, ${c[1]}px) rotate(${c[2]}deg)`; });
+    document.querySelectorAll("#steps li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.i === n);
+      li.classList.toggle("done", +li.dataset.i < n);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(4);
+})();
+</script>
+</body>
+</html>

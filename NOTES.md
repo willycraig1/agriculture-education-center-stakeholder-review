@@ -86,7 +86,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - Parking drawn to scale: 9' × 18' stalls on a 24' aisle, 10 per side = 20 spaces in the block as placed (study plan A0.2 showed 51 + 9).
 - Circulation step: straight runs only. Service: west lane (full length, down past the parking), east lane, cross drive, mid cross lane, tractor aisles through both barns of each run. Animals: each barn to its turnout, existing pens to turnout A.
 - The master SVG can be edited in Illustrator (element ids survive); moved rectangles are read back into the script's numbers.
-- To do: Bud Box diagram for the handling area.
+- Existing pens sit across an 8' aisle from the existing barn (exists on site; not on the survey). Parking stalls are 10' × 20' (trucks and SUVs), one bay of the main lot shown between two 24' driveways; the east driveway lines up with the cattle tractor aisle. No separate visitor arrows.
+- Bud Box slide `slides/bud-box.html`: geometry from the handling layout on study plan A0.2 (12' lead-up alley, 12' × 20' box, single-file alley beside the gate, chute on the scale). Five animated steps. Handler positions and group size are schematic; check against a reference before presenting to IFAS.
+- Pending: the architect's conceptual blow-up of where the entry drive meets the barnyard.
 
 ## Open questions
 - Barnyard: parking count (20 drawn vs 51 + 9 on the study plan); where the entry drive meets the barnyard; visitor route to the arena
