@@ -34,10 +34,10 @@ function nextExt(img) { const k = +img.dataset.try + 1; if (k >= EXTS.length) re
 const ITEMS = [
   { file: "red-house", key: "education", name: "The Red House", note: "Former residence under the oaks, with several floor levels and wraparound porches." },
   { file: "barn", key: "swine", name: "Existing barn", note: "Wood-sided barn with four roll-up doors and a concrete apron." },
-  { file: "cattle-pens", key: "cattle", name: "Seven cattle pens", note: "Covered, dirt-floor pens along the east side of the existing barn." },
+  { file: "cattle-pens", key: "cattle", name: "Seven cattle pens", note: "Timber pens along a covered aisle with fans overhead, on the east side of the existing barn." },
   { file: "hog-enclosures", key: "swine", name: "Hog enclosures", note: "Long open-sided timber shed, out in the pasture." },
   { file: "unfinished-barns", key: "small-animal", name: "Small unfinished barns", note: "Open timber frames with new metal roofs, not yet served by power or water." },
-  { file: "corral", key: "cattle", name: "Corral", note: "Existing corral for working pasture cattle." },
+  { file: "corral", key: "cattle", name: "Squeeze chute", note: "A chute and gates in a small holding pen, for working pasture cattle." },
 ];
 document.getElementById("grid").innerHTML = ITEMS.map((it, i) => `
   <article class="card b" data-step="${1 + Math.floor(i / 3)}">
