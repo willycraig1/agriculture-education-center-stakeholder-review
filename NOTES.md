@@ -69,8 +69,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 
 ## Review link
 - Deck: https://willycraig1.github.io/agriculture-education-center-stakeholder-review/ (GitHub Pages from `main`). → / space / click step through builds then slides; ← back; F fullscreen; Slides menu in the bottom bar.
-- Red House slide: `tools/build_red_house.py` aligns sheets A1.0–A1.0-3 by wall cross-correlation (offsets in `drawings/data/red-house.json`) and diffs walls Level to Level. The Level 3 addition is cut off at the sheet edge on A1.0-3, so its full outline isn't shown.
+- Red House slide: `tools/build_red_house.py` aligns sheets A1.0–A1.0-3 by wall cross-correlation (offsets in `drawings/data/red-house.json`) and diffs walls Level to Level.
+- Sheet A1.0-3 crops the plan (addition off the top-left, porch/storage off the bottom). Repaired in the build: the addition comes from the sheet's own orthogonal inset, rigid-fit onto its placed position (98.6% of on-sheet walls within 1 pt; rotation 141.4°, i.e. the addition is aligned to true north), and the bottom strip comes from Level 2, where it is unchanged. Repairs carry class `repair` in the SVG. A re-plotted sheet with the whole plan inside the border would replace both.
 
 ## Open questions
 - Paddock boundaries as closed polylines (user working on it); barn plans (user collecting)
-- Uncut Level 3 sheet (or the addition placed fully on the sheet) for the Red House slide
+- Re-plotted A1.0-3 with the whole plan inside the border (optional; the slide is repaired from the inset and Level 2)
