@@ -64,6 +64,7 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - 2026-10-11: Narrative of record adopted (`docs/presentation-outline.md`): evidence before proposal. Acts: why we're here → what we have → what the program needs → what the land can carry → the strategy (Levels) → the plan → over to you. Nothing proposed appears before Act 5.
 - 2026-10-11: Thesis: "The land sets the herd, the programs set the buildings, and the Levels let it grow." "The land" means available pasture, the commodity the community is short on.
 - 2026-10-11: The Owner opens with their own framing of the goals; Act 0 restates them as design drivers. Discussion is held to the end (working session at tables afterwards).
+- 2026-10-11: Pasture-stock handling is all new at Level 1: new corral, squeeze chute and scale. The existing chute and holding pen are not reused (the cost of new is minor).
 - 2026-10-11: Floor plans stay as drawn (not rotated to north-left) and carry a north arrow instead. North on the Red House sheets is 141° counter-clockwise from up (toward lower-left), derived from the rotated room labels on the study plan and cross-checked by a wall fit.
 - 2026-10-09: Corral, squeeze chute and scale are Level 1. New swine housing and the dedicated small animal barn are one building at Level 2 (existing barn becomes storage). Horticulture Level 2 = beds with irrigation
 
