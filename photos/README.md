@@ -8,4 +8,4 @@ base names (`.jpg`, `.jpeg` or `.png`) and it replaces the placeholder automatic
 - `cattle-pens`
 - `hog-enclosures`
 - `unfinished-barns`
-- `corral`
+- `corral` (the squeeze chute and holding pen)
