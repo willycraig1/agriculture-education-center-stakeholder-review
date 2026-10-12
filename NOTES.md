@@ -3,7 +3,7 @@
 ## Meeting
 - Presentation to the owner: Wednesday 2026-10-14, 30–45 min
 - Format: presented live and sent ahead as a link
-- Narrative and gap list: `docs/presentation-outline.md`
+- Narrative of record and gap list: `docs/presentation-outline.md`
 - Audience: mainly UF/IFAS agents (sustainable agriculture experts). Goal: get their input on the site plan layout for the Owner's goals.
 
 ## Program
@@ -61,6 +61,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - 2026-10-09: Source documents may be committed to the public repo
 - 2026-10-09: Pens confirmed 7 / 21 / 35 (one new 14-pen barn at Level 2, a second at Level 3). Barns are two rows of 7 facing a 14' tractor aisle (worked at the previous project)
 - 2026-10-09: Arena at Level 3
+- 2026-10-11: Narrative of record adopted (`docs/presentation-outline.md`): evidence before proposal. Acts: why we're here → what we have → what the program needs → what the land can carry → the strategy (Levels) → the plan → over to you. Nothing proposed appears before Act 5.
+- 2026-10-11: Thesis: "The land sets the herd, the programs set the buildings, and the Levels let it grow." "The land" means available pasture, the commodity the community is short on.
+- 2026-10-11: The Owner opens with their own framing of the goals; Act 0 restates them as design drivers. Discussion is held to the end (working session at tables afterwards).
 - 2026-10-11: Floor plans stay as drawn (not rotated to north-left) and carry a north arrow instead. North on the Red House sheets is 141° counter-clockwise from up (toward lower-left), derived from the rotated room labels on the study plan and cross-checked by a wall fit.
 - 2026-10-09: Corral, squeeze chute and scale are Level 1. New swine housing and the dedicated small animal barn are one building at Level 2 (existing barn becomes storage). Horticulture Level 2 = beds with irrigation
 
@@ -73,5 +76,6 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - Sheet A1.0-3 crops the plan (addition off the top-left, porch/storage off the bottom). Repaired in the build: the addition comes from the sheet's own orthogonal inset, rigid-fit onto its placed position (98.6% of on-sheet walls within 1 pt; rotation 141.4°, i.e. the addition is aligned to true north), and the bottom strip comes from Level 2, where it is unchanged. Repairs carry class `repair` in the SVG. A re-plotted sheet with the whole plan inside the border would replace both.
 
 ## Open questions
-- Paddock boundaries as closed polylines (user working on it); barn plans (user collecting)
-- Re-plotted A1.0-3 with the whole plan inside the border (optional; the slide is repaired from the inset and Level 2)
+- Site photos for `slides/existing.html` (file names in `photos/README.md`)
+- Campus plan by Level and barn plans for Act 5 (user collecting)
+- Paddock boundaries as closed polylines, so paddocks can be filled by Level and bonus fences hidden at Levels 1–2 (user working on it)

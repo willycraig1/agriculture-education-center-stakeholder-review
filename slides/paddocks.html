@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddocks and Rotation</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
+  .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
+  .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
+  .map [data-layer], .map .tag { transition: opacity .8s var(--ease); }
+  .map .off { opacity: 0; }
+  .map #aerial { filter: saturate(.45) brightness(1.06); }
+  .map .tag.hot rect { stroke-width: 5; fill: #fff; }
+  .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .levels li { padding: 14px 18px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .levels li header { display: flex; align-items: center; gap: 12px; }
+  .levels li h3 { font: 600 23px/1.2 var(--serif); margin: 0; }
+  .levels li .badge { background: var(--muted); }
+  .levels li p { font: 400 17px/1.45 var(--sans); margin: 8px 0 0; display: none; }
+  .levels li .ce { font: 600 40px/1 var(--serif); color: var(--cattle); display: none; margin-top: 10px; }
+  .levels li .ce small { font: 600 17px/1 var(--sans); }
+  .levels li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .levels li.now .badge { background: var(--pasture); }
+  .levels li.now p, .levels li.now .ce { display: block; }
+  .levels li.done { color: var(--ink); }
+  .static .levels li p { display: block; font-size: 15px; }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <h1 data-step="0">Paddocks sized for rotation</h1>
+  <div class="body">
+    <div class="map card" data-step="0" id="map">
+      <span data-step="1" hidden></span><span data-step="2" hidden></span>
+    </div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="levels" id="levels"></ol>
+      <p class="src" data-step="0">Proposed fencing plan A0.1 over the County aerial, with surveyed trees. Capacity from the pasture worksheet (UF/IFAS AN155).
+        Fence lines for all three Levels are shown throughout.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/site-map.js"></script>
+<script src="data/pasture-capacity.js"></script>
+<script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
+<script>
+(function () {
+  const M = window.SITE_MAP, C = window.PASTURE_CAPACITY.levels;
+  const mapEl = document.getElementById("map");
+  mapEl.insertAdjacentHTML("afterbegin", M.svg);
+  const svg = mapEl.querySelector(":scope > svg");
+  ["land", "soils", "labels"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
+  svg.querySelectorAll("#aerial, #veil, #water, #trees, #paddocks, #campus").forEach(g => g.setAttribute("data-layer", g.id));
+  const siteTags = [...svg.querySelectorAll(".tag.site")], bonusTags = [...svg.querySelectorAll(".tag.bonus")];
+  const xOf = t => +t.getAttribute("transform").match(/translate\(([-\d.]+)/)[1];
+  siteTags.sort((a, b) => xOf(a) - xOf(b));
+
+  const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
+  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440] };
+  const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
+    presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site }, { label: "Bonus pasture", box: frames.bonus }] });
+
+  const bonusAc = (C[2].acres - C[0].acres).toFixed(1);
+  const text = [
+    { h: "Nine site paddocks", p: `${C[0].acres} acres of site pasture, fenced into ${siteTags.length} paddocks around the campus. Managed conservatively, they carry the starting herd.`, f: "site" },
+    { h: "Rotate through them", p: `The same ${siteTags.length} paddocks, grazed in rotation so each one rests and regrows. Capacity roughly doubles without adding land.`, f: "site" },
+    { h: "Add the bonus pasture", p: `${bonusTags.length} more paddocks on ${bonusAc} acres of bonus land, rotated the same way.`, f: "full" },
+  ];
+  document.getElementById("levels").innerHTML = text.map((t, k) =>
+    `<li data-step="0" data-k="${k}"><header><span class="badge">${C[k].name}</span><h3>${t.h}</h3></header><p>${t.p}</p>
+     <div class="ce num">≈ ${C[k].ce_planning} <small>CE</small></div></li>`).join("");
+
+  // rotation: step the highlight from paddock to paddock while Level 2 or 3 is showing
+  let timer, at = 0;
+  function rotate(tags) {
+    clearInterval(timer);
+    [...siteTags, ...bonusTags].forEach(t => t.classList.remove("hot"));
+    if (!tags || document.documentElement.classList.contains("static")) return;
+    timer = setInterval(() => { tags.forEach(t => t.classList.remove("hot")); tags[at++ % tags.length].classList.add("hot"); }, 700);
+  }
+  let last = null;
+  function apply(n) {
+    bonusTags.forEach(t => t.classList.toggle("off", n < 2));
+    const f = text[n].f;
+    if (f !== last) { viewer.home(frames[f]); viewer.flyTo(frames[f], last === null || document.documentElement.classList.contains("static") ? 0 : 1300); last = f; }
+    rotate(n === 1 ? siteTags : n === 2 ? [...siteTags, ...bonusTags] : null);
+    document.querySelectorAll("#levels li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.k === n);
+      li.classList.toggle("done", +li.dataset.k < n);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(2);
+})();
+</script>
+</body>
+</html>

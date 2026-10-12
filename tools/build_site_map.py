@@ -188,17 +188,36 @@ trees_layer = (g_paths(sv.get("TREE LINE", []), M_SP, T_SP,
 
 # ---------------------------------------------------------------- paddocks
 tags = []
+tag_pts = {}
 for ac, x, y in labels:
     area, cls = canopy.get(ac, ("?", "?"))
     c = P["pasture"] if area == "Site Pasture" else P["bonus"]
     px, py = pt(M_FP, T_FP, x, y)
-    tags.append(f'<g transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
+    tag_pts.setdefault(area, []).append((px, py, ac))
+    tags.append(f'<g class="tag {"site" if area == "Site Pasture" else "bonus"}" transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
                 f'fill="{c["tint"]}" stroke="{c["base"]}" stroke-width="2"/>'
                 f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{ac:g} ac</text></g></g>')
 paddocks = (g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"')
             + g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="{N["ink"]}" stroke-width="2" stroke-linecap="round"')
             + g_paths(drive_ds, M_FP, T_FP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.6"')
             + "".join(tags))
+
+# ---------------------------------------------------------------- the land (existing: no proposed fences)
+def land_label(area, key, title):
+    pts = tag_pts.get(area, [])
+    tot = sum(p[2] for p in pts)
+    cx_ = sum(p[0] * p[2] for p in pts) / tot
+    cy_ = sum(p[1] * p[2] for p in pts) / tot
+    c = P[key]
+    return (f'<g transform="translate({cx_:.0f} {cy_:.0f})"><g data-fixed="1">'
+            f'<rect x="-150" y="-46" width="300" height="92" rx="16" fill="{c["tint"]}" stroke="{c["base"]}" stroke-width="3"/>'
+            f'<text y="-8" text-anchor="middle" font-size="30" font-weight="700" fill="{N["ink"]}">{title}</text>'
+            f'<text y="28" text-anchor="middle" font-size="30" font-weight="700" fill="{c["base"]}">{tot:.1f} ac</text></g></g>')
+
+
+land = (f'<path d="{poly_d(footprint)}" fill="none" stroke="#fff" stroke-width="7" data-w="7"/>'
+        f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["ink"]}" stroke-width="3" data-w="3"/>'
+        + land_label("Site Pasture", "pasture", "Site pasture") + land_label("Bonus Pasture", "bonus", "Bonus pasture"))
 
 # ---------------------------------------------------------------- campus
 campus = (g_paths(sv.get("BUILDING", []), M_SP, T_SP,
@@ -241,6 +260,7 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")
        + layer("water", "Water: slough, ponds, flood zone line", water)
        + layer("trees", "Existing trees and woodland edge", trees_layer)
+       + layer("land", "The land: site and bonus pasture areas", land)
        + layer("paddocks", "Proposed paddocks", paddocks)
        + layer("campus", "Campus", campus)
        + layer("labels", "Labels", slough_lbl)

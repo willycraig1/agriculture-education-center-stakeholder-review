@@ -15,13 +15,13 @@
   .bar button { all: unset; cursor: pointer; padding: 10px 14px; border-radius: 10px; font-size: 15px; font-weight: 600; line-height: 1; }
   .bar button:hover, .bar button:focus-visible { background: rgba(255,255,255,.12); }
   .bar .big { font-size: 20px; padding: 8px 16px; }
-  .where { padding: 0 10px; min-width: 230px; text-align: center; }
+  .where { padding: 0 10px; min-width: 300px; text-align: center; }
   .where b { display: block; font-size: 15px; white-space: nowrap; }
   .dots { display: flex; gap: 5px; justify-content: center; margin-top: 6px; }
   .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.28); }
   .dots i.on { background: #f3efe6; }
   .menu { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: rgba(31,30,27,.95); color: #f3efe6;
-          border-radius: 14px; padding: 8px; min-width: 360px; display: none; z-index: 6; }
+          border-radius: 14px; padding: 8px; min-width: 400px; display: none; z-index: 6; }
   .menu.open { display: block; }
   .menu a { display: flex; gap: 12px; padding: 10px 14px; border-radius: 9px; color: inherit; text-decoration: none; font-size: 16px; }
   .menu a span { opacity: .55; width: 26px; text-align: right; }
@@ -45,11 +45,16 @@
 // Slide order. Add new slides here.
 const SLIDES = [
   { file: "slides/title.html", title: "Title" },
-  { file: "slides/site.html", title: "02 · The site" },
-  { file: "slides/pasture-capacity.html", title: "03 · Pasture capacity" },
-  { file: "slides/cattle-pens.html", title: "04 · 4-H cow & calf pens" },
-  { file: "slides/red-house.html", title: "07 · The Red House" },
-  { file: "slides/levels.html", title: "09 · What each Level buys" },
+  { file: "slides/drivers.html", title: "Why we're here · Design drivers" },
+  { file: "slides/site.html", title: "Act 1 · The site, layer by layer" },
+  { file: "slides/existing.html", title: "Act 1 · What is already built" },
+  { file: "slides/program.html", title: "Act 2 · What the program needs" },
+  { file: "slides/pasture-capacity.html", title: "Act 3 · Pasture capacity" },
+  { file: "slides/cattle-pens.html", title: "Act 3 · 4-H cow & calf pens" },
+  { file: "slides/levels.html", title: "Act 4 · What each Level buys" },
+  { file: "slides/paddocks.html", title: "Act 5 · Paddocks and rotation" },
+  { file: "slides/red-house.html", title: "Act 5 · The Red House" },
+  { file: "slides/input.html", title: "Over to you" },
 ];
 const frame = document.getElementById("frame"), bar = document.getElementById("bar"), menu = document.getElementById("menu");
 let i = Math.max(0, Math.min(SLIDES.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
