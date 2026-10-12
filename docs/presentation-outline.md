@@ -1,75 +1,61 @@
-# Presentation Outline: Stakeholder Review (Wed 2026-10-14)
+# Presentation Narrative: Stakeholder Review (Wed 2026-10-14)
 
-Working draft. Target is 30–45 min: about 30 min of content plus Q&A, with optional slides that can be dropped.
+Outline of record, agreed 2026-10-11. 30–45 minutes of presentation, then a working session at tables.
 
-**Audience:** mainly UF/IFAS agents, who are experts in sustainable agriculture. The aim is to **get their
-input on the site plan layout** for the Owner's goals. Present the plan as a well-reasoned draft with
-specific questions built in, not as a finished design to approve.
+**Audience:** mainly UF/IFAS agents, experts in sustainable agriculture. The Owner opens with their own framing of the goals.
+**Purpose:** bring everyone along the logic that led to the site plan, so the working session can test it.
+**Discussion:** held to the end. No checkpoints during the talk.
 
-## Storyline
+## Thesis
 
-**The land decides the herd, the herd decides the buildings.** We start with what the site can carry,
-size the cattle facilities from that, then fit the other programs and the Red House around them. Every section uses the same
-investment **Levels**: Level 3 is the best case, Level 2 is what better management adds, and Level 1 is the bare minimum to operate.
-We plan Level 3 first and work back to Level 1.
+> **The land sets the herd, the programs set the buildings, and the Levels let it grow.**
 
-Two separate cattle groups drive the plan:
-- **Beginning Rancher herd:** on pasture only, no pens. Sized by pasture capacity (CE).
-- **4-H cow & calf projects:** housed in **12'×24' pens** (Owner direction, based on a previous educational barn).
-  Sized by the number of projects. Some flexibility between the groups, but they're kept separate for planning.
+"The land" is shorthand for available pasture. Pasture is the commodity this community is short on, and it drives every other decision.
+
+## Rule of the deck
+
+Evidence before proposal. Acts 1–3 show only what exists and what is needed: facts the room can check.
+Nothing proposed appears before Act 5.
 
 ## Sequence
 
-| # | Section | Time | Key slide / visual | Status |
-|---|---------|------|--------------------|--------|
-| 1 | **Why we're here.** Owner goals, and what we'd like from IFAS today | 2 min | Project goals + the questions we're bringing | Content ready |
-| 2 | **The site.** Parcel, Cowpen Slough, soils, flood zone, woods | 5 min | `slides/site.html`: aerial → paddocks → water → soils → trees → campus | **Done (draft)** |
-| 3 | **What the land can carry.** Beginning Rancher herd | 6 min | Fencing plan with trees → capacity infographic, Level 1/2/3 = **7 / 14 / 27 CE** | **Done (draft)** |
-| 4 | **4-H cow & calf projects.** Pen count by Level | 4 min | `slides/cattle-pens.html`: 7 / 21 / 35 pens on the 7-pen module, 12'×24' vs Ag Guide minimum | **Done (draft)**, L2/L3 split to confirm |
-| 5 | **Cattle facilities.** Pens, handling/chute/scale, washdown, turnout, rough-stock corral | 6 min | Cattle barn plan, handling flow diagram, 3D massing | **Barn plans coming** |
-| 6 | **Other animals.** Small animal barn, swine, horses (if any) | 4 min | Small animal and hog barn plans, existing barn reuse | **Plans coming** |
-| 7 | **The Red House.** Education and outreach | 4 min | `slides/red-house.html`: Existing → Level 1 → 2 → 3, new and removed walls highlighted | **Done (draft)** |
-| 8 | **The campus.** Circulation, public vs. animal zones, water quality | 4 min | Study plan A0.2 (minus west barn) drawn in stages; zone diagram | Drawing ready |
-| 9 | **Phasing and what each Level buys** | 3 min | `slides/levels.html`: matrix of program × Level, dashed cells to confirm | **Done (draft)** |
-| 10 | **Your input** | 2 min + discussion | The IFAS questions below, one per card | Draft below |
+| Act | Question it answers | Time | Slides (file) | Status |
+|---|---|---|---|---|
+| **0 · Why we're here** | How do the Owner's goals shape the design? | 2 min | Design drivers and thesis (`drivers.html`) | Built |
+| **1 · What we have** | What does the land give us, and what is already built? | 8 min | Site, layer by layer: aerial, the land, water, soils, trees, campus (`site.html`) · Existing buildings, with site photos (`existing.html`) | Built · photos to come |
+| **2 · What the program needs** | Who uses it, with which animals, and what does each need? | 5 min | Program needs (`program.html`) | Built |
+| **3 · What the land can carry** | How many cattle, and what changes that number? | 7 min | Pasture capacity 7 / 14 / 27 CE (`pasture-capacity.html`) · 4-H pens 7 / 21 / 35 (`cattle-pens.html`) | Built |
+| **4 · The strategy** | How do we plan for the best case but start with the minimum? | 3 min | What each Level buys (`levels.html`) | Built |
+| **5 · The plan** | Given all that, how should the site be laid out? | 10 min | Paddocks and rotation (`paddocks.html`) · Campus by Level · Red House by Level (`red-house.html`) · Barns | Paddocks and Red House built · campus and barns need drawings |
+| **6 · Over to you** | What should the tables work on? | 2 min | Working-session topics (`input.html`) | Built |
 
-## Questions to bring to IFAS (section 10, and woven in earlier)
+## Talking points
 
-1. **Rotational grazing layout:** do the paddock sizes and gate locations support a sensible rotation? How many paddocks for a 7 → 27 CE herd?
-2. **Water:** where should troughs and central water enclosures go to cut utility runs and mud?
-3. **Wooded pasture:** how should the dense oak paddocks (8.0, 12.4 ac) and the 40% pine/palm paddocks be managed? Silvopasture, timing, forage improvement?
-4. **Wet soils and the slough:** grazing timing on Delray / Floridana soils and near Cowpen Slough; buffers for water quality.
-5. **Manure and washdown:** handling, composting, and where runoff goes near the retention area.
-6. **Stocking assumptions:** are the AN155 rates (4/25 and 2/10 ac per CE) right for this forage? What animal weights should set the head count?
-7. **Beginning Rancher program:** what herd size and infrastructure make it effective as a teaching operation?
+**Act 0. Design drivers.** The Owner has just framed the goals. Restate them as the four things that drive the design:
+pasture is scarce, so the land sets the herd · reuse before building new · grow in modules as demand grows · protect the water. Close on the thesis.
 
-## Section 3: the numbers (from `Clark_Farm_Pasture_Calculations.xlsx`)
+**Act 1. What we have.** Walk the site from the air down: where it is, how much land (about 100 acres of potential pasture, 45 on the site and 55 of bonus land),
+where the water is, which soils stay wet, where the trees are, and where the existing buildings sit. Then the buildings themselves in photos:
+Red House, existing barn, the 7 cattle pens, hog enclosures, the small unfinished barns, the corral. Everything in this act exists today.
 
-| Level | Land | Management | CE |
-|---|---|---|---|
-| 1, minimum to operate | Site pasture, 45.1 ac (24.7 open, 20.4 wooded) | Conservative, 4 / 25 ac per CE | **≈ 7** |
-| 2, better management | Site pasture, 45.1 ac | Improved rotational, 2 / 10 ac per CE | **≈ 14** |
-| 3, best case | Site + bonus, 99.6 ac (43.8 open, 55.8 wooded) | Improved rotational, 2 / 10 ac per CE | **≈ 27** |
+**Act 2. What the program needs.** Two cattle programs with different needs: the Beginning Rancher herd needs pasture and no pens; 4-H cow & calf projects need pens (12' × 24', by Owner direction from a previous educational barn).
+Small animals, swine and poultry need housing. People need a classroom for about 50, a conference room for 20–25, offices for 5 staff and a demonstration kitchen.
+The Ag Guide is the animal-care standard.
 
-Caveat language (agreed): CE is mature-cow-equivalent grazing demand. Head count may be higher where cattle
-are lighter, but the final number should be set from expected animal weights and forage demand. No fixed
-CE-to-head conversion is shown unless an average animal weight is agreed.
+**Act 3. What the land can carry.** Pasture capacity in cow equivalents: 7 CE on the site as it is managed today, 14 with rotational grazing, 27 with the bonus pasture.
+Management matters as much as land. Then 4-H pens: 7 exist, and new barns add 14 at a time as enrollment grows.
 
-## Missing pieces, prioritized
+**Act 4. The strategy.** We planned the best case first, then worked back to the lightest touch that meets the program. One slide shows what each Level buys for every part of the program.
 
-**P1: needed for the core story (sections 3–5)**
-1. Confirm pens by Level (proposed 7 / 21 / 35) and the Level placement of the dashed cells on the Levels slide.
-2. Cattle barn plan(s) on the 12'×24' module: pen layout, center aisle for tractor access, waterers, fans, overhangs. *(User collecting)*
-3. Handling area: squeeze chute + scale, alleys, and the rough-stock corral with its links to pasture and trailer access.
+**Act 5. The plan.** Only now the proposal: the paddock layout and how cattle rotate through it; the campus at each Level; the Red House at each Level; the barns.
 
-**P2: needed for completeness (sections 6–9)**
-6. Small animal barn plan (6'×10' module) and hog barn plan. *(User collecting)*
-7. Condition / reuse call on the existing primary barn and the unfinished new barn (wetland limits).
-8. Water: trough locations, gates, washdown location and drainage.
-9. Campus zone diagram (public / staff / animal care / service) and circulation (trailers vs. visitors).
-10. Paddock boundaries as closed polylines (DXF) so paddocks can be color-filled. *(User working on it)*
+**Act 6. Over to you.** Hand off to the tables with specific topics: rotation and paddock layout, water and wet soils, wooded pasture, animal facilities, and how the Beginning Rancher program should run.
 
-**P3: nice to have**
-11. Rough 3D massing of the campus for scale (three.js).
-12. Site photos of existing conditions.
-13. Order-of-magnitude cost by Level.
+## Still needed
+
+1. **Site photos** for `existing.html`. Drop them in `photos/` with these names and they appear automatically:
+   `red-house.jpg`, `barn.jpg`, `cattle-pens.jpg`, `hog-enclosures.jpg`, `unfinished-barns.jpg`, `corral.jpg`.
+2. **Campus by Level** (Act 5): needs the campus plan without the west barn, ideally one state per Level.
+3. **Barn plans** (Act 5): cattle barn on the 14-pen layout, small animal & swine barn. *(User collecting)*
+4. **Paddock boundaries as closed polylines** so paddocks can be color-filled by Level. *(User working on it)*
+5. Optional: rough 3D massing of the campus; order-of-magnitude cost by Level.
