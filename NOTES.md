@@ -79,10 +79,16 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - Sheet A1.0-3 crops the plan (addition off the top-left, porch/storage off the bottom). Repaired in the build: the addition comes from the sheet's own orthogonal inset, rigid-fit onto its placed position (98.6% of on-sheet walls within 1 pt; rotation 141.4°, i.e. the addition is aligned to true north), and the bottom strip comes from Level 2, where it is unchanged. Repairs carry class `repair` in the SVG. A re-plotted sheet with the whole plan inside the border would replace both.
 
 ## Barnyard diagram
-- `tools/build_ag_area.py` → `slides/data/ag-area.js`, `drawings/ag-area-diagram.svg`; slide `slides/ag-area.html`. Units are feet, drawn square to the existing barn (17° off true north, measured on the study plan). Existing barn 80.4' wide; its 7 pens measure 12' × 24' on the survey.
-- Placeholders in the diagram, to confirm: 24' lanes between runs and the centre strip, 20' gap between the two barns of a run, 24' yard north of the existing pens, feed storage 50' × 40', turnout yards 48' deep, small-animal pens 6' × 10' both sides of a 16' aisle (28 per barn), parking outline, handling area east of the existing barn, feed storage and first barns at Level 2, second barns and arena at Level 3.
+- `tools/build_ag_area.py` → `slides/data/ag-area.js`, `drawings/ag-area-diagram.svg`; slide `slides/ag-area.html`. Units are feet, drawn square to the existing barn (17° off true north, measured on the study plan), existing barn at the bottom, north roughly up (confirmed orientation for this diagram). Existing barn 80.4' wide; its 7 pens measure 12' × 24' on the survey.
+- Layout per the architect's Illustrator markup of 2026-10-12, snapped to a 12' module with 24' lanes and gaps everywhere: east column = existing barn (bottom-right), existing pens, cattle turnouts A and B (84' wide; A runs down to the pens); cattle run west of the turnouts; centre strip = arena (50' × 84') and feed storage; small animal run; small animal turnouts on the west; new corral/chute/scale bottom-left; parking bottom centre.
+- Feed storage is shipping containers: 2 × (8' × 40'), one at Level 2 and one at Level 3 (4 × 8' × 20' is the alternative).
+- Small animal barn: 6' × 10' pens both sides of a 16' aisle, 28 per barn (confirmed). First barn of each run at Level 2, second barns and arena at Level 3 (confirmed).
+- Parking drawn to scale: 9' × 18' stalls on a 24' aisle, 10 per side = 20 spaces in the block as placed (study plan A0.2 showed 51 + 9).
+- Circulation step: straight runs only. Service: west lane (full length, down past the parking), east lane, cross drive, mid cross lane, tractor aisles through both barns of each run. Animals: each barn to its turnout, existing pens to turnout A.
+- The master SVG can be edited in Illustrator (element ids survive); moved rectangles are read back into the script's numbers.
+- To do: Bud Box diagram for the handling area.
 
 ## Open questions
-- Barnyard diagram placeholders above; which side each run goes on; orientation (drawn with the existing barn at the bottom, north roughly up, unlike the north-left site maps)
+- Barnyard: parking count (20 drawn vs 51 + 9 on the study plan); where the entry drive meets the barnyard; visitor route to the arena
 - Campus plan by Level and barn interior plans for Act 5 (user collecting)
 - Paddock boundaries as closed polylines, so paddocks can be filled by Level and bonus fences hidden at Levels 1–2 (user working on it)
