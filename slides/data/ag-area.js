@@ -5,7 +5,7 @@ window.AG_AREA = {
   -132,
   -48,
   466,
-  372
+  380
  ],
  "north_cw_from_up": -17,
  "elements": [
@@ -13,7 +13,7 @@ window.AG_AREA = {
    "id": "existing-barn",
    "label": "Existing barn",
    "x": 199.6,
-   "y": 240,
+   "y": 248,
    "w": 80.4,
    "h": 50,
    "use": "swine",
@@ -66,22 +66,22 @@ window.AG_AREA = {
   },
   {
    "id": "parking",
-   "label": "Parking",
+   "label": "Main parking lot",
    "x": 60,
-   "y": 230,
-   "w": 96,
-   "h": 60,
+   "y": 228,
+   "w": 93,
+   "h": 64,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "20 spaces",
+   "note": "continues south",
    "assumed": false,
    "stalls": {
-    "n": 10,
-    "w": 9,
-    "d": 18,
+    "n": 9,
+    "w": 10,
+    "d": 20,
     "aisle": 24,
-    "inset": 3
+    "inset": 1.5
    }
   },
   {
@@ -142,7 +142,7 @@ window.AG_AREA = {
   },
   {
    "id": "feed-1",
-   "label": "Feed storage",
+   "label": "Feed storage 1",
    "x": 65,
    "y": 180,
    "w": 40,
@@ -151,7 +151,8 @@ window.AG_AREA = {
    "level": 2,
    "kind": "container",
    "note": "8' x 40' container",
-   "assumed": false
+   "assumed": false,
+   "doors": "w"
   },
   {
    "id": "turnout-cattle-a",
@@ -250,16 +251,17 @@ window.AG_AREA = {
   },
   {
    "id": "feed-2",
-   "label": "Feed storage",
+   "label": "Feed storage 2",
    "x": 65,
-   "y": 160,
+   "y": 172,
    "w": 40,
    "h": 8,
    "use": "circulation",
    "level": 3,
    "kind": "container",
    "note": "second container",
-   "assumed": false
+   "assumed": false,
+   "doors": "e"
   },
   {
    "id": "turnout-cattle-b",
@@ -288,6 +290,22 @@ window.AG_AREA = {
    "assumed": false
   }
  ],
+ "drives": [
+  {
+   "id": "drive-west",
+   "x": 36,
+   "y": 216,
+   "w": 24,
+   "h": 76
+  },
+  {
+   "id": "drive-east",
+   "x": 153,
+   "y": 216,
+   "w": 24,
+   "h": 76
+  }
+ ],
  "circulation": [
   {
    "id": "lane-west",
@@ -300,7 +318,7 @@ window.AG_AREA = {
     ],
     [
      48.0,
-     290
+     223
     ]
    ]
   },
@@ -315,7 +333,7 @@ window.AG_AREA = {
     ],
     [
      122.0,
-     204.0
+     223
     ]
    ]
   },
@@ -360,7 +378,7 @@ window.AG_AREA = {
     ],
     [
      165.0,
-     198
+     223
     ]
    ]
   },
@@ -375,7 +393,30 @@ window.AG_AREA = {
     ],
     [
      18.0,
-     198
+     223
+    ]
+   ]
+  },
+  {
+   "id": "loop-parking",
+   "kind": "loop",
+   "label": "",
+   "pts": [
+    [
+     48.0,
+     233
+    ],
+    [
+     48.0,
+     260.0
+    ],
+    [
+     165.0,
+     260.0
+    ],
+    [
+     165.0,
+     233
     ]
    ]
   },
@@ -520,7 +561,7 @@ window.AG_AREA = {
    "3": 35
   },
   "small_animal_pens_per_barn": 28,
-  "parking": 20
+  "parking": 18
  },
  "module_ft": 12,
  "lane_ft": 24

@@ -21,7 +21,7 @@
   .el text { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 1.6px; }
   .el text.note { font-weight: 500; fill: var(--muted); }
   #circ { opacity: 0; transition: opacity .9s var(--ease); } #circ.on { opacity: 1; }
-  .run line { stroke-width: 2.2; stroke-linecap: round; } .run.service line { stroke: var(--ink); } .run.animal line { stroke: var(--cattle); stroke-width: 2.6; }
+  .run path { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke: var(--ink); } .run.animal path { stroke: var(--cattle); stroke-width: 2.6; } .run.loop path { stroke-dasharray: 5 3; }
   .run text { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 1.8px; }
   .dim line { stroke: var(--muted); stroke-width: .5; } .dim text { font-family: var(--sans); font-weight: 600; fill: var(--muted); }
   .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -78,20 +78,33 @@
     for (let i = 0; i <= p.n; i++) { const x = e.x + p.inset + i * p.w; s += `<path d="M${x} ${e.y}v${p.d}M${x} ${e.y + p.d + p.aisle}v${p.d}"/>`; }
     return `<g class="pens" fill="none" stroke="var(--circulation)" stroke-width=".5" opacity=".75">${s}
       <path d="M${e.x} ${e.y + p.d}h${e.w}M${e.x} ${e.y + p.d + p.aisle}h${e.w}" stroke-dasharray="2 2"/></g>
-      <text class="note" x="${e.x + e.w / 2}" y="${e.y + p.d + p.aisle / 2 + 8.5}" text-anchor="middle" font-size="4.4">${p.aisle}' drive aisle · ${p.w}' × ${p.d}' stalls</text>`;
+      <text class="note" x="${e.x + e.w / 2}" y="${e.y + p.d / 2 + 1.5}" text-anchor="middle" font-size="4.4">${p.aisle}' drive aisle · ${p.w}' × ${p.d}' stalls</text>`;
   }
-  const els = A.elements.map(e => {
-    const lines = e.kind === "container" ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.6 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
-    const cx = e.x + e.w / 2, cy = e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
+  // shipping container details: double doors on one end, AC unit on the other
+  function container(e) {
+    const dw = e.doors === "w", xd = dw ? e.x : e.x + e.w, sgn = dw ? -1 : 1, xa = dw ? e.x + e.w : e.x - 3;
+    return `<g class="pens" fill="none" stroke="var(--ink)" stroke-width=".45">
+      <path d="M${xd} ${e.y}h${4 * sgn}M${xd} ${e.y + e.h}h${4 * sgn}"/>
+      <path d="M${xd + 4 * sgn} ${e.y}A4 4 0 0 ${dw ? 0 : 1} ${xd} ${e.y + 4}M${xd + 4 * sgn} ${e.y + e.h}A4 4 0 0 ${dw ? 1 : 0} ${xd} ${e.y + 4}" stroke-dasharray="1 1"/>
+      <rect x="${xa}" y="${e.y + 2}" width="3" height="4" fill="var(--circulation-tint)"/></g>
+      <text class="note" x="${xa + 1.5}" y="${e.y + 5}" text-anchor="middle" font-size="1.9">AC</text>`;
+  }
+  const shapes = [], labels = [];
+  A.elements.forEach(e => {
+    const lines = e.kind === "container" ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
+    const cx = e.x + e.w / 2;
+    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + e.h - 13 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
     const narrow = e.w < 45 && e.h > e.w * 1.6;     // tall, narrow buildings read better with a rotated label
     const txt = narrow
-      ? `<text transform="translate(${cx} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
-      : lines.map((l, i) => `<text x="${cx}" y="${cy + i * fs * 1.2}" text-anchor="middle" font-size="${fs}" dy="2">${l.replace("&", "&amp;")}</text>`).join("") +
-        (e.kind === "container" || e.kind === "parking" ? "" : `<text class="note" x="${cx}" y="${cy + lines.length * fs * 1.2}" text-anchor="middle" font-size="${fs * 0.72}" dy="2"></text>`);
-    return `<g class="el" data-id="${e.id}"><rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="1.2"/>
-      ${e.kind === "parking" ? parking(e) : pens(e)}${txt}
-      <g class="new" transform="translate(${e.x + e.w - 2} ${e.y + 2})"><rect x="-19" y="0" width="19" height="8" rx="2" fill="var(--ink)"/><text x="-9.5" y="5.9" text-anchor="middle" font-size="4.6" style="fill:#fff;stroke:none">NEW</text></g></g>`;
-  }).join("");
+      ? `<text transform="translate(${e.x + 5} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
+      : lines.map((l, i) => `<text x="${cx}" y="${cy + i * fs * 1.2}" text-anchor="middle" font-size="${fs}" dy="${e.kind === "container" ? 1.5 : 2}">${l.replace("&", "&amp;")}</text>`).join("") +
+        (e.kind === "container" ? "" : `<text class="note" x="${cx}" y="${cy + lines.length * fs * 1.2}" text-anchor="middle" font-size="${fs * 0.72}" dy="2"></text>`);
+    shapes.push(`<g class="el" data-id="${e.id}"><rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="${e.kind === "container" ? 0.8 : 1.2}"/>
+      ${e.kind === "parking" ? parking(e) : e.kind === "container" ? container(e) : pens(e)}
+      <g class="new" transform="translate(${e.x + e.w - 2} ${e.y + 2})"><rect x="-19" y="0" width="19" height="8" rx="2" fill="var(--ink)"/><text x="-9.5" y="5.9" text-anchor="middle" font-size="4.6" style="fill:#fff;stroke:none">NEW</text></g></g>`);
+    labels.push(`<g class="el lbl" data-id="${e.id}">${txt}</g>`);
+  });
+  const drives = (A.drives || []).map(d => `<rect x="${d.x}" y="${d.y}" width="${d.w}" height="${d.h}" fill="var(--circulation-tint)" opacity=".6"/>`).join("");
   const dims = A.dims.map(d => {
     const vert = d.x1 === d.x2, mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2;
     return `<g class="dim"><line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}"/>
@@ -99,25 +112,36 @@
       <line x1="${d.x2 - (vert ? 3 : 0)}" y1="${d.y2 - (vert ? 0 : 3)}" x2="${d.x2 + (vert ? 3 : 0)}" y2="${d.y2 + (vert ? 0 : 3)}"/>
       <text ${vert ? `transform="translate(${mx + 7} ${my}) rotate(90)"` : `x="${mx}" y="${my - 3}"`} text-anchor="middle" font-size="5.5">${d.label}</text></g>`;
   }).join("");
+  function rounded(pts, r) {
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const [px, py] = pts[i - 1], [x, y] = pts[i], [nx, ny] = pts[i + 1];
+      const a = Math.hypot(x - px, y - py), b = Math.hypot(nx - x, ny - y);
+      d += `L${x + (px - x) / a * r} ${y + (py - y) / a * r}Q${x} ${y} ${x + (nx - x) / b * r} ${y + (ny - y) / b * r}`;
+    }
+    const e = pts[pts.length - 1];
+    return d + `L${e[0]} ${e[1]}`;
+  }
   const circ = A.circulation.map(c => {
-    const [[xa, ya], [xb, yb]] = c.pts, an = c.kind === "animal";
-    const lx = (xa + xb) / 2, ly = (ya + yb) / 2, vert = xa === xb;
-    return `<g class="run ${c.kind}"><line x1="${xa}" y1="${ya}" x2="${xb}" y2="${yb}" marker-end="url(#ah-${c.kind})" ${an ? "" : `marker-start="url(#ah-${c.kind})"`}/>
-      ${c.label ? `<text ${vert ? `transform="translate(${lx - 4} ${ly}) rotate(-90)"` : `x="${lx}" y="${ly - 4}"`} text-anchor="middle" font-size="5">${c.label}</text>` : ""}</g>`;
+    const p = c.pts, [xa, ya] = p[0], [xb, yb] = p[p.length - 1], both = c.kind === "service";
+    const mid = p.length > 2 ? [(p[1][0] + p[2][0]) / 2, (p[1][1] + p[2][1]) / 2] : [(xa + xb) / 2, (ya + yb) / 2];
+    const vert = p.length === 2 && xa === xb;
+    return `<g class="run ${c.kind}"><path d="${rounded(p, 9)}" marker-end="url(#ah-${c.kind})" ${both ? `marker-start="url(#ah-${c.kind})"` : ""}/>
+      ${c.label ? `<text ${vert ? `transform="translate(${mid[0] - 4} ${mid[1]}) rotate(-90)"` : `x="${mid[0]}" y="${mid[1] - 4}"`} text-anchor="middle" font-size="5">${c.label}</text>` : ""}</g>`;
   }).join("");
-  const defs = `<defs>${["service", "animal"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
+  const defs = `<defs>${["service", "animal", "loop"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
     <path d="M0 0L10 5L0 10z" fill="${k === "animal" ? "var(--cattle)" : "var(--ink)"}"/></marker>`).join("")}</defs>`;
   document.getElementById("plan").insertAdjacentHTML("afterbegin",
-    `<svg viewBox="${v.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${els}${dims}<g id="circ">${circ}</g></svg>`);
+    `<svg viewBox="${v.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${drives}${shapes.join("")}${dims}<g id="circ">${circ}</g>${labels.join("")}</svg>`);
   const svg = document.querySelector("#plan > svg");
   const viewer = Viewer(svg, { ftPerUnit: 1, north: A.north_cw_from_up, damp: 0 });
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New corral, squeeze chute and scale", `Parking for ${A.counts.parking}`] },
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New corral, squeeze chute and scale", "Main parking lot, 10' × 20' stalls"] },
     { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal & swine barn A, ${sa} pens`, "First feed storage container, by the parking", "Existing barn becomes storage"] },
     { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Small animal barn B, ${sa} more pens`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
-    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links parking, feed, pens and handling"] },
+    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "Vehicles loop through the lot and hand off to the tractor lanes"] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
@@ -128,14 +152,15 @@
     const n = Math.min(step + 1, 3);
     svg.querySelector("#circ").classList.toggle("on", step >= 3);
     A.elements.forEach(e => {
-      const g = svg.querySelector(`.el[data-id="${e.id}"]`), { u, note } = useAt(e, n);
+      const g = svg.querySelector(`.el[data-id="${e.id}"]:not(.lbl)`), lb = svg.querySelector(`.lbl[data-id="${e.id}"]`), { u, note } = useAt(e, n);
+      lb.classList.toggle("future", e.level > n);
       const rect = g.querySelector("rect.shape");
       g.classList.toggle("future", e.level > n);
       g.classList.toggle("isnew", step < 3 && e.level === n && e.kind !== "container" && !(e.id.startsWith("existing") || e.id === "parking"));
       rect.style.fill = e.kind === "yard" ? "none" : `var(--${u.replace("_", "-")}-tint)`;
       rect.style.stroke = css(u);
       rect.style.strokeDasharray = e.kind === "yard" ? "3 2" : "";
-      const nt = g.querySelector("text.note"); if (nt) nt.textContent = e.level <= n ? (note || "") : `Level ${e.level}`;
+      const nt = lb.querySelector("text.note"); if (nt) nt.textContent = e.level <= n ? (note || "") : `Level ${e.level}`;
     });
     document.querySelectorAll("#levels > li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === step);
