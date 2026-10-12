@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Barnyard</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1180px 1fr; gap: 36px; margin-top: 22px; flex: 1; min-height: 0; }
+  .plan { position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; align-self: start; }
+  .plan > svg { display: block; width: 100%; height: 816px; }
+  .el rect.shape { transition: fill .8s var(--ease), stroke .8s var(--ease), stroke-width .5s, opacity .8s var(--ease); }
+  .el .pens, .el text, .el .new { transition: opacity .8s var(--ease); }
+  .el.future rect.shape { fill: none !important; stroke: var(--line) !important; stroke-dasharray: 3 3; }
+  .el.future .pens, .el.future .new { opacity: 0; }
+  .el.future text { opacity: .45; }
+  .el:not(.isnew) .new { opacity: 0; }
+  .el text { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 1.6px; }
+  .el text.note { font-weight: 500; fill: var(--muted); }
+  .dim line { stroke: var(--muted); stroke-width: .5; } .dim text { font-family: var(--sans); font-weight: 600; fill: var(--muted); }
+  .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .levels > li { padding: 14px 18px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .levels > li header { display: flex; align-items: center; gap: 12px; }
+  .levels > li h3 { font: 600 24px/1.2 var(--serif); margin: 0; }
+  .levels > li .badge { background: var(--muted); }
+  .levels > li ul { margin: 10px 0 0; padding-left: 20px; font: 400 17px/1.5 var(--sans); display: none; }
+  .levels > li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .levels > li.now .badge { background: var(--ink); }
+  .levels > li.now ul { display: block; }
+  .levels > li.done { color: var(--ink); }
+  .static .levels li ul { display: block; font-size: 15px; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-top: 18px; font: 500 15px/1.2 var(--sans); color: var(--ink); }
+  .legend i { display: inline-block; width: 18px; height: 14px; border-radius: 3px; margin-right: 8px; vertical-align: -2px; border: 1.5px solid; }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <h1 data-step="0">The barnyard, Level by Level</h1>
+  <div class="body">
+    <div class="plan card" data-step="0" id="plan"><span data-step="1" hidden></span><span data-step="2" hidden></span></div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="levels" id="levels"></ol>
+      <div class="legend" data-step="0" id="legend"></div>
+      <p class="src" data-step="0">Diagram to scale, in feet, drawn square to the existing barn. Barn, pen and arena sizes are as given;
+        spacing between buildings, the feed storage size, turnout yards and the handling area location are placeholders to confirm.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/ag-area.js"></script>
+<script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
+<script>
+(function () {
+  const A = window.AG_AREA, v = A.view;
+  const css = k => `var(--${k.replace("_", "-")})`;
+  const useAt = (e, n) => { let u = e.use, note = e.note; for (let k = 2; k <= n; k++) if (e.becomes && e.becomes[k]) { u = e.becomes[k].use; note = e.becomes[k].note; } return { u, note }; };
+  const wrap = s => { const out = []; let line = ""; s.split(" ").forEach(w => { if ((line + " " + w).trim().length > 15 && line) { out.push(line); line = w; } else line = (line + " " + w).trim(); }); out.push(line); return out; };
+
+  function pens(e) {
+    const p = e.pens; if (!p) return "";
+    let s = "";
+    p.rows.forEach(([off, depth]) => { for (let i = 0; i < p.n; i++)
+      s += p.vertical ? `<rect x="${e.x + off}" y="${e.y + i * p.w}" width="${depth}" height="${p.w}"/>`
+                      : `<rect x="${e.x + i * p.w}" y="${e.y + off}" width="${p.w}" height="${depth}"/>`; });
+    return `<g class="pens" fill="none" stroke="var(--ink)" stroke-width=".4" opacity=".4">${s}</g>`;
+  }
+  function parking(e) {
+    let s = "";
+    for (let x = e.x + 9; x < e.x + e.w - 4; x += 9) s += `<path d="M${x} ${e.y + 4}v18M${x} ${e.y + e.h - 22}v18"/>`;
+    return `<g class="pens" stroke="var(--circulation)" stroke-width=".5" opacity=".6">${s}</g>`;
+  }
+  const els = A.elements.map(e => {
+    const lines = wrap(e.label), fs = e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
+    const cx = e.x + e.w / 2, cy = e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
+    const narrow = e.w < 45 && e.h > e.w * 1.6;     // tall, narrow buildings read better with a rotated label
+    const txt = narrow
+      ? `<text transform="translate(${cx} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
+      : lines.map((l, i) => `<text x="${cx}" y="${cy + i * fs * 1.2}" text-anchor="middle" font-size="${fs}" dy="2">${l.replace("&", "&amp;")}</text>`).join("") +
+        `<text class="note" x="${cx}" y="${cy + lines.length * fs * 1.2}" text-anchor="middle" font-size="${fs * 0.72}" dy="2"></text>`;
+    return `<g class="el" data-id="${e.id}"><rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="1.2"/>
+      ${e.kind === "parking" ? parking(e) : pens(e)}${txt}
+      <g class="new" transform="translate(${e.x + e.w - 2} ${e.y + 2})"><rect x="-19" y="0" width="19" height="8" rx="2" fill="var(--ink)"/><text x="-9.5" y="5.9" text-anchor="middle" font-size="4.6" style="fill:#fff;stroke:none">NEW</text></g></g>`;
+  }).join("");
+  const dims = A.dims.map(d => {
+    const vert = d.x1 === d.x2, mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2;
+    return `<g class="dim"><line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}"/>
+      <line x1="${d.x1 - (vert ? 3 : 0)}" y1="${d.y1 - (vert ? 0 : 3)}" x2="${d.x1 + (vert ? 3 : 0)}" y2="${d.y1 + (vert ? 0 : 3)}"/>
+      <line x1="${d.x2 - (vert ? 3 : 0)}" y1="${d.y2 - (vert ? 0 : 3)}" x2="${d.x2 + (vert ? 3 : 0)}" y2="${d.y2 + (vert ? 0 : 3)}"/>
+      <text ${vert ? `transform="translate(${mx + 7} ${my}) rotate(90)"` : `x="${mx}" y="${my - 3}"`} text-anchor="middle" font-size="5.5">${d.label}</text></g>`;
+  }).join("");
+  document.getElementById("plan").insertAdjacentHTML("afterbegin",
+    `<svg viewBox="${v.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${els}${dims}</svg>`);
+  const svg = document.querySelector("#plan > svg");
+  const viewer = Viewer(svg, { ftPerUnit: 1, north: A.north_cw_from_up, damp: 0 });
+
+  const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
+  const text = [
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New corral, squeeze chute and scale"] },
+    { b: "Level 2", h: "First new barns", items: [`Cattle barn A: ${c[2]} pens in all`, `Small animal & swine barn A, about ${sa} pens`, "Feed storage beside the parking", "Existing barn becomes storage"] },
+    { b: "Level 3", h: "Best case", items: [`Cattle barn B: ${c[3]} pens in all`, `Small animal barn B, about ${sa} more pens`, "Arena, 50' × 84', between the runs"] },
+  ];
+  document.getElementById("levels").innerHTML = text.map((t, k) =>
+    `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
+  const uses = [["cattle", "Cattle"], ["small_animal", "Small animals"], ["swine", "Swine"], ["arena", "Arena and turnout"], ["circulation", "Storage, parking, service"]];
+  document.getElementById("legend").innerHTML = uses.map(([k, l]) => `<span><i style="background:${css(k)}-tint;background:var(--${k.replace("_", "-")}-tint);border-color:${css(k)}"></i>${l}</span>`).join("");
+
+  function apply(step) {
+    const n = step + 1;
+    A.elements.forEach(e => {
+      const g = svg.querySelector(`.el[data-id="${e.id}"]`), { u, note } = useAt(e, n);
+      const rect = g.querySelector("rect.shape");
+      g.classList.toggle("future", e.level > n);
+      g.classList.toggle("isnew", e.level === n && !(e.id.startsWith("existing") || e.id === "parking"));
+      rect.style.fill = e.kind === "yard" ? "none" : `var(--${u.replace("_", "-")}-tint)`;
+      rect.style.stroke = css(u);
+      rect.style.strokeDasharray = e.kind === "yard" ? "3 2" : "";
+      const nt = g.querySelector("text.note"); if (nt) nt.textContent = e.level <= n ? (note || "") : `Level ${e.level}`;
+    });
+    document.querySelectorAll("#levels > li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.k === step);
+      li.classList.toggle("done", +li.dataset.k < step);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(2);
+})();
+</script>
+</body>
+</html>
