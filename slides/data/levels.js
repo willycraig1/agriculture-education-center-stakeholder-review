@@ -27,7 +27,7 @@ window.LEVELS = {
       { text: "Add one 14-pen barn", pens: 2, confirmed: true },
       { text: "Add a second 14-pen barn", pens: 3, confirmed: true } ] },
     { key: "cattle", label: "Pasture-stock handling", cells: [
-      { text: "Corral, squeeze chute + scale for processing", confirmed: true },
+      { text: "New corral, squeeze chute and scale", confirmed: true },
       { text: "Same as Level 1", confirmed: true },
       { text: "Same as Level 1", confirmed: true } ] },
     { key: "swine", label: "Swine", cells: [
