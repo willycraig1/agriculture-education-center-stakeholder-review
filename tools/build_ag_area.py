@@ -5,14 +5,14 @@ about 17 degrees off true north, measured from the study plan). x runs east, y r
 north end of the barn runs. Everything sits on a 12' module with 24' lanes.
 
 Layout (architect's markup of 2026-10-12, snapped to the module):
-  east column   existing barn in the bottom-right corner, its 7 existing pens above it, and the two
+  east column   existing barn in the bottom-right corner, its 7 existing pens above it across an 8' aisle, and the two
                 cattle turnouts stacked above those
   cattle run    two 14-pen barns (2 rows of 7 x 12' x 24' on a 14' aisle = 84' x 62'), west of the turnouts
   centre strip  arena (50' x 84') beside the second barns; feed storage in shipping containers
-                (2 x 8' x 40') at the parking end
+                (2 x 8' x 40', side by side, doors at alternate ends, AC at the other end) at the parking end
   small run     two small animal barns, 84' x 36' (6' x 10' pens both sides of a 16' aisle)
   west          small animal turnouts; new corral, chute and scale below them
-  south         parking: 9' x 18' stalls on a 24' aisle
+  south         one bay of the main parking lot: 10' x 20' stalls on a 24' aisle, between two 24' driveways
 
 Writes
   slides/data/ag-area.js          elements, circulation and dimensions for slides/ag-area.html
@@ -39,9 +39,10 @@ SA_AISLE = SMALL_W - 2 * SA_PEN_D     # 16'
 ARENA_W = 50
 LANE = 24                             # every lane and gap: two modules
 EX_W, EX_D = 80.4, 50                 # existing barn (depth approximate, from the survey)
+EX_AISLE = 8                          # aisle between the existing pens and the barn (exists on site; not on the survey)
 BOX_W, BOX_L = 8, 40                  # shipping container
-STALL_W, STALL_D, PARK_AISLE = 9, 18, 24
-PARK_N = 10                           # stalls per row
+STALL_W, STALL_D, PARK_AISLE = 10, 20, 24   # large stalls for trucks and SUVs, as on the source plan
+PARK_N = 9                            # stalls per row shown here (the main lot continues beyond this diagram)
 TURNOUT_SMALL = 48
 
 # ---------------------------------------------------------------- layout (x east, y south)
@@ -56,7 +57,7 @@ yB = 0                                        # second barns (Level 3)
 yA = yB + MOD + LANE                          # first barns (Level 2): 108..192
 y_drive = yA + MOD                            # main cross drive: 192..216
 y_pens = y_drive + LANE                       # existing pens: 216..240
-y_barn = y_pens + PEN_D                       # existing barn: 240..290
+y_barn = y_pens + PEN_D + EX_AISLE            # existing barn: 248..298
 SOUTH = y_barn + EX_D
 
 E = []
@@ -71,33 +72,44 @@ add("existing-barn", "Existing barn", EAST - EX_W, y_barn, EX_W, EX_D, "swine", 
     becomes={"2": {"use": "circulation", "note": "Storage"}})
 add("existing-pens", "7 existing cattle pens", x_col, y_pens, MOD, PEN_D, "cattle", 1, pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D]]})
 add("handling", "New corral, chute and scale", x_small - 6 * M, y_pens, 6 * M, 6 * M, "cattle", 1, kind="yard", note="Bud Box layout to come")
-park_w = PARK_N * STALL_W + 6
-add("parking", "Parking", x_mid, SOUTH - (2 * STALL_D + PARK_AISLE), park_w, 2 * STALL_D + PARK_AISLE, "circulation", 1, kind="parking",
-    note=f"{2 * PARK_N} spaces", stalls={"n": PARK_N, "w": STALL_W, "d": STALL_D, "aisle": PARK_AISLE, "inset": 3})
+# Parking: one bay of the main lot, between two 24' driveways. The west driveway continues the west lane;
+# the east driveway lines up with the cattle barns' tractor aisle, for equipment and material drop-off.
+park_w = PARK_N * STALL_W + 3
+y_park = y_pens + M                            # a 12' strip south of the cross drive
+x_drive_e = x_mid + park_w                     # east driveway 153..177, centred on the tractor aisle (x = 165)
+add("parking", "Main parking lot", x_mid, y_park, park_w, 2 * STALL_D + PARK_AISLE, "circulation", 1, kind="parking",
+    note="continues south", stalls={"n": PARK_N, "w": STALL_W, "d": STALL_D, "aisle": PARK_AISLE, "inset": 1.5})
+DRIVES = [dict(id="drive-west", x=x_west_lane, y=y_pens, w=LANE, h=y_park + 2 * STALL_D + PARK_AISLE - y_pens),
+          dict(id="drive-east", x=x_drive_e, y=y_pens, w=LANE, h=y_park + 2 * STALL_D + PARK_AISLE - y_pens)]
 # Level 2
 add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note="14 pens", pens=cattle_pens)
 add("small-a", "Small animal & swine barn A", x_small, yA, SMALL_W, MOD, "small_animal", 2, pens=small_pens)
-add("feed-1", "Feed storage", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container")
+add("feed-1", "Feed storage 1", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container", doors="w")
 add("turnout-cattle-a", "Turnout", x_col, yA, MOD, y_pens - yA, "arena", 2, kind="yard")
 add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, yA, TURNOUT_SMALL, MOD, "arena", 2, kind="yard")
 # Level 3
 add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note="14 pens", pens=cattle_pens)
 add("small-b", "Small animal barn B", x_small, yB, SMALL_W, MOD, "small_animal", 3, pens=small_pens)
 add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
-add("feed-2", "Feed storage", x_mid + 5, y_drive - 2 * BOX_W - 4 - M, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container")
+add("feed-2", "Feed storage 2", x_mid + 5, y_drive - 2 * BOX_W - 4, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container", doors="e")
 add("turnout-cattle-b", "Turnout", x_col, yB, MOD, MOD, "arena", 3, kind="yard")
 add("turnout-small-b", "Turnout", x_small - TURNOUT_SMALL, yB, TURNOUT_SMALL, MOD, "arena", 3, kind="yard")
 
 # ---------------------------------------------------------------- circulation: straight runs only
 # kind "service" = vehicles, tractors, deliveries; kind "animal" = stock moving between barn, turnout and handling
 xw, xe = x_west_lane + LANE / 2, x_east_lane + LANE / 2
+x_ta = x_cattle + PEN_D + AISLE / 2            # cattle tractor aisle
+y_cross = y_drive + LANE / 2
+y_end = y_pens + 7                             # datum: every north-south run ends just past the cross drive
+y_bay = y_park + STALL_D + PARK_AISLE / 2      # parking drive aisle
 C = [
-    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, SOUTH]]),
-    dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_drive + LANE / 2]]),
-    dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - 6 * M, y_drive + LANE / 2], [x_col, y_drive + LANE / 2]]),
+    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_end]]),
+    dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_end]]),
+    dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - 6 * M, y_cross], [x_col, y_cross]]),
     dict(id="lane-mid", kind="service", label="", pts=[[x_small - TURNOUT_SMALL, yB + MOD + LANE / 2], [EAST, yB + MOD + LANE / 2]]),
-    dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[x_cattle + PEN_D + AISLE / 2, yB - 14], [x_cattle + PEN_D + AISLE / 2, y_drive + 6]]),
-    dict(id="aisle-small", kind="service", label="", pts=[[x_small + SMALL_W / 2, yB - 14], [x_small + SMALL_W / 2, y_drive + 6]]),
+    dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[x_ta, yB - 14], [x_ta, y_end]]),
+    dict(id="aisle-small", kind="service", label="", pts=[[x_small + SMALL_W / 2, yB - 14], [x_small + SMALL_W / 2, y_end]]),
+    dict(id="loop-parking", kind="loop", label="", pts=[[xw, y_end + 10], [xw, y_bay], [x_drive_e + LANE / 2, y_bay], [x_drive_e + LANE / 2, y_end + 10]]),
     dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
     dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
     dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
@@ -119,7 +131,7 @@ dims = [
     {"label": f"{MOD}'", "x1": x_col, "y1": yB - 24, "x2": EAST, "y2": yB - 24},
 ]
 data = {
-    "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "circulation": C, "dims": dims,
+    "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "drives": DRIVES, "circulation": C, "dims": dims,
     "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W), "parking": 2 * PARK_N},
     "module_ft": M, "lane_ft": LANE,
 }
@@ -161,11 +173,13 @@ for lv in (1, 2, 3):
         svg.append(f'<g id="{e["id"]}"><rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
                    f'{pens_svg(e)}<text x="{e["x"] + e["w"] / 2}" y="{e["y"] + e["h"] / 2}" text-anchor="middle" font-size="5" font-weight="700" fill="{N["ink"]}">{e["label"].replace("&", "&amp;")}</text></g>')
     svg.append("</g>")
+svg.append('<g id="drives" inkscape:groupmode="layer" inkscape:label="Driveways">' + "".join(
+    f'<rect id="{d["id"]}" x="{d["x"]}" y="{d["y"]}" width="{d["w"]}" height="{d["h"]}" fill="{P["circulation"]["tint"]}" opacity=".6"/>' for d in DRIVES) + "</g>")
 svg.append('<g id="circulation" inkscape:groupmode="layer" inkscape:label="Circulation">')
 for c in C:
     col = P["cattle"]["base"] if c["kind"] == "animal" else N["ink"]
-    (xa, ya), (xb, yb) = c["pts"]
-    svg.append(f'<line id="{c["id"]}" x1="{xa}" y1="{ya}" x2="{xb}" y2="{yb}" stroke="{col}" stroke-width="2" stroke-linecap="round"/>')
+    pts = " ".join(f"{x},{y}" for x, y in c["pts"])
+    svg.append(f'<polyline id="{c["id"]}" points="{pts}" fill="none" stroke="{col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>')
 svg.append("</g></svg>")
 open(os.path.join(ROOT, "drawings", "ag-area-diagram.svg"), "w").write("".join(svg))
 print("extent (ft):", round(view[2]), "x", round(view[3]), "| elements:", len(E), "| circulation runs:", len(C), "| parking:", 2 * PARK_N)
