@@ -1,23 +1,24 @@
-"""Build the primary ag-area diagram: a to-scale layout of the barns, by Level and by use.
+"""Build the primary ag-area diagram: a to-scale layout of the barnyard, by Level and by use.
 
 This is a diagram, not a survey drawing. Units are feet, drawn square to the existing barn (which sits
-about 17 degrees off true north, measured from the study plan). The existing barn is the anchor in the
-bottom-right corner; everything new is placed from it using the dimensions below.
+about 17 degrees off true north, measured from the study plan). x runs east, y runs south from the
+north end of the barn runs. Everything sits on a 12' module with 24' lanes.
 
-Given by the architect:
-  cattle barn       14 pens = 2 rows of 7 x (12' x 24') on a 14' aisle  ->  84' x 62'; two barns in a run
-  small animal barn 36' wide, same length as the cattle barn (84'); two barns in a run
-  arena             50' wide, one barn module long (84'), between the runs
-  feed storage      between the runs, next to the parking
-  existing barn     80.4' wide with 7 existing 12' x 24' cattle pens on its north side (survey)
-Assumed here (flagged "assumed" in the data, to confirm):
-  gap between the two barns of a run, lanes between runs and the centre strip, feed storage size,
-  small-animal pen layout, turnout yard depth, parking outline, handling area location, and the
-  Level at which the feed storage and each second barn are built.
+Layout (architect's markup of 2026-10-12, snapped to the module):
+  east column   existing barn in the bottom-right corner, its 7 existing pens above it, and the two
+                cattle turnouts stacked above those
+  cattle run    two 14-pen barns (2 rows of 7 x 12' x 24' on a 14' aisle = 84' x 62'), west of the turnouts
+  centre strip  arena (50' x 84') beside the second barns; feed storage in shipping containers
+                (2 x 8' x 40') at the parking end
+  small run     two small animal barns, 84' x 36' (6' x 10' pens both sides of a 16' aisle)
+  west          small animal turnouts; new corral, chute and scale below them
+  south         parking: 9' x 18' stalls on a 24' aisle
 
 Writes
-  slides/data/ag-area.js          elements for slides/ag-area.html
-  drawings/ag-area-diagram.svg    editable master (Level 3 state, one layer per Level)
+  slides/data/ag-area.js          elements, circulation and dimensions for slides/ag-area.html
+  drawings/ag-area-diagram.svg    editable master (Level 3 state, one layer per Level + circulation)
+The master keeps one <g id="..."> per element. If it is edited in Illustrator, the ids survive, and the
+moved rectangles can be read back into the numbers below.
 
 Run:  python tools/build_ag_area.py
 """
@@ -28,73 +29,99 @@ pal = json.load(open(os.path.join(ROOT, "design", "palette.json")))
 P, N = pal["program"], pal["neutral"]
 
 # ---------------------------------------------------------------- dimensions (feet)
+M = 12                                # planning module
 PEN_W, PEN_D, AISLE = 12, 24, 14
-MOD = 7 * PEN_W                       # 84' barn module length
+MOD = 7 * PEN_W                       # 84' barn module
 CATTLE_W = 2 * PEN_D + AISLE          # 62'
 SMALL_W = 36
+SA_PEN_W, SA_PEN_D = 6, 10
+SA_AISLE = SMALL_W - 2 * SA_PEN_D     # 16'
 ARENA_W = 50
-SA_PEN_W, SA_PEN_D = 6, 10            # small-animal pen module
-SA_AISLE = SMALL_W - 2 * SA_PEN_D     # 16' aisle (assumed layout)
-EX_W, EX_D = 80.4, 50                 # existing barn (depth approximate)
-# assumed
-LANE = 24                             # between each run and the centre strip
-BARN_GAP = 20                         # between the two barns of a run
-YARD = 24                             # existing pens to the first new barns
-STORE_D = 40                          # feed storage depth (50' wide strip)
-TURNOUT = 48                          # turnout yard depth beside each run
+LANE = 24                             # every lane and gap: two modules
+EX_W, EX_D = 80.4, 50                 # existing barn (depth approximate, from the survey)
+BOX_W, BOX_L = 8, 40                  # shipping container
+STALL_W, STALL_D, PARK_AISLE = 9, 18, 24
+PARK_N = 10                           # stalls per row
+TURNOUT_SMALL = 48
 
-# ---------------------------------------------------------------- layout (x right, y up from the south edge)
+# ---------------------------------------------------------------- layout (x east, y south)
 x_small = 0
-x_mid = x_small + SMALL_W + LANE
-x_cattle = x_mid + ARENA_W + LANE
-RIGHT = x_cattle + CATTLE_W           # east edge, shared with the existing barn
-y_ex_pens = EX_D
-y1 = EX_D + PEN_D + YARD              # south end of the first barns
-y2 = y1 + MOD + BARN_GAP              # south end of the second barns
-TOP = y2 + MOD
+x_west_lane = x_small + SMALL_W               # 36..60
+x_mid = x_west_lane + LANE                    # 60..110
+x_east_lane = x_mid + ARENA_W                 # 110..134
+x_cattle = x_east_lane + LANE                 # 134..196
+x_col = x_cattle + CATTLE_W                   # east column 196..280
+EAST = x_col + MOD
+yB = 0                                        # second barns (Level 3)
+yA = yB + MOD + LANE                          # first barns (Level 2): 108..192
+y_drive = yA + MOD                            # main cross drive: 192..216
+y_pens = y_drive + LANE                       # existing pens: 216..240
+y_barn = y_pens + PEN_D                       # existing barn: 240..290
+SOUTH = y_barn + EX_D
 
 E = []
 def add(id_, label, x, y, w, h, use, level, kind="building", note="", assumed=False, **extra):
     E.append(dict(id=id_, label=label, x=x, y=y, w=w, h=h, use=use, level=level, kind=kind, note=note, assumed=assumed, **extra))
 
-# existing (Level 1)
-add("existing-barn", "Existing barn", RIGHT - EX_W, 0, EX_W, EX_D, "swine", 1, note="Hog pens inside", becomes={"2": {"use": "circulation", "note": "Storage"}})
-add("existing-pens", "7 existing cattle pens", RIGHT - MOD, y_ex_pens, MOD, PEN_D, "cattle", 1, pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D]]})
-add("handling", "New corral, chute and scale", RIGHT + 14, 8, 56, 60, "cattle", 1, kind="yard", note="Location to confirm", assumed=True)
-add("parking", "Parking", x_small, 4, RIGHT - EX_W - 22, 62, "circulation", 1, kind="parking", note="Existing lot, shown schematically", assumed=True)
+cattle_pens = {"n": 7, "w": PEN_W, "rows": [[0, PEN_D], [PEN_D + AISLE, PEN_D]], "vertical": True}
+small_pens = {"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}
+
+# Level 1
+add("existing-barn", "Existing barn", EAST - EX_W, y_barn, EX_W, EX_D, "swine", 1, note="Hog pens inside",
+    becomes={"2": {"use": "circulation", "note": "Storage"}})
+add("existing-pens", "7 existing cattle pens", x_col, y_pens, MOD, PEN_D, "cattle", 1, pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D]]})
+add("handling", "New corral, chute and scale", x_small - 6 * M, y_pens, 6 * M, 6 * M, "cattle", 1, kind="yard", note="Bud Box layout to come")
+park_w = PARK_N * STALL_W + 6
+add("parking", "Parking", x_mid, SOUTH - (2 * STALL_D + PARK_AISLE), park_w, 2 * STALL_D + PARK_AISLE, "circulation", 1, kind="parking",
+    note=f"{2 * PARK_N} spaces", stalls={"n": PARK_N, "w": STALL_W, "d": STALL_D, "aisle": PARK_AISLE, "inset": 3})
 # Level 2
-add("cattle-a", "Cattle barn A", x_cattle, y1, CATTLE_W, MOD, "cattle", 2, note="14 pens", pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D], [PEN_D + AISLE, PEN_D]], "vertical": True})
-add("small-a", "Small animal & swine barn A", x_small, y1, SMALL_W, MOD, "small_animal", 2, note="Sheep, goats, poultry, swine",
-    pens={"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}, assumed_pens=True)
-add("feed", "Feed storage", x_mid, y1, ARENA_W, STORE_D, "circulation", 2, note="Next to the parking", assumed=True)
-add("turnout-cattle-a", "Turnout", RIGHT + 4, y1, TURNOUT, MOD, "arena", 2, kind="yard", assumed=True)
-add("turnout-small-a", "Turnout", x_small - TURNOUT - 4, y1, TURNOUT, MOD, "arena", 2, kind="yard", assumed=True)
+add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note="14 pens", pens=cattle_pens)
+add("small-a", "Small animal & swine barn A", x_small, yA, SMALL_W, MOD, "small_animal", 2, pens=small_pens)
+add("feed-1", "Feed storage", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container")
+add("turnout-cattle-a", "Turnout", x_col, yA, MOD, y_pens - yA, "arena", 2, kind="yard")
+add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, yA, TURNOUT_SMALL, MOD, "arena", 2, kind="yard")
 # Level 3
-add("cattle-b", "Cattle barn B", x_cattle, y2, CATTLE_W, MOD, "cattle", 3, note="14 pens", pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D], [PEN_D + AISLE, PEN_D]], "vertical": True})
-add("small-b", "Small animal barn B", x_small, y2, SMALL_W, MOD, "small_animal", 3,
-    pens={"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}, assumed_pens=True)
-add("arena", "Arena", x_mid, y2, ARENA_W, MOD, "arena", 3, note="50' x 84'")
-add("turnout-cattle-b", "Turnout", RIGHT + 4, y2, TURNOUT, MOD, "arena", 3, kind="yard", assumed=True)
-add("turnout-small-b", "Turnout", x_small - TURNOUT - 4, y2, TURNOUT, MOD, "arena", 3, kind="yard", assumed=True)
+add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note="14 pens", pens=cattle_pens)
+add("small-b", "Small animal barn B", x_small, yB, SMALL_W, MOD, "small_animal", 3, pens=small_pens)
+add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
+add("feed-2", "Feed storage", x_mid + 5, y_drive - 2 * BOX_W - 4 - M, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container")
+add("turnout-cattle-b", "Turnout", x_col, yB, MOD, MOD, "arena", 3, kind="yard")
+add("turnout-small-b", "Turnout", x_small - TURNOUT_SMALL, yB, TURNOUT_SMALL, MOD, "arena", 3, kind="yard")
 
-# flip y so the SVG reads with the existing barn at the bottom
-for e in E:
-    e["y"] = TOP - (e["y"] + e["h"])
+# ---------------------------------------------------------------- circulation: straight runs only
+# kind "service" = vehicles, tractors, deliveries; kind "animal" = stock moving between barn, turnout and handling
+xw, xe = x_west_lane + LANE / 2, x_east_lane + LANE / 2
+C = [
+    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, SOUTH]]),
+    dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_drive + LANE / 2]]),
+    dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - 6 * M, y_drive + LANE / 2], [x_col, y_drive + LANE / 2]]),
+    dict(id="lane-mid", kind="service", label="", pts=[[x_small - TURNOUT_SMALL, yB + MOD + LANE / 2], [EAST, yB + MOD + LANE / 2]]),
+    dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[x_cattle + PEN_D + AISLE / 2, yB - 14], [x_cattle + PEN_D + AISLE / 2, y_drive + 6]]),
+    dict(id="aisle-small", kind="service", label="", pts=[[x_small + SMALL_W / 2, yB - 14], [x_small + SMALL_W / 2, y_drive + 6]]),
+    dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
+    dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
+    dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
+    dict(id="an-small-b", kind="animal", label="", pts=[[x_small + 8, yB + MOD / 2], [x_small - 30, yB + MOD / 2]]),
+    dict(id="an-pens", kind="animal", label="", pts=[[x_col + MOD / 2, y_pens + 8], [x_col + MOD / 2, y_pens - 30]]),
+]
 
-pad = 40
-view = [x_small - TURNOUT - 4 - pad, -pad, RIGHT + 14 + 56 + pad - (x_small - TURNOUT - 4 - pad), TOP + 2 * pad]
+pad = 34
+left = x_small - 6 * M - 26
+view = [left - pad, yB - 14 - pad, EAST - left + 2 * pad + 20, SOUTH - yB + 14 + 2 * pad]
 dims = [
-    {"label": f"{MOD}' barn module", "x1": RIGHT + TURNOUT + 16, "y1": TOP - (y2 + MOD), "x2": RIGHT + TURNOUT + 16, "y2": TOP - y2},
-    {"label": f"{CATTLE_W}'", "x1": x_cattle, "y1": -14, "x2": RIGHT, "y2": -14},
-    {"label": f"{ARENA_W}'", "x1": x_mid, "y1": -14, "x2": x_mid + ARENA_W, "y2": -14},
-    {"label": f"{SMALL_W}'", "x1": x_small, "y1": -14, "x2": x_small + SMALL_W, "y2": -14},
+    {"label": f"{MOD}'", "x1": EAST + 12, "y1": yB, "x2": EAST + 12, "y2": yB + MOD},
+    {"label": f"{LANE}'", "x1": EAST + 12, "y1": yB + MOD, "x2": EAST + 12, "y2": yA},
+    {"label": f"{SMALL_W}'", "x1": x_small, "y1": yB - 24, "x2": x_small + SMALL_W, "y2": yB - 24},
+    {"label": f"{LANE}'", "x1": x_west_lane, "y1": yB - 24, "x2": x_mid, "y2": yB - 24},
+    {"label": f"{ARENA_W}'", "x1": x_mid, "y1": yB - 24, "x2": x_east_lane, "y2": yB - 24},
+    {"label": f"{LANE}'", "x1": x_east_lane, "y1": yB - 24, "x2": x_cattle, "y2": yB - 24},
+    {"label": f"{CATTLE_W}'", "x1": x_cattle, "y1": yB - 24, "x2": x_col, "y2": yB - 24},
+    {"label": f"{MOD}'", "x1": x_col, "y1": yB - 24, "x2": EAST, "y2": yB - 24},
 ]
 data = {
-    "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "dims": dims,
-    "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35},
-               "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W)},
-    "assumptions": {"lane_ft": LANE, "barn_gap_ft": BARN_GAP, "yard_ft": YARD, "feed_storage_ft": [ARENA_W, STORE_D],
-                    "small_animal_aisle_ft": SA_AISLE, "turnout_depth_ft": TURNOUT, "existing_barn_depth_ft": EX_D},
+    "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "circulation": C, "dims": dims,
+    "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W), "parking": 2 * PARK_N},
+    "module_ft": M, "lane_ft": LANE,
 }
 os.makedirs(os.path.join(ROOT, "slides", "data"), exist_ok=True)
 with open(os.path.join(ROOT, "slides", "data", "ag-area.js"), "w") as fh:
@@ -105,16 +132,20 @@ with open(os.path.join(ROOT, "slides", "data", "ag-area.js"), "w") as fh:
 # ---------------------------------------------------------------- editable master (Level 3 state)
 def pens_svg(e):
     p = e.get("pens")
-    if not p:
-        return ""
     out = []
-    for off, depth in p["rows"]:
-        for i in range(p["n"]):
-            if p.get("vertical"):
-                out.append(f'<rect x="{e["x"] + off}" y="{e["y"] + i * p["w"]}" width="{depth}" height="{p["w"]}"/>')
-            else:
-                out.append(f'<rect x="{e["x"] + i * p["w"]}" y="{e["y"] + off}" width="{p["w"]}" height="{depth}"/>')
-    return f'<g fill="none" stroke="{N["ink"]}" stroke-width=".35" opacity=".45">{"".join(out)}</g>'
+    if p:
+        for off, depth in p["rows"]:
+            for i in range(p["n"]):
+                if p.get("vertical"):
+                    out.append(f'<rect x="{e["x"] + off}" y="{e["y"] + i * p["w"]}" width="{depth}" height="{p["w"]}"/>')
+                else:
+                    out.append(f'<rect x="{e["x"] + i * p["w"]}" y="{e["y"] + off}" width="{p["w"]}" height="{depth}"/>')
+    s = e.get("stalls")
+    if s:
+        for i in range(s["n"] + 1):
+            x = e["x"] + s["inset"] + i * s["w"]
+            out.append(f'<path d="M{x} {e["y"]}v{s["d"]}M{x} {e["y"] + s["d"] + s["aisle"]}v{s["d"]}"/>')
+    return f'<g fill="none" stroke="{N["ink"]}" stroke-width=".35" opacity=".45">{"".join(out)}</g>' if out else ""
 
 
 svg = [f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
@@ -130,6 +161,11 @@ for lv in (1, 2, 3):
         svg.append(f'<g id="{e["id"]}"><rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
                    f'{pens_svg(e)}<text x="{e["x"] + e["w"] / 2}" y="{e["y"] + e["h"] / 2}" text-anchor="middle" font-size="5" font-weight="700" fill="{N["ink"]}">{e["label"].replace("&", "&amp;")}</text></g>')
     svg.append("</g>")
-svg.append("</svg>")
+svg.append('<g id="circulation" inkscape:groupmode="layer" inkscape:label="Circulation">')
+for c in C:
+    col = P["cattle"]["base"] if c["kind"] == "animal" else N["ink"]
+    (xa, ya), (xb, yb) = c["pts"]
+    svg.append(f'<line id="{c["id"]}" x1="{xa}" y1="{ya}" x2="{xb}" y2="{yb}" stroke="{col}" stroke-width="2" stroke-linecap="round"/>')
+svg.append("</g></svg>")
 open(os.path.join(ROOT, "drawings", "ag-area-diagram.svg"), "w").write("".join(svg))
-print("extent (ft):", round(view[2]), "x", round(view[3]), "| elements:", len(E), "| small-animal pens per barn:", data["counts"]["small_animal_pens_per_barn"])
+print("extent (ft):", round(view[2]), "x", round(view[3]), "| elements:", len(E), "| circulation runs:", len(C), "| parking:", 2 * PARK_N)

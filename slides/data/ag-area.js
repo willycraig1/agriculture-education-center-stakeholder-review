@@ -2,18 +2,18 @@
 window.AG_AREA = {
  "units": "feet",
  "view": [
-  -92,
-  -40,
-  398,
-  366
+  -132,
+  -48,
+  466,
+  372
  ],
  "north_cw_from_up": -17,
  "elements": [
   {
    "id": "existing-barn",
    "label": "Existing barn",
-   "x": 115.6,
-   "y": 236,
+   "x": 199.6,
+   "y": 240,
    "w": 80.4,
    "h": 50,
    "use": "swine",
@@ -31,8 +31,8 @@ window.AG_AREA = {
   {
    "id": "existing-pens",
    "label": "7 existing cattle pens",
-   "x": 112,
-   "y": 212,
+   "x": 196,
+   "y": 216,
    "w": 84,
    "h": 24,
    "use": "cattle",
@@ -54,34 +54,41 @@ window.AG_AREA = {
   {
    "id": "handling",
    "label": "New corral, chute and scale",
-   "x": 210,
-   "y": 218,
-   "w": 56,
-   "h": 60,
+   "x": -72,
+   "y": 216,
+   "w": 72,
+   "h": 72,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "Location to confirm",
-   "assumed": true
+   "note": "Bud Box layout to come",
+   "assumed": false
   },
   {
    "id": "parking",
    "label": "Parking",
-   "x": 0,
-   "y": 220,
-   "w": 93.6,
-   "h": 62,
+   "x": 60,
+   "y": 230,
+   "w": 96,
+   "h": 60,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "Existing lot, shown schematically",
-   "assumed": true
+   "note": "20 spaces",
+   "assumed": false,
+   "stalls": {
+    "n": 10,
+    "w": 9,
+    "d": 18,
+    "aisle": 24,
+    "inset": 3
+   }
   },
   {
    "id": "cattle-a",
    "label": "Cattle barn A",
    "x": 134,
-   "y": 104,
+   "y": 108,
    "w": 62,
    "h": 84,
    "use": "cattle",
@@ -109,13 +116,13 @@ window.AG_AREA = {
    "id": "small-a",
    "label": "Small animal & swine barn A",
    "x": 0,
-   "y": 104,
+   "y": 108,
    "w": 36,
    "h": 84,
    "use": "small_animal",
    "level": 2,
    "kind": "building",
-   "note": "Sheep, goats, poultry, swine",
+   "note": "",
    "assumed": false,
    "pens": {
     "n": 14,
@@ -131,47 +138,46 @@ window.AG_AREA = {
      ]
     ],
     "vertical": true
-   },
-   "assumed_pens": true
+   }
   },
   {
-   "id": "feed",
+   "id": "feed-1",
    "label": "Feed storage",
-   "x": 60,
-   "y": 148,
-   "w": 50,
-   "h": 40,
+   "x": 65,
+   "y": 180,
+   "w": 40,
+   "h": 8,
    "use": "circulation",
    "level": 2,
-   "kind": "building",
-   "note": "Next to the parking",
-   "assumed": true
+   "kind": "container",
+   "note": "8' x 40' container",
+   "assumed": false
   },
   {
    "id": "turnout-cattle-a",
    "label": "Turnout",
-   "x": 200,
-   "y": 104,
-   "w": 48,
-   "h": 84,
+   "x": 196,
+   "y": 108,
+   "w": 84,
+   "h": 108,
    "use": "arena",
    "level": 2,
    "kind": "yard",
    "note": "",
-   "assumed": true
+   "assumed": false
   },
   {
    "id": "turnout-small-a",
    "label": "Turnout",
-   "x": -52,
-   "y": 104,
+   "x": -48,
+   "y": 108,
    "w": 48,
    "h": 84,
    "use": "arena",
    "level": 2,
    "kind": "yard",
    "note": "",
-   "assumed": true
+   "assumed": false
   },
   {
    "id": "cattle-b",
@@ -227,8 +233,7 @@ window.AG_AREA = {
      ]
     ],
     "vertical": true
-   },
-   "assumed_pens": true
+   }
   },
   {
    "id": "arena",
@@ -244,22 +249,35 @@ window.AG_AREA = {
    "assumed": false
   },
   {
+   "id": "feed-2",
+   "label": "Feed storage",
+   "x": 65,
+   "y": 160,
+   "w": 40,
+   "h": 8,
+   "use": "circulation",
+   "level": 3,
+   "kind": "container",
+   "note": "second container",
+   "assumed": false
+  },
+  {
    "id": "turnout-cattle-b",
    "label": "Turnout",
-   "x": 200,
+   "x": 196,
    "y": 0,
-   "w": 48,
+   "w": 84,
    "h": 84,
    "use": "arena",
    "level": 3,
    "kind": "yard",
    "note": "",
-   "assumed": true
+   "assumed": false
   },
   {
    "id": "turnout-small-b",
    "label": "Turnout",
-   "x": -52,
+   "x": -48,
    "y": 0,
    "w": 48,
    "h": 84,
@@ -267,37 +285,232 @@ window.AG_AREA = {
    "level": 3,
    "kind": "yard",
    "note": "",
-   "assumed": true
+   "assumed": false
+  }
+ ],
+ "circulation": [
+  {
+   "id": "lane-west",
+   "kind": "service",
+   "label": "West lane",
+   "pts": [
+    [
+     48.0,
+     -14
+    ],
+    [
+     48.0,
+     290
+    ]
+   ]
+  },
+  {
+   "id": "lane-east",
+   "kind": "service",
+   "label": "East lane",
+   "pts": [
+    [
+     122.0,
+     -14
+    ],
+    [
+     122.0,
+     204.0
+    ]
+   ]
+  },
+  {
+   "id": "drive-cross",
+   "kind": "service",
+   "label": "Cross drive",
+   "pts": [
+    [
+     -72,
+     204.0
+    ],
+    [
+     196,
+     204.0
+    ]
+   ]
+  },
+  {
+   "id": "lane-mid",
+   "kind": "service",
+   "label": "",
+   "pts": [
+    [
+     -48,
+     96.0
+    ],
+    [
+     280,
+     96.0
+    ]
+   ]
+  },
+  {
+   "id": "aisle-cattle",
+   "kind": "service",
+   "label": "Tractor aisle",
+   "pts": [
+    [
+     165.0,
+     -14
+    ],
+    [
+     165.0,
+     198
+    ]
+   ]
+  },
+  {
+   "id": "aisle-small",
+   "kind": "service",
+   "label": "",
+   "pts": [
+    [
+     18.0,
+     -14
+    ],
+    [
+     18.0,
+     198
+    ]
+   ]
+  },
+  {
+   "id": "an-cattle-a",
+   "kind": "animal",
+   "label": "",
+   "pts": [
+    [
+     188,
+     150.0
+    ],
+    [
+     226,
+     150.0
+    ]
+   ]
+  },
+  {
+   "id": "an-cattle-b",
+   "kind": "animal",
+   "label": "",
+   "pts": [
+    [
+     188,
+     42.0
+    ],
+    [
+     226,
+     42.0
+    ]
+   ]
+  },
+  {
+   "id": "an-small-a",
+   "kind": "animal",
+   "label": "",
+   "pts": [
+    [
+     8,
+     150.0
+    ],
+    [
+     -30,
+     150.0
+    ]
+   ]
+  },
+  {
+   "id": "an-small-b",
+   "kind": "animal",
+   "label": "",
+   "pts": [
+    [
+     8,
+     42.0
+    ],
+    [
+     -30,
+     42.0
+    ]
+   ]
+  },
+  {
+   "id": "an-pens",
+   "kind": "animal",
+   "label": "",
+   "pts": [
+    [
+     238.0,
+     224
+    ],
+    [
+     238.0,
+     186
+    ]
+   ]
   }
  ],
  "dims": [
   {
-   "label": "84' barn module",
-   "x1": 260,
+   "label": "84'",
+   "x1": 292,
    "y1": 0,
-   "x2": 260,
+   "x2": 292,
    "y2": 84
   },
   {
-   "label": "62'",
-   "x1": 134,
-   "y1": -14,
-   "x2": 196,
-   "y2": -14
-  },
-  {
-   "label": "50'",
-   "x1": 60,
-   "y1": -14,
-   "x2": 110,
-   "y2": -14
+   "label": "24'",
+   "x1": 292,
+   "y1": 84,
+   "x2": 292,
+   "y2": 108
   },
   {
    "label": "36'",
    "x1": 0,
-   "y1": -14,
+   "y1": -24,
    "x2": 36,
-   "y2": -14
+   "y2": -24
+  },
+  {
+   "label": "24'",
+   "x1": 36,
+   "y1": -24,
+   "x2": 60,
+   "y2": -24
+  },
+  {
+   "label": "50'",
+   "x1": 60,
+   "y1": -24,
+   "x2": 110,
+   "y2": -24
+  },
+  {
+   "label": "24'",
+   "x1": 110,
+   "y1": -24,
+   "x2": 134,
+   "y2": -24
+  },
+  {
+   "label": "62'",
+   "x1": 134,
+   "y1": -24,
+   "x2": 196,
+   "y2": -24
+  },
+  {
+   "label": "84'",
+   "x1": 196,
+   "y1": -24,
+   "x2": 280,
+   "y2": -24
   }
  ],
  "counts": {
@@ -306,18 +519,9 @@ window.AG_AREA = {
    "2": 21,
    "3": 35
   },
-  "small_animal_pens_per_barn": 28
+  "small_animal_pens_per_barn": 28,
+  "parking": 20
  },
- "assumptions": {
-  "lane_ft": 24,
-  "barn_gap_ft": 20,
-  "yard_ft": 24,
-  "feed_storage_ft": [
-   50,
-   40
-  ],
-  "small_animal_aisle_ft": 16,
-  "turnout_depth_ft": 48,
-  "existing_barn_depth_ft": 50
- }
+ "module_ft": 12,
+ "lane_ft": 24
 };
