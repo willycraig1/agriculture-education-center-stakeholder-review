@@ -11,7 +11,7 @@
   h1 { margin-bottom: 0; }
   .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
   .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
-  .map svg { display: block; width: 100%; height: auto; }
+  .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
   .map [data-layer] { transition: opacity .8s var(--ease), filter .8s var(--ease); }
   .map .off { opacity: 0; }
   .map #aerial.muted { filter: saturate(.45) brightness(1.06); }
@@ -51,8 +51,6 @@
     <div class="map card" data-step="0" id="map">
       <ol class="steps" id="steps"></ol>
       <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span><span data-step="5" hidden></span>
-      <div class="north"><svg width="34" height="16" viewBox="-17 -8 34 16"><path d="M-16 0 L10 -7 L5 0 L10 7 Z" fill="currentColor"/></svg>N</div>
-      <div class="scale" id="scale"></div>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
@@ -65,6 +63,7 @@
 <script src="data/site-map.js"></script>
 <script src="data/pasture-capacity.js"></script>
 <script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -77,18 +76,19 @@
   // entry arrow: drawn from below the campus toward the Red House
   const [rx, ry] = M.red_house;
   svg.querySelector("#campus").insertAdjacentHTML("beforeend",
-    `<g transform="translate(${rx - 62} ${ry + 34})"><path d="M0 120 L0 18" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
+    `<g transform="translate(${rx - 62} ${ry + 34})"><g data-fixed="1"><path d="M0 120 L0 18" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
      <path d="M-20 26 L0 -4 L20 26 Z" fill="var(--education)"/>
-     <text x="16" y="116" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g>
-     <g transform="translate(${rx + 26} ${ry - 18})"><text font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">Red House</text></g>`);
+     <text x="16" y="116" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g></g>
+     <g transform="translate(${rx + 26} ${ry - 18})"><text data-fixed="1" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">Red House</text></g>`);
 
-  // scale bar: 500 ft in map units, converted to screen px at the map's rendered width
-  const [vx0, vy0, vx1] = M.view, unitsPerFt = 1 / M.ft_per_unit;
-  const pxPerUnit = 1300 / (vx1 - vx0);
-  const bar = 500 * unitsPerFt * pxPerUnit;
-  document.getElementById("scale").innerHTML =
-    `<svg width="${bar + 50}" height="26"><rect width="${bar / 2}" height="6" fill="var(--ink)"/><rect x="${bar / 2}" width="${bar / 2}" height="6" fill="none" stroke="var(--ink)"/>
-     <text y="22" font-size="13" fill="currentColor">0</text><text x="${bar}" y="22" font-size="13" text-anchor="middle" fill="currentColor">500 ft</text></svg>`;
+  // pan/zoom viewer with preset framings (map units = presentation frame, north left)
+  const [vx0, vy0, vx1, vy1] = M.view;
+  const full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
+  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440], campus: [rx - 300, ry - 250, 640, 440] };
+  const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
+    presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site },
+              { label: "Bonus pasture", box: frames.bonus }, { label: "Campus", box: frames.campus }],
+    uiStyle: "right:auto;top:auto;left:512px;bottom:22px;max-width:none;justify-content:flex-start" });
 
   const soil = { "somewhat poorly": "#EFE7D4", "poorly": "#D8C69E", "very poorly": "#9FB9C6" };
   const steps = [
@@ -107,15 +107,18 @@
       lg: `<span><i style="background:var(--woodland);border-radius:50%;width:13px"></i>Surveyed tree</span><span><i style="background:none;border-top:3px dashed var(--woodland);height:0;margin-bottom:4px"></i>Edge of woods</span>`,
       show: ["aerial", "veil", "paddocks", "water", "trees", "labels"], muted: true },
     { t: "The campus", p: "The Red House and existing barns sit near the center of the site. The drive comes in from the west, at the bottom of the map.",
-      lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`,
+      lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`, frame: "campus",
       show: ["aerial", "veil", "paddocks", "water", "trees", "campus", "labels"], muted: true },
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
 
   const layers = [...svg.querySelectorAll("[data-layer]")].filter(g => g.parentNode.closest("[data-layer]") === null || g.parentNode.getAttribute("clip-path"));
+  let lastFrame = null;
   function apply(n) {
     const s = steps[Math.min(n, steps.length - 1)];
+    const f = s.frame || "full";
+    if (f !== lastFrame) { viewer.home(frames[f]); viewer.flyTo(frames[f], lastFrame === null || document.documentElement.classList.contains("static") ? 0 : 1200); lastFrame = f; }
     svg.querySelectorAll("[data-layer]").forEach(g => {
       if (!["aerial", "veil", "soils", "water", "trees", "paddocks", "campus", "labels"].includes(g.id)) return;
       g.classList.toggle("off", !s.show.includes(g.id));

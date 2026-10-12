@@ -61,7 +61,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - 2026-10-09: Source documents may be committed to the public repo
 - 2026-10-09: Pens confirmed 7 / 21 / 35 (one new 14-pen barn at Level 2, a second at Level 3). Barns are two rows of 7 facing a 14' tractor aisle (worked at the previous project)
 - 2026-10-09: Arena at Level 3
+- 2026-10-11: Floor plans stay as drawn (not rotated to north-left) and carry a north arrow instead. North on the Red House sheets is 141° counter-clockwise from up (toward lower-left), derived from the rotated room labels on the study plan and cross-checked by a wall fit.
 - 2026-10-09: Corral, squeeze chute and scale are Level 1. New swine housing and the dedicated small animal barn are one building at Level 2 (existing barn becomes storage). Horticulture Level 2 = beds with irrigation
+
+## Viewer
+- `design/viewer.js`: shared pan/zoom for any drawing on a slide (scroll = zoom, drag = pan, pinch, double-click = reset, preset chips, live scale bar, north arrow). Elements tagged `data-fixed` / `data-w` keep near-constant size on screen. Used by `slides/site.html` and `slides/red-house.html`; use it for every new drawing slide.
 
 ## Review link
 - Deck: https://willycraig1.github.io/agriculture-education-center-stakeholder-review/ (GitHub Pages from `main`). → / space / click step through builds then slides; ← back; F fullscreen; Slides menu in the bottom bar.

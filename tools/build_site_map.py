@@ -164,7 +164,12 @@ slough = [d for d in sv.get("TOP OF BANK", []) if d["rect"].height > 150 or d["r
 
 
 def g_paths(ds, m, t, attrs):
-    return (f'<g transform="{mat(m, t)}" {attrs}>' + paths(ds) + "</g>")
+    # expose stroke width / dash pattern as data-w / data-dash so the viewer can hold them steady on zoom
+    import re
+    w = re.search(r'stroke-width="([\d.]+)"', attrs)
+    dash = re.search(r'stroke-dasharray="([\d. ]+)"', attrs)
+    extra = (f' data-w="{w.group(1)}"' if w else "") + (f' data-dash="{dash.group(1)}"' if dash else "")
+    return (f'<g transform="{mat(m, t)}" {attrs}{extra}>' + paths(ds) + "</g>")
 
 
 water = (g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{6/abs(M_SP):.3f}" stroke-opacity="0.9"')
@@ -187,9 +192,9 @@ for ac, x, y in labels:
     area, cls = canopy.get(ac, ("?", "?"))
     c = P["pasture"] if area == "Site Pasture" else P["bonus"]
     px, py = pt(M_FP, T_FP, x, y)
-    tags.append(f'<g transform="translate({px:.1f} {py:.1f})"><rect x="-42" y="-17" width="84" height="34" rx="17" '
+    tags.append(f'<g transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
                 f'fill="{c["tint"]}" stroke="{c["base"]}" stroke-width="2"/>'
-                f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{ac:g} ac</text></g>')
+                f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{ac:g} ac</text></g></g>')
 paddocks = (g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"')
             + g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="{N["ink"]}" stroke-width="2" stroke-linecap="round"')
             + g_paths(drive_ds, M_FP, T_FP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.6"')
@@ -212,8 +217,8 @@ for b in page.get_text("dict")["blocks"]:
             bx = l["bbox"]
             sl.append(pt(M_SP, T_SP, (bx[0] + bx[2]) / 2, (bx[1] + bx[3]) / 2))
 sl = [p for p in sl if x0 + 80 < p[0] < x1 - 80 and y0 + 40 < p[1] < y1 - 40]
-slough_lbl = "".join(f'<text x="{p[0]:.0f}" y="{p[1]:.0f}" text-anchor="middle" font-size="30" font-style="italic" font-weight="600" '
-                     f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="5" paint-order="stroke">Cowpen Slough</text>'
+slough_lbl = "".join(f'<g transform="translate({p[0]:.0f} {p[1]:.0f})"><text data-fixed="1" text-anchor="middle" font-size="30" font-style="italic" font-weight="600" '
+                     f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="5" paint-order="stroke">Cowpen Slough</text></g>'
                      for p in sl[:1])
 
 # ---------------------------------------------------------------- aerial
@@ -228,10 +233,10 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        f'viewBox="{x0} {y0} {W} {H}" {font}>'
        f'<title>Clark Farm site layers (north to the left)</title>'
        f'<defs><clipPath id="frame"><rect x="{x0}" y="{y0}" width="{W}" height="{H}"/></clipPath></defs>'
-       f'<rect x="{x0}" y="{y0}" width="{W}" height="{H}" fill="{N["paper"]}"/>'
-       f'<g clip-path="url(#frame)">'
+       f'<rect x="{x0 - 4000}" y="{y0 - 4000}" width="{W + 8000}" height="{H + 8000}" fill="{N["paper"]}"/>'
+       f'<g id="map-content">'
        + layer("aerial", "Aerial (Sarasota County PA)", aerial)
-       + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(frame.difference(footprint))}" fill="{N["paper"]}" fill-opacity="0.72"/>'
+       + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000).difference(footprint))}" fill="{N["paper"]}" fill-opacity="0.72"/>'
                f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
        + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")
        + layer("water", "Water: slough, ponds, flood zone line", water)
