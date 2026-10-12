@@ -45,7 +45,10 @@ TITLE_BLOCK_X = 2370
 def excluded_boxes(page):
     """Sheet furniture to drop: plan titles with their scale/legend/north symbol, and on Level 3 the
     enlarged 'ADDITION FLOOR PLAN' inset (the addition is kept where it is placed on the site)."""
-    boxes = [(TITLE_BLOCK_X, 0, 9999, 9999)]
+    class Boxes(list):
+        inset = None
+        inset_geom = None
+    boxes = Boxes([(TITLE_BLOCK_X, 0, 9999, 9999)])
     for b in page.get_text("dict")["blocks"]:
         for l in b.get("lines", []):
             t = "".join(s["text"] for s in l["spans"]).strip()
@@ -54,6 +57,8 @@ def excluded_boxes(page):
                 boxes.append((x0 - 120, y0 - 70, TITLE_BLOCK_X, 9999))
             elif t.startswith("ADDITION FLOOR PLAN"):
                 boxes.append((x0 - 400, 0, TITLE_BLOCK_X, y1 + 70))
+                boxes.inset = boxes[-1]
+                boxes.inset_geom = (x0 - 400, 0, TITLE_BLOCK_X, y0 - 8)     # the inset drawing, above its title
     return boxes
 
 
@@ -103,22 +108,30 @@ sheets = []
 for page in doc:
     boxes = excluded_boxes(page)
     groups = {k: [] for k in LAYERS}
+    inset_groups = {k: [] for k in LAYERS}
     for d in page.get_drawings():
         L = d.get("layer")
         for k, ls in LAYERS.items():
             if L in ls and not inside(d["rect"], boxes):
                 groups[k].append(d)
+            elif L in ls and boxes.inset_geom and inside(d["rect"], [boxes.inset_geom]):
+                inset_groups[k].append(d)
+    inset_labels = []
     labels = []
     for b in page.get_text("dict")["blocks"]:
         for l in b.get("lines", []):
             t = "".join(s["text"] for s in l["spans"]).strip()
             r = pymupdf.Rect(l["bbox"])
+            if boxes.inset_geom and inside(r, [boxes.inset_geom]) and len(t) >= 2:
+                inset_labels.append((t, (r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2))
             if len(t) < 2 or inside(r, boxes) or l["dir"] != (1.0, 0.0):
                 continue
             size = max(s["size"] for s in l["spans"])
             labels.append({"t": t, "x": (r.x0 + r.x1) / 2, "y": r.y1 - size * 0.22, "size": size,
                            "dim": "X" in t and any(ch.isdigit() for ch in t)})
-    sheets.append({"groups": groups, "labels": labels, "boxes": boxes})
+    sheets.append({"groups": groups, "labels": labels, "boxes": boxes, "inset": inset_groups, "inset_labels": inset_labels,
+                   "clip": [min((d["rect"].x0 for d in groups["furniture"] + groups["walls"]), default=0),
+                            max((d["rect"].y1 for d in groups["walls"]), default=0)]})
 
 # ---------------------------------------------------------------- align every sheet to the Existing sheet
 offsets = [(0, 0)]
@@ -148,6 +161,69 @@ for k in range(1, len(sheets)):
     removed = {i for i, p in enumerate(prev) if len(p) and np.mean(tc.query(p)[0] < 1.8) < 0.4}
     diff.append({"new": new, "removed": removed})
 
+# ---------------------------------------------------------------- repair what the Level 3 sheet crops
+# Sheet A1.0-3 is plotted so that (a) the addition, placed at an angle, runs off the top-left corner and
+# (b) the bottom of the house runs off the bottom edge. Nothing past the sheet border is in the PDF.
+#   (a) The same sheet draws the whole addition again as an orthogonal inset. The inset is moved onto the
+#       placed addition with a rigid fit: seeded on the shared room labels, refined on the walls.
+#   (b) The cropped strip (porch, storage) is unchanged from Level 2, so it is taken from that sheet.
+# Both repairs are tagged in the output (class "repair") so they can be told apart from sheet linework.
+def rigid_fit(a, b):
+    am, bm = a.mean(), b.mean()
+    r = np.conj(a - am) @ (b - bm)
+    m = r / abs(r)
+    return m, bm - m * am
+
+
+repairs = {k: {} for k in range(len(sheets))}
+repair_note = {}
+K3 = next((k for k, sh in enumerate(sheets) if sh["boxes"].inset_geom), None)
+if K3 is not None:
+    sh = sheets[K3]
+    placed = {}
+    for l in sh["labels"]:
+        if l["y"] < sh["boxes"].inset[3] + 300 and l["x"] < 1000:
+            placed.setdefault(l["t"], []).append(complex(l["x"], l["y"]))
+    src, dst = [], []
+    for t, x, y in sh["inset_labels"]:
+        if t in placed and len(placed[t]) == 1 and sum(1 for q in sh["inset_labels"] if q[0] == t) == 1:
+            src.append(complex(x, y)); dst.append(placed[t][0])
+    m, t0 = rigid_fit(np.array(src), np.array(dst))
+    A = np.vstack([samples(d, 3) for d in sh["inset"]["walls"]])
+    a = A[:, 0] + 1j * A[:, 1]
+    B = np.vstack([samples(d, 2) for d in sh["groups"]["walls"] if d["rect"].y1 < 1000 and d["rect"].x1 < 1000])
+    tb = cKDTree(B)
+    cx, cy = sh["clip"][0] + 4, min(d["rect"].y0 for d in sh["groups"]["walls"]) + 4   # sheet crop edges
+    for it in range(120):
+        z = m * a + t0
+        on_sheet = (z.real > cx) & (z.imag > cy)             # only this part of the addition was plotted
+        dist, i = tb.query(np.c_[z.real, z.imag])
+        lim = max(1.2, 12 * 0.94 ** it)                      # tighten the match distance as the fit settles
+        k = on_sheet & (dist <= lim)
+        m, t0 = rigid_fit(a[k], B[i[k], 0] + 1j * B[i[k], 1])
+    z = m * a + t0
+    on_sheet = (z.real > cx) & (z.imag > cy)
+    dist = tb.query(np.c_[z.real, z.imag])[0][on_sheet]
+    ox, oy = offsets[K3]
+    mat = f"matrix({m.real:.6f} {m.imag:.6f} {-m.imag:.6f} {m.real:.6f} {t0.real - ox:.2f} {t0.imag - oy:.2f})"
+    for part, ds in sh["inset"].items():
+        body = "".join(f'<path d="{cadpdf.path_d(d)}"/>' for d in ds if cadpdf.path_d(d))
+        if body:
+            repairs[K3].setdefault("new" if part == "walls" else part, []).append(f'<g class="repair" transform="{mat}">{body}</g>')
+    repair_note["addition_from_inset"] = {"rotation_deg": float(np.degrees(np.angle(m))), "label_pairs": len(src),
+                                          "walls_within_1pt": float(np.mean(dist < 1.0)), "median_resid_pt": float(np.median(dist[dist < 20]))}
+    # (b) bottom strip from the previous Level
+    clip_y = sh["clip"][1] - oy                       # crop line in Existing coords
+    pox, poy = offsets[K3 - 1]
+    n = 0
+    for part, ds in sheets[K3 - 1]["groups"].items():
+        keep = [d for d in ds if d["rect"].y1 - poy > clip_y - 1 and d["rect"].y0 - poy > clip_y - 140]
+        body = "".join(f'<path d="{cadpdf.path_d(d)}"/>' for d in keep if cadpdf.path_d(d))
+        if body:
+            n += len(keep)
+            repairs[K3].setdefault(part, []).append(f'<g class="repair" transform="translate({-pox} {-poy})">{body}</g>')
+    repair_note["bottom_strip_from_previous_level"] = {"crop_line_y": float(clip_y), "paths": n}
+
 # ---------------------------------------------------------------- SVG fragments (Existing-sheet coords)
 def frag(ds, k, idx=None):
     ox, oy = offsets[k]
@@ -170,11 +246,12 @@ for k, s in enumerate(sheets):
     rm = ""
     if k > 0:
         rm = frag(sheets[k - 1]["groups"]["walls"], k - 1, diff[k]["removed"])
+    R = {part: "".join(v) for part, v in repairs[k].items()}
     levels.append({
-        "name": NAMES[k],
-        "below": frag(g["below"], k), "above": frag(g["above"], k), "furniture": frag(g["furniture"], k),
-        "fixtures": frag(g["fixtures"], k), "openings": frag(g["openings"], k),
-        "walls": frag(g["walls"], k, kept), "new": frag(g["walls"], k, nw), "removed": rm, "labels": lab,
+        "name": NAMES[k], "repaired": bool(R),
+        "below": frag(g["below"], k) + R.get("below", ""), "above": frag(g["above"], k) + R.get("above", ""), "furniture": frag(g["furniture"], k) + R.get("furniture", ""),
+        "fixtures": frag(g["fixtures"], k) + R.get("fixtures", ""), "openings": frag(g["openings"], k) + R.get("openings", ""),
+        "walls": frag(g["walls"], k, kept) + R.get("walls", ""), "new": frag(g["walls"], k, nw) + R.get("new", ""), "removed": rm, "labels": lab,
         "counts": {"walls": len(g["walls"]), "new": len(nw), "removed": len(diff[k]["removed"])},
     })
     for d in g["walls"]:
@@ -221,9 +298,10 @@ for k, L in enumerate(levels):
     svg.append(f'<g class="labels" inkscape:groupmode="layer" inkscape:label="labels">{L["labels"]}</g></g>')
 svg.append("</svg>")
 open(os.path.join(ROOT, "drawings", "red-house-levels.svg"), "w").write("".join(svg))
-json.dump({"offsets_pt": offsets, "view": view, "counts": [l["counts"] for l in levels]},
+json.dump({"offsets_pt": offsets, "view": view, "counts": [l["counts"] for l in levels], "repairs": repair_note},
           open(os.path.join(ROOT, "drawings", "data", "red-house.json"), "w"), indent=2)
 print("north (deg clockwise from up):", north_cw)
+print("repairs:", repair_note)
 print("offsets", offsets, "view", [round(v) for v in view])
 for l in levels:
     print(l["name"], l["counts"], "KB", sum(len(v) for v in l.values() if isinstance(v, str)) // 1024)

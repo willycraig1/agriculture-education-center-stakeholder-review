@@ -44,5 +44,17 @@
       "new": 52,
       "removed": 31
     }
-  ]
+  ],
+  "repairs": {
+    "addition_from_inset": {
+      "rotation_deg": -141.44362481129937,
+      "label_pairs": 4,
+      "walls_within_1pt": 0.9859375,
+      "median_resid_pt": 0.48386419483987253
+    },
+    "bottom_strip_from_previous_level": {
+      "crop_line_y": 1246.239990234375,
+      "paths": 16
+    }
+  }
 }
