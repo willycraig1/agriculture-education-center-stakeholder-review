@@ -21,8 +21,8 @@ Nothing proposed appears before Act 5.
 
 | Act | Question it answers | Time | Slides (file) | Status |
 |---|---|---|---|---|
-| **0 · Why we're here** | How do the Owner's goals shape the design? | 2 min | Design drivers and thesis (`drivers.html`) | Built |
-| **1 · What we have** | What does the land give us, and what is already built? | 8 min | Site, layer by layer: aerial, the land, water, soils, trees, campus (`site.html`) · Existing buildings, with site photos (`existing.html`) | Built · photos to come |
+| **0 · Why we're here** | How do the Owner's goals shape the design, and what are the Levels? | 3 min | Design drivers (`drivers.html`) · One plan, three Levels, ending on the thesis (`three-levels.html`) | Built |
+| **1 · What we have** | What does the land give us, and what is already built? | 8 min | Site, layer by layer: aerial, the land, water, soils, trees, campus (`site.html`) · Existing buildings, with site photos (`existing.html`) | Built · 4 of 6 photos in (cattle pens and corral to come) |
 | **2 · What the program needs** | Who uses it, with which animals, and what does each need? | 5 min | Program needs (`program.html`) | Built |
 | **3 · What the land can carry** | How many cattle, and what changes that number? | 7 min | Pasture capacity 7 / 14 / 27 CE (`pasture-capacity.html`) · 4-H pens 7 / 21 / 35 (`cattle-pens.html`) | Built |
 | **4 · The strategy** | How do we plan for the best case but start with the minimum? | 3 min | What each Level buys (`levels.html`) | Built |
@@ -32,7 +32,8 @@ Nothing proposed appears before Act 5.
 ## Talking points
 
 **Act 0. Design drivers.** The Owner has just framed the goals. Restate them as the four things that drive the design:
-pasture is scarce, so the land sets the herd · reuse before building new · grow in modules as demand grows · protect the water. Close on the thesis.
+pasture is scarce, so the land sets the herd · reuse before building new · grow in modules as demand grows · protect the water.
+Then introduce the three Levels before anything refers to them: Level 1 lightest touch, Level 2 better management, Level 3 best case, designed from Level 3 back to Level 1. Close on the thesis.
 
 **Act 1. What we have.** Walk the site from the air down: where it is, how much land (about 100 acres of potential pasture, 45 on the site and 55 of bonus land),
 where the water is, which soils stay wet, where the trees are, and where the existing buildings sit. Then the buildings themselves in photos:
@@ -44,6 +45,7 @@ The Ag Guide is the animal-care standard.
 
 **Act 3. What the land can carry.** Pasture capacity in cow equivalents: 7 CE on the site as it is managed today, 14 with rotational grazing, 27 with the bonus pasture.
 Management matters as much as land. Then 4-H pens: 7 exist, and new barns add 14 at a time as enrollment grows.
+*Comic relief:* the last build on the pens slide is a sticky note: "Yes, we are putting cow pens on Cow Pen Slough." It lands mid-deck, after the densest numbers.
 
 **Act 4. The strategy.** We planned the best case first, then worked back to the lightest touch that meets the program. One slide shows what each Level buys for every part of the program.
 
@@ -53,8 +55,7 @@ Management matters as much as land. Then 4-H pens: 7 exist, and new barns add 14
 
 ## Still needed
 
-1. **Site photos** for `existing.html`. Drop them in `photos/` with these names and they appear automatically:
-   `red-house.jpg`, `barn.jpg`, `cattle-pens.jpg`, `hog-enclosures.jpg`, `unfinished-barns.jpg`, `corral.jpg`.
+1. **Two more site photos** for `existing.html`: `cattle-pens` and `corral` (`.jpg`, `.jpeg` or `.png` in `photos/`).
 2. **Campus by Level** (Act 5): needs the campus plan without the west barn, ideally one state per Level.
 3. **Barn plans** (Act 5): cattle barn on the 14-pen layout, small animal & swine barn. *(User collecting)*
 4. **Paddock boundaries as closed polylines** so paddocks can be color-filled by Level. *(User working on it)*
