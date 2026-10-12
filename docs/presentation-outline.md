@@ -26,7 +26,7 @@ Nothing proposed appears before Act 5.
 | **2 · What the program needs** | Who uses it, with which animals, and what does each need? | 5 min | Program needs (`program.html`) | Built |
 | **3 · What the land can carry** | How many cattle, and what changes that number? | 7 min | Pasture capacity 7 / 14 / 27 CE (`pasture-capacity.html`) · 4-H pens 7 / 21 / 35 (`cattle-pens.html`) | Built |
 | **4 · The strategy** | How do we plan for the best case but start with the minimum? | 3 min | What each Level buys (`levels.html`) | Built |
-| **5 · The plan** | Given all that, how should the site be laid out? | 10 min | Paddocks and rotation (`paddocks.html`) · The barnyard, Level by Level (`ag-area.html`) · Red House by Level (`red-house.html`) | Built; barnyard spacing and a few placements to confirm |
+| **5 · The plan** | Given all that, how should the site be laid out? | 10 min | Paddocks and rotation (`paddocks.html`) · The barnyard, Level by Level, then its circulation (`ag-area.html`) · The Bud Box (`bud-box.html`) · Red House by Level (`red-house.html`) | Built; entry drive and Bud Box procedure to confirm |
 | **6 · Over to you** | What should the tables work on? | 2 min | Working-session topics (`input.html`) | Built |
 
 ## Talking points
