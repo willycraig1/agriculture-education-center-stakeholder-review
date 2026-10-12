@@ -28,19 +28,21 @@
 </div>
 <script src="../design/deck.js"></script>
 <script>
-// Site photos: drop JPEGs in /photos with these file names and they replace the placeholders.
+// Site photos: drop images in /photos with these base names (.jpg, .jpeg or .png) and they replace the placeholders.
+const EXTS = [".jpg", ".jpeg", ".png", ".JPG", ".JPEG"];
+function nextExt(img) { const k = +img.dataset.try + 1; if (k >= EXTS.length) return img.remove(); img.dataset.try = k; img.src = img.dataset.base + EXTS[k]; }
 const ITEMS = [
-  { file: "red-house.jpg", key: "education", name: "The Red House", note: "Former residence with several floor levels and wraparound porches." },
-  { file: "barn.jpg", key: "swine", name: "Existing barn", note: "One-story wood-frame building beside the cattle pens." },
-  { file: "cattle-pens.jpg", key: "cattle", name: "Seven cattle pens", note: "Covered, dirt-floor horse barn on the east side of the existing barn." },
-  { file: "hog-enclosures.jpg", key: "swine", name: "Hog enclosures", note: "Existing outdoor enclosures." },
-  { file: "unfinished-barns.jpg", key: "small-animal", name: "Small unfinished barns", note: "Structurally complete, without power or water yet." },
-  { file: "corral.jpg", key: "cattle", name: "Corral", note: "Existing corral for working pasture cattle." },
+  { file: "red-house", key: "education", name: "The Red House", note: "Former residence under the oaks, with several floor levels and wraparound porches." },
+  { file: "barn", key: "swine", name: "Existing barn", note: "Wood-sided barn with four roll-up doors and a concrete apron." },
+  { file: "cattle-pens", key: "cattle", name: "Seven cattle pens", note: "Covered, dirt-floor pens along the east side of the existing barn." },
+  { file: "hog-enclosures", key: "swine", name: "Hog enclosures", note: "Long open-sided timber shed, out in the pasture." },
+  { file: "unfinished-barns", key: "small-animal", name: "Small unfinished barns", note: "Open timber frames with new metal roofs, not yet served by power or water." },
+  { file: "corral", key: "cattle", name: "Corral", note: "Existing corral for working pasture cattle." },
 ];
 document.getElementById("grid").innerHTML = ITEMS.map((it, i) => `
   <article class="card b" data-step="${1 + Math.floor(i / 3)}">
-    <div class="ph"><div class="empty"><span>Site photo to come<br><code>photos/${it.file}</code></span></div>
-      <img src="../photos/${it.file}" alt="${it.name}" onerror="this.remove()"></div>
+    <div class="ph"><div class="empty"><span>Site photo to come<br><code>photos/${it.file}.jpg</code></span></div>
+      <img src="../photos/${it.file}.jpg" alt="${it.name}" data-base="../photos/${it.file}" data-try="0" onerror="nextExt(this)"></div>
     <div class="cap" style="border-top-color:var(--${it.key})"><h2>${it.name}</h2><p>${it.note}</p></div>
   </article>`).join("");
 Deck.start();
