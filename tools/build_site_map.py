@@ -328,20 +328,21 @@ for g_ in _groups:
     hit = [NAMES[k] for k in new_ids if not k.startswith("turnout") and polys[k].intersection(hull).area > 0.15 * hull.area]
     lane = None
     q = (complex(hull.centroid.x, hull.centroid.y) - T_DP) / M_DP          # centre in diagram feet
-    if not hit and 0 < q.real < 196 and 192 <= q.imag <= 216:
+    _cd = AG["cross_drive_box"]
+    if not hit and _cd[0] < q.real < _cd[2] and _cd[1] <= q.imag <= _cd[3]:
         lane = "cross drive"
     if hit or lane:
         checks["existing_structures_in"].append({"size_ft": size, "in": hit or [lane]})
 # clearance from the stall rows to the nearest surveyed building line south of them (the Red House)
 from shapely.geometry import LineString
 _dg = lambda q_: ((M_SP * complex(q_.x, q_.y) + T_SP - T_DP) / M_DP)
-_stalls = box(0, 228, 177, 356)                                  # diagram feet
+_stalls = box(*AG["stalls_box"])                                  # diagram feet
 _d = []
 for d in sv.get("BUILDING", []):
     for it in d["items"]:
         if it[0] == "l":
             a_, b_ = _dg(it[1]), _dg(it[2])
-            if min(a_.imag, b_.imag) > 356:
+            if min(a_.imag, b_.imag) > AG["stalls_box"][1] + 100:
                 _d.append(LineString([(a_.real, a_.imag), (b_.real, b_.imag)]).distance(_stalls))
 if _d:
     checks["stalls_to_red_house_ft"] = round(min(_d))
@@ -361,6 +362,11 @@ for d in sv.get("BUILDING", []):
             a_, b_ = _dg(it[1]), _dg(it[2])
             _bl.append([round(a_.real, 1), round(a_.imag, 1), round(b_.real, 1), round(b_.imag, 1)])
 json.dump(_bl, open(os.path.join(OUT, "data", "buildings-in-barnyard-frame.json"), "w"))
+checks["overlaps_existing"] = [[NAMES[k], NAMES[x], round(polys[k].intersection(polys[x]).area * unit_ft ** 2)] for k in new_ids
+                               for x in ("existing-barn", "existing-pens") if polys[k].intersection(polys[x]).area * unit_ft ** 2 > 1]
+checks["parking_to_existing_barn_ft"] = round(polys["parking"].distance(polys["existing-barn"]) * unit_ft)
+checks["wet_soil_pct_turnouts"] = {e["id"]: round(100 * polys[e["id"]].intersection(wet).area / polys[e["id"]].area)
+                                   for e in AG["elements"] if e["id"].startswith("turnout") and wet is not None}
 ext = unary_union(list(polys.values())).bounds
 checks["barnyard_box"] = [round(v, 1) for v in ext]
 
