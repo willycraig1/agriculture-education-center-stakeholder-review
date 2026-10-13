@@ -199,7 +199,8 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Open canopies.** From the survey's overhang lines (BUILDING OH): cattle pens lean-to along the existing barn's
   west wall (about 21' x 96', 1,830 sf), a small canopy at the barn's north wall (14' x 18'), and the carport at the
   Red House (29' x 38'). Drawn tinted with a dashed outline (`#canopies`), enclosed buildings stay solid. The
-  unfinished barn is still drawn solid although the survey shows it as an open frame.
+  unfinished barn (41' x 52') and the 27' x 10' shed north-west of the pens were moved to the same open-canopy
+  style at the architect's request.
 - **Slough, north end.** The property line turns a sharp corner onto the site's north line; that leg is 540 ft long, so
   the earlier end trim (short hooks only) left it in. `_tidy_end` now cuts at any corner over 40 degrees within 320
   units of an end, then extends 100 ft on the channel's heading.

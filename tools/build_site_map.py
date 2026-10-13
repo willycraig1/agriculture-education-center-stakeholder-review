@@ -263,7 +263,10 @@ _ub = [(M_SP * complex(q.x, q.y) + T_SP) for d in cadpdf.export(SURVEY, ["BUILDI
 _ub = [(z.real, z.imag) for z in _ub if abs(z.real - 1177) < 25 and abs(z.imag - 264) < 25]
 UNFINISHED_BARN = list(_MP(_ub).minimum_rotated_rectangle.exterior.coords) if len(_ub) >= 3 else []
 if EDITS:
-    _structs = (f'<polygon id="unfinished-barn" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in UNFINISHED_BARN)}"/>' if UNFINISHED_BARN else "") + "".join(f'<path transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{st_["d"]}Z"/>' for st_ in EDITS["structures"])
+    # open-sided structures are drawn with the canopies below, not as enclosed buildings (architect, 2026-10-13):
+    # the unfinished barn, and the 27' x 10' shed north-west of the cattle pens
+    OPEN_SHED = lambda st_: abs((st_["bbox"][0] + st_["bbox"][2]) / 2 - 1128.8) < 3 and abs((st_["bbox"][1] + st_["bbox"][3]) / 2 - 338.5) < 3
+    _structs = "".join(f'<path transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{st_["d"]}Z"/>' for st_ in EDITS["structures"] if not OPEN_SHED(st_))
     _camp0 = f'<g fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="1">{_structs}</g>'
     # the buildings in the south bonus pasture are drawn on the fencing plan (layer P-WALL), not in the edits file
     _camp0 += g_paths(bldg_ds, M_FP, T_FP, f'id="bonus-buildings" fill="{P["education"]["base"]}" fill-opacity=".85" stroke="{P["education"]["base"]}" stroke-width="1"')
@@ -286,6 +289,11 @@ if len(_pp) >= 8:
     CANOPIES.append({"id": "cattle-pens-canopy", "label": "Cattle pens", "pts": [_near(_pp, *q) for q in
                      ((1150.8, 299.0), (1155.4, 300.4), (1153.9, 305.3), (1156.9, 306.2), (1147.8, 336.0), (1140.2, 333.7))]})
     CANOPIES.append({"id": "barn-canopy", "label": "", "pts": [_near(_pp, *q) for q in ((1156.9, 306.2), (1158.5, 300.9), (1165.0, 302.8), (1163.4, 308.1))]})
+if UNFINISHED_BARN:
+    CANOPIES.append({"id": "unfinished-barn", "label": "Unfinished barn", "pts": UNFINISHED_BARN[:-1]})
+for st_ in (EDITS["structures"] if EDITS else []):
+    if OPEN_SHED(st_):
+        CANOPIES.append({"id": "pens-shed", "label": "", "pts": st_["pts"]})
 _cp = _oh_pts(1220, 376, 1243, 399)
 if len(_cp) >= 4:
     CANOPIES.append({"id": "carport", "label": "Carport", "pts": list(_MP(_cp).minimum_rotated_rectangle.exterior.coords)[:-1]})
