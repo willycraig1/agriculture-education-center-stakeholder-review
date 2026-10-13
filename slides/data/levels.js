@@ -37,7 +37,7 @@ window.LEVELS = {
     { key: "small_animal", label: "Small animals & poultry", cells: [
       { text: "Poultry in the small unfinished barns", confirmed: true },
       { text: "Small animal barn A, shared with the hogs", confirmed: true },
-      { text: "Add small animal barn B", confirmed: true } ] },
+      { text: "Extend barn A by 42'", confirmed: true } ] },
     { key: "arena", label: "Arena / demonstration", cells: [
       { text: "None (use the turnout yards)", confirmed: true },
       { text: "None", confirmed: true },

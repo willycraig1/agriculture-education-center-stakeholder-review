@@ -391,18 +391,18 @@ window.AG_AREA = {
   },
   {
    "id": "small-b",
-   "label": "Small animal barn B",
+   "label": "Barn A extension",
    "x": 0,
-   "y": 0,
+   "y": 66,
    "w": 36,
-   "h": 84,
+   "h": 42,
    "use": "small_animal",
    "level": 3,
    "kind": "building",
-   "note": "",
+   "note": "14 pens",
    "assumed": false,
    "pens": {
-    "n": 14,
+    "n": 7,
     "w": 6,
     "rows": [
      [
@@ -450,19 +450,6 @@ window.AG_AREA = {
    "x": 196,
    "y": 0,
    "w": 84,
-   "h": 96.0,
-   "use": "arena",
-   "level": 3,
-   "kind": "yard",
-   "note": "",
-   "assumed": false
-  },
-  {
-   "id": "turnout-small-b",
-   "label": "Turnout",
-   "x": -48,
-   "y": 0,
-   "w": 48,
    "h": 96.0,
    "use": "arena",
    "level": 3,
@@ -524,7 +511,7 @@ window.AG_AREA = {
    "label": "",
    "pts": [
     [
-     5,
+     39,
      96.0
     ],
     [
@@ -555,7 +542,7 @@ window.AG_AREA = {
    "pts": [
     [
      18.0,
-     -14
+     54
     ],
     [
      18.0,
@@ -670,21 +657,6 @@ window.AG_AREA = {
    ]
   },
   {
-   "id": "an-small-b",
-   "kind": "animal",
-   "label": "",
-   "pts": [
-    [
-     8,
-     42.0
-    ],
-    [
-     -30,
-     42.0
-    ]
-   ]
-  },
-  {
    "id": "an-pens",
    "kind": "animal",
    "label": "",
@@ -777,6 +749,10 @@ window.AG_AREA = {
    "3": 35
   },
   "small_animal_pens_per_barn": 28,
+  "small_animal_pens": {
+   "2": 28,
+   "3": 42
+  },
   "parking": 48
  },
  "module_ft": 12,
