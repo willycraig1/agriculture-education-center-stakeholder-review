@@ -10,7 +10,8 @@ Layout (architect's markup of 2026-10-12, snapped to the module):
   cattle run    two 14-pen barns (2 rows of 7 x 12' x 24' on a 14' aisle = 84' x 62'), west of the turnouts
   centre strip  arena (50' x 84') beside the second barns; feed storage in shipping containers
                 (2 x 8' x 40', side by side, doors at alternate ends, AC at the other end) at the parking end
-  small run     two small animal barns, 84' x 36' (6' x 10' pens both sides of a 16' aisle)
+  small run     small animal barn A, 84' x 36' (6' x 10' pens both sides of a 16' aisle), extended 42' north at
+                Level 3 to 126' x 36' (4,536 sf, 42 pens); the north-west corner beyond it stays pasture (wet soil)
   west          small animal turnouts; new corral, chute and scale below them
   south         the main parking lot, after the architect's simplified plan: north row, centre island, south row
                 backing onto the bioswale island; 10' x 20' stalls, 24' aisles. The apron in front of the
@@ -136,14 +137,17 @@ add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note=
 add("small-a", "Small animal barn A", x_small, yA, SMALL_W, MOD, "swine", 2, pens=small_pens)   # hog color: the hogs move here from the existing barn
 add("feed-1", "Feed storage 1", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container", doors="w")
 add("turnout-cattle-a", "Turnout", x_col, y_split, MOD, y_pens - y_split, "arena", 2, kind="yard")
-add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, y_split, TURNOUT_SMALL, yA + MOD - y_split, "arena", 2, kind="yard")
+add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, y_split, TURNOUT_SMALL, yA + MOD - y_split, "arena", 2, kind="yard")   # shared with the extension
 # Level 3
 add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note="14 pens", pens=cattle_pens)
-add("small-b", "Small animal barn B", x_small, yB, SMALL_W, MOD, "small_animal", 3, pens=small_pens)
+# Level 3 adds a 42' extension to barn A (not a second barn): a full-length barn B would sit 62% on the very
+# poorly drained soil, and that many small animal projects are unlikely. Extended, barn A is 126' x 36' = 4,536 sf.
+EXT = MOD // 2
+add("small-b", "Barn A extension", x_small, yA - EXT, SMALL_W, EXT, "small_animal", 3, note="14 pens",
+    pens={"n": EXT // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True})
 add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
 add("feed-2", "Feed storage 2", x_mid + 5, y_drive - 2 * BOX_W - 4, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container", doors="e")
 add("turnout-cattle-b", "Turnout", x_col, yB, MOD, y_split - yB, "arena", 3, kind="yard")
-add("turnout-small-b", "Turnout", x_small - TURNOUT_SMALL, yB, TURNOUT_SMALL, y_split - yB, "arena", 3, kind="yard")
 
 # ---------------------------------------------------------------- circulation: straight runs only
 # kind "service" = vehicles, tractors, deliveries; kind "animal" = stock moving between barn, turnout and handling
@@ -154,10 +158,10 @@ C = [
     dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_end]]),
     dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_end]]),
     dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - TURNOUT_SMALL, y_cross], [x_col - 3, y_cross]]),
-    dict(id="lane-mid", kind="service", label="", pts=[[x_small + 5, y_split], [x_col - 12, y_split]]),   # between the runs only; the turnouts close both ends
+    dict(id="lane-mid", kind="service", label="", pts=[[x_west_lane + 3, y_split], [x_col - 12, y_split]]),   # between the runs only; the turnouts close both ends
     # tractor aisles: straight through both barns of a run and on into the legs of the parking loop
     dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[X_ELEG, yB - 14], [X_ELEG, y_n_aisle - 4]]),
-    dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[X_WLEG, yB - 14], [X_WLEG, y_n_aisle - 4]]),
+    dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[X_WLEG, yA - EXT - 12], [X_WLEG, y_n_aisle - 4]]),
     # counter-clockwise loop: north up the east leg, west along the north aisle, south down the west leg
     dict(id="loop-parking", kind="loop", label="One-way loop",
          pts=[[X_ELEG, LOT_S + 16], [X_ELEG, y_n_aisle + 12], [X_WLEG, y_n_aisle + 12], [X_WLEG, LOT_S + 16]]),
@@ -166,7 +170,6 @@ C = [
     dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
     dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
     dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
-    dict(id="an-small-b", kind="animal", label="", pts=[[x_small + 8, yB + MOD / 2], [x_small - 30, yB + MOD / 2]]),
     dict(id="an-pens", kind="animal", label="", pts=[[x_col + MOD / 2, y_pens + 8], [x_col + MOD / 2, y_pens - 30]]),
 ]
 
@@ -186,7 +189,7 @@ dims = [
 data = {
     "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "drives": DRIVES, "circulation": C, "dims": dims,
     "notes": [dict(x=X_ELEG, y=LOT_S + 26, text="In, from the Red House side"), dict(x=X_WLEG, y=LOT_S + 26, text="Out, to the entry drive")],
-    "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W), "parking": n_stalls},
+    "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W), "small_animal_pens": {"2": 2 * (MOD // SA_PEN_W), "3": 2 * (MOD // SA_PEN_W) + 2 * (EXT // SA_PEN_W)}, "parking": n_stalls},
     "module_ft": M, "lane_ft": LANE,
 }
 os.makedirs(os.path.join(ROOT, "slides", "data"), exist_ok=True)

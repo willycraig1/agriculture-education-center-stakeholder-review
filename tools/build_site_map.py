@@ -276,7 +276,7 @@ for e in AG["elements"]:
     by.append(f'<g class="by" data-id="{e["id"]}" data-level="{e["level"]}" data-kind="{e["kind"]}" data-use="{e["use"]}" '
               f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
 barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
-BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Small animal barn B",
+BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Extension",
              "arena": "Arena", "parking": "Parking", "handling": "Handling", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""
 for e in AG["elements"]:

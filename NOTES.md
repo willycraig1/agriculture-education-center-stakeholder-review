@@ -107,14 +107,15 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   - Barn runs, arena, feed storage and turnouts: no surveyed trees inside.
   - Parking footprint: 22 surveyed trees inside, including the row along the existing drive.
   - Two existing surveyed structures (61' × 25' and 35' × 29') sit in the cross drive, at the south end of cattle barn A.
-  - Very poorly drained soil (Delray): small animal barn B 62% of its footprint, arena 18%, cattle barn B 9%.
+  - Very poorly drained soil (Delray), before the 2026-10-13 change: small animal barn B 62% of its footprint, arena 18%, cattle barn B 9%. After it: extension 0%, arena 18%, cattle barn B 9%.
   - South stall row is about 27' from the nearest Red House wall line; the loop's east leg cannot run straight south and has to bend around the house (as on the CAD plan). The diagram's bioswale-island stub south of the stalls is schematic.
   - The fencing plan's paddock lines around the campus follow the earlier U-shaped layout and need redrawing for this one.
 
 ## Layout study: small animal barn B and the wet soil (2026-10-12, awaiting the architect's choice)
 - `tools/study_wet_soil.py` → `drawings/studies/wet-soil-options.svg/.png/.json`. In the barnyard frame the very poorly drained soil is a wedge coming in from the north-west corner (down to about y = 80' at x = -40') plus a band across the whole north edge (y < 0 to 12'). The south barn row is entirely clear.
 - Share of footprint on that soil (small barn B / arena / cattle barn B): as drawn 62 / 18 / 9; A slide north row 12' south 48 / 5 / 0; B swap barn B and arena 18 / 62 / 9; C barn B beside barn A (south row) 0 / 18 / 9; D barn B in the middle strip south of the arena 0 / 18 / 9; E = C plus arena and cattle barn B 12' south 0 / 5 / 0. No option puts surveyed trees inside a building.
-- The deck's barnyard is unchanged until the architect picks an option.
+- Also tested: shifting everything new 48' south and 12' west (barn B 18%, arena 0%, cattle barn B 0%, but cattle turnout A lands on the existing pens and barn, the cross drive dead-ends at the existing barn, and the parking touches the Red House); and a half-length barn B (26% in place, 8% slid 12' south, 0% attached to barn A).
+- **Decision 2026-10-13:** no second small animal barn. Level 3 adds a 42' extension to barn A instead (14 more pens, 42 in all; extended barn 126' × 36' = 4,536 sf, smaller than one cattle barn at 5,208 sf). It shares barn A's turnout. The wet north-west corner stays pasture. The extension keeps the element id `small-b`. Arena (18%) and cattle barn B (9%) are unchanged. `tools/study_wet_soil.py` describes the superseded two-barn layout and no longer runs; its outputs remain in `drawings/studies/`.
 
 ## Water quality
 - Reference given by the Owner's side: the 2025 Water Quality Playbook, Gulf Coast Community Foundation (https://waterqualityplaybook.org), a regional blueprint for reducing nutrient pollution, organised as Reduce / Remove / Sustain. Most relevant actions: 4.6 (education and resources for farmers and ranchers: rotational/adaptive grazing, manure management, silvopasture, composting, FDACS BMPs incl. the 2024 Small Farms manual, UF/IFAS outreach to small farms), 4.7 (composting, rebuilding soils), chapter 2 (septic), chapters 6–7 (stormwater, 7.4 demonstration projects), 8.1 (wetland and shoreline habitat). It does not cover livestock exclusion from water or riparian buffers directly.
@@ -122,6 +123,6 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - Slide `slides/water-quality.html` (Act 5): site measures grouped under Reduce / Remove / Sustain, each tagged with the Playbook action it follows. The site measures come from the draft program criteria (§3.7, D.5, F.2, J.3–J.5) and the study plan (retention area, bioswale). Page 7.4 could not be fetched (server error); its title is cited only.
 
 ## Open questions
-- Which wet-soil layout option to adopt (see layout study)
+- Arena (18%) and cattle barn B (9%) still touch the wettest soil; a 12' slide south would take them to 5% and 0%
 - Campus plan by Level and barn interior plans for Act 5 (user collecting)
 - Paddock boundaries as closed polylines, so paddocks can be filled by Level and bonus fences hidden at Levels 1–2 (user working on it)
