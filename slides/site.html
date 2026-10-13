@@ -85,7 +85,14 @@
   // pan/zoom viewer with preset framings (map units = presentation frame, north left)
   const [vx0, vy0, vx1, vy1] = M.view;
   const full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
-  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440], campus: [rx - 300, ry - 250, 640, 440] };
+  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440], campus: null };
+  // Campus framing: centre the existing buildings in the part of the map the step panel leaves open
+  // (the panel covers the left 492 of 1300 px), with room around them.
+  {
+    const [cx0, cy0, cx1, cy1] = M.campus_box, open0 = 492 / 1300, ar = 2360 / 1500;
+    const w = Math.max((cx1 - cx0) * 1.7 / (1 - open0), (cy1 - cy0) * 1.7 * ar), h = w / ar;
+    frames.campus = [(cx0 + cx1) / 2 - w * (open0 + 1) / 2, (cy0 + cy1) / 2 - h / 2, w, h];
+  }
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site },
               { label: "Bonus pasture", box: frames.bonus }, { label: "Campus", box: frames.campus }],
