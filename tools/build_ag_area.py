@@ -111,12 +111,10 @@ TR_X, TR_W, TR_L = XW0 - 6 - LANE, LANE, 60    # trailer lane, 6' clear of the w
 HW, HH = 6 * M, 7 * M
 HX, HY = TR_X - HW, y_island                   # yard top = south edge of the north aisle
 LOT_S = max(y_s_row + STALL_D + 36, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
-col_s = y_n_aisle + 7 * STALL_W
-add("parking", "Main parking lot", TR_X, y_pens, XE1 + STALL_D - TR_X, LOT_S - y_pens, "circulation", 1, kind="parking", note=f"{n_stalls} spaces",
+LOT_X0, LOT_X1 = 0, XE1 + STALL_D              # architect's edit: the lot is a plain rectangle, 197' wide
+add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces",
     rows=ROWS, stall=[STALL_W, STALL_D],
-    outline=[[XW0, y_pens], [XW1, y_pens], [XW1, y_park], [XE0, y_park], [XE0, y_pens], [XE1, y_pens], [XE1, y_n_aisle], [XE1 + STALL_D, y_n_aisle],
-             [XE1 + STALL_D, col_s], [XE1, col_s + 12], [XE1, LOT_S], [XE0, LOT_S], [XE0, y_s_row + STALL_D], [XW1, y_s_row + STALL_D],
-             [XW1, LOT_S], [TR_X, LOT_S], [TR_X, y_n_aisle], [XW0, y_n_aisle]],
+    outline=[[LOT_X0, y_park], [LOT_X1, y_park], [LOT_X1, LOT_S], [LOT_X0, LOT_S]],
     island=dict(label="Bioswale island", x=XW1 + 2, y=y_s_row + STALL_D, w=XE0 - XW1 - 4, h=LOT_S - y_s_row - STALL_D))
 add("trailer-stop", "Trailer stop", TR_X, HY, TR_W, TR_L, "circulation", 1, kind="yard", note="gate at each end")
 DRIVES = []
@@ -131,30 +129,31 @@ add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", not
     dict(label="", x=16, y=12, w=2.6, h=ALLEY_L),
     dict(label="Chute", x=15.3, y=ay, w=4, h=9, fill=True, side=True),
 ])
-# Level 2
+# Level 2. Turnouts (architect's edit of 2026-10-12): each pair meets halfway across the 24' gap between the barn rows.
+y_split = yB + MOD + LANE / 2
 add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note="14 pens", pens=cattle_pens)
-add("small-a", "Small animal & swine barn A", x_small, yA, SMALL_W, MOD, "small_animal", 2, pens=small_pens)
+add("small-a", "Small animal barn A", x_small, yA, SMALL_W, MOD, "small_animal", 2, pens=small_pens)
 add("feed-1", "Feed storage 1", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container", doors="w")
-add("turnout-cattle-a", "Turnout", x_col, yA, MOD, y_pens - yA, "arena", 2, kind="yard")
-add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, yA, TURNOUT_SMALL, MOD, "arena", 2, kind="yard")
+add("turnout-cattle-a", "Turnout", x_col, y_split, MOD, y_pens - y_split, "arena", 2, kind="yard")
+add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, y_split, TURNOUT_SMALL, yA + MOD - y_split, "arena", 2, kind="yard")
 # Level 3
 add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note="14 pens", pens=cattle_pens)
 add("small-b", "Small animal barn B", x_small, yB, SMALL_W, MOD, "small_animal", 3, pens=small_pens)
 add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
 add("feed-2", "Feed storage 2", x_mid + 5, y_drive - 2 * BOX_W - 4, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container", doors="e")
-add("turnout-cattle-b", "Turnout", x_col, yB, MOD, MOD, "arena", 3, kind="yard")
-add("turnout-small-b", "Turnout", x_small - TURNOUT_SMALL, yB, TURNOUT_SMALL, MOD, "arena", 3, kind="yard")
+add("turnout-cattle-b", "Turnout", x_col, yB, MOD, y_split - yB, "arena", 3, kind="yard")
+add("turnout-small-b", "Turnout", x_small - TURNOUT_SMALL, yB, TURNOUT_SMALL, y_split - yB, "arena", 3, kind="yard")
 
 # ---------------------------------------------------------------- circulation: straight runs only
 # kind "service" = vehicles, tractors, deliveries; kind "animal" = stock moving between barn, turnout and handling
 xw, xe = x_west_lane + LANE / 2, x_east_lane + LANE / 2
 y_cross = y_drive + LANE / 2
-y_end = y_pens + 7                             # datum: the lanes between the runs end just past the cross drive
+y_end = y_drive + 3                            # datum: the lanes between the runs end just inside the cross drive
 C = [
     dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_end]]),
     dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_end]]),
-    dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - TURNOUT_SMALL, y_cross], [x_col, y_cross]]),
-    dict(id="lane-mid", kind="service", label="", pts=[[x_small - TURNOUT_SMALL, yB + MOD + LANE / 2], [EAST, yB + MOD + LANE / 2]]),
+    dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - TURNOUT_SMALL, y_cross], [x_col - 3, y_cross]]),
+    dict(id="lane-mid", kind="service", label="", pts=[[x_small + 5, y_split], [x_col - 12, y_split]]),   # between the runs only; the turnouts close both ends
     # tractor aisles: straight through both barns of a run and on into the legs of the parking loop
     dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[X_ELEG, yB - 14], [X_ELEG, y_n_aisle - 4]]),
     dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[X_WLEG, yB - 14], [X_WLEG, y_n_aisle - 4]]),
@@ -232,7 +231,11 @@ for lv in (1, 2, 3):
         c = P[use]
         dash = ' stroke-dasharray="3 2"' if e["kind"] == "yard" else ""
         fill = c["tint"] if e["kind"] != "yard" else "none"
-        svg.append(f'<g id="{e["id"]}"><rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
+        if e.get("outline"):
+            shape = '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + f'" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
+        else:
+            shape = f'<rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
+        svg.append(f'<g id="{e["id"]}">{shape}'
                    f'{pens_svg(e)}<text x="{e["x"] + e["w"] / 2}" y="{e["y"] + e["h"] / 2}" text-anchor="middle" font-size="5" font-weight="700" fill="{N["ink"]}">{e["label"].replace("&", "&amp;")}</text></g>')
     svg.append("</g>")
 svg.append('<g id="drives" inkscape:groupmode="layer" inkscape:label="Driveways">' + "".join(
