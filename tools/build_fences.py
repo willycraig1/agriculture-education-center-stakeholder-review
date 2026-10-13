@@ -22,7 +22,11 @@ from siteframe import ROOT, OUT, FENCE, cadpdf, M_FP, T_FP, FT_PER_PT, ARROW_BOX
 
 MAX_GAP, MAX_TURN, SNAP = 24.0, 14.0, 22.0        # sheet units, degrees, sheet units
 
-def chain(segs, max_gap, max_turn, snap, min_len=30):
+def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0):
+    """protect: points (gate leaf ends). Fence ends within protect_r of one are left exactly as drawn: they are the
+    deliberately offset ends that form a pinwheel, and must not be joined or snapped to their neighbours."""
+    ptree = cKDTree(protect) if protect is not None and len(protect) else None
+    guarded = lambda q: ptree is not None and ptree.query(q)[0] < protect_r
 
     # endpoints: index 2i = start of segment i, 2i+1 = end. Outward direction at each endpoint.
     P = np.array([p for s in segs for p in s])
@@ -38,6 +42,8 @@ def chain(segs, max_gap, max_turn, snap, min_len=30):
             dist = np.linalg.norm(w)
             if dist < 1e-6:
                 cands.append((0.0, i, j)); continue
+            if guarded(P[i]) and guarded(P[j]):
+                continue
             w /= dist
             turn = max(math.degrees(math.acos(np.clip(D[i] @ w, -1, 1))), math.degrees(math.acos(np.clip(-D[j] @ w, -1, 1))))
             bend = math.degrees(math.acos(np.clip(-(D[i] @ D[j]), -1, 1)))      # change of direction across the joint
@@ -79,6 +85,8 @@ def chain(segs, max_gap, max_turn, snap, min_len=30):
         pts = list(c.coords)
         for k in (0, -1):
             end = Point(pts[k])
+            if guarded(pts[k]):
+                continue
             best = None
             for o in others:
                 if o is c:
@@ -99,31 +107,6 @@ def chain(segs, max_gap, max_turn, snap, min_len=30):
                         q = hp
                 pts[k] = (q.x, q.y)
         return LineString(pts)
-    # junctions: where three or four runs stop short of one another (around a gate symbol), pull their loose
-    # ends together to one point
-    ends = [(ci, k, np.array(c.coords[k])) for ci, c in enumerate(chains) for k in (0, -1)]
-    loose = ends            # done before the T-snapping below, so every end is still where it was drawn
-    if len(loose) > 1:
-        LP = np.array([e[2] for e in loose])
-        pairs = cKDTree(LP).query_pairs(snap * 0.9)
-        parent = list(range(len(loose)))
-        def find(i):
-            while parent[i] != i:
-                parent[i] = parent[parent[i]]; i = parent[i]
-            return i
-        for i, j in pairs:
-            parent[find(i)] = find(j)
-        groups = {}
-        for i in range(len(loose)):
-            groups.setdefault(find(i), []).append(i)
-        coords = [list(c.coords) for c in chains]
-        for g in groups.values():
-            if len(g) >= 2:
-                cen = LP[g].mean(0)
-                for i in g:
-                    ci, k, _ = loose[i]
-                    coords[ci][k] = (float(cen[0]), float(cen[1]))
-        chains = [LineString(c) for c in coords]
     chains = [snap_end(c, chains) for c in chains]
     merged = linemerge(unary_union(chains))
     runs = list(getattr(merged, "geoms", [merged]))
@@ -150,7 +133,7 @@ for L, ds in cadpdf.export(FENCE, ["FENCE", "(none)", "P-BELOW-LIGHT"]).items():
         if len(pts) < 2:
             continue
         path = LineString(pts)
-        dash = 9 <= path.length <= 26
+        dash = (3 if L == "FENCE" else 9) <= path.length <= 26     # short end pieces at gates are real fence
         if L != "FENCE" and not dash and any(inside(r, b) for b in WATER_BOXES):
             continue                                                       # pond and retention outlines
         if L == "P-BELOW-LIGHT" and not dash:
@@ -173,7 +156,18 @@ for path in solids:
         segs += [(np.array(a), np.array(b)) for a, b in zip(q, q[1:]) if np.hypot(b[0] - a[0], b[1] - a[1]) >= 2]
         n_solid += 1
 print("fence strokes kept:", len(segs), "| solid stretches taken as fence:", n_solid, "of", len(solids))
-runs = chain(segs, MAX_GAP, MAX_TURN, SNAP)
+# Gates (layer A-DOOR): a straight leaf with a swing arc. Where four fences meet they are deliberately offset
+# into a pinwheel, each with a gate, around a shared space for feed and water.
+gate_leaves, gate_arcs = [], []
+for d in cadpdf.export(FENCE, ["A-DOOR"]).get("A-DOOR", []):
+    for it in d["items"]:
+        if it[0] == "l":
+            gate_leaves.append([[it[1].x, it[1].y], [it[2].x, it[2].y]])
+        elif it[0] == "c":
+            gate_arcs.append([[q.x, q.y] for q in it[1:5]])
+gate_leaves = [g for g in gate_leaves if np.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]) > 2]
+GP = np.array([q for g in gate_leaves for q in g])
+runs = chain(segs, MAX_GAP, MAX_TURN, SNAP, protect=GP)
 
 # ---- property lines (layer SECTION LINE): short dashes with dots between them
 pl_segs = []
@@ -198,10 +192,28 @@ for k, r in enumerate(sorted(runs, key=lambda r: -r.length)):
     out["runs"].append({"id": f"fence-{k + 1:02d}", "length_ft": round(r.length * FT_PER_PT),
                         "sheet": [[round(x, 2), round(y, 2)] for x, y in r.coords], "map": [to_p(c) for c in r.coords]})
 out["total_ft"] = sum(r["length_ft"] for r in out["runs"])
+def _cluster(pts, r):
+    pairs = cKDTree(pts).query_pairs(r); par = list(range(len(pts)))
+    def f(i):
+        while par[i] != i:
+            par[i] = par[par[i]]; i = par[i]
+        return i
+    for i, j in pairs:
+        par[f(i)] = f(j)
+    g = {}
+    for i in range(len(pts)):
+        g.setdefault(f(i), []).append(i)
+    return list(g.values())
+_mid = np.array([[(g[0][0] + g[1][0]) / 2, (g[0][1] + g[1][1]) / 2] for g in gate_leaves])
+out["gates"] = [{"length_ft": round(float(np.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]) * FT_PER_PT), 1),
+                 "sheet": [[round(v, 2) for v in q] for q in g], "map": [to_p(q) for q in g]} for g in gate_leaves]
+out["gate_arcs"] = [{"sheet": [[round(v, 2) for v in q] for q in a], "map": [to_p(q) for q in a]} for a in gate_arcs]
+out["pinwheels"] = [{"gates": len(c), "map": to_p(_mid[c].mean(0))} for c in _cluster(_mid, 30) if len(c) >= 4]
 out["property_lines"] = [{"id": f"pl-{k + 1:02d}", "length_ft": round(r.length * FT_PER_PT),
                           "sheet": [[round(x, 2), round(y, 2)] for x, y in r.coords], "map": [to_p(c) for c in r.coords]}
                          for k, r in enumerate(sorted(pl_runs, key=lambda r: -r.length))]
 json.dump(out, open(os.path.join(OUT, "data", "fences.json"), "w"), indent=1)
 print("runs:", len(out["runs"]), "| total length ft:", out["total_ft"], "| vertices:", sum(len(r["sheet"]) for r in out["runs"]))
+print("gates:", len(out["gates"]), "| pinwheels:", len(out["pinwheels"]), "| gate lengths ft:", sorted({round(g["length_ft"]) for g in out["gates"]}))
 print("property lines:", [(r["id"], r["length_ft"], len(r["sheet"])) for r in out["property_lines"]])
 print("longest:", [(r["id"], r["length_ft"], len(r["sheet"])) for r in out["runs"][:6]], "shortest:", [r["length_ft"] for r in out["runs"][-6:]])

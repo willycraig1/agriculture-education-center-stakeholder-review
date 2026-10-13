@@ -164,6 +164,12 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   - Movement against the first registration: 28 ft at the campus, 1 ft at the north-west end, 44 ft at the south end, 79 ft at the south end of the east line. Canopy 60.9 ac; traced water a median 10 ft from the west property line.
   - The trace's drives layer is no longer drawn (fragmentary, and falling inside pasture enclosures).
 
+- 2026-10-13, round 3 (corrections from the architect):
+  - Pinwheels: where four paddock fences meet they are deliberately offset, each ending in a gate, around a small shared space for centralised feed and water. My junction clustering had collapsed these to a point; it is removed. Fence ends within 8 units of a gate leaf are now left exactly as drawn (no joining, no snapping). The plan has three pinwheels (north triangle, the 14.4/4.9/3.8 area, the 13.0/10.2 area).
+  - Gates: drawn from the plan's A-DOOR layer (leaf plus swing arc), in the cattle colour, in the `paddocks` layer (`#gates`); also in `fences.json` (`gates`, `gate_arcs`, `pinwheels`). 34 gates: 23 drawn at 16', 10 at 14', 1 at 12'. The architect's intent is 16' at every location; the drawing shows them as plotted.
+  - Cowpen Slough ends: the property line turns away from the waterway at each end of the site; the slough line is cut back to its last straight stretch there and carried on 100 ft along that heading.
+  - South bonus pasture buildings (fencing plan layer P-WALL, 5 outlines) are drawn again; they had dropped out when the architect's structure outlines replaced the survey linework.
+
 ## Water quality
 - Reference given by the Owner's side: the 2025 Water Quality Playbook, Gulf Coast Community Foundation (https://waterqualityplaybook.org), a regional blueprint for reducing nutrient pollution, organised as Reduce / Remove / Sustain. Most relevant actions: 4.6 (education and resources for farmers and ranchers: rotational/adaptive grazing, manure management, silvopasture, composting, FDACS BMPs incl. the 2024 Small Farms manual, UF/IFAS outreach to small farms), 4.7 (composting, rebuilding soils), chapter 2 (septic), chapters 6–7 (stormwater, 7.4 demonstration projects), 8.1 (wetland and shoreline habitat). It does not cover livestock exclusion from water or riparian buffers directly.
 - Figures used (action 4.6, citing USDA 2022): 286 farms in Sarasota County, about half under 10 acres; cow/calf is 59% of farms; about 46% of registered, eligible farmland is in FDACS BMP programs; only about one-third of farms under 10 acres are enrolled.
