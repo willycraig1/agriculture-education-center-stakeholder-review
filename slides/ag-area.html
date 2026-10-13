@@ -12,9 +12,9 @@
   .body { display: grid; grid-template-columns: 1180px 1fr; gap: 36px; margin-top: 22px; flex: 1; min-height: 0; }
   .plan { position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; align-self: start; }
   .plan > svg { display: block; width: 100%; height: 816px; }
-  .el rect.shape { transition: fill .8s var(--ease), stroke .8s var(--ease), stroke-width .5s, opacity .8s var(--ease); }
+  .el .shape { transition: fill .8s var(--ease), stroke .8s var(--ease), stroke-width .5s, opacity .8s var(--ease); }
   .el .pens, .el text, .el .new { transition: opacity .8s var(--ease); }
-  .el.future rect.shape { fill: none !important; stroke: var(--line) !important; stroke-dasharray: 3 3; }
+  .el.future .shape { fill: none !important; stroke: var(--line) !important; stroke-dasharray: 3 3; }
   .el.future .pens, .el.future .new { opacity: 0; }
   .el.future text { opacity: .45; }
   .el:not(.isnew) .new { opacity: 0; }
@@ -74,11 +74,21 @@
     return `<g class="pens" fill="none" stroke="var(--ink)" stroke-width=".4" opacity=".4">${s}</g>`;
   }
   function parking(e) {
-    const p = e.stalls; let s = "";
-    for (let i = 0; i <= p.n; i++) { const x = e.x + p.inset + i * p.w; s += `<path d="M${x} ${e.y}v${p.d}M${x} ${e.y + p.d + p.aisle}v${p.d}"/>`; }
-    return `<g class="pens" fill="none" stroke="var(--circulation)" stroke-width=".5" opacity=".75">${s}
-      <path d="M${e.x} ${e.y + p.d}h${e.w}M${e.x} ${e.y + p.d + p.aisle}h${e.w}" stroke-dasharray="2 2"/></g>
-      <text class="note" x="${e.x + e.w / 2}" y="${e.y + p.d / 2 + 1.5}" text-anchor="middle" font-size="4.4">${p.aisle}' drive aisle · ${p.w}' × ${p.d}' stalls</text>`;
+    const [w, d] = e.stall; let st = "";
+    e.rows.forEach(([x, y, n]) => { for (let k = 0; k < n; k++) st += `<rect x="${x + k * w}" y="${y}" width="${w}" height="${d}"/>`; });
+    return `<g class="pens" fill="#fff" fill-opacity=".55" stroke="var(--circulation)" stroke-width=".5">${st}</g>`;
+  }
+  function zones(e) {
+    return `<g class="pens" stroke="var(--cattle)" stroke-width=".5">${e.zones.map(z =>
+      `<rect x="${e.x + z.x}" y="${e.y + z.y}" width="${z.w}" height="${z.h}" fill="${z.fill ? "var(--cattle-tint)" : "none"}"/>`).join("")}</g>`;
+  }
+  function zoneLabels(e) {
+    return e.zones.filter(z => z.label).map(z => {
+      const cx = e.x + z.x + z.w / 2, cy = e.y + z.y + z.h / 2;
+      return z.side ? `<text class="note" x="${e.x + z.x + z.w + 1.5}" y="${cy + 1.2}" font-size="3.3">${z.label}</text>`
+           : z.rot ? `<text class="note" transform="translate(${cx} ${cy}) rotate(-90)" text-anchor="middle" font-size="3.6" dy="1.2">${z.label}</text>`
+           : `<text class="note" x="${cx}" y="${cy + 1.2}" text-anchor="middle" font-size="${z.w < 24 ? 3.1 : 3.6}">${z.label}</text>`;
+    }).join("");
   }
   // shipping container details: double doors on one end, AC unit on the other
   function container(e) {
@@ -91,18 +101,20 @@
   }
   const shapes = [], labels = [];
   A.elements.forEach(e => {
-    const lines = e.kind === "container" ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
+    const lines = e.kind === "container" || e.kind === "parking" || e.zones ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
     const cx = e.x + e.w / 2;
-    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + e.h - 13 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
+    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + e.h + 6 : e.zones ? e.y + e.h + 6 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
     const narrow = e.w < 45 && e.h > e.w * 1.6;     // tall, narrow buildings read better with a rotated label
     const txt = narrow
       ? `<text transform="translate(${e.x + 5} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
       : lines.map((l, i) => `<text x="${cx}" y="${cy + i * fs * 1.2}" text-anchor="middle" font-size="${fs}" dy="${e.kind === "container" ? 1.5 : 2}">${l.replace("&", "&amp;")}</text>`).join("") +
         (e.kind === "container" ? "" : `<text class="note" x="${cx}" y="${cy + lines.length * fs * 1.2}" text-anchor="middle" font-size="${fs * 0.72}" dy="2"></text>`);
-    shapes.push(`<g class="el" data-id="${e.id}"><rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="${e.kind === "container" ? 0.8 : 1.2}"/>
-      ${e.kind === "parking" ? parking(e) : e.kind === "container" ? container(e) : pens(e)}
+    const shape = e.outline ? `<polygon class="shape" points="${e.outline.map(p => p.join(",")).join(" ")}" stroke-width="1"/>`
+      : `<rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="${e.kind === "container" ? 0.8 : 1.2}"/>`;
+    shapes.push(`<g class="el" data-id="${e.id}">${shape}
+      ${e.kind === "parking" ? parking(e) : e.kind === "container" ? container(e) : e.zones ? zones(e) : pens(e)}
       <g class="new" transform="translate(${e.x + e.w - 2} ${e.y + 2})"><rect x="-19" y="0" width="19" height="8" rx="2" fill="var(--ink)"/><text x="-9.5" y="5.9" text-anchor="middle" font-size="4.6" style="fill:#fff;stroke:none">NEW</text></g></g>`);
-    labels.push(`<g class="el lbl" data-id="${e.id}">${txt}</g>`);
+    labels.push(`<g class="el lbl" data-id="${e.id}">${txt}${e.zones ? zoneLabels(e) : ""}</g>`);
   });
   const drives = (A.drives || []).map(d => `<rect x="${d.x}" y="${d.y}" width="${d.w}" height="${d.h}" fill="var(--circulation-tint)" opacity=".6"/>`).join("");
   const dims = A.dims.map(d => {
@@ -138,10 +150,10 @@
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New corral, squeeze chute and scale", "Main parking lot, 10' × 20' stalls"] },
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", "Main parking lot, 10' × 20' stalls"] },
     { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal & swine barn A, ${sa} pens`, "First feed storage container, by the parking", "Existing barn becomes storage"] },
     { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Small animal barn B, ${sa} more pens`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
-    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "Vehicles loop through the lot and hand off to the tractor lanes"] },
+    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "Cars loop one way through the lot; trailers pull straight into the handling yard", "Two breaks in the north row hand off to the tractor lanes"] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
@@ -154,7 +166,7 @@
     A.elements.forEach(e => {
       const g = svg.querySelector(`.el[data-id="${e.id}"]:not(.lbl)`), lb = svg.querySelector(`.lbl[data-id="${e.id}"]`), { u, note } = useAt(e, n);
       lb.classList.toggle("future", e.level > n);
-      const rect = g.querySelector("rect.shape");
+      const rect = g.querySelector(".shape");
       g.classList.toggle("future", e.level > n);
       g.classList.toggle("isnew", step < 3 && e.level === n && e.kind !== "container" && !(e.id.startsWith("existing") || e.id === "parking"));
       rect.style.fill = e.kind === "yard" ? "none" : `var(--${u.replace("_", "-")}-tint)`;
