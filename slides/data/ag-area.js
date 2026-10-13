@@ -61,7 +61,7 @@ window.AG_AREA = {
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "55 spaces",
+   "note": "48 spaces",
    "assumed": false,
    "rows": [
     [
@@ -83,12 +83,6 @@ window.AG_AREA = {
      31.5,
      336,
      12
-    ],
-    [
-     177.0,
-     248,
-     7,
-     "v"
     ]
    ],
    "stall": [
@@ -783,7 +777,7 @@ window.AG_AREA = {
    "3": 35
   },
   "small_animal_pens_per_barn": 28,
-  "parking": 55
+  "parking": 48
  },
  "module_ft": 12,
  "lane_ft": 24
