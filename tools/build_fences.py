@@ -57,6 +57,7 @@ def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0
         if i not in link and j not in link:
             link[i] = j; link[j] = i
 
+    stree = cKDTree(snap_protect) if snap_protect is not None and len(snap_protect) else None
     seen, chains = set(), []
     for s0 in range(len(segs)):
         if s0 in seen:
@@ -83,9 +84,10 @@ def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0
             pts.append(P[cur])
         chains.append(LineString(pts).simplify(1.2))
 
-    chains = [c for c in chains if c.length > min_len]
+    # a short piece is kept when it carries a gate (the stub of a fence that ends at its gate)
+    at_gate = lambda c: stree is not None and min(stree.query(c.coords[0])[0], stree.query(c.coords[-1])[0]) < 0.6
+    chains = [c for c in chains if c.length > min_len or (c.length > 2 and at_gate(c))]
     # snap loose ends onto the fence they run into (T junctions), then merge runs that now share an end point
-    stree = cKDTree(snap_protect) if snap_protect is not None and len(snap_protect) else None
     def snap_end(c, others):
         """Close the gap where a dashed run stops just short of the fence it meets. The run is extended along its
         own heading (a vertex is added; nothing already drawn is moved). Ends at a gate are left open: the gap
@@ -117,7 +119,7 @@ def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0
     chains = [snap_end(c, chains) for c in chains]
     merged = linemerge(unary_union(chains))
     runs = list(getattr(merged, "geoms", [merged]))
-    runs = [r.simplify(1.0) for r in runs if r.length > min_len]
+    runs = [r.simplify(1.0) for r in runs if r.length > min_len or (r.length > 2 and at_gate(r))]
 
     return runs
 
@@ -177,6 +179,28 @@ GP = np.array([q for g in gate_leaves for q in g])
 GA = np.array([q for a_ in gate_arcs for q in (a_[0], a_[3])] + [q for g in gate_leaves for q in g])      # every gate end point
 runs = chain(segs, MAX_GAP, MAX_TURN, SNAP, protect=GP, snap_protect=GA)
 
+# A gate hangs on its fence. Where the plan jogs the last few feet of a fence over to the gate's hinge (a stroke
+# too short and too sharply turned to chain), the run is carried on to the hinge so the gate sits on its fence.
+_arc_ends = cKDTree(np.array([q for a_ in gate_arcs for q in (a_[0], a_[3])])) if gate_arcs else None
+_all = unary_union(runs)
+n_hinge = 0
+for g in gate_leaves:
+    free = [_arc_ends.query(q)[0] if _arc_ends is not None else 9 for q in g]
+    hinge = g[int(np.argmax(free))] if max(free) > 0.5 else None      # the leaf end the swing arc does not start from
+    for h in ([hinge] if hinge is not None else g):
+        if _all.distance(Point(h)) < 0.5:
+            break
+    else:
+        if hinge is None:
+            continue
+        best = min(((np.hypot(r.coords[k][0] - hinge[0], r.coords[k][1] - hinge[1]), i, k) for i, r in enumerate(runs) for k in (0, -1)), default=None)
+        if best and best[0] < 6.0:
+            _, i, k = best
+            c = list(runs[i].coords)
+            runs[i] = LineString([tuple(hinge)] + c if k == 0 else c + [tuple(hinge)])
+            _all = unary_union(runs); n_hinge += 1
+print("fence ends carried to a gate hinge:", n_hinge)
+
 # ---- property lines (layer SECTION LINE): short dashes with dots between them
 pl_segs = []
 for d in cadpdf.export(FENCE, ["SECTION LINE"]).get("SECTION LINE", []):
@@ -232,6 +256,40 @@ for d in cadpdf.export(SURVEY, ["EDGE OF PAVEMENT"]).get("EDGE OF PAVEMENT", [])
     rd += [(np.array(a), np.array(b)) for a, b in zip(pts, pts[1:]) if np.hypot(b[0] - a[0], b[1] - a[1]) > 0.05]
 road_runs = chain(rd, 16.0, 9.0, 0.0, min_len=12)     # bridge dash gaps only where the heading holds
 out["roads"] = [{"length_ft": round(r.length * FT_PER_PT), "map": [[round(x, 2), round(y, 2)] for x, y in r.coords]} for r in sorted(road_runs, key=lambda r: -r.length)]
+# The road as one shape: the open edge runs are joined end to end across each mouth of the road (nearest free
+# ends first), which closes them into rings; closed runs inside a ring are islands.
+from shapely.geometry import Polygon
+_open = [r for r in road_runs if Point(r.coords[0]).distance(Point(r.coords[-1])) > 1.0]
+_closed = [Polygon(r.coords) for r in road_runs if r not in _open and len(r.coords) >= 4]
+_E = [(i, k) for i in range(len(_open)) for k in (0, -1)]
+_pairs = sorted((np.hypot(*(np.array(_open[a[0]].coords[a[1]]) - np.array(_open[b[0]].coords[b[1]]))), a, b)
+                for n_, a in enumerate(_E) for b in _E[n_ + 1:] if a[0] != b[0])
+_mate = {}
+for dist, a, b in _pairs:
+    if dist < 70 and a not in _mate and b not in _mate:
+        _mate[a] = b; _mate[b] = a
+_used, _rings = set(), []
+for i0 in range(len(_open)):
+    if i0 in _used or (i0, 0) not in _mate:
+        continue
+    ring, cur = [], (i0, 0)
+    while cur[0] not in _used:
+        _used.add(cur[0])
+        c = list(_open[cur[0]].coords)
+        ring += c if cur[1] == 0 else c[::-1]                # enter at this end, leave by the other
+        out_end = (cur[0], -1 if cur[1] == 0 else 0)
+        if out_end not in _mate:
+            break
+        cur = _mate[out_end]
+    if len(ring) >= 3:
+        _rings.append(Polygon(ring).buffer(0))
+_area = unary_union(_rings)
+for isl in _closed:
+    if _area.contains(isl.representative_point()):
+        _area = _area.difference(isl)
+out["road_area"] = [{"outer": [[round(x, 2), round(y, 2)] for x, y in g.exterior.coords], "holes": [[[round(x, 2), round(y, 2)] for x, y in h.coords] for h in g.interiors]}
+                    for g in getattr(_area, "geoms", [_area]) if g.geom_type == "Polygon" and not g.is_empty]
+print("road area: shapes", len(out["road_area"]), "| acres", round(_area.area * FT_PER_PT ** 2 / 43560, 2), "| islands", sum(len(g["holes"]) for g in out["road_area"]))
 print("road edge pieces:", len(rd), "-> runs:", len(out["roads"]), "| longest ft:", [r["length_ft"] for r in out["roads"][:6]])
 out["property_lines"] = [{"id": f"pl-{k + 1:02d}", "length_ft": round(r.length * FT_PER_PT),
                           "sheet": [[round(x, 2), round(y, 2)] for x, y in r.coords], "map": [to_p(c) for c in r.coords]}
