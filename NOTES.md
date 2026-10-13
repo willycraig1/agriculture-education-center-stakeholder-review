@@ -205,3 +205,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   the earlier end trim (short hooks only) left it in. `_tidy_end` now cuts at any corner over 40 degrees within 320
   units of an end, then extends 100 ft on the channel's heading.
 - **Trees.** Surveyed trees are plain discs at 70%% opacity with no white outline; the survey's dashed tree line is no longer drawn (the canopy traced from the aerial replaces it).
+- **Tree count corrected.** On the study plan each tree symbol came through as up to four marks stacked within a foot, so trees were drawn as stacked discs and counted several times. `siteframe._one_per_tree` keeps one mark per tree: 176 surveyed trees (80 study plan, 96 survey), not 362. Fit check: 3 trees in the parking footprint, not 12.

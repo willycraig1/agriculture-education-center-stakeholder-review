@@ -108,6 +108,25 @@ for x, y, s, n in T_sv:
     fx, fy = to_fence(x, y, M_SF, T_SF)
     trees.append(("survey A0.1", fx, fy, s * abs(M_SF) * FT_PER_PT))
 
+# One point per tree. On the study plan a tree symbol's strokes are spread too far to group into one mark, so a
+# single tree came through as up to four marks stacked within a foot of each other. Marks closer than 0.6 sheet
+# units are one tree: keep the full-size mark(s) of each stack (two where two symbols touch).
+def _one_per_tree(ts, r=0.6):
+    import numpy as _np
+    from scipy.spatial import cKDTree as _K
+    from scipy.sparse import coo_matrix as _coo
+    from scipy.sparse.csgraph import connected_components as _cc
+    X = _np.array([[t[1], t[2]] for t in ts])
+    pr = _K(X).query_pairs(r, output_type="ndarray")
+    _, lab = _cc(_coo((_np.ones(len(pr)), (pr[:, 0], pr[:, 1])), shape=(len(X), len(X))), directed=False)
+    out = []
+    for g in range(lab.max() + 1):
+        grp = [ts[i] for i in _np.where(lab == g)[0]]
+        top = max(t[3] for t in grp)
+        out += [t for t in grp if t[3] >= 0.9 * top]
+    return out
+_n_marks = len(trees)
+trees = _one_per_tree(trees)
 
 sv = cadpdf.export(SURVEY, ["TREE LINE", "BUILDING"])
 
