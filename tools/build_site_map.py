@@ -354,6 +354,13 @@ json.dump({cls: shapely.geometry.mapping(g_.simplify(0.5)) for cls, g_ in wet_dg
           open(os.path.join(OUT, "data", "soils-in-barnyard-frame.json"), "w"))
 _tz = [(complex(tp.x, tp.y) - T_DP) / M_DP for tp in tree_pts]
 json.dump([[round(z.real, 1), round(z.imag, 1)] for z in _tz], open(os.path.join(OUT, "data", "trees-in-barnyard-frame.json"), "w"))
+_bl = []
+for d in sv.get("BUILDING", []):
+    for it in d["items"]:
+        if it[0] == "l":
+            a_, b_ = _dg(it[1]), _dg(it[2])
+            _bl.append([round(a_.real, 1), round(a_.imag, 1), round(b_.real, 1), round(b_.imag, 1)])
+json.dump(_bl, open(os.path.join(OUT, "data", "buildings-in-barnyard-frame.json"), "w"))
 ext = unary_union(list(polys.values())).bounds
 checks["barnyard_box"] = [round(v, 1) for v in ext]
 

@@ -13,10 +13,16 @@
    "turnout-cattle-a": 0,
    "turnout-cattle-b": 17,
    "turnout-small-a": 0,
-   "turnout-small-b": 82
+   "turnout-small-b": 82,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
   },
   "overlaps": [],
   "trees_in_buildings": 0,
+  "trees_in_parking": 22,
+  "stalls_to_red_house_ft": 20,
+  "red_house_wall_ft_inside_stalls": 0,
   "small_b_to_small_a_ft": 24
  },
  {
@@ -33,10 +39,16 @@
    "turnout-cattle-a": 0,
    "turnout-cattle-b": 5,
    "turnout-small-a": 0,
-   "turnout-small-b": 69
+   "turnout-small-b": 69,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
   },
   "overlaps": [],
   "trees_in_buildings": 0,
+  "trees_in_parking": 22,
+  "stalls_to_red_house_ft": 20,
+  "red_house_wall_ft_inside_stalls": 0,
   "small_b_to_small_a_ft": 12
  },
  {
@@ -53,10 +65,16 @@
    "turnout-cattle-a": 0,
    "turnout-cattle-b": 17,
    "turnout-small-a": 0,
-   "turnout-small-b": 83
+   "turnout-small-b": 83,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
   },
   "overlaps": [],
   "trees_in_buildings": 0,
+  "trees_in_parking": 22,
+  "stalls_to_red_house_ft": 20,
+  "red_house_wall_ft_inside_stalls": 0,
   "small_b_to_small_a_ft": 39
  },
  {
@@ -73,10 +91,16 @@
    "turnout-cattle-a": 0,
    "turnout-cattle-b": 17,
    "turnout-small-a": 0,
-   "turnout-small-b": 0
+   "turnout-small-b": 0,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
   },
   "overlaps": [],
   "trees_in_buildings": 0,
+  "trees_in_parking": 22,
+  "stalls_to_red_house_ft": 20,
+  "red_house_wall_ft_inside_stalls": 0,
   "small_b_to_small_a_ft": 24
  },
  {
@@ -92,11 +116,54 @@
    "feed-2": 0,
    "turnout-cattle-a": 0,
    "turnout-cattle-b": 17,
-   "turnout-small-a": 0
+   "turnout-small-a": 0,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
   },
   "overlaps": [],
   "trees_in_buildings": 0,
+  "trees_in_parking": 22,
+  "stalls_to_red_house_ft": 20,
+  "red_house_wall_ft_inside_stalls": 0,
   "small_b_to_small_a_ft": 31
+ },
+ {
+  "name": "F. Everything new 48' south and 12' west",
+  "note": "Every new element, the parking and handling yard included, moves 48' south and 12' west. The existing barn and pens stay put.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 0,
+   "small-a": 0,
+   "small-b": 18,
+   "arena": 0,
+   "feed-1": 0,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 0,
+   "turnout-small-a": 0,
+   "turnout-small-b": 32,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
+  },
+  "overlaps": [
+   [
+    "turnout-cattle-a",
+    "existing-barn",
+    1094
+   ],
+   [
+    "turnout-cattle-a",
+    "existing-pens",
+    1728
+   ]
+  ],
+  "trees_in_buildings": 0,
+  "trees_in_parking": 28,
+  "stalls_to_red_house_ft": 0,
+  "red_house_wall_ft_inside_stalls": 0,
+  "small_b_to_small_a_ft": 24
  },
  {
   "name": "E. C, plus slide the arena and cattle barn B 12' south",
@@ -112,10 +179,16 @@
    "turnout-cattle-a": 0,
    "turnout-cattle-b": 5,
    "turnout-small-a": 0,
-   "turnout-small-b": 0
+   "turnout-small-b": 0,
+   "parking": 0,
+   "trailer-stop": 0,
+   "handling": 0
   },
   "overlaps": [],
   "trees_in_buildings": 0,
+  "trees_in_parking": 22,
+  "stalls_to_red_house_ft": 20,
+  "red_house_wall_ft_inside_stalls": 0,
   "small_b_to_small_a_ft": 24
  }
 ]
