@@ -63,60 +63,134 @@ window.AG_AREA = {
    "kind": "yard",
    "note": "",
    "assumed": false,
+   "outline": [
+    [
+     -62,
+     216
+    ],
+    [
+     0,
+     216
+    ],
+    [
+     0,
+     276
+    ],
+    [
+     -24,
+     276
+    ],
+    [
+     -24,
+     280
+    ],
+    [
+     -44,
+     300
+    ],
+    [
+     -72,
+     300
+    ],
+    [
+     -72,
+     226
+    ]
+   ],
    "zones": [
     {
-     "label": "Bud Box",
-     "x": 0,
-     "y": 0,
-     "w": 20,
-     "h": 12,
-     "fill": true
+     "label": "Holding pen",
+     "poly": [
+      [
+       10,
+       0
+      ],
+      [
+       38,
+       0
+      ],
+      [
+       48,
+       10
+      ],
+      [
+       48,
+       64
+      ],
+      [
+       28,
+       84
+      ],
+      [
+       12,
+       84
+      ],
+      [
+       12,
+       64
+      ],
+      [
+       2.6,
+       64
+      ],
+      [
+       2.6,
+       40
+      ],
+      [
+       4,
+       40
+      ],
+      [
+       4,
+       31
+      ],
+      [
+       0,
+       31
+      ],
+      [
+       0,
+       10
+      ]
+     ],
+     "at": [
+      28,
+      40
+     ]
     },
     {
-     "label": "Lead-up alley",
-     "x": 20,
-     "y": 0,
-     "w": 28,
-     "h": 12
-    },
-    {
-     "label": "Trailer unloading",
+     "label": "Trailer pull-through",
      "x": 48,
      "y": 0,
      "w": 24,
-     "h": 84,
+     "h": 60,
      "rot": true
     },
     {
-     "label": "Holding pen",
-     "x": 24,
-     "y": 12,
-     "w": 24,
-     "h": 72,
+     "label": "Bud Box",
+     "x": 0,
+     "y": 64,
+     "w": 12,
+     "h": 20,
+     "fill": true,
      "rot": true
     },
     {
      "label": "",
-     "x": 16,
-     "y": 12,
+     "x": 0,
+     "y": 40,
      "w": 2.6,
      "h": 24
     },
     {
-     "label": "Chute + scale",
-     "x": 15.3,
-     "y": 36,
+     "label": "Chute",
+     "x": 0,
+     "y": 31,
      "w": 4,
      "h": 9,
      "fill": true,
      "side": true
-    },
-    {
-     "label": "Release",
-     "x": 0,
-     "y": 48,
-     "w": 24,
-     "h": 36
     }
    ]
   },
@@ -130,7 +204,7 @@ window.AG_AREA = {
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "46 spaces shown",
+   "note": "52 spaces shown",
    "assumed": false,
    "rows": [
     [
@@ -144,24 +218,24 @@ window.AG_AREA = {
      9
     ],
     [
-     180,
+     178,
      228,
      1
     ],
     [
-     42,
+     36,
      272,
-     12
+     13
     ],
     [
-     42,
+     36,
      292,
-     12
+     13
     ],
     [
-     50,
+     31,
      336,
-     10
+     14
     ]
    ],
    "stall": [
@@ -514,24 +588,24 @@ window.AG_AREA = {
    "label": "One-way loop",
    "pts": [
     [
-     24,
+     40,
      324
     ],
     [
-     24,
+     178,
+     324
+    ],
+    [
+     178,
      260
     ],
     [
-     176,
+     23,
      260
     ],
     [
-     176,
-     324
-    ],
-    [
-     44,
-     324
+     23,
+     314
     ]
    ]
   },
@@ -541,12 +615,12 @@ window.AG_AREA = {
    "label": "Entry drive",
    "pts": [
     [
-     -46,
+     -50,
      382
     ],
     [
-     16,
-     328
+     18,
+     326
     ]
    ]
   },
@@ -556,7 +630,7 @@ window.AG_AREA = {
    "label": "To the Red House",
    "pts": [
     [
-     182,
+     184,
      328
     ],
     [
@@ -568,15 +642,15 @@ window.AG_AREA = {
   {
    "id": "trailers",
    "kind": "loop",
-   "label": "Trailers",
+   "label": "Trailers pull through",
    "pts": [
     [
-     14,
-     260
+     -12,
+     362
     ],
     [
-     -18,
-     260
+     -12,
+     204.0
     ]
    ]
   },
@@ -721,7 +795,7 @@ window.AG_AREA = {
    "3": 35
   },
   "small_animal_pens_per_barn": 28,
-  "parking": 46
+  "parking": 52
  },
  "module_ft": 12,
  "lane_ft": 24

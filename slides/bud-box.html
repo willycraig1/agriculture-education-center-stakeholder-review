@@ -18,7 +18,7 @@
   .lbl.sub { font-weight: 500; fill: var(--muted); }
   .cow, .handler, .gate, #rig { transition: transform 1.6s cubic-bezier(.45, .05, .25, 1), opacity .8s; }
   .swing path { fill: none; stroke: var(--education); stroke-width: .5; }
-  .gate { transform-origin: 20px 0px; }
+  .gate { transform-origin: 12px 64px; }
   .cow ellipse { fill: var(--cattle); } .cow circle { fill: var(--cattle); }
   .handler circle { fill: var(--ink); stroke: #fff; stroke-width: .35; }
   .handler .reach { fill: none; stroke: var(--ink); stroke-width: .18; stroke-dasharray: .6 .6; }
@@ -47,7 +47,7 @@
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="steps" id="steps"></ol>
       <div class="why" data-step="5">Cattle want to go back the way they came, and to move around the person working them. The box uses both instincts. Cattle flow through it; they are never held in it.</div>
-      <p class="src" data-step="0">Diagram to scale, in feet. Layout after the Priefert Bud Box, with a trailer enclosure added. Sizes follow extension guidance
+      <p class="src" data-step="0">Diagram to scale, in feet. Layout after the Priefert Bud Box, with a pull-through trailer lane added. Sizes follow extension guidance
         (K-State MF3349, Missouri G2003): box 12' wide for handlers on foot and 20' deep; 24' straight single-file alley.</p>
     </div>
   </div>
@@ -57,57 +57,58 @@
 <script src="../design/viewer.js"></script>
 <script>
 (function () {
-  // Geometry in feet, the same yard as in the barnyard diagram (tools/build_ag_area.py, "handling" zones):
-  // 72' x 84', with the trailer enclosure on the parking side.
-  const BOX = { x: 0, y: 0, w: 20, h: 12 }, LEAD = { x: 20, y: 0, w: 28, h: 12 }, TR = { x: 48, y: 0, w: 24, h: 84 };
-  const HOLD = { x: 24, y: 12, w: 24, h: 72 }, AL = { x: 16, y: 12, w: 2.6, h: 24 }, CH = { x: 15.3, y: 36, w: 4, h: 9 }, OUT = { x: 0, y: 48, w: 24, h: 36 };
+  // Geometry in feet: the same yard as in the barnyard diagram (tools/build_ag_area.py, "handling" zones).
+  // After the Priefert Bud Box: the holding pen wraps around the chute and has chamfered corners; the box is in
+  // the south-west corner; the single-file alley runs back north along the west fence, beside the box gate.
+  const TR = { x: 48, y: 0, w: 24, h: 60 }, BOX = { x: 0, y: 64, w: 12, h: 20 }, AL = { x: 0, y: 40, w: 2.6, h: 24 }, CH = { x: 0, y: 31, w: 4, h: 9 };
+  const PEN = [[10, 0], [38, 0], [48, 10], [48, 64], [28, 84], [12, 84], [12, 64], [2.6, 64], [2.6, 40], [4, 40], [4, 31], [0, 31], [0, 10]];
   const t = (x, y, s, cls, txt, extra) => `<text class="lbl ${cls || ""}" x="${x}" y="${y}" font-size="${s}" ${extra || 'text-anchor="middle"'}>${txt}</text>`;
   const cow = i => `<g class="cow" id="cow${i}"><ellipse rx="3.5" ry="1.25"/><circle cx="3.9" r=".95"/></g>`;
   const zone = (z, fill) => `<rect class="zone" x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="${fill}"/>`;
-  const svg = `<svg viewBox="-30 -12 150 104" preserveAspectRatio="xMidYMid meet" aria-label="Cattle handling yard and Bud Box">
-    ${zone(TR, "var(--circulation-tint)")}${zone(HOLD, "var(--arena-tint)")}${zone(LEAD, "#f6f1e6")}${zone(BOX, "var(--cattle-tint)")}
-    ${zone(AL, "#f6f1e6")}<rect class="zone" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" fill="var(--cattle)" opacity=".3"/>${zone(OUT, "var(--pasture-tint)")}
-    <rect class="zone" x="72" y="32" width="46" height="24" fill="var(--circulation-tint)" opacity=".55"/>
-    <path class="fence" d="M0 0H72V32M72 56V84H0V48M0 12V0"/>
-    <path class="fence" d="M0 12H${AL.x}M${AL.x + AL.w} 12H36M46 12H48"/>
-    <path class="fence" d="M48 0V30M48 42V84"/>
-    <path class="fence" d="M24 12V84"/>
-    <path class="fence" d="M${AL.x} 12V${CH.y}M${AL.x + AL.w} 12V${CH.y}"/>
+  const svg = `<svg viewBox="-44 -16 160 116" preserveAspectRatio="xMidYMid meet" aria-label="Cattle handling yard and Bud Box">
+    <rect class="zone" x="48" y="-16" width="24" height="116" fill="var(--circulation-tint)" opacity=".45"/>
+    ${zone(TR, "var(--circulation-tint)")}
+    <polygon class="zone" points="${PEN.map(p => p.join(",")).join(" ")}" fill="var(--arena-tint)"/>
+    ${zone(BOX, "var(--cattle-tint)")}${zone(AL, "#f6f1e6")}
+    <rect class="zone" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" fill="var(--cattle)" opacity=".32"/>
+    <path class="fence" d="M0 20V10L10 0H38L48 10M48 22V64L28 84H0V31M0 12V10"/>
+    <path class="fence" d="M48 0V10M48 0V60M72 0V60"/>
+    <path class="fence" d="M12 64V84M2.6 40V64"/>
     <rect class="fence" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" style="stroke-width:.7"/>
-    <path class="fence" d="M0 12V48H${CH.x}M${CH.x + CH.w} 48H24" stroke-dasharray="1.2 .8"/>
-    <g class="swing"><path d="M72 32V56" stroke-dasharray="1 1"/><path d="M36 12H46" stroke-dasharray="1 1"/><path d="M48 30V42" stroke-dasharray="1 1"/></g>
-    <line class="fence gate" id="gate" x1="20" y1="0" x2="20" y2="12" style="stroke-width:.8;stroke:var(--education)"/>
-    <circle cx="20" cy="0" r=".55" fill="var(--education)"/>
-    <g id="rig"><rect x="-4" y="-12" width="8" height="24" rx="1" fill="#fff" stroke="var(--circulation)" stroke-width=".5"/>
-      <rect x="-3.4" y="-21" width="6.8" height="8" rx="1.4" fill="var(--circulation)"/></g>
-    ${t(10, -2, 2.6, "", "Bud Box")}${t(34, -2, 2.6, "", "Lead-up alley")}
-    ${t(60, -2, 2.6, "", "Trailer unloading")}${t(36, 78, 2.6, "", "Holding pen")}
-    ${t(-1.5, 25, 2.3, "", "Single-file alley", 'text-anchor="end"')}${t(-1.5, 41.5, 2.3, "", "Chute on the scale", 'text-anchor="end"')}
-    ${t(12, 78, 2.3, "sub", "Release to pasture")}${t(96, 46, 2.3, "sub", "From the parking loop")}
-    ${t(10, 8.2 + 6.4, 1.7, "sub", "12' × 20'", 'text-anchor="middle" style="display:none"')}
+    <g class="swing"><path d="M48 0H72M48 60H72" stroke-dasharray="1.2 1"/><path d="M48 10V22" stroke-dasharray="1.2 1"/><path d="M0 20V31" stroke-dasharray="1.2 1"/></g>
+    <line class="fence gate" id="gate" x1="12" y1="64" x2="2.6" y2="64" style="stroke-width:.8;stroke:var(--education)"/>
+    <circle cx="12" cy="64" r=".55" fill="var(--education)"/>
+    <g id="rig"><rect x="-4" y="-10" width="8" height="24" rx="1" fill="#fff" stroke="var(--circulation)" stroke-width=".5"/>
+      <rect x="-3.4" y="-19.5" width="6.8" height="8.5" rx="1.4" fill="var(--circulation)"/></g>
+    ${t(30, 40, 2.8, "", "Holding pen")}${t(30, 43.4, 1.8, "sub", "chamfered corners steer cattle to the box")}
+    ${t(60, -3, 2.4, "", "Trailer pull-through")}${t(60, 64.5, 1.8, "sub", "24' × 60', gate at each end")}
+    ${t(-1.5, 75, 2.6, "", "Bud Box", 'text-anchor="end"')}${t(-1.5, 78, 1.8, "sub", "12' × 20', dead end", 'text-anchor="end"')}
+    ${t(-1.5, 53, 2.4, "", "Single-file alley", 'text-anchor="end"')}${t(-1.5, 36.4, 2.4, "", "Chute on the scale", 'text-anchor="end"')}
+    ${t(-1.5, 26, 1.8, "sub", "gate to pasture", 'text-anchor="end"')}${t(60, 94, 1.8, "sub", "from the entry drive")}${t(60, -11, 1.8, "sub", "out to the cross drive")}
+    ${t(13.2, 62.6, 1.7, "sub", "box gate", 'text-anchor="start" style="fill:var(--education)"')}
     ${[0, 1, 2, 3].map(cow).join("")}
     <g class="handler" id="handler"><circle r="2.6" class="reach"/><circle r="1"/></g>
   </svg>`;
   document.getElementById("plan").insertAdjacentHTML("afterbegin", svg);
   const el = document.querySelector("#plan > svg");
-  Viewer(el, { ftPerUnit: 1, damp: 0, presets: [{ label: "Whole yard", box: [-30, -12, 150, 104] }, { label: "Bud Box", box: [-22, -8, 62, 60] }] });
+  Viewer(el, { ftPerUnit: 1, damp: 0, presets: [{ label: "Whole yard", box: [-44, -16, 160, 116] }, { label: "Bud Box", box: [-30, 26, 78, 62] }] });
 
-  // per step: gate angle (0 = closed), rig [x, y, visible], handler [x, y], cattle [x, y, heading] (180 = facing west, 90 = south)
+  // per step: gate angle (0 = closed), rig [x, y, visible], handler [x, y], cattle [x, y, heading] (0 = east, 90 = south, 270 = north)
   const S = [
-    { gate: -82, rig: [60, 44, 1], h: [66, 70], c: [[60, 58, 90], [56, 64, 130], [64, 66, 70], [59, 72, 100]] },
-    { gate: -82, rig: [100, 44, 0], h: [43, 52], c: [[30, 42, 250], [38, 34, 260], [42, 46, 240], [33, 54, 270]] },
-    { gate: 0, rig: [100, 44, 0], h: [17.5, 2.6], c: [[5, 3.2, 180], [7, 8.8, 180], [13, 3.4, 180], [14.5, 8.2, 180]] },
-    { gate: 0, rig: [100, 44, 0], h: [13.2, 10.4], c: [[4, 3, 50], [4.4, 8.6, -35], [10, 2.8, 10], [9.6, 7.2, 0]] },
-    { gate: 0, rig: [100, 44, 0], h: [6.5, 10.4], c: [[17.3, 19, 90], [16.4, 9.2, 65], [13, 3.2, 20], [8, 3.2, 5]] },
-    { gate: 0, rig: [100, 44, 0], h: [5, 10.2], c: [[17.3, 40.5, 90], [17.3, 30, 90], [17.3, 20.5, 90], [16.2, 9.6, 70]] },
+    { gate: 80, rig: [60, 26, 1], h: [66, 52], c: [[60, 45, 95], [56, 50, 150], [63, 52, 60], [58, 56, 110]] },
+    { gate: 80, rig: [60, -40, 0], h: [42, 44], c: [[30, 26, 200], [37, 34, 170], [26, 50, 150], [20, 18, 220]] },
+    { gate: 0, rig: [60, -40, 0], h: [10.3, 67], c: [[4.5, 70, 95], [8.6, 73, 90], [4.4, 78.5, 90], [8.8, 80, 85]] },
+    { gate: 0, rig: [60, -40, 0], h: [1.6, 68.5], c: [[5, 80, 290], [9, 80.5, 255], [5.6, 73.5, 280], [9.4, 74, 265]] },
+    { gate: 0, rig: [60, -40, 0], h: [1.6, 78], c: [[1.3, 57, 270], [2.4, 65.6, 245], [7.4, 69.4, 225], [9, 76, 262]] },
+    { gate: 0, rig: [60, -40, 0], h: [1.6, 80], c: [[2, 35.5, 270], [1.3, 45.5, 270], [1.3, 55, 270], [2.3, 65.8, 250]] },
   ];
   const steps = [
-    ["Unload behind a fence", "Trailers pull off the parking loop into a closed enclosure and unload there, so nothing gets loose near the lot."],
-    ["Hold", "Cattle settle in the holding pen."],
-    ["Bring a few into the box", "Only as many as the single-file alley holds. They walk up the wide alley, past the gate, and it closes behind them."],
+    ["Pull through and unload", "Trailers pull into a gated lane beside the lot, unload behind a closed fence, and drive out the far end. Nothing gets loose near the parking."],
+    ["Hold", "Cattle settle in the holding pen, which wraps around the chute."],
+    ["Bring a few into the box", "Only as many as the single-file alley holds: five or six head. The chamfered corners steer them to the box, and the gate closes behind them."],
     ["They turn back", "At the dead end the cattle turn back toward the gate they came through. The alley opens right beside it."],
     ["Past the handler", "The handler walks the alley-side fence toward the closed end. The cattle pass and turn into the alley on their own."],
-    ["Single file to the chute", "One at a time through the squeeze chute, which sits on the scale, then out to pasture."],
+    ["Single file to the chute", "One at a time through the squeeze chute, which sits on the scale, then out to pasture or back to the pen."],
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s[0]}</h3><p>${s[1]}</p></li>`).join("");
@@ -116,7 +117,7 @@
     const s = S[Math.min(n, S.length - 1)];
     el.querySelector("#gate").style.transform = `rotate(${s.gate}deg)`;
     const rig = el.querySelector("#rig");
-    rig.style.transform = `translate(${s.rig[0]}px, ${s.rig[1]}px) rotate(${n === 0 ? 0 : 90}deg)`; rig.style.opacity = s.rig[2];
+    rig.style.transform = `translate(${s.rig[0]}px, ${s.rig[1]}px)`; rig.style.opacity = s.rig[2];
     el.querySelector("#handler").style.transform = `translate(${s.h[0]}px, ${s.h[1]}px)`;
     s.c.forEach((c, i) => { el.querySelector("#cow" + i).style.transform = `translate(${c[0]}px, ${c[1]}px) rotate(${c[2]}deg)`; });
     document.querySelectorAll("#steps li").forEach(li => {

@@ -79,15 +79,16 @@
     return `<g class="pens" fill="#fff" fill-opacity=".55" stroke="var(--circulation)" stroke-width=".5">${st}</g>`;
   }
   function zones(e) {
-    return `<g class="pens" stroke="var(--cattle)" stroke-width=".5">${e.zones.map(z =>
-      `<rect x="${e.x + z.x}" y="${e.y + z.y}" width="${z.w}" height="${z.h}" fill="${z.fill ? "var(--cattle-tint)" : "none"}"/>`).join("")}</g>`;
+    return `<g class="pens" stroke="var(--cattle)" stroke-width=".5">${e.zones.map(z => z.poly
+      ? `<polygon points="${z.poly.map(p => `${e.x + p[0]},${e.y + p[1]}`).join(" ")}" fill="var(--arena-tint)" fill-opacity=".6"/>`
+      : `<rect x="${e.x + z.x}" y="${e.y + z.y}" width="${z.w}" height="${z.h}" fill="${z.fill ? "var(--cattle-tint)" : z.w > 20 ? "var(--circulation-tint)" : "none"}"/>`).join("")}</g>`;
   }
   function zoneLabels(e) {
     return e.zones.filter(z => z.label).map(z => {
-      const cx = e.x + z.x + z.w / 2, cy = e.y + z.y + z.h / 2;
+      const cx = e.x + (z.at ? z.at[0] : z.x + z.w / 2), cy = e.y + (z.at ? z.at[1] : z.y + z.h / 2);
       return z.side ? `<text class="note" x="${e.x + z.x + z.w + 1.5}" y="${cy + 1.2}" font-size="3.3">${z.label}</text>`
-           : z.rot ? `<text class="note" transform="translate(${cx} ${cy}) rotate(-90)" text-anchor="middle" font-size="3.6" dy="1.2">${z.label}</text>`
-           : `<text class="note" x="${cx}" y="${cy + 1.2}" text-anchor="middle" font-size="${z.w < 24 ? 3.1 : 3.6}">${z.label}</text>`;
+           : z.rot ? `<text class="note" transform="translate(${cx} ${cy}) rotate(-90)" text-anchor="middle" font-size="3.4" dy="1.2">${z.label}</text>`
+           : `<text class="note" x="${cx}" y="${cy + 1.2}" text-anchor="middle" font-size="3.6">${z.label}</text>`;
     }).join("");
   }
   // shipping container details: double doors on one end, AC unit on the other
@@ -153,7 +154,7 @@
     { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", "Main parking lot, 10' × 20' stalls"] },
     { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal & swine barn A, ${sa} pens`, "First feed storage container, by the parking", "Existing barn becomes storage"] },
     { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Small animal barn B, ${sa} more pens`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
-    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "Cars loop one way through the lot; trailers pull straight into the handling yard", "Two breaks in the north row hand off to the tractor lanes"] },
+    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "Cars loop one way, counter-clockwise, keeping right", "Trailers pull through the handling yard and out onto the cross drive", "Two breaks in the north row hand off to the tractor lanes"] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
