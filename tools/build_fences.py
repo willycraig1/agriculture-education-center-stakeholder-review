@@ -259,7 +259,7 @@ out["roads"] = [{"length_ft": round(r.length * FT_PER_PT), "map": [[round(x, 2),
 # The road as one shape: the open edge runs are joined end to end across each mouth of the road (nearest free
 # ends first), which closes them into rings; closed runs inside a ring are islands.
 from shapely.geometry import Polygon
-_open = [r for r in road_runs if Point(r.coords[0]).distance(Point(r.coords[-1])) > 1.0]
+_open = [r for r in road_runs if Point(r.coords[0]).distance(Point(r.coords[-1])) > 1.0 and r.length * FT_PER_PT > 100]   # not the 32 ft pavement stubs beside the lane
 _closed = [Polygon(r.coords) for r in road_runs if r not in _open and len(r.coords) >= 4]
 _E = [(i, k) for i in range(len(_open)) for k in (0, -1)]
 _pairs = sorted((np.hypot(*(np.array(_open[a[0]].coords[a[1]]) - np.array(_open[b[0]].coords[b[1]]))), a, b)
