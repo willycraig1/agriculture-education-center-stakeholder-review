@@ -226,3 +226,13 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   longest straight reach (beside the site pasture), upright, on the off-site bank.
 - **Stakeholder question added** (input slide, Water and wet ground): how sacred is the historical slough bed? It
   conflicts with some of the program and complicates the civil design.
+- **Historical slough bed.** `tools/build_slough_bed.py` → `drawings/data/slough-bed.json`: one field from top of bank
+  to top of bank (3.4 ac, about 40 ft wide on average), built from the survey's TOP OF BANK, TOE OF SLOPE and EDGE
+  OF WATER layers. 11 of the 45 bank pieces belong to the old channel (those with a toe or water edge inside them);
+  the rest are roadside ditch and Cow Pen Slough banks. Gaps in the banks (drive crossing, culverts) are bridged
+  along the toe lines. Drawn in the water layer at 32% opacity with a label, in place of the bank lines; added to
+  the Water step's text and legend on the site slide. The earlier map drew only 5 bank pieces because of a size
+  filter. The survey stops at its sheet edge: the bed's north-east arm (toward the 8 ac paddock) and the arm up to
+  the pinwheel end there. `source/1948 Aerial of historic Slough Bed.jpg` (north up) shows the original meandering
+  channel before Cow Pen Slough was straightened; not yet registered to the map. Run order: build_fences,
+  build_canopy, build_south_roads, build_slough_bed, build_site_map.

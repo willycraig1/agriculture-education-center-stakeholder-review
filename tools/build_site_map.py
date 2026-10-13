@@ -196,8 +196,18 @@ AD = None
 _ad = os.path.join(OUT, "data", "aerial-derived.json")
 if os.path.exists(_ad):
     AD = json.load(open(_ad))          # canopy, drives and Cowpen Slough from the architect's aerial trace (tools/build_canopy.py)
+# The historical slough bed: one transparent field from top of bank to top of bank (tools/build_slough_bed.py),
+# in place of the survey's separate bank lines.
+_bp = os.path.join(OUT, "data", "slough-bed.json")
+if os.path.exists(_bp):
+    _bd = " ".join("M" + " L".join(f"{x},{y}" for x, y in ring) + "Z" for p_ in json.load(open(_bp))["parts"] for ring in [p_["outer"]] + p_["holes"])
+    _bed_svg = (f'<path id="historic-slough" d="{_bd}" fill="{P["water"]["base"]}" fill-opacity=".32" fill-rule="evenodd"/>'
+                f'<g transform="translate(905 437)"><text data-fixed="1" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" '
+                f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Historical slough bed</text></g>')
+else:
+    _bed_svg = g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{(2.2 if AD else 6)/abs(M_SP):.3f}" stroke-opacity="0.9"')
 water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
-         + g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{(2.2 if AD else 6)/abs(M_SP):.3f}" stroke-opacity="0.9"')
+         + _bed_svg
          + (g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3"') if not EDITS else
             "".join(f'<path class="pond {"proposed" if pd_["kind"] != "existing" else "existing"}" transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{pd_["d"]}Z" '
                     f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3" data-w="3"'
