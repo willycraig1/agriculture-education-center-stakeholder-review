@@ -54,10 +54,10 @@ window.AG_AREA = {
   {
    "id": "parking",
    "label": "Main parking lot",
-   "x": -24.0,
-   "y": 216,
-   "w": 221.0,
-   "h": 176,
+   "x": 0,
+   "y": 228,
+   "w": 197.0,
+   "h": 164,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
@@ -97,76 +97,20 @@ window.AG_AREA = {
    ],
    "outline": [
     [
-     6.0,
-     216
-    ],
-    [
-     30.0,
-     216
-    ],
-    [
-     30.0,
+     0,
      228
     ],
     [
-     153.0,
+     197.0,
      228
     ],
     [
-     153.0,
-     216
-    ],
-    [
-     177.0,
-     216
-    ],
-    [
-     177.0,
-     248
-    ],
-    [
      197.0,
-     248
-    ],
-    [
-     197.0,
-     318
-    ],
-    [
-     177.0,
-     330
-    ],
-    [
-     177.0,
      392
     ],
     [
-     153.0,
+     0,
      392
-    ],
-    [
-     153.0,
-     356
-    ],
-    [
-     30.0,
-     356
-    ],
-    [
-     30.0,
-     392
-    ],
-    [
-     -24.0,
-     392
-    ],
-    [
-     -24.0,
-     248
-    ],
-    [
-     6.0,
-     248
     ]
    ],
    "island": {
@@ -357,7 +301,7 @@ window.AG_AREA = {
   },
   {
    "id": "small-a",
-   "label": "Small animal & swine barn A",
+   "label": "Small animal barn A",
    "x": 0,
    "y": 108,
    "w": 36,
@@ -401,9 +345,9 @@ window.AG_AREA = {
    "id": "turnout-cattle-a",
    "label": "Turnout",
    "x": 196,
-   "y": 108,
+   "y": 96.0,
    "w": 84,
-   "h": 108,
+   "h": 120.0,
    "use": "arena",
    "level": 2,
    "kind": "yard",
@@ -414,9 +358,9 @@ window.AG_AREA = {
    "id": "turnout-small-a",
    "label": "Turnout",
    "x": -48,
-   "y": 108,
+   "y": 96.0,
    "w": 48,
-   "h": 84,
+   "h": 96.0,
    "use": "arena",
    "level": 2,
    "kind": "yard",
@@ -512,7 +456,7 @@ window.AG_AREA = {
    "x": 196,
    "y": 0,
    "w": 84,
-   "h": 84,
+   "h": 96.0,
    "use": "arena",
    "level": 3,
    "kind": "yard",
@@ -525,7 +469,7 @@ window.AG_AREA = {
    "x": -48,
    "y": 0,
    "w": 48,
-   "h": 84,
+   "h": 96.0,
    "use": "arena",
    "level": 3,
    "kind": "yard",
@@ -546,7 +490,7 @@ window.AG_AREA = {
     ],
     [
      48.0,
-     223
+     195
     ]
    ]
   },
@@ -561,7 +505,7 @@ window.AG_AREA = {
     ],
     [
      122.0,
-     223
+     195
     ]
    ]
   },
@@ -575,7 +519,7 @@ window.AG_AREA = {
      204.0
     ],
     [
-     196,
+     193,
      204.0
     ]
    ]
@@ -586,11 +530,11 @@ window.AG_AREA = {
    "label": "",
    "pts": [
     [
-     -48,
+     5,
      96.0
     ],
     [
-     280,
+     184,
      96.0
     ]
    ]
