@@ -445,6 +445,8 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
                f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
        + (layer("canopy", "Tree canopy (from the aerial trace)", f'<path d="{AD["canopy"]}" fill="{P["woodland"]["base"]}" fill-opacity=".3" fill-rule="evenodd"/>') if AD else "")
        + (layer("drives", "Drives and tracks (from the aerial trace)", f'<path d="{AD["drives"]}" fill="{P["circulation"]["base"]}" fill-opacity=".8" fill-rule="evenodd"/>') if AD else "")
+       + (layer("property", "Surveyed property lines (fencing plan)", f'<g fill="none" stroke="{N["ink"]}" stroke-width="1.6" data-w="1.6" stroke-dasharray="10 4 2 4" data-dash="10 4 2 4" stroke-opacity=".75">'
+                + "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES.get("property_lines", [])) + "</g>") if os.path.exists(_fp) else "")
        + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")
        + layer("water", "Water: slough, ponds, flood zone line", water)
        + layer("trees", "Existing trees and woodland edge", trees_layer)
