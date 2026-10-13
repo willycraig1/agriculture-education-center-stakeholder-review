@@ -204,3 +204,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Slough, north end.** The property line turns a sharp corner onto the site's north line; that leg is 540 ft long, so
   the earlier end trim (short hooks only) left it in. `_tidy_end` now cuts at any corner over 40 degrees within 320
   units of an end, then extends 100 ft on the channel's heading.
+- **Trees.** Surveyed trees are plain discs at 70%% opacity with no white outline; the survey's dashed tree line is no longer drawn (the canopy traced from the aerial replaces it).

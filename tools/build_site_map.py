@@ -200,10 +200,9 @@ water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fil
 # ---------------------------------------------------------------- trees
 tree_svg = "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s > 20 else 3.8}"/>'
                    for src, x, y, s in trees for px, py in [pt(M_FP, T_FP, x, y)])
-trees_layer = (g_paths(sv.get("TREE LINE", []), M_SP, T_SP,
-                       f'fill="none" stroke="{P["woodland"]["base"]}" stroke-width="{2.6/abs(M_SP):.3f}" '
-                       f'stroke-dasharray="{7/abs(M_SP):.2f} {3.5/abs(M_SP):.2f}" stroke-linecap="round"')
-               + f'<g fill="{P["woodland"]["base"]}" fill-opacity="0.85" stroke="#fff" stroke-width="0.8">{tree_svg}</g>')
+# The survey's dashed tree line is no longer drawn: the canopy traced from the aerial replaces it. Surveyed trees
+# are plain discs at 70% opacity, no outline (architect, 2026-10-13).
+trees_layer = f'<g fill="{P["woodland"]["base"]}" fill-opacity="0.7">{tree_svg}</g>'
 
 # ---------------------------------------------------------------- paddocks
 tags = []
