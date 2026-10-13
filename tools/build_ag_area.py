@@ -19,7 +19,7 @@ Layout (architect's markup of 2026-10-12, snapped to the module):
                 One-way loop, counter-clockwise: in from the Red House side at the south-east, west along the
                 north aisle, south down the west leg, out to the entry drive. The loop's two legs line up
                 with the tractor aisles of the two barn runs.
-  west          trailer stop: its own 24' x 60' lane with a gate at each end, west of the loop's west leg. Beside
+  west          trailer stop: a 24'-deep pull-off bay with tapered ends on the loop's west leg. Beside
                 it, the cattle handling yard (72' x 84'): lead-up alley and Bud Box along the north, 16' single-
                 file alley south to the chute on the scale, holding pen with chamfered corners around the chute
 
@@ -110,9 +110,13 @@ n_stalls = sum(r[2] for r in ROWS)
 # The trailer stop is its own lane, 24' x 60' with a gate at each end, between the yard and the loop's west
 # leg. Its north end lines up with the north end of the lead-up alley, just south of the north aisle, so a
 # trailer turns in off the aisle, unloads, and rejoins the loop heading out.
-TR_X, TR_W, TR_L = -24, LANE, 60               # trailer lane: left where it was, pending a rework of the handling area
+# Architect's placement of 2026-10-13: the trailer stop is a 24'-deep pull-off bay with tapered ends on the west
+# side of the loop's west leg, and the handling yard sits directly west of the bay.
+TR_W = LANE
+TR_X = XW0 - TR_W
 HW, HH = 6 * M, 7 * M
-HX, HY = TR_X - HW, y_island                   # yard top = south edge of the north aisle
+HX, HY = TR_X - HW, y_n_aisle + 11
+BAY = [[TR_X, HY], [TR_X + 10, HY], [XW0, HY + 13], [XW0, HY + 68], [TR_X + 10, HY + HH], [TR_X, HY + HH]]
 LOT_S = max(y_s_row + STALL_D + 36, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
 LOT_X0, LOT_X1 = XW0, XE1                        # architect's edits: a plain rectangle ending at the east leg (177');
                                                # the stall column by the existing barn sits outside the fill
@@ -120,7 +124,7 @@ add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_pa
     rows=ROWS, stall=[STALL_W, STALL_D],
     outline=[[LOT_X0, y_park], [LOT_X1, y_park], [LOT_X1, LOT_S], [LOT_X0, LOT_S]],
     island=dict(label="Bioswale island", x=XW1 + 2, y=y_s_row + STALL_D, w=XE0 - XW1 - 4, h=LOT_S - y_s_row - STALL_D))
-add("trailer-stop", "Trailer stop", TR_X, HY, TR_W, TR_L, "circulation", 1, kind="yard", note="gate at each end")
+add("trailer-stop", "Trailer stop", TR_X, HY, TR_W, HH, "circulation", 1, kind="yard", note="pull-off bay", outline=BAY)
 DRIVES = []
 ALLEY_L = 16                                   # single-file alley; with the chute it holds four cattle
 YARD = [[0, 0], [72, 0], [72, 68], [56, 84], [16, 84], [0, 64]]
@@ -139,7 +143,7 @@ add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note=
 add("small-a", "Small animal barn A", x_small, yA, SMALL_W, MOD, "swine", 2, pens=small_pens)   # hog color: the hogs move here from the existing barn
 add("feed-1", "Feed storage 1", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container", doors="w")
 add("turnout-cattle-a", "Turnout", x_col, y_split, MOD, y_pens - y_split, "arena", 2, kind="yard")
-add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, y_split, TURNOUT_SMALL, yA + MOD - y_split, "arena", 2, kind="yard")   # shared with the extension
+add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, yA, TURNOUT_SMALL, MOD, "arena", 2, kind="yard")
 # Level 3
 add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note="14 pens", pens=cattle_pens)
 # Level 3 adds a 42' extension to barn A (not a second barn): a full-length barn B would sit 62% on the very
@@ -147,7 +151,7 @@ add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note=
 EXT = MOD // 2
 add("small-b", "Barn A extension", x_small, yA - EXT, SMALL_W, EXT, "small_animal", 3, note="14 pens",
     pens={"n": EXT // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True})
-add("turnout-small-b", "", x_small - TURNOUT_SMALL, yA - EXT, TURNOUT_SMALL, y_split - (yA - EXT), "arena", 3, kind="yard")   # turnout grows with the extension
+add("turnout-small-b", "", x_small - TURNOUT_SMALL, yA - EXT, TURNOUT_SMALL, EXT, "arena", 3, kind="yard")   # the extension's turnout, split at the barn joint
 add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
 add("feed-2", "Feed storage 2", x_mid + 5, y_drive - 2 * BOX_W - 4, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container", doors="e")
 add("turnout-cattle-b", "Turnout", x_col, yB, MOD, y_split - yB, "arena", 3, kind="yard")
@@ -158,18 +162,18 @@ xw, xe = x_west_lane + LANE / 2, x_east_lane + LANE / 2
 y_cross = y_drive + LANE / 2
 y_end = y_drive + 3                            # datum: the lanes between the runs end just inside the cross drive
 C = [
-    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_n_aisle - 4]]),      # runs straight on into the loop's west leg
-    dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_end]]),
+    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_n_aisle + 12]]),     # runs straight on into the loop's west leg
+    dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_cross]]),
     dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - TURNOUT_SMALL, y_cross], [x_col - 3, y_cross]]),
-    dict(id="lane-mid", kind="service", label="", pts=[[x_west_lane + 3, y_split], [x_col - 12, y_split]]),   # between the runs only; the turnouts close both ends
+    dict(id="lane-mid", kind="service", label="", pts=[[xw, y_split], [x_col - 12, y_split]]),   # between the runs only; the turnouts close both ends
     # tractor aisles: straight through both barns of a run and on into the legs of the parking loop
-    dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[X_ELEG, yB - 14], [X_ELEG, y_n_aisle - 4]]),
-    dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[x_small + SMALL_W / 2, yA - EXT - 12], [x_small + SMALL_W / 2, y_end]]),
+    dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[X_ELEG, yB - 14], [X_ELEG, y_n_aisle + 12]]),
+    dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[x_small + SMALL_W / 2, yA - EXT - 12], [x_small + SMALL_W / 2, y_cross]]),
     # counter-clockwise loop: north up the east leg, west along the north aisle, south down the west leg
     dict(id="loop-parking", kind="loop", label="One-way loop",
          pts=[[X_ELEG, LOT_S + 16], [X_ELEG, y_n_aisle + 12], [X_WLEG, y_n_aisle + 12], [X_WLEG, LOT_S + 16]]),
     dict(id="loop-mid", kind="loop", label="", pts=[[XE0 - 2, y_m_aisle + 12], [XW1 + 2, y_m_aisle + 12]]),
-    dict(id="trailers", kind="loop", label="", pts=[[XW0 - 2, y_n_aisle + 12], [TR_X + TR_W / 2, y_n_aisle + 12], [TR_X + TR_W / 2, HY + TR_L + 14], [XW0 + 6, HY + TR_L + 34]]),
+    dict(id="trailers", kind="loop", label="", pts=[[XW0 - 2, HY + 1], [XW0 - 12, HY + 11], [XW0 - 12, HY + 74], [XW0 + 4, HY + 87]]),
     dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
     dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
     dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
@@ -209,6 +213,17 @@ for c in C:
     if c["id"] == "an-pens":            # existing pens (fixed) up into the shifted turnout A
         xm = (max(x_col, ta["x"]) + min(EAST, ta["x"] + ta["w"])) / 2
         c["pts"] = [[xm, y_pens + 8], [xm, y_pens - 30]]
+def _on(pt_, c2):
+    q = c2["pts"]
+    for (ax, ay), (bx, by) in zip(q, q[1:]):
+        L2 = (bx - ax) ** 2 + (by - ay) ** 2
+        t_ = max(0, min(1, ((pt_[0] - ax) * (bx - ax) + (pt_[1] - ay) * (by - ay)) / L2)) if L2 else 0
+        if ((ax + t_ * (bx - ax) - pt_[0]) ** 2 + (ay + t_ * (by - ay) - pt_[1]) ** 2) ** 0.5 < 1.5:
+            return True
+    return False
+for c in C:
+    if c["kind"] == "service":
+        c["heads"] = [not any(_on(end, o) for o in C if o is not c and o["kind"] != "animal") for end in (c["pts"][0], c["pts"][-1])]
 STALLS_BOX = [LOT_X0 + DX, y_park + DY, LOT_X1 + DX, y_s_row + STALL_D + DY]
 CROSS_DRIVE_BOX = [x_small + DX, y_drive + DY, x_col + DX, y_drive + LANE + DY]
 

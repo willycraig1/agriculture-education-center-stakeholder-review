@@ -143,7 +143,7 @@
     const p = c.pts, [xa, ya] = p[0], [xb, yb] = p[p.length - 1], both = c.kind === "service";
     const mid = p.length > 2 ? [(p[1][0] + p[2][0]) / 2, (p[1][1] + p[2][1]) / 2] : [(xa + xb) / 2, (ya + yb) / 2];
     const vert = p.length === 2 && xa === xb;
-    return `<g class="run ${c.kind}"><path d="${rounded(p, 9)}" marker-end="url(#ah-${c.kind})" ${both ? `marker-start="url(#ah-${c.kind})"` : ""}/>
+    return `<g class="run ${c.kind}"><path d="${rounded(p, 9)}" ${!c.heads || c.heads[1] ? `marker-end="url(#ah-${c.kind})"` : ""} ${both && (!c.heads || c.heads[0]) ? `marker-start="url(#ah-${c.kind})"` : ""}/>
       ${c.label ? `<text ${vert ? `transform="translate(${mid[0] - 4} ${mid[1]}) rotate(-90)"` : `x="${mid[0]}" y="${mid[1] - 4}"`} text-anchor="middle" font-size="5">${c.label}</text>` : ""}</g>`;
   }).join("") + (A.notes || []).map(n => `<g class="run"><text x="${n.x}" y="${n.y}" text-anchor="middle" font-size="4.6">${n.text}</text></g>`).join("");
   const defs = `<defs>${["service", "animal", "loop"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
@@ -158,7 +158,7 @@
     { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`] },
     { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal barn A, ${sa} pens: the hogs move here`, "First feed storage container, by the parking", "Existing barn, emptied of hogs, becomes storage"] },
     { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Barn A extended 42': ${A.counts.small_animal_pens[3]} small animal pens in all, kept off the wet corner`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
-    { b: "Flow", h: "Straight lines", items: ["The loop's west leg continues the west lane; its east leg continues the cattle tractor aisle", "One-way loop, counter-clockwise: in from the Red House side, out to the entry drive", "Trailers turn off the north aisle into their own gated lane, unload, and rejoin the loop", "Every barn opens onto its own turnout", `Two ${A.lane_ft}' lanes and a cross drive serve feed, pens and the arena`] },
+    { b: "Flow", h: "Straight lines", items: ["The loop's west leg continues the west lane; its east leg continues the cattle tractor aisle", "One-way loop, counter-clockwise: in from the Red House side, out to the entry drive", "Trailers pull off the loop into a bay beside the handling yard, unload, and drive on", "Every barn opens onto its own turnout", `Two ${A.lane_ft}' lanes and a cross drive serve feed, pens and the arena`] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
