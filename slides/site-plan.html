@@ -83,8 +83,8 @@
   // what the overlay shows, from the checks computed in tools/build_site_map.py
   const items = [];
   const trees = Object.entries(K.trees_in);
-  if (trees.length) items.push(`${trees.map(([k, n]) => `${n} surveyed trees stand inside the ${k.toLowerCase()} footprint`).join("; ")}, including the row along the existing drive.`);
-  if (K.existing_structures_in.length) items.push(`${K.existing_structures_in.length === 2 ? "Two" : K.existing_structures_in.length} existing structures (${K.existing_structures_in.map(x => `${x.size_ft[0]}' × ${x.size_ft[1]}'`).join(", ")}) sit under ${K.existing_structures_in[0].in[0].toLowerCase()}.`);
+  if (trees.length) items.push(`Surveyed trees inside new footprints: ${trees.map(([k, n]) => `${n} in the ${k.toLowerCase()}`).join(", ")}. They include the row along the existing drive.`);
+  if (K.existing_structures_in.length) items.push(`${K.existing_structures_in.length === 2 ? "Two" : K.existing_structures_in.length} existing structures (${K.existing_structures_in.map(x => `${x.size_ft[0]}' × ${x.size_ft[1]}'`).join(", ")}) sit under ${K.existing_structures_in[0].in[0].replace(/^C/, "c")}.`);
   const wet = Object.entries(K.wet_soil_pct).sort((a, b) => b[1] - a[1]);
   if (wet.length) items.push(`On the wettest soil: ${wet.map(([k, v]) => `${k.toLowerCase()} ${v}%`).join(", ")}.`);
   else items.push("No building sits on the wettest soil.");
