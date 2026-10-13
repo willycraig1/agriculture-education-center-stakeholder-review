@@ -232,8 +232,9 @@ _leaf = [d for d in _gd if all(it[0] == "l" for it in d["items"])]
 _arc = [d for d in _gd if any(it[0] == "c" for it in d["items"])]
 gates = (g_paths(_arc, M_FP, T_FP, f'fill="none" stroke="{P["cattle"]["base"]}" stroke-width="1" stroke-opacity=".8"')
          + g_paths(_leaf, M_FP, T_FP, f'fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" stroke-linecap="round"'))
-paddocks = (_fence_art + f'<g id="gates">{gates}</g>'
-            + g_paths(drive_ds, M_FP, T_FP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.6"')
+_pw = "".join(f'<g transform="translate({pw_["map"][0]:.1f} {pw_["map"][1]:.1f})"><g data-fixed="1"><text y="-16" text-anchor="middle" font-size="15" font-weight="700" '
+              f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Feed + water</text></g></g>' for pw_ in FENCES.get("pinwheels", [])) if os.path.exists(_fp) else ""
+paddocks = (_fence_art + f'<g id="gates">{gates}</g><g id="pinwheel-labels">{_pw}</g>'
             + "".join(tags))
 
 # ---------------------------------------------------------------- the land (existing: no proposed fences)
@@ -270,8 +271,10 @@ else:
     _camp0 = (g_paths(sv.get("BUILDING", []), M_SP, T_SP, f'fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="{1/abs(M_SP):.3f}"')
               + g_paths(bldg_ds, M_FP, T_FP, f'fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" stroke-width="1.2"'))
 campus = (_camp0
-          + g_paths(sv.get("EDGE OF PAVEMENT", []), M_SP, T_SP,
-                    f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="{1.4/abs(M_SP):.3f}"'))
+          + (f'<g id="roads" fill="none" stroke="{P["circulation"]["base"]}" stroke-width="1.4" data-w="1.4" stroke-linejoin="round" stroke-linecap="round">'
+             + "".join(f'<polyline points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES.get("roads", [])) + "</g>"
+             if os.path.exists(_fp) and FENCES.get("roads") else
+             g_paths(sv.get("EDGE OF PAVEMENT", []), M_SP, T_SP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="{1.4/abs(M_SP):.3f}"')))
 # Red House: centroid of the survey buildings, used for the campus callout
 rh = pt(M_SP, T_SP, 1358, 1137)
 
