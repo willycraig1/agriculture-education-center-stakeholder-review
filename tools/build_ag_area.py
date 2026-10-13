@@ -13,7 +13,8 @@ Layout (architect's markup of 2026-10-12, snapped to the module):
   small run     two small animal barns, 84' x 36' (6' x 10' pens both sides of a 16' aisle)
   west          small animal turnouts; new corral, chute and scale below them
   south         the main parking lot, after the architect's simplified plan: north row, centre island, south row
-                backing onto the bioswale island, a column at the east end; 10' x 20' stalls, 24' aisles.
+                backing onto the bioswale island; 10' x 20' stalls, 24' aisles. The apron in front of the
+                existing barn's four overhead doors is kept clear.
                 One-way loop, counter-clockwise: in from the Red House side at the south-east, west along the
                 north aisle, south down the west leg, out to the entry drive. The loop's two legs line up
                 with the tractor aisles of the two barn runs.
@@ -97,8 +98,7 @@ ROWS = [  # x, y, number of stalls, optional "v" for a column of stalls facing e
     [x_row, y_park, 12],
     [x_row, y_island, 12], [x_row, y_island + STALL_D, 12],
     [x_row, y_s_row, 12],
-    [XE1, y_n_aisle, 7, "v"],
-]
+]   # no stalls in front of the existing barn: that apron stays open for its four overhead doors
 n_stalls = sum(r[2] for r in ROWS)
 
 # Handling yard, 72' x 84' (the layout on the study plan, after the Priefert Bud Box): lead-up alley and Bud Box
