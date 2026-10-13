@@ -22,7 +22,7 @@ from siteframe import ROOT, OUT, FENCE, cadpdf, M_FP, T_FP, FT_PER_PT, ARROW_BOX
 
 MAX_GAP, MAX_TURN, SNAP = 24.0, 14.0, 22.0        # sheet units, degrees, sheet units
 
-def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0):
+def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0, snap_protect=None):
     """protect: points (gate leaf ends). Fence ends within protect_r of one are left exactly as drawn: they are the
     deliberately offset ends that form a pinwheel, and must not be joined or snapped to their neighbours."""
     ptree = cKDTree(protect) if protect is not None and len(protect) else None
@@ -43,7 +43,11 @@ def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0
             if dist < 1e-6:
                 cands.append((0.0, i, j)); continue
             if guarded(P[i]) and guarded(P[j]):
-                continue
+                # at a pinwheel only pieces of the same fence may join (its stub beyond the gate hinge);
+                # never one fence to its neighbour
+                w0 = (P[j] - P[i]) / dist
+                if max(math.degrees(math.acos(np.clip(D[i] @ w0, -1, 1))), math.degrees(math.acos(np.clip(-D[j] @ w0, -1, 1)))) > 6:
+                    continue
             w /= dist
             turn = max(math.degrees(math.acos(np.clip(D[i] @ w, -1, 1))), math.degrees(math.acos(np.clip(-D[j] @ w, -1, 1))))
             bend = math.degrees(math.acos(np.clip(-(D[i] @ D[j]), -1, 1)))      # change of direction across the joint
@@ -79,44 +83,47 @@ def chain(segs, max_gap, max_turn, snap, min_len=30, protect=None, protect_r=8.0
             pts.append(P[cur])
         chains.append(LineString(pts).simplify(1.2))
 
-    chains = [c for c in chains if c.length > 30]
+    chains = [c for c in chains if c.length > min_len]
     # snap loose ends onto the fence they run into (T junctions), then merge runs that now share an end point
+    stree = cKDTree(snap_protect) if snap_protect is not None and len(snap_protect) else None
     def snap_end(c, others):
+        """Close the gap where a dashed run stops just short of the fence it meets. The run is extended along its
+        own heading (a vertex is added; nothing already drawn is moved). Ends at a gate are left open: the gap
+        is the gate."""
         pts = list(c.coords)
         for k in (0, -1):
             end = Point(pts[k])
-            if guarded(pts[k]):
+            if guarded(pts[k]) or (stree is not None and stree.query(pts[k])[0] < 14.0):
                 continue
+            a, b = (np.array(pts[1]), np.array(pts[0])) if k == 0 else (np.array(pts[-2]), np.array(pts[-1]))
+            u = (b - a) / (np.linalg.norm(b - a) or 1)
+            ray = LineString([b, b + u * snap])
             best = None
             for o in others:
-                if o is c:
+                if o is c or o.distance(end) < 0.05:
                     continue
-                dd = o.distance(end)
-                if dd < snap and (best is None or dd < best[0]):
-                    best = (dd, o)
-            if best and best[0] > 0.05:
-                q = best[1].interpolate(best[1].project(end))
-                # prefer extending along the run's own direction if that hits the other fence close by
-                a, b = (np.array(pts[1]), np.array(pts[0])) if k == 0 else (np.array(pts[-2]), np.array(pts[-1]))
-                u = (b - a) / (np.linalg.norm(b - a) or 1)
-                ray = LineString([b, b + u * snap * 1.5])
-                hit = ray.intersection(best[1])
-                if not hit.is_empty:
-                    hp = hit if hit.geom_type == "Point" else list(getattr(hit, "geoms", [hit]))[0]
-                    if hp.geom_type == "Point":
-                        q = hp
-                pts[k] = (q.x, q.y)
+                hit = ray.intersection(o)
+                if hit.is_empty:
+                    continue
+                hp = hit if hit.geom_type == "Point" else list(getattr(hit, "geoms", [hit]))[0]
+                if hp.geom_type == "Point" and (best is None or hp.distance(end) < best.distance(end)):
+                    best = hp
+            if best is not None:
+                if k == 0:
+                    pts.insert(0, (best.x, best.y))
+                else:
+                    pts.append((best.x, best.y))
         return LineString(pts)
     chains = [snap_end(c, chains) for c in chains]
     merged = linemerge(unary_union(chains))
     runs = list(getattr(merged, "geoms", [merged]))
-    runs = [r.simplify(1.0) for r in runs if r.length > 30]
+    runs = [r.simplify(1.0) for r in runs if r.length > min_len]
 
     return runs
 
 segs = []
 solids = []
-for L, ds in cadpdf.export(FENCE, ["FENCE", "(none)", "P-BELOW-LIGHT"]).items():
+for L, ds in cadpdf.export(FENCE, ["FENCE", "(none)"]).items():      # P-BELOW-LIGHT is the circulation sketch and pond outlines: not fence
     for d in ds:
         r = d["rect"]
         if any(inside(r, b) for b in ARROW_BOXES):                         # the sheet's SITE / BONUS arrow graphic
@@ -167,7 +174,8 @@ for d in cadpdf.export(FENCE, ["A-DOOR"]).get("A-DOOR", []):
             gate_arcs.append([[q.x, q.y] for q in it[1:5]])
 gate_leaves = [g for g in gate_leaves if np.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]) > 2]
 GP = np.array([q for g in gate_leaves for q in g])
-runs = chain(segs, MAX_GAP, MAX_TURN, SNAP, protect=GP)
+GA = np.array([q for a_ in gate_arcs for q in (a_[0], a_[3])] + [q for g in gate_leaves for q in g])      # every gate end point
+runs = chain(segs, MAX_GAP, MAX_TURN, SNAP, protect=GP, snap_protect=GA)
 
 # ---- property lines (layer SECTION LINE): short dashes with dots between them
 pl_segs = []
@@ -209,6 +217,22 @@ out["gates"] = [{"length_ft": round(float(np.hypot(g[1][0] - g[0][0], g[1][1] - 
                  "sheet": [[round(v, 2) for v in q] for q in g], "map": [to_p(q) for q in g]} for g in gate_leaves]
 out["gate_arcs"] = [{"sheet": [[round(v, 2) for v in q] for q in a], "map": [to_p(q) for q in a]} for a in gate_arcs]
 out["pinwheels"] = [{"gates": len(c), "map": to_p(_mid[c].mean(0))} for c in _cluster(_mid, 30) if len(c) >= 4]
+# Roads: the survey's edge-of-pavement lines are plotted in short pieces; chain them the same way so each
+# road edge is one continuous polyline.
+from siteframe import SURVEY, M_SP, T_SP
+rd = []
+for d in cadpdf.export(SURVEY, ["EDGE OF PAVEMENT"]).get("EDGE OF PAVEMENT", []):
+    pts = []
+    for it in d["items"]:
+        if it[0] in ("l", "c"):
+            e_ = it[2] if it[0] == "l" else it[4]
+            if not pts:
+                z = M_SP * complex(it[1].x, it[1].y) + T_SP; pts.append((z.real, z.imag))
+            z = M_SP * complex(e_.x, e_.y) + T_SP; pts.append((z.real, z.imag))
+    rd += [(np.array(a), np.array(b)) for a, b in zip(pts, pts[1:]) if np.hypot(b[0] - a[0], b[1] - a[1]) > 0.05]
+road_runs = chain(rd, 16.0, 9.0, 0.0, min_len=12)     # bridge dash gaps only where the heading holds
+out["roads"] = [{"length_ft": round(r.length * FT_PER_PT), "map": [[round(x, 2), round(y, 2)] for x, y in r.coords]} for r in sorted(road_runs, key=lambda r: -r.length)]
+print("road edge pieces:", len(rd), "-> runs:", len(out["roads"]), "| longest ft:", [r["length_ft"] for r in out["roads"][:6]])
 out["property_lines"] = [{"id": f"pl-{k + 1:02d}", "length_ft": round(r.length * FT_PER_PT),
                           "sheet": [[round(x, 2), round(y, 2)] for x, y in r.coords], "map": [to_p(c) for c in r.coords]}
                          for k, r in enumerate(sorted(pl_runs, key=lambda r: -r.length))]

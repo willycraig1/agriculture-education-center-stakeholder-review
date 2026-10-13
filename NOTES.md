@@ -170,6 +170,14 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   - Cowpen Slough ends: the property line turns away from the waterway at each end of the site; the slough line is cut back to its last straight stretch there and carried on 100 ft along that heading.
   - South bonus pasture buildings (fencing plan layer P-WALL, 5 outlines) are drawn again; they had dropped out when the architect's structure outlines replaced the survey linework.
 
+- 2026-10-13, round 4 (architect's markups of the north triangle and a pinwheel):
+  - Pinwheel geometry, as on the plan: each fence carries its gate hinge one gate length before its end, so a fence stub runs on past the hinge; the gate closes from the hinge to the end of the neighbouring fence and opens back along its own fence. My guard had been cutting the stubs off (they were treated as separate short runs and dropped). Pieces of the same fence may now join at a pinwheel (heading within 6°); different fences never do.
+  - T-snapping no longer moves a fence end (it had dragged the triangle's west line 5 units onto a neighbour, which is why it missed its gates). A run is only extended along its own heading, by an added vertex, and never at a gate.
+  - Layer P-BELOW-LIGHT on the fencing plan is the architect's circulation sketch plus pond outlines: no longer read as fence (this removes the phantom fence round the pond) and no longer drawn as grey drive lines.
+  - Roads: the survey's edge-of-pavement lines (366 short pieces) are chained into 7 continuous polylines (`fences.json` → `roads`), bridging dash gaps up to 16 units where the heading holds within 9°. No Illustrator work needed for these.
+  - "Feed + water" label at each of the three pinwheels.
+  - Fences now: 26 runs, about 29,700 ft.
+
 ## Water quality
 - Reference given by the Owner's side: the 2025 Water Quality Playbook, Gulf Coast Community Foundation (https://waterqualityplaybook.org), a regional blueprint for reducing nutrient pollution, organised as Reduce / Remove / Sustain. Most relevant actions: 4.6 (education and resources for farmers and ranchers: rotational/adaptive grazing, manure management, silvopasture, composting, FDACS BMPs incl. the 2024 Small Farms manual, UF/IFAS outreach to small farms), 4.7 (composting, rebuilding soils), chapter 2 (septic), chapters 6–7 (stormwater, 7.4 demonstration projects), 8.1 (wetland and shoreline habitat). It does not cover livestock exclusion from water or riparian buffers directly.
 - Figures used (action 4.6, citing USDA 2022): 286 farms in Sarasota County, about half under 10 acres; cow/calf is 59% of farms; about 46% of registered, eligible farmland is in FDACS BMP programs; only about one-third of farms under 10 acres are enrolled.
