@@ -120,7 +120,7 @@
     const f = s.frame || "full";
     if (f !== lastFrame) { viewer.home(frames[f]); viewer.flyTo(frames[f], lastFrame === null || document.documentElement.classList.contains("static") ? 0 : 1200); lastFrame = f; }
     svg.querySelectorAll("[data-layer]").forEach(g => {
-      if (!["aerial", "veil", "land", "soils", "water", "trees", "paddocks", "campus", "labels"].includes(g.id)) return;
+      if (!["aerial", "veil", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"].includes(g.id)) return;
       g.classList.toggle("off", !s.show.includes(g.id));
     });
     svg.querySelector("#aerial").classList.toggle("muted", !!s.muted);
