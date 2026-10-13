@@ -14,8 +14,9 @@ Layout (architect's markup of 2026-10-12, snapped to the module):
   west          small animal turnouts; new corral, chute and scale below them
   south         the main parking lot: 10' x 20' stalls in rows around a centre island, 24' aisles, one-way loop;
                 entry drive at the south-west, drive to the Red House at the south-east
-  west          cattle handling yard (72' x 84'): trailer unloading enclosure next to the lot, holding pen,
-                lead-up alley, Bud Box, single-file alley, chute on the scale, release pen
+  west          cattle handling yard (72' x 84'), after the Priefert Bud Box: 24' x 60' pull-through trailer
+                enclosure on the parking side; holding pen with chamfered corners around the chute; Bud Box in
+                the corner; single-file alley back along the fence to the chute on the scale
 
 Writes
   slides/data/ag-area.js          elements, circulation and dimensions for slides/ag-area.html
@@ -75,15 +76,18 @@ add("existing-barn", "Existing barn", EAST - EX_W, y_barn, EX_W, EX_D, "swine", 
     becomes={"2": {"use": "circulation", "note": "Storage"}})
 add("existing-pens", "7 existing cattle pens", x_col, y_pens, MOD, PEN_D, "cattle", 1, pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D]]})
 HX, HY, HW, HH = x_small - 6 * M, y_pens, 6 * M, 7 * M      # handling yard, 72' x 84'
-add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", note="", zones=[
-    # x, y, w, h relative to the yard's north-west corner; same geometry as slides/bud-box.html
-    dict(label="Bud Box", x=0, y=0, w=20, h=12, fill=True),
-    dict(label="Lead-up alley", x=20, y=0, w=28, h=12),
-    dict(label="Trailer unloading", x=48, y=0, w=24, h=84, rot=True),
-    dict(label="Holding pen", x=24, y=12, w=24, h=72, rot=True),
-    dict(label="", x=16, y=12, w=2.6, h=24),
-    dict(label="Chute + scale", x=15.3, y=36, w=4, h=9, fill=True, side=True),
-    dict(label="Release", x=0, y=48, w=24, h=36),
+# Handling yard after the Priefert Bud Box layout: a holding pen with chamfered corners that wraps around
+# the chute; the box in one corner; the single-file alley running back along the fence beside the box gate.
+# A 24' x 60' pull-through trailer enclosure, gated at both ends, sits on the parking side.
+# Coordinates are relative to the yard's north-west corner; slides/bud-box.html uses the same numbers.
+YARD = [[10, 0], [72, 0], [72, 60], [48, 60], [48, 64], [28, 84], [0, 84], [0, 10]]
+add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", note="",
+    outline=[[HX + px, HY + py] for px, py in YARD], zones=[
+    dict(label="Holding pen", poly=[[10, 0], [38, 0], [48, 10], [48, 64], [28, 84], [12, 84], [12, 64], [2.6, 64], [2.6, 40], [4, 40], [4, 31], [0, 31], [0, 10]], at=[28, 40]),
+    dict(label="Trailer pull-through", x=48, y=0, w=24, h=60, rot=True),
+    dict(label="Bud Box", x=0, y=64, w=12, h=20, fill=True, rot=True),
+    dict(label="", x=0, y=40, w=2.6, h=24),
+    dict(label="Chute", x=0, y=31, w=4, h=9, fill=True, side=True),
 ])
 # Parking: the main lot, after the architect's CAD layout: stall rows around a centre island, with a one-way
 # loop. The north row is broken where the west lane and the cattle tractor aisle meet the lot, so vehicles
@@ -95,10 +99,10 @@ y_island = y_n_aisle + PARK_AISLE              # centre island: two rows nose to
 y_s_aisle = y_island + 2 * STALL_D             # south aisle
 y_s_row = y_s_aisle + PARK_AISLE               # south row
 LOT_W, LOT_E, LOT_S = 10, 192, y_s_row + STALL_D
-ROWS = [  # x, y, number of stalls
-    [14, y_park, 2], [62, y_park, 9], [180, y_park, 1],
-    [42, y_island, 12], [42, y_island + STALL_D, 12],
-    [50, y_s_row, 10],
+ROWS = [  # x, y, number of stalls. The north row is broken at the two lanes; the island and south row make up the count.
+    [14, y_park, 2], [62, y_park, 9], [178, y_park, 1],
+    [36, y_island, 13], [36, y_island + STALL_D, 13],
+    [31, y_s_row, 14],
 ]
 n_stalls = sum(r[2] for r in ROWS)
 add("parking", "Main parking lot", LOT_W, y_park, LOT_E - LOT_W, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces shown",
@@ -133,10 +137,11 @@ C = [
     dict(id="lane-mid", kind="service", label="", pts=[[x_small - TURNOUT_SMALL, yB + MOD + LANE / 2], [EAST, yB + MOD + LANE / 2]]),
     dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[x_ta, yB - 14], [x_ta, y_end]]),
     dict(id="aisle-small", kind="service", label="", pts=[[x_small + SMALL_W / 2, yB - 14], [x_small + SMALL_W / 2, y_end]]),
-    dict(id="loop-parking", kind="loop", label="One-way loop", pts=[[24, y_s_aisle + 12], [24, y_n_aisle + 12], [176, y_n_aisle + 12], [176, y_s_aisle + 12], [44, y_s_aisle + 12]]),
-    dict(id="entry", kind="loop", label="Entry drive", pts=[[-46, LOT_S + 26], [16, y_s_aisle + 16]]),
-    dict(id="exit", kind="loop", label="To the Red House", pts=[[182, y_s_aisle + 16], [226, LOT_S + 26]]),
-    dict(id="trailers", kind="loop", label="Trailers", pts=[[14, y_n_aisle + 12], [HX + HW - 18, y_n_aisle + 12]]),
+    # counter-clockwise, keeping right: east along the south aisle, back west along the north aisle
+    dict(id="loop-parking", kind="loop", label="One-way loop", pts=[[40, y_s_aisle + 12], [178, y_s_aisle + 12], [178, y_n_aisle + 12], [23, y_n_aisle + 12], [23, y_s_aisle + 2]]),
+    dict(id="entry", kind="loop", label="Entry drive", pts=[[-50, LOT_S + 26], [18, y_s_aisle + 14]]),
+    dict(id="exit", kind="loop", label="To the Red House", pts=[[184, y_s_aisle + 16], [226, LOT_S + 26]]),
+    dict(id="trailers", kind="loop", label="Trailers pull through", pts=[[HX + 60, LOT_S + 6], [HX + 60, y_cross]]),
     dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
     dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
     dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
@@ -183,7 +188,10 @@ def pens_svg(e):
         for i in range(n):
             out.append(f'<rect x="{rx + i * e["stall"][0]}" y="{ry}" width="{e["stall"][0]}" height="{e["stall"][1]}"/>')
     for z in e.get("zones", []):
-        out.append(f'<rect x="{e["x"] + z["x"]}" y="{e["y"] + z["y"]}" width="{z["w"]}" height="{z["h"]}"/>')
+        if "poly" in z:
+            out.append('<polygon points="' + " ".join(f'{e["x"] + px},{e["y"] + py}' for px, py in z["poly"]) + '"/>')
+        else:
+            out.append(f'<rect x="{e["x"] + z["x"]}" y="{e["y"] + z["y"]}" width="{z["w"]}" height="{z["h"]}"/>')
     return f'<g fill="none" stroke="{N["ink"]}" stroke-width=".35" opacity=".45">{"".join(out)}</g>' if out else ""
 
 
