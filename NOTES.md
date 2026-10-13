@@ -101,6 +101,16 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   - Round trip: the architect edits `drawings/ag-area-diagram.svg` in Illustrator; I diff it against the generated master by element id, fold the changes into `tools/build_ag_area.py`, and regenerate. Illustrator styling is not kept, geometry is.
 - Bud Box basis: Priefert Bud Box (https://www.youtube.com/watch?v=7Xs6HmrRTUs) plus extension guidance: K-State MF3349, Missouri Extension G2003, Gill & Machen. Box 12' wide for handlers on foot, 20–30' deep; straight single-file alley at least 24'; cattle flow through the box, never held; handler starts opposite the alley, then walks the alley-side fence toward the closed end.
 
+## Barnyard on the site
+- The barnyard diagram is placed to scale on the survey/aerial by `tools/build_site_map.py` (layer `barnyard` in `drawings/site-layers.svg`): the middle of the diagram's existing-pens north edge is pinned to the middle of the surveyed pen fence line on study plan A0.2 (P-RAILING, 80.9' long; the diagram's row is 84'), turned to that line's bearing (17.3°). Slide: `slides/site-plan.html` (Levels 1–3 at barnyard scale, then the full site). Run `build_ag_area.py` before `build_site_map.py`.
+- Fit checks computed in the build (`SITE_MAP.barnyard.checks`), 2026-10-12:
+  - Barn runs, arena, feed storage and turnouts: no surveyed trees inside.
+  - Parking footprint: 22 surveyed trees inside, including the row along the existing drive.
+  - Two existing surveyed structures (61' × 25' and 35' × 29') sit in the cross drive, at the south end of cattle barn A.
+  - Very poorly drained soil (Delray): small animal barn B 62% of its footprint, arena 18%, cattle barn B 9%.
+  - South stall row is about 27' from the nearest Red House wall line; the loop's east leg cannot run straight south and has to bend around the house (as on the CAD plan). The diagram's bioswale-island stub south of the stalls is schematic.
+  - The fencing plan's paddock lines around the campus follow the earlier U-shaped layout and need redrawing for this one.
+
 ## Open questions
 - Barnyard: parking count (20 drawn vs 51 + 9 on the study plan); where the entry drive meets the barnyard; visitor route to the arena
 - Campus plan by Level and barn interior plans for Act 5 (user collecting)

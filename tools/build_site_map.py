@@ -5,7 +5,8 @@ Writes
   slides/data/site-map.js    the same SVG as a string, for slides/site.html (works from file://)
   drawings/data/soils.json   soil units, drainage class and acreage inside the map
 
-Layers: aerial · soils · water · trees · paddocks · campus · labels.
+Layers: aerial · soils · water · trees · paddocks · campus · barnyard · labels.
+The barnyard layer is the diagram from tools/build_ag_area.py (run that first), placed to scale on the survey.
 Soils are rebuilt from the survey sheet's soil map: each soil unit is drawn there as a fill or a dense
 hatch in one color, so strokes and fills of a color are merged into polygons and named from the
 sheet's soil labels. Drainage classes follow the NRCS official series descriptions (confirm in Web
@@ -145,12 +146,14 @@ for key, geo in soil_polys.items():
 
 ft2_per_pt2 = (FT_PER_PT / abs(M_FP)) ** 2
 soil_layer, soil_json = [], []
+soil_by_class = {}
 for cls in ("somewhat poorly", "poorly", "very poorly"):
     geos = [sp_shape(g, M_SP, T_SP) for k, g in soil_polys.items()
             if k in units and DRAINAGE[units[k][0]][1] == cls]
     if not geos:
         continue
     g = unary_union(geos).intersection(footprint)
+    soil_by_class[cls] = g
     soil_layer.append(f'<path class="soil" data-drainage="{cls}" d="{poly_d(g)}" fill="{SOIL_FILL[cls]}"/>')
 for k, codes in units.items():
     g = sp_shape(soil_polys[k], M_SP, T_SP).intersection(footprint)
@@ -228,6 +231,123 @@ campus = (g_paths(sv.get("BUILDING", []), M_SP, T_SP,
 # Red House: centroid of the survey buildings, used for the campus callout
 rh = pt(M_SP, T_SP, 1358, 1137)
 
+# ---------------------------------------------------------------- barnyard diagram, placed on the site to scale
+# The diagram (tools/build_ag_area.py, feet, square to the existing barn) is pinned to the survey by its
+# existing pens: the middle of their north edge sits on the middle of the surveyed pen fence line on the
+# study plan (P-RAILING, 80.9' long), and the diagram is turned to that line's bearing (17.3 degrees).
+import cmath, math
+_src = open(os.path.join(SLIDES, "data", "ag-area.js")).read()
+AG = json.loads(_src[_src.index("{"):_src.rindex("}") + 1])
+FENCE_ST = (complex(1599, 745), complex(1772, 799))      # surveyed pen fence line, study-plan points
+ST_FT = FT_PER_PT * abs(M_TF)                            # study plan: feet per point
+_pens = next(e for e in AG["elements"] if e["id"] == "existing-pens")
+_m = cmath.rect(1 / ST_FT, cmath.phase(FENCE_ST[1] - FENCE_ST[0]))
+_t = (FENCE_ST[0] + FENCE_ST[1]) / 2 - _m * complex(_pens["x"] + _pens["w"] / 2, _pens["y"])
+M_DP, T_DP = M_TP * _m, M_TP * _t + T_TP                 # diagram feet -> presentation frame
+
+
+def ag_poly(e):
+    pts = e.get("outline") or [[e["x"], e["y"]], [e["x"] + e["w"], e["y"]], [e["x"] + e["w"], e["y"] + e["h"]], [e["x"], e["y"] + e["h"]]]
+    return [pt(M_DP, T_DP, px, py) for px, py in pts]
+
+
+by = []
+for e in AG["elements"]:
+    use3 = e["use"]
+    for k in ("2", "3"):
+        use3 = e.get("becomes", {}).get(k, {}).get("use", use3)
+    inner = ""
+    if e.get("rows"):
+        sw, sd = e["stall"]
+        inner += '<g fill="#fff" fill-opacity=".55" stroke="{}" stroke-width=".5">'.format(P["circulation"]["base"]) + "".join(
+            f'<rect x="{r[0] + k * sw}" y="{r[1]}" width="{sw}" height="{sd}"/>' for r in e["rows"] for k in range(r[2])) + "</g>"
+        isl = e.get("island")
+        if isl:
+            inner += f'<rect x="{isl["x"]}" y="{isl["y"]}" width="{isl["w"]}" height="{isl["h"]}" rx="3" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
+    for z in e.get("zones", []):
+        if "poly" in z:
+            inner += '<polygon points="' + " ".join(f'{e["x"] + px},{e["y"] + py}' for px, py in z["poly"]) + f'" fill="{P["arena"]["tint"]}" stroke="{P["cattle"]["base"]}" stroke-width=".5"/>'
+        else:
+            inner += f'<rect x="{e["x"] + z["x"]}" y="{e["y"] + z["y"]}" width="{z["w"]}" height="{z["h"]}" fill="{P["cattle"]["tint"] if z.get("fill") else "none"}" stroke="{P["cattle"]["base"]}" stroke-width=".5"/>'
+    shape = ('<polygon class="shape" points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + '"' if e.get("outline")
+             else f'<rect class="shape" x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}"')
+    yard = e["kind"] == "yard"
+    shape += (f' fill="{"none" if yard else P[use3]["tint"]}" stroke="{P[use3]["base"]}" stroke-width="1.6"' + (' stroke-dasharray="4 3"' if yard else "") + "/>")
+    by.append(f'<g class="by" data-id="{e["id"]}" data-level="{e["level"]}" data-kind="{e["kind"]}" data-use="{e["use"]}" '
+              f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
+barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
+BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Small animal barn B",
+             "arena": "Arena", "parking": "Parking", "handling": "Handling", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
+by_labels = ""
+for e in AG["elements"]:
+    if e["id"] in BY_LABELS:
+        lx, ly = pt(M_DP, T_DP, e["x"] + e["w"] / 2, e["y"] + e["h"] / 2)
+        by_labels += (f'<text data-level="{e["level"]}" x="{lx:.1f}" y="{ly + 1.4:.1f}" text-anchor="middle" font-size="4.2" font-weight="700" fill="{N["ink"]}" '
+                      f'stroke="#fff" stroke-width="1.1" paint-order="stroke">{BY_LABELS[e["id"]]}</text>')
+
+# fit checks against the survey (presentation frame; reported in feet)
+from shapely.geometry import MultiPoint
+unit_ft = FT_PER_PT / abs(M_FP)
+NAMES = {e["id"]: e["label"] for e in AG["elements"]}
+polys = {e["id"]: Polygon(ag_poly(e)) for e in AG["elements"]}
+new_ids = [e["id"] for e in AG["elements"] if not e["id"].startswith("existing")]
+tree_pts = [Point(*pt(M_FP, T_FP, x, y)) for _, x, y, _s in trees]
+checks = {"trees_in": {}, "wet_soil_pct": {}, "existing_structures_in": []}
+for k in new_ids:
+    n = sum(1 for tp in tree_pts if polys[k].contains(tp))
+    if n and not k.startswith("turnout"):
+        checks["trees_in"][NAMES[k]] = n
+checks["trees_in_turnouts"] = sum(1 for tp in tree_pts if any(polys[k].contains(tp) for k in new_ids if k.startswith("turnout")))
+wet = soil_by_class.get("very poorly")
+if wet is not None:
+    for e in AG["elements"]:
+        if e["kind"] in ("building", "container") and not e["id"].startswith("existing"):
+            pct = round(100 * polys[e["id"]].intersection(wet).area / polys[e["id"]].area)
+            if pct:
+                checks["wet_soil_pct"][e["label"]] = pct
+# surveyed structures (BUILDING layer, grouped by proximity) that fall inside new elements
+_groups = []
+for d in sv.get("BUILDING", []):
+    r = d["rect"]
+    c = ((r.x0 + r.x1) / 2, (r.y0 + r.y1) / 2)
+    for g_ in _groups:
+        if any(abs(c[0] - o[0]) < 14 and abs(c[1] - o[1]) < 14 for o in g_["c"]):
+            g_["c"].append(c); g_["r"].append(r); break
+    else:
+        _groups.append({"c": [c], "r": [r]})
+red_house = None
+for g_ in _groups:
+    hull = MultiPoint([pt(M_SP, T_SP, x, y) for r in g_["r"] for x, y in ((r.x0, r.y0), (r.x1, r.y0), (r.x1, r.y1), (r.x0, r.y1))]).minimum_rotated_rectangle
+    if hull.geom_type != "Polygon":
+        continue
+    cs = list(hull.exterior.coords)
+    size = sorted([round(math.dist(cs[0], cs[1]) * unit_ft), round(math.dist(cs[1], cs[2]) * unit_ft)], reverse=True)
+    if hull.contains(Point(*rh)) or hull.distance(Point(*rh)) * unit_ft < 30:
+        red_house = hull if red_house is None else red_house.union(hull)
+        continue
+    hit = [NAMES[k] for k in new_ids if not k.startswith("turnout") and polys[k].intersection(hull).area > 0.15 * hull.area]
+    lane = None
+    q = (complex(hull.centroid.x, hull.centroid.y) - T_DP) / M_DP          # centre in diagram feet
+    if not hit and 0 < q.real < 196 and 192 <= q.imag <= 216:
+        lane = "cross drive"
+    if hit or lane:
+        checks["existing_structures_in"].append({"size_ft": size, "in": hit or [lane]})
+# clearance from the stall rows to the nearest surveyed building line south of them (the Red House)
+from shapely.geometry import LineString
+_dg = lambda q_: ((M_SP * complex(q_.x, q_.y) + T_SP - T_DP) / M_DP)
+_stalls = box(0, 228, 177, 356)                                  # diagram feet
+_d = []
+for d in sv.get("BUILDING", []):
+    for it in d["items"]:
+        if it[0] == "l":
+            a_, b_ = _dg(it[1]), _dg(it[2])
+            if min(a_.imag, b_.imag) > 356:
+                _d.append(LineString([(a_.real, a_.imag), (b_.real, b_.imag)]).distance(_stalls))
+if _d:
+    checks["stalls_to_red_house_ft"] = round(min(_d))
+ext = unary_union(list(polys.values())).bounds
+checks["barnyard_box"] = [round(v, 1) for v in ext]
+
 # ---------------------------------------------------------------- labels
 sl = []
 for b in page.get_text("dict")["blocks"]:
@@ -263,16 +383,20 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("land", "The land: site and bonus pasture areas", land)
        + layer("paddocks", "Proposed paddocks", paddocks)
        + layer("campus", "Campus", campus)
+       + layer("barnyard", "Proposed barnyard (Level 3 shown), to scale", barnyard + f'<g id="barnyard-labels">{by_labels}</g>')
        + layer("labels", "Labels", slough_lbl)
        + "</g></svg>")
 
 open(os.path.join(OUT, "site-layers.svg"), "w").write(svg)
 os.makedirs(os.path.join(SLIDES, "data"), exist_ok=True)
-meta = {"view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
+meta = {"barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
+                     "bearing_deg": math.degrees(cmath.phase(FENCE_ST[1] - FENCE_ST[0]))},
+        "view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
         "soils": soil_json, "ft_per_unit": FT_PER_PT}
 with open(os.path.join(SLIDES, "data", "site-map.js"), "w") as fh:
     fh.write("// Generated by tools/build_site_map.py. Do not edit by hand.\n")
     fh.write("window.SITE_MAP = " + json.dumps({"svg": svg, **meta}) + ";\n")
 json.dump(soil_json, open(os.path.join(OUT, "data", "soils.json"), "w"), indent=2)
 print("soil units:", [(s["codes"], s["drainage"], s["acres_in_map"]) for s in soil_json])
+print("barnyard fit:", checks)
 print("slough labels:", sl[:2], "red house:", rh, "svg KB:", len(svg) // 1024)
