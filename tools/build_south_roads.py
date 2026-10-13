@@ -58,7 +58,7 @@ south_start = Point(sketch[-1].coords[0])                    # where the south b
 west = max((LineString(r["map"]) for r in F["property_lines"] if len(r["map"]) > 8), key=lambda g: g.bounds[2])   # the slough's centreline, south run
 s0, s1 = sorted((west.project(Point(*road_end)), west.project(south_start)))
 step = 6.0
-ss = np.arange(s0, s1 + step, step)
+ss = np.arange(max(s0, 3.0), min(s1, west.length - 3.0), step)       # stay inside the line: its ends have no direction
 probe = np.arange(6, 70, 1.0)
 offs, pts_, nrm = [], [], []
 for s in ss:
@@ -93,7 +93,14 @@ idx = np.arange(len(offs))
 offs = np.interp(idx, idx[good], offs[good])
 sm = ndimage.uniform_filter1d(ndimage.median_filter(offs, size=7, mode="nearest"), size=9, mode="nearest")
 sm[0], sm[-1] = offs[0], offs[-1]
-lane = LineString([(x + n[0] * o, y + n[1] * o) for (x, y), n, o in zip(pts_, nrm, sm)]).simplify(0.8)
+_lp = [(x + n[0] * o, y + n[1] * o) for (x, y), n, o in zip(pts_, nrm, sm)]
+# The lane starts exactly on the middle of the surveyed road's end and leaves it on the road's own heading: the
+# sections nearest the join are dropped so the two meet as one continuous road.
+if west.project(Point(*road_end)) <= west.project(south_start):
+    _lp = [tuple(road_end)] + [q for q in _lp if np.hypot(q[0] - road_end[0], q[1] - road_end[1]) > 30]
+else:
+    _lp = [q for q in _lp if np.hypot(q[0] - road_end[0], q[1] - road_end[1]) > 30] + [tuple(road_end)]
+lane = LineString(_lp).simplify(0.8)
 
 def rnd(g):
     return [[round(x, 1), round(y, 1)] for x, y in g.coords]

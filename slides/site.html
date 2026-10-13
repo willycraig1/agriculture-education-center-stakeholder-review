@@ -74,8 +74,9 @@
   const svg = mapEl.querySelector("svg");
   svg.querySelectorAll("g[inkscape\\:groupmode], g[id]").forEach(g => { if (g.id) g.setAttribute("data-layer", g.id); });
 
-  // entry arrow: starts where the entry drive leaves the lane, east of the island, and points up the drive's first leg
-  const [rx, ry] = M.red_house, entry = [1150.6, 541], entryDeg = -3;
+  // entry arrow: on the centreline of the straight entry drive, carried back to the lane. The flared apron and its
+  // island are ignored: a new apron is built at Level 1.
+  const [rx, ry] = M.red_house, entry = [1140.3, 540], entryDeg = 19.1;
   svg.querySelector("#campus").insertAdjacentHTML("beforeend",
     `<g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -96" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
      <path d="M-20 -90 L0 -120 L20 -90 Z" fill="var(--education)"/></g>

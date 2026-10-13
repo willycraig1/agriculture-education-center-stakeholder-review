@@ -213,3 +213,10 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   lines on the fencing plan's sketch layer that the aerial confirms (lane → house loop → long barn → east property
   line; lane → south building and round it), drawn 12 ft wide. Run order: build_fences, build_canopy,
   build_south_roads, build_site_map.
+- **Road tidy-up.** The south lane now starts on the middle of the surveyed road's end and the two read as one
+  road (the stub toward the slough was the lane's first section, sampled past the end of the property line). The
+  32 ft pavement stubs beside the lane are no longer part of the road shape.
+- **Entry apron (architect, 2026-10-13).** A new entry apron off the lane is part of Level 1; the stormwater design
+  requires it. The existing flared apron and island are still drawn as surveyed. The entry arrow on the site slide
+  sits on the centreline of the straight entry drive and ignores the apron. Mentioned in the Level 1 text of the
+  barnyard-on-site slide.
