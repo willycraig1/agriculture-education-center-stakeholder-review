@@ -14,6 +14,7 @@
   .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
   .map [data-layer] { transition: opacity .8s var(--ease), filter .8s var(--ease); }
   .map .off { opacity: 0; }
+  .map .pond.proposed { display: none; }   /* this slide shows existing conditions only */
   .map #aerial.muted { filter: saturate(.45) brightness(1.06); }
   .map #paddocks.dim { opacity: .35; }
   .north { position: absolute; left: 22px; top: 20px; display: flex; align-items: center; gap: 8px;
@@ -97,8 +98,8 @@
     { t: "The land", p: `About ${Math.round(all)} acres of potential pasture: ${site} on the site and ${bonus} of bonus land beside it. Pasture is what this community is short on.`,
       lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span><span><i style="background:var(--bonus-tint);outline:2px solid var(--bonus)"></i>Bonus pasture</span>`,
       show: ["aerial", "veil", "land"], muted: true },
-    { t: "Water", p: "Cowpen Slough runs along the west edge. Two ponds and a retention area sit inside the fence, and a FEMA flood zone line crosses the site.",
-      lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond / retention</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span>`,
+    { t: "Water", p: "Cowpen Slough runs along the west edge. Two ponds sit inside the site, and a FEMA flood zone line crosses it.",
+      lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span>`,
       show: ["aerial", "veil", "water", "labels"], muted: true },
     { t: "Soils", p: "Mostly poorly drained flatwoods sands. The wettest units, Delray and Floridana & Gator, call for grazing timed to ground conditions. The soil sheet covers the parcel only, not the bonus pasture.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
@@ -132,7 +133,7 @@
     });
   }
   // key numbers in the right column, each tied to the step that introduces it
-  const facts = [[1, `${all}`, "acres of potential pasture"], [2, "3", "water features inside the fence, beside Cowpen Slough"],
+  const facts = [[1, `${all}`, "acres of potential pasture"], [2, "2", "ponds inside the site, beside Cowpen Slough"],
                  [3, `${Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0))}%`, "of the mapped site is very poorly drained"],
                  [4, `${M.trees}`, "surveyed trees"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) =>
