@@ -56,6 +56,6 @@ Management matters as much as land. Then 4-H pens: 7 exist, and new barns add 14
 ## Still needed
 
 2. **Campus by Level** (Act 5): needs the campus plan without the west barn, ideally one state per Level.
-3. **Barn plans** (Act 5): cattle barn on the 14-pen layout, small animal & swine barn. *(User collecting)*
+3. **Barn plans** (Act 5): cattle barn on the 14-pen layout, small animal barns. *(User collecting)*
 4. **Paddock boundaries as closed polylines** so paddocks can be color-filled by Level. *(User working on it)*
 5. Optional: rough 3D massing of the campus; order-of-magnitude cost by Level.
