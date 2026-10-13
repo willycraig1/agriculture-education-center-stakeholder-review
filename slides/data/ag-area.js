@@ -4,11 +4,63 @@ window.AG_AREA = {
  "view": [
   -154,
   -38,
-  502.0,
-  520
+  502,
+  508
  ],
  "north_cw_from_up": -17,
  "elements": [
+  {
+   "id": "turnout-cattle-a",
+   "label": "Turnout",
+   "x": 172,
+   "y": 120.0,
+   "w": 108,
+   "h": 96.0,
+   "use": "arena",
+   "level": 2,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "turnout-small-a",
+   "label": "Turnout",
+   "x": -72,
+   "y": 120.0,
+   "w": 48,
+   "h": 96.0,
+   "use": "arena",
+   "level": 2,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "turnout-small-b",
+   "label": "",
+   "x": -72,
+   "y": 90,
+   "w": 48,
+   "h": 30.0,
+   "use": "arena",
+   "level": 3,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "turnout-cattle-b",
+   "label": "Turnout",
+   "x": 172,
+   "y": 24,
+   "w": 108,
+   "h": 96.0,
+   "use": "arena",
+   "level": 3,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
   {
    "id": "existing-barn",
    "label": "Existing barn",
@@ -55,7 +107,7 @@ window.AG_AREA = {
    "id": "parking",
    "label": "Main parking lot",
    "x": 14.0,
-   "y": 252,
+   "y": 240,
    "w": 139.0,
    "h": 164,
    "use": "circulation",
@@ -66,22 +118,22 @@ window.AG_AREA = {
    "rows": [
     [
      36.5,
-     252,
+     240,
      9
     ],
     [
      36.5,
-     296,
+     284,
      9
     ],
     [
      36.5,
-     316,
+     304,
      9
     ],
     [
      36.5,
-     360,
+     348,
      9
     ]
    ],
@@ -92,25 +144,25 @@ window.AG_AREA = {
    "outline": [
     [
      14.0,
-     252
+     240
     ],
     [
      153.0,
-     252
+     240
     ],
     [
      153.0,
-     416
+     404
     ],
     [
      14.0,
-     416
+     404
     ]
    ],
    "island": {
     "label": "Bioswale island",
     "x": 36.0,
-    "y": 380,
+    "y": 368,
     "w": 91.0,
     "h": 36
    }
@@ -119,7 +171,7 @@ window.AG_AREA = {
    "id": "trailer-stop",
    "label": "Trailer stop",
    "x": -48,
-   "y": 296,
+   "y": 284,
    "w": 24,
    "h": 60,
    "use": "circulation",
@@ -132,7 +184,7 @@ window.AG_AREA = {
    "id": "handling",
    "label": "Cattle handling",
    "x": -120,
-   "y": 296,
+   "y": 284,
    "w": 72,
    "h": 84,
    "use": "cattle",
@@ -143,27 +195,27 @@ window.AG_AREA = {
    "outline": [
     [
      -120,
-     296
+     284
     ],
     [
      -48,
-     296
+     284
     ],
     [
      -48,
-     364
+     352
     ],
     [
      -64,
-     380
+     368
     ],
     [
      -104,
-     380
+     368
     ],
     [
      -120,
-     360
+     348
     ]
    ],
    "zones": [
@@ -336,32 +388,6 @@ window.AG_AREA = {
    "doors": "w"
   },
   {
-   "id": "turnout-cattle-a",
-   "label": "Turnout",
-   "x": 172,
-   "y": 120.0,
-   "w": 84,
-   "h": 96.0,
-   "use": "arena",
-   "level": 2,
-   "kind": "yard",
-   "note": "",
-   "assumed": false
-  },
-  {
-   "id": "turnout-small-a",
-   "label": "Turnout",
-   "x": -72,
-   "y": 120.0,
-   "w": 48,
-   "h": 96.0,
-   "use": "arena",
-   "level": 2,
-   "kind": "yard",
-   "note": "",
-   "assumed": false
-  },
-  {
    "id": "cattle-b",
    "label": "Cattle barn B",
    "x": 110,
@@ -443,19 +469,6 @@ window.AG_AREA = {
    "note": "second container",
    "assumed": false,
    "doors": "e"
-  },
-  {
-   "id": "turnout-cattle-b",
-   "label": "Turnout",
-   "x": 172,
-   "y": 24,
-   "w": 84,
-   "h": 96.0,
-   "use": "arena",
-   "level": 3,
-   "kind": "yard",
-   "note": "",
-   "assumed": false
   }
  ],
  "drives": [],
@@ -471,7 +484,7 @@ window.AG_AREA = {
     ],
     [
      24.0,
-     268
+     256
     ]
    ]
   },
@@ -531,7 +544,7 @@ window.AG_AREA = {
     ],
     [
      141.0,
-     268
+     256
     ]
    ]
   },
@@ -557,19 +570,19 @@ window.AG_AREA = {
    "pts": [
     [
      141.0,
-     432
+     420
     ],
     [
      141.0,
-     284
+     272
     ],
     [
      24.0,
-     284
+     272
     ],
     [
      24.0,
-     432
+     420
     ]
    ]
   },
@@ -580,11 +593,11 @@ window.AG_AREA = {
    "pts": [
     [
      127.0,
-     348
+     336
     ],
     [
      36.0,
-     348
+     336
     ]
    ]
   },
@@ -595,19 +608,19 @@ window.AG_AREA = {
    "pts": [
     [
      12.0,
-     284
+     272
     ],
     [
      -36.0,
-     284
+     272
     ],
     [
      -36.0,
-     370
+     358
     ],
     [
      20.0,
-     390
+     378
     ]
    ]
   },
@@ -662,11 +675,11 @@ window.AG_AREA = {
    "label": "",
    "pts": [
     [
-     226.0,
+     238.0,
      224
     ],
     [
-     226.0,
+     238.0,
      186
     ]
    ]
@@ -709,10 +722,10 @@ window.AG_AREA = {
    "y2": 0
   },
   {
-   "label": "84'",
+   "label": "108'",
    "x1": 172,
    "y1": 0,
-   "x2": 256,
+   "x2": 280,
    "y2": 0
   },
   {
@@ -761,12 +774,12 @@ window.AG_AREA = {
  "notes": [
   {
    "x": 141.0,
-   "y": 442,
+   "y": 430,
    "text": "In, from the Red House side"
   },
   {
    "x": 24.0,
-   "y": 442,
+   "y": 430,
    "text": "Out, to the entry drive"
   }
  ],
@@ -776,9 +789,9 @@ window.AG_AREA = {
  ],
  "stalls_box": [
   14.0,
-  252,
+  240,
   153.0,
-  380
+  368
  ],
  "cross_drive_box": [
   -24,

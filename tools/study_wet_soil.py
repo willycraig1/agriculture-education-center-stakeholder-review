@@ -19,7 +19,7 @@ A = json.loads(src[src.index("{"):src.rindex("}") + 1])
 wet = shape(json.load(open(os.path.join(ROOT, "drawings", "data", "soils-in-barnyard-frame.json")))["very poorly"])
 trees = [Point(x, y) for x, y in json.load(open(os.path.join(ROOT, "drawings", "data", "trees-in-barnyard-frame.json")))]
 BASE = {e["id"]: e for e in A["elements"]}
-if "turnout-small-b" not in BASE:
+if True:   # superseded layout
     raise SystemExit("This study compared options for the two-barn layout of 2026-10-12. The barnyard has since adopted a 42' extension "
                      "of barn A instead (see NOTES.md), so the study no longer runs; its results are kept in drawings/studies/.")
 KEEP = ["existing-barn", "existing-pens", "cattle-a", "cattle-b", "small-a", "small-b", "arena", "feed-1", "feed-2",
