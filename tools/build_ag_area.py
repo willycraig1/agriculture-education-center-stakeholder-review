@@ -90,7 +90,7 @@ WLEG_W = 20                                    # no stalls open off this leg, so
 X_ELEG = x_cattle + PEN_D + AISLE / 2          # centreline of the east leg = cattle tractor aisle (x = 165)
 XW0, XW1 = X_WLEG - WLEG_W / 2, X_WLEG + WLEG_W / 2        # west leg
 XE0, XE1 = X_ELEG - LANE / 2, X_ELEG + LANE / 2            # east leg 153..177
-y_park = y_pens + M                            # north stall row, 12' south of the cross drive
+y_park = y_pens                                # north stall row starts 24' (the cross drive) south of cattle barn A
 y_n_aisle = y_park + STALL_D                   # north aisle (westbound)
 y_island = y_n_aisle + PARK_AISLE              # centre island: two rows nose to nose
 y_m_aisle = y_island + 2 * STALL_D             # middle aisle
@@ -147,6 +147,7 @@ add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note=
 EXT = MOD // 2
 add("small-b", "Barn A extension", x_small, yA - EXT, SMALL_W, EXT, "small_animal", 3, note="14 pens",
     pens={"n": EXT // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True})
+add("turnout-small-b", "", x_small - TURNOUT_SMALL, yA - EXT, TURNOUT_SMALL, y_split - (yA - EXT), "arena", 3, kind="yard")   # turnout grows with the extension
 add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
 add("feed-2", "Feed storage 2", x_mid + 5, y_drive - 2 * BOX_W - 4, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container", doors="e")
 add("turnout-cattle-b", "Turnout", x_col, yB, MOD, y_split - yB, "arena", 3, kind="yard")
@@ -198,6 +199,9 @@ by_id = {e["id"]: e for e in E}
 # cattle turnout A would now run into the existing pens: it stops at their north edge and west end instead
 ta = by_id["turnout-cattle-a"]
 ta["h"] = y_pens - ta["y"]
+for k in ("turnout-cattle-a", "turnout-cattle-b"):          # east edge lines up with the existing pens
+    by_id[k]["w"] = EAST - by_id[k]["x"]
+E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)   # turnouts are drawn first, behind the barns
 # the cross drive now lines up with the existing pens; its arrow stops short of them
 for c in C:
     if c["id"] == "drive-cross":
@@ -227,7 +231,7 @@ dims = [
     dim(f"{ARENA_W}'", x_mid + DX, yt, x_east_lane + DX, yt),
     dim(f"{LANE}'", x_east_lane + DX, yt, x_cattle + DX, yt),
     dim(f"{CATTLE_W}'", x_cattle + DX, yt, x_col + DX, yt),
-    dim(f"{MOD}'", x_col + DX, yt, EAST + DX, yt),
+    dim(f"{EAST - (x_col + DX):g}'", x_col + DX, yt, EAST, yt),
 ]
 string = [cb["y"], cb["y"] + cb["h"], ca["y"], ca["y"] + ca["h"], y_pens + PEN_D, y_barn, SOUTH]
 for a_, b_ in zip(string, string[1:]):
