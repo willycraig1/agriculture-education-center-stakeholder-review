@@ -111,6 +111,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   - South stall row is about 27' from the nearest Red House wall line; the loop's east leg cannot run straight south and has to bend around the house (as on the CAD plan). The diagram's bioswale-island stub south of the stalls is schematic.
   - The fencing plan's paddock lines around the campus follow the earlier U-shaped layout and need redrawing for this one.
 
+## Water quality
+- Reference given by the Owner's side: the 2025 Water Quality Playbook, Gulf Coast Community Foundation (https://waterqualityplaybook.org), a regional blueprint for reducing nutrient pollution, organised as Reduce / Remove / Sustain. Most relevant actions: 4.6 (education and resources for farmers and ranchers: rotational/adaptive grazing, manure management, silvopasture, composting, FDACS BMPs incl. the 2024 Small Farms manual, UF/IFAS outreach to small farms), 4.7 (composting, rebuilding soils), chapter 2 (septic), chapters 6–7 (stormwater, 7.4 demonstration projects), 8.1 (wetland and shoreline habitat). It does not cover livestock exclusion from water or riparian buffers directly.
+- Figures used (action 4.6, citing USDA 2022): 286 farms in Sarasota County, about half under 10 acres; cow/calf is 59% of farms; about 46% of registered, eligible farmland is in FDACS BMP programs; only about one-third of farms under 10 acres are enrolled.
+- Slide `slides/water-quality.html` (Act 5): site measures grouped under Reduce / Remove / Sustain, each tagged with the Playbook action it follows. The site measures come from the draft program criteria (§3.7, D.5, F.2, J.3–J.5) and the study plan (retention area, bioswale). Page 7.4 could not be fetched (server error); its title is cited only.
+
 ## Open questions
 - Barnyard: parking count (20 drawn vs 51 + 9 on the study plan); where the entry drive meets the barnyard; visitor route to the arena
 - Campus plan by Level and barn interior plans for Act 5 (user collecting)
