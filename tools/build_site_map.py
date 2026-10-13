@@ -216,8 +216,18 @@ for ac, x, y in labels:
     tags.append(f'<g class="tag {"site" if area == "Site Pasture" else "bonus"}" transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
                 f'fill="{c["tint"]}" stroke="{c["base"]}" stroke-width="2"/>'
                 f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{ac:g} ac</text></g></g>')
-paddocks = (g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"')
-            + g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="{N["ink"]}" stroke-width="2" stroke-linecap="round"')
+# Fences: continuous polylines chained from the plan's dashes (tools/build_fences.py) when available,
+# so line weight, dash pattern and colour are ours to set; otherwise the raw dashes.
+_fp = os.path.join(OUT, "data", "fences.json")
+if os.path.exists(_fp):
+    FENCES = json.load(open(_fp))
+    _pl = "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES["runs"])
+    _fence_art = (f'<g fill="none" stroke="#fff" stroke-width="5" data-w="5" stroke-linejoin="round" stroke-linecap="round">{_pl.replace(" id=", " data-id=")}</g>'
+                  f'<g id="fence-lines" fill="none" stroke="{N["ink"]}" stroke-width="2" data-w="2" stroke-dasharray="14 6" data-dash="14 6" stroke-linejoin="round">{_pl}</g>')
+else:
+    _fence_art = (g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"')
+                  + g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="{N["ink"]}" stroke-width="2" stroke-linecap="round"'))
+paddocks = (_fence_art
             + g_paths(drive_ds, M_FP, T_FP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.6"')
             + "".join(tags))
 
