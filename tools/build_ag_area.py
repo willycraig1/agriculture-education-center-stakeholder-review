@@ -83,22 +83,24 @@ add("existing-pens", "7 existing cattle pens", x_col, y_pens, MOD, PEN_D, "cattl
 # ---- parking and handling, after the architect's simplified plan of 2026-10-12 ----
 # One-way loop, counter-clockwise: traffic comes up from the Red House side into the east end of the lot,
 # runs west along the north aisle, turns south down the west leg and leaves toward the entry drive.
-# The loop's two north-south legs line up with the barns' tractor aisles (west leg = small animal barns,
-# east leg = cattle barns), so a tractor runs straight from the lot through both barns of a run.
-X_WLEG = x_small + SMALL_W / 2                 # centreline of the west leg = small animal barn aisle (x = 18)
+# The loop's west leg continues the west lane between the runs (20' wide, no stalls off it); its east leg
+# continues the cattle barns' tractor aisle.
+X_WLEG = x_west_lane + LANE / 2               # centreline of the west leg = the west lane between the runs
+WLEG_W = 20                                    # no stalls open off this leg, so it is kept to 20'
 X_ELEG = x_cattle + PEN_D + AISLE / 2          # centreline of the east leg = cattle tractor aisle (x = 165)
-XW0, XW1 = X_WLEG - LANE / 2, X_WLEG + LANE / 2            # west leg 6..30
+XW0, XW1 = X_WLEG - WLEG_W / 2, X_WLEG + WLEG_W / 2        # west leg
 XE0, XE1 = X_ELEG - LANE / 2, X_ELEG + LANE / 2            # east leg 153..177
 y_park = y_pens + M                            # north stall row, 12' south of the cross drive
 y_n_aisle = y_park + STALL_D                   # north aisle (westbound)
 y_island = y_n_aisle + PARK_AISLE              # centre island: two rows nose to nose
 y_m_aisle = y_island + 2 * STALL_D             # middle aisle
 y_s_row = y_m_aisle + PARK_AISLE               # south row, backing onto the bioswale island
-x_row = XW1 + (XE0 - XW1 - 12 * STALL_W) / 2   # 12 stalls centred between the two legs
+N_ROW = int((XE0 - XW1) // STALL_W)            # stalls that fit between the two legs
+x_row = XW1 + (XE0 - XW1 - N_ROW * STALL_W) / 2
 ROWS = [  # x, y, number of stalls, optional "v" for a column of stalls facing east
-    [x_row, y_park, 12],
-    [x_row, y_island, 12], [x_row, y_island + STALL_D, 12],
-    [x_row, y_s_row, 12],
+    [x_row, y_park, N_ROW],
+    [x_row, y_island, N_ROW], [x_row, y_island + STALL_D, N_ROW],
+    [x_row, y_s_row, N_ROW],
 ]   # no stalls in front of the existing barn: that apron stays open for its four overhead doors
 n_stalls = sum(r[2] for r in ROWS)
 
@@ -108,11 +110,11 @@ n_stalls = sum(r[2] for r in ROWS)
 # The trailer stop is its own lane, 24' x 60' with a gate at each end, between the yard and the loop's west
 # leg. Its north end lines up with the north end of the lead-up alley, just south of the north aisle, so a
 # trailer turns in off the aisle, unloads, and rejoins the loop heading out.
-TR_X, TR_W, TR_L = XW0 - 6 - LANE, LANE, 60    # trailer lane, 6' clear of the west leg
+TR_X, TR_W, TR_L = -24, LANE, 60               # trailer lane: left where it was, pending a rework of the handling area
 HW, HH = 6 * M, 7 * M
 HX, HY = TR_X - HW, y_island                   # yard top = south edge of the north aisle
 LOT_S = max(y_s_row + STALL_D + 36, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
-LOT_X0, LOT_X1 = 0, XE1                        # architect's edits: a plain rectangle ending at the east leg (177');
+LOT_X0, LOT_X1 = XW0, XE1                        # architect's edits: a plain rectangle ending at the east leg (177');
                                                # the stall column by the existing barn sits outside the fill
 add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces",
     rows=ROWS, stall=[STALL_W, STALL_D],
@@ -155,13 +157,13 @@ xw, xe = x_west_lane + LANE / 2, x_east_lane + LANE / 2
 y_cross = y_drive + LANE / 2
 y_end = y_drive + 3                            # datum: the lanes between the runs end just inside the cross drive
 C = [
-    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_end]]),
+    dict(id="lane-west", kind="service", label="West lane", pts=[[xw, yB - 14], [xw, y_n_aisle - 4]]),      # runs straight on into the loop's west leg
     dict(id="lane-east", kind="service", label="East lane", pts=[[xe, yB - 14], [xe, y_end]]),
     dict(id="drive-cross", kind="service", label="Cross drive", pts=[[x_small - TURNOUT_SMALL, y_cross], [x_col - 3, y_cross]]),
     dict(id="lane-mid", kind="service", label="", pts=[[x_west_lane + 3, y_split], [x_col - 12, y_split]]),   # between the runs only; the turnouts close both ends
     # tractor aisles: straight through both barns of a run and on into the legs of the parking loop
     dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[X_ELEG, yB - 14], [X_ELEG, y_n_aisle - 4]]),
-    dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[X_WLEG, yA - EXT - 12], [X_WLEG, y_n_aisle - 4]]),
+    dict(id="aisle-small", kind="service", label="Tractor aisle", pts=[[x_small + SMALL_W / 2, yA - EXT - 12], [x_small + SMALL_W / 2, y_end]]),
     # counter-clockwise loop: north up the east leg, west along the north aisle, south down the west leg
     dict(id="loop-parking", kind="loop", label="One-way loop",
          pts=[[X_ELEG, LOT_S + 16], [X_ELEG, y_n_aisle + 12], [X_WLEG, y_n_aisle + 12], [X_WLEG, LOT_S + 16]]),
