@@ -73,19 +73,22 @@
     <polygon class="zone" points="${PEN.map(p => p.join(",")).join(" ")}" fill="var(--arena-tint)"/>
     ${zone(LEAD, "#f6f1e6")}${zone(BOX, "var(--cattle-tint)")}${zone(AL, "#f6f1e6")}
     <rect class="zone" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" fill="var(--cattle)" opacity=".32"/>
-    <path class="fence" d="M0 50V0H72V30M72 42V68L56 84H16L0 64V62"/>
+    <polygon class="zone" points="72,68 72,84 56,84" fill="var(--arena-tint)" opacity=".55"/>
+    <path class="fence" d="M0 50V0H72V68M72 84H16L0 64V62"/>
     <path class="fence" d="M0 12H16M18.6 12H56M68 12H72"/>
     <path class="fence" d="M16 12V28M18.6 12V28"/>
     <rect class="fence" x="${CH.x}" y="${CH.y}" width="${CH.w}" height="${CH.h}" style="stroke-width:.7"/>
-    <path class="fence" d="M72 0H82L96 13M96 68L82 84H72" stroke-dasharray="3 1.5"/>
-    <g class="swing"><path d="M96 13V68" stroke-dasharray="1.2 1"/><path d="M72 30V42M56 12H68M0 50V62" stroke-dasharray="1.2 1"/></g>
+    <path class="fence" d="M72 0H82M96 13V68M82 84H72"/>
+    <g class="swing"><path d="M82 0L96 13M96 68L82 84" stroke-dasharray="1.2 1"/><path d="M72 68L56 84M56 12H68M0 50V62" stroke-dasharray="1.2 1"/>
+      <path d="M50 68A22 22 0 0 0 56 84M72 68H50" stroke-width=".25" opacity=".7"/><path d="M56 12A12 12 0 0 1 68 0" stroke-width=".25" opacity=".7"/></g>
     <line class="fence gate" id="gate" x1="20" y1="0" x2="20" y2="12" style="stroke-width:.8;stroke:var(--education)"/>
     <circle cx="20" cy="0" r=".55" fill="var(--education)"/>
     <g id="rig"><rect x="-4" y="-10" width="8" height="24" rx="1" fill="#fff" stroke="var(--circulation)" stroke-width=".5"/>
       <rect x="-3.4" y="-19.5" width="6.8" height="8.5" rx="1.4" fill="var(--circulation)"/></g>
     ${t(10, -2, 2.6, "", "Bud Box")}${t(46, -2, 2.6, "", "Lead-up alley")}
     ${t(46, 56, 2.8, "", "Holding pen")}${t(46, 59.4, 1.8, "sub", "wraps around the chute")}
-    ${t(84, 90, 2.2, "", "Trailer bay")}${t(84, 93, 1.7, "sub", "pull-off beside the loop")}
+    ${t(84, 90, 2.2, "", "Trailer bay")}${t(84, 93, 1.7, "sub", "fenced, gate at each end")}
+    ${t(52, 80, 1.7, "sub", "receiving gate", 'text-anchor="end" style="fill:var(--education)"')}
     ${t(106, 50, 1.8, "sub", "parking loop, west leg", 'text-anchor="middle" transform="rotate(-90 106 50)"')}
     ${t(-1.5, 21, 2.3, "", "Single-file alley", 'text-anchor="end"')}${t(-1.5, 33.5, 2.3, "", "Chute on the scale", 'text-anchor="end"')}
     ${t(-1.5, 57, 1.8, "sub", "gate to pasture", 'text-anchor="end"')}
@@ -99,7 +102,7 @@
 
   // per step: gate angle (0 = closed), rig [x, y, visible], handler [x, y], cattle [x, y, heading] (0 = east, 90 = south, 180 = west)
   const S = [
-    { gate: -82, rig: [85, 36, 1], h: [77.5, 48], c: [[75.5, 24, 180], [76, 29, 185], [76, 34, 175], [76.5, 39, 190]] },
+    { gate: -82, rig: [85, 36, 1], h: [78.5, 60], c: [[74.5, 72, 185], [69, 77.5, 200], [77, 66, 130], [63, 80.5, 205]] },
     { gate: -82, rig: [84, 150, 0], h: [64, 62], c: [[50, 40, 180], [58, 52, 200], [44, 62, 170], [60, 32, 190]] },
     { gate: -82, rig: [84, 150, 0], h: [66, 9], c: [[40, 3.4, 180], [47, 8.4, 180], [54, 3.6, 180], [60, 8.2, 185]] },
     { gate: 0, rig: [84, 150, 0], h: [17.5, 2.6], c: [[5, 3.2, 180], [7, 8.8, 180], [13, 3.4, 180], [14.5, 8.2, 180]] },
@@ -108,7 +111,7 @@
     { gate: 0, rig: [84, 150, 0], h: [5, 10.2], c: [[17.3, 32.5, 90], [17.3, 23, 90], [17.3, 14.5, 90], [14, 7.4, 60]] },
   ];
   const steps = [
-    ["Pull off and unload", "A trailer pulls off the parking loop into a bay beside the yard, closes the bay behind it, unloads the cattle into the holding pen, and drives on with the loop."],
+    ["Pull in, gate, unload", "A trailer pulls off the parking loop into a fenced bay. Gates close at both ends, the cattle unload and go through the corner gate into the holding pen, and the trailer drives out the far end back onto the loop."],
     ["Hold", "Cattle settle in the holding pen, which wraps around the chute. Chamfered corners keep them moving toward the lead-up alley."],
     ["Into the lead-up alley", "A small group, four head at most, walks out of the pen and up the wide alley toward the box."],
     ["Into the box", "They pass the gate into the box and it closes behind them."],
