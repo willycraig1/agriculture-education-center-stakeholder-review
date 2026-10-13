@@ -183,7 +183,12 @@ def g_paths(ds, m, t, attrs):
     return (f'<g transform="{mat(m, t)}" {attrs}{extra}>' + paths(ds) + "</g>")
 
 
-water = (g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{6/abs(M_SP):.3f}" stroke-opacity="0.9"')
+AD = None
+_ad = os.path.join(OUT, "data", "aerial-derived.json")
+if os.path.exists(_ad):
+    AD = json.load(open(_ad))          # canopy, drives and Cowpen Slough from the architect's aerial trace (tools/build_canopy.py)
+water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
+         + g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{(2.2 if AD else 6)/abs(M_SP):.3f}" stroke-opacity="0.9"')
          + (g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3"') if not EDITS else
             "".join(f'<path class="pond {"proposed" if pd_["kind"] != "existing" else "existing"}" transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{pd_["d"]}Z" '
                     f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3" data-w="3"'
@@ -412,6 +417,12 @@ aerial = (f'<image href="../source/Site%20Aerial%20from%20SCPA.jpg" x="0" y="0" 
 
 W, H = x1 - x0, y1 - y0
 font = "font-family=\"'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif\""
+if AD:
+    # label the redrawn slough about a third of the way along it, turned to follow the channel
+    _sc = AD["slough_centre"]; _k = int(len(_sc) * 0.3)
+    _ang = math.degrees(math.atan2(_sc[_k + 2][1] - _sc[_k - 2][1], _sc[_k + 2][0] - _sc[_k - 2][0]))
+    slough_lbl = (f'<g transform="translate({_sc[_k][0]:.0f} {_sc[_k][1]:.0f}) rotate({_ang:.1f})"><text data-fixed="1" y="-14" text-anchor="middle" font-size="30" font-style="italic" font-weight="600" '
+                  f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="5" paint-order="stroke">Cowpen Slough</text></g>')
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
        f'viewBox="{x0} {y0} {W} {H}" {font}>'
        f'<title>Clark Farm site layers (north to the left)</title>'
@@ -422,6 +433,8 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("ground", "Site ground (used when the aerial is off)", f'<path d="{poly_d(footprint)}" fill="#F2F5EA" stroke="{N["ink"]}" stroke-width="2.5" data-w="2.5"/>')
        + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000).difference(footprint))}" fill="{N["paper"]}" fill-opacity="0.72"/>'
                f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
+       + (layer("canopy", "Tree canopy (from the aerial trace)", f'<path d="{AD["canopy"]}" fill="{P["woodland"]["base"]}" fill-opacity=".3" fill-rule="evenodd"/>') if AD else "")
+       + (layer("drives", "Drives and tracks (from the aerial trace)", f'<path d="{AD["drives"]}" fill="{P["circulation"]["base"]}" fill-opacity=".8" fill-rule="evenodd"/>') if AD else "")
        + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")
        + layer("water", "Water: slough, ponds, flood zone line", water)
        + layer("trees", "Existing trees and woodland edge", trees_layer)
@@ -436,7 +449,7 @@ open(os.path.join(OUT, "site-layers.svg"), "w").write(svg)
 os.makedirs(os.path.join(SLIDES, "data"), exist_ok=True)
 _cb = [c for st_ in (EDITS["structures"] if EDITS else []) for c in st_["pts"]] + [list(q) for q in UNFINISHED_BARN]
 CAMPUS_BOX = [min(c[0] for c in _cb), min(c[1] for c in _cb), max(c[0] for c in _cb), max(c[1] for c in _cb)] if _cb else [rh[0] - 80, rh[1] - 80, rh[0] + 80, rh[1] + 80]
-meta = {"campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
+meta = {"canopy_acres": AD["canopy_acres"] if AD else None, "campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
                      "bearing_deg": math.degrees(cmath.phase(FENCE_ST[1] - FENCE_ST[0]))},
         "view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "site_acres_footprint_previous": round(footprint_auto.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
         "soils": soil_json, "ft_per_unit": FT_PER_PT}

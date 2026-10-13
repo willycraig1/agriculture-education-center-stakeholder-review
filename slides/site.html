@@ -55,7 +55,7 @@
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
-      <p class="src" data-step="0">Aerial: Sarasota County Property Appraiser. Survey, soils, trees and fencing: Seibert Architects CAD sheets,
+      <p class="src" data-step="0">Aerial: Sarasota County Property Appraiser; tree canopy, drives and the slough are traced from it. Survey, soils, trees and fencing: Seibert Architects CAD sheets,
         aligned by matching their geometry. Soil drainage classes follow NRCS series descriptions; confirm in Web Soil Survey.</p>
     </div>
   </div>
@@ -105,18 +105,18 @@
     { t: "The land", p: `About ${Math.round(all)} acres of potential pasture: ${site} on the site and ${bonus} of bonus land beside it. Pasture is what this community is short on.`,
       lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span><span><i style="background:var(--bonus-tint);outline:2px solid var(--bonus)"></i>Bonus pasture</span>`,
       show: ["ground", "land"], muted: true },
-    { t: "Water", p: "Cowpen Slough runs along the west edge. Two ponds sit inside the site, and a FEMA flood zone line crosses it.",
+    { t: "Water", p: "Cowpen Slough runs the length of the west property line. Two ponds sit inside the site, and a FEMA flood zone line crosses it.",
       lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span>`,
       show: ["ground", "water", "labels"], muted: true },
     { t: "Soils", p: "Mostly poorly drained flatwoods sands. The wettest units, Delray and Floridana & Gator, call for grazing timed to ground conditions. The soil sheet covers the parcel only, not the bonus pasture.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
       show: ["ground", "soils", "water", "labels"], muted: true },
-    { t: "Woods and trees", p: `${M.trees} surveyed trees around the campus, with dense oak hammock to the east and south. Wooded acres carry far fewer cattle than open pasture.`,
-      lg: `<span><i style="background:var(--woodland);border-radius:50%;width:13px"></i>Surveyed tree</span><span><i style="background:none;border-top:3px dashed var(--woodland);height:0;margin-bottom:4px"></i>Edge of woods</span>`,
-      show: ["ground", "water", "trees", "labels"], muted: true },
+    { t: "Woods and trees", p: `Tree canopy covers about ${Math.round(M.canopy_acres)} of the site's ${Math.round(M.site_acres_footprint)} acres, densest in the oak hammock to the east and south. ${M.trees} trees around the campus are surveyed individually. Wooded acres carry far fewer cattle than open pasture.`,
+      lg: `<span><i style="background:var(--woodland);border-radius:50%;width:13px"></i>Surveyed tree</span><span><i style="background:var(--woodland);opacity:.35"></i>Tree canopy</span>`,
+      show: ["ground", "canopy", "water", "trees", "labels"], muted: true },
     { t: "The campus", p: "The Red House and the existing barns sit near the center of the site. The drive comes in from the west, at the bottom of the map.",
       lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`, frame: "campus",
-      show: ["ground", "water", "trees", "campus", "labels"], muted: true },
+      show: ["ground", "canopy", "drives", "water", "trees", "campus", "labels"], muted: true },
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
@@ -128,7 +128,7 @@
     const f = s.frame || "full";
     if (f !== lastFrame) { viewer.home(frames[f]); viewer.flyTo(frames[f], lastFrame === null || document.documentElement.classList.contains("static") ? 0 : 1200); lastFrame = f; }
     svg.querySelectorAll("[data-layer]").forEach(g => {
-      if (!["aerial", "veil", "ground", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"].includes(g.id)) return;
+      if (!["aerial", "veil", "ground", "canopy", "drives", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"].includes(g.id)) return;
       g.classList.toggle("off", !s.show.includes(g.id));
     });
     svg.querySelector("#aerial").classList.toggle("muted", !!s.muted);
@@ -142,7 +142,7 @@
   // key numbers in the right column, each tied to the step that introduces it
   const facts = [[1, `${all}`, "acres of potential pasture"], [2, "2", "ponds inside the site, beside Cowpen Slough"],
                  [3, `${Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0))}%`, "of the mapped site is very poorly drained"],
-                 [4, `${M.trees}`, "surveyed trees"]];
+                 [4, `${Math.round(100 * M.canopy_acres / M.site_acres_footprint)}%`, "of the site under tree canopy"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) =>
     `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
   Deck.onStep(apply);
