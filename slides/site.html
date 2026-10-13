@@ -74,12 +74,12 @@
   const svg = mapEl.querySelector("svg");
   svg.querySelectorAll("g[inkscape\\:groupmode], g[id]").forEach(g => { if (g.id) g.setAttribute("data-layer", g.id); });
 
-  // entry arrow: drawn from below the campus toward the Red House
-  const [rx, ry] = M.red_house;
+  // entry arrow: starts where the entry drive leaves the lane, east of the island, and points up the drive's first leg
+  const [rx, ry] = M.red_house, entry = [1150.6, 541], entryDeg = -3;
   svg.querySelector("#campus").insertAdjacentHTML("beforeend",
-    `<g transform="translate(${rx - 62} ${ry + 34})"><g data-fixed="1"><path d="M0 120 L0 18" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
-     <path d="M-20 26 L0 -4 L20 26 Z" fill="var(--education)"/>
-     <text x="16" y="116" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g></g>
+    `<g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -96" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
+     <path d="M-20 -90 L0 -120 L20 -90 Z" fill="var(--education)"/></g>
+     <text x="-22" y="-34" text-anchor="end" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g></g>
      <g transform="translate(${rx + 26} ${ry - 18})"><text data-fixed="1" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">Red House</text></g>`);
 
   // pan/zoom viewer with preset framings (map units = presentation frame, north left)
