@@ -423,7 +423,7 @@ slough_lbl = "".join(f'<g transform="translate({p[0]:.0f} {p[1]:.0f})"><text dat
 ax0, ay0 = 0, 0
 aw, ah = AERIAL_SIZE
 aerial = (f'<image href="../source/Site%20Aerial%20from%20SCPA.jpg" x="0" y="0" width="{aw}" height="{ah}" '
-          f'transform="{mat(M_AP, T_AP)}" preserveAspectRatio="none"/>')
+          f'transform="{aerial_matrix()}" preserveAspectRatio="none"/>')
 
 W, H = x1 - x0, y1 - y0
 font = "font-family=\"'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif\""
@@ -444,7 +444,7 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000).difference(footprint))}" fill="{N["paper"]}" fill-opacity="0.72"/>'
                f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
        + (layer("canopy", "Tree canopy (from the aerial trace)", f'<path d="{AD["canopy"]}" fill="{P["woodland"]["base"]}" fill-opacity=".3" fill-rule="evenodd"/>') if AD else "")
-       + (layer("drives", "Drives and tracks (from the aerial trace)", f'<path d="{AD["drives"]}" fill="{P["circulation"]["base"]}" fill-opacity=".8" fill-rule="evenodd"/>') if AD else "")
+       # the trace's drives are not drawn: they are fragmentary and fall inside pasture enclosures (architect, 2026-10-13)
        + (layer("property", "Surveyed property lines (fencing plan)", f'<g fill="none" stroke="{N["ink"]}" stroke-width="1.6" data-w="1.6" stroke-dasharray="10 4 2 4" data-dash="10 4 2 4" stroke-opacity=".75">'
                 + "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES.get("property_lines", [])) + "</g>") if os.path.exists(_fp) else "")
        + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")

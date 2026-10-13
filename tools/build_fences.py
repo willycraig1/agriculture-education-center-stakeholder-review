@@ -99,6 +99,31 @@ def chain(segs, max_gap, max_turn, snap, min_len=30):
                         q = hp
                 pts[k] = (q.x, q.y)
         return LineString(pts)
+    # junctions: where three or four runs stop short of one another (around a gate symbol), pull their loose
+    # ends together to one point
+    ends = [(ci, k, np.array(c.coords[k])) for ci, c in enumerate(chains) for k in (0, -1)]
+    loose = ends            # done before the T-snapping below, so every end is still where it was drawn
+    if len(loose) > 1:
+        LP = np.array([e[2] for e in loose])
+        pairs = cKDTree(LP).query_pairs(snap * 0.9)
+        parent = list(range(len(loose)))
+        def find(i):
+            while parent[i] != i:
+                parent[i] = parent[parent[i]]; i = parent[i]
+            return i
+        for i, j in pairs:
+            parent[find(i)] = find(j)
+        groups = {}
+        for i in range(len(loose)):
+            groups.setdefault(find(i), []).append(i)
+        coords = [list(c.coords) for c in chains]
+        for g in groups.values():
+            if len(g) >= 2:
+                cen = LP[g].mean(0)
+                for i in g:
+                    ci, k, _ = loose[i]
+                    coords[ci][k] = (float(cen[0]), float(cen[1]))
+        chains = [LineString(c) for c in coords]
     chains = [snap_end(c, chains) for c in chains]
     merged = linemerge(unary_union(chains))
     runs = list(getattr(merged, "geoms", [merged]))
@@ -107,6 +132,7 @@ def chain(segs, max_gap, max_turn, snap, min_len=30):
     return runs
 
 segs = []
+solids = []
 for L, ds in cadpdf.export(FENCE, ["FENCE", "(none)", "P-BELOW-LIGHT"]).items():
     for d in ds:
         r = d["rect"]
@@ -130,13 +156,23 @@ for L, ds in cadpdf.export(FENCE, ["FENCE", "(none)", "P-BELOW-LIGHT"]).items():
         if L == "P-BELOW-LIGHT" and not dash:
             continue                                                       # on this layer only dash-sized strokes are fence
         if L == "(none)" and not dash and path.length > 60:
-            continue                                                       # long solid polylines here are drives
+            solids.append(path)                                            # a drive, or a solid stretch of fence: decided below
+            continue
         if dash:
             segs.append((np.array(pts[0]), np.array(pts[-1])))            # a dash: its chord
         elif path.length > 26:
             q = list(path.simplify(0.8).coords)                           # a drawn fence polyline: keep its corners
             segs += [(np.array(a), np.array(b)) for a, b in zip(q, q[1:]) if np.hypot(b[0] - a[0], b[1] - a[1]) >= 4]
-print("fence strokes kept:", len(segs))
+# A long solid polyline is part of the fence when both of its ends meet fence strokes (it bridges two dashed
+# runs); otherwise it is a drive and is left out.
+_ends = cKDTree(np.array([p for sg in segs for p in sg]))
+n_solid = 0
+for path in solids:
+    q = list(path.simplify(0.8).coords)
+    if all(_ends.query(e)[0] < MAX_GAP for e in (q[0], q[-1])):
+        segs += [(np.array(a), np.array(b)) for a, b in zip(q, q[1:]) if np.hypot(b[0] - a[0], b[1] - a[1]) >= 2]
+        n_solid += 1
+print("fence strokes kept:", len(segs), "| solid stretches taken as fence:", n_solid, "of", len(solids))
 runs = chain(segs, MAX_GAP, MAX_TURN, SNAP)
 
 # ---- property lines (layer SECTION LINE): short dashes with dots between them
