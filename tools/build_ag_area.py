@@ -12,11 +12,14 @@ Layout (architect's markup of 2026-10-12, snapped to the module):
                 (2 x 8' x 40', side by side, doors at alternate ends, AC at the other end) at the parking end
   small run     two small animal barns, 84' x 36' (6' x 10' pens both sides of a 16' aisle)
   west          small animal turnouts; new corral, chute and scale below them
-  south         the main parking lot: 10' x 20' stalls in rows around a centre island, 24' aisles, one-way loop;
-                entry drive at the south-west, drive to the Red House at the south-east
-  west          cattle handling yard (72' x 84'), after the Priefert Bud Box: 24' x 60' pull-through trailer
-                enclosure on the parking side; holding pen with chamfered corners around the chute; Bud Box in
-                the corner; single-file alley back along the fence to the chute on the scale
+  south         the main parking lot, after the architect's simplified plan: north row, centre island, south row
+                backing onto the bioswale island, a column at the east end; 10' x 20' stalls, 24' aisles.
+                One-way loop, counter-clockwise: in from the Red House side at the south-east, west along the
+                north aisle, south down the west lane, out to the entry drive. An apron at the north-west
+                corner joins the lot to the barnyard's west lane.
+  west          the west lane doubles as the trailer stop (24' x 60', a gate at each end). Beside it, the cattle
+                handling yard (72' x 84'): lead-up alley and Bud Box along the north, single-file alley south to
+                the chute on the scale, holding pen with chamfered corners around the chute
 
 Writes
   slides/data/ag-area.js          elements, circulation and dimensions for slides/ag-area.html
@@ -75,41 +78,50 @@ small_pens = {"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_P
 add("existing-barn", "Existing barn", EAST - EX_W, y_barn, EX_W, EX_D, "swine", 1, note="Hog pens inside",
     becomes={"2": {"use": "circulation", "note": "Storage"}})
 add("existing-pens", "7 existing cattle pens", x_col, y_pens, MOD, PEN_D, "cattle", 1, pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D]]})
-HX, HY, HW, HH = x_small - 6 * M, y_pens, 6 * M, 7 * M      # handling yard, 72' x 84'
-# Handling yard after the Priefert Bud Box layout: a holding pen with chamfered corners that wraps around
-# the chute; the box in one corner; the single-file alley running back along the fence beside the box gate.
-# A 24' x 60' pull-through trailer enclosure, gated at both ends, sits on the parking side.
-# Coordinates are relative to the yard's north-west corner; slides/bud-box.html uses the same numbers.
-YARD = [[10, 0], [72, 0], [72, 60], [48, 60], [48, 64], [28, 84], [0, 84], [0, 10]]
-add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", note="",
-    outline=[[HX + px, HY + py] for px, py in YARD], zones=[
-    dict(label="Holding pen", poly=[[10, 0], [38, 0], [48, 10], [48, 64], [28, 84], [12, 84], [12, 64], [2.6, 64], [2.6, 40], [4, 40], [4, 31], [0, 31], [0, 10]], at=[28, 40]),
-    dict(label="Trailer pull-through", x=48, y=0, w=24, h=60, rot=True),
-    dict(label="Bud Box", x=0, y=64, w=12, h=20, fill=True, rot=True),
-    dict(label="", x=0, y=40, w=2.6, h=24),
-    dict(label="Chute", x=0, y=31, w=4, h=9, fill=True, side=True),
-])
-# Parking: the main lot, after the architect's CAD layout: stall rows around a centre island, with a one-way
-# loop. The north row is broken where the west lane and the cattle tractor aisle meet the lot, so vehicles
-# can hand off to the tractor lanes.
-y_park = y_pens + M                            # north row starts 12' south of the cross drive
-x_drive_e = x_cattle + PEN_D + AISLE / 2 - LANE / 2      # east break, centred on the tractor aisle
-y_n_aisle = y_park + STALL_D                   # north aisle
+# ---- parking and handling, after the architect's simplified plan of 2026-10-12 ----
+# One-way loop, counter-clockwise: traffic comes up from the Red House side into the east end of the lot,
+# runs west along the north aisle, turns south down the west lane and leaves toward the entry drive.
+# The west lane doubles as the trailer stop: a gate at each end swings shut while a trailer unloads into the
+# handling yard, then the trailer drives on with the loop.
+y_park = y_pens + M                            # north stall row, 12' south of the cross drive
+y_n_aisle = y_park + STALL_D                   # north aisle (westbound)
 y_island = y_n_aisle + PARK_AISLE              # centre island: two rows nose to nose
-y_s_aisle = y_island + 2 * STALL_D             # south aisle
-y_s_row = y_s_aisle + PARK_AISLE               # south row
-LOT_W, LOT_E, LOT_S = 10, 192, y_s_row + STALL_D
-ROWS = [  # x, y, number of stalls. The north row is broken at the two lanes; the island and south row make up the count.
-    [14, y_park, 2], [62, y_park, 9], [178, y_park, 1],
-    [36, y_island, 13], [36, y_island + STALL_D, 13],
-    [31, y_s_row, 14],
+y_m_aisle = y_island + 2 * STALL_D             # middle aisle
+y_s_row = y_m_aisle + PARK_AISLE               # south row, backing onto the bioswale island
+LOT_S = y_s_row + STALL_D + 36                 # diagram stops here; both legs of the loop continue south
+X_LANE = LANE                                  # west lane 0..24 (also the trailer stop)
+X_RET = 140                                    # east return aisle 140..174 (northbound)
+ROWS = [  # x, y, number of stalls, optional "v" for a column of stalls facing east
+    [64, y_park, 12],
+    [30, y_island, 11], [30, y_island + STALL_D, 11],
+    [26, y_s_row, 11],
+    [174, y_n_aisle + 14, 7, "v"],
 ]
 n_stalls = sum(r[2] for r in ROWS)
-add("parking", "Main parking lot", LOT_W, y_park, LOT_E - LOT_W, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces shown",
+add("parking", "Main parking lot", 0, y_park, 196, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces",
     rows=ROWS, stall=[STALL_W, STALL_D],
-    outline=[[LOT_W, y_park], [LOT_E, y_park], [LOT_E, y_s_row], [LOT_E - 20, LOT_S], [LOT_W + 20, LOT_S], [LOT_W, y_s_row]])
-DRIVES = [dict(id="drive-west", x=x_west_lane, y=y_pens, w=LANE, h=y_n_aisle - y_pens),
-          dict(id="drive-east", x=x_drive_e, y=y_pens, w=LANE, h=y_n_aisle - y_pens)]
+    outline=[[0, y_pens], [62, y_pens], [62, y_park], [184, y_park], [196, y_n_aisle + 4], [196, y_n_aisle + 14 + 7 * STALL_W + 4],
+             [X_RET + 34, y_s_row + STALL_D], [X_RET + 34, LOT_S], [X_RET, LOT_S], [X_RET, y_s_row + STALL_D],
+             [X_LANE, y_s_row + STALL_D], [X_LANE, LOT_S], [0, LOT_S]],
+    island=dict(label="Bioswale island", x=X_LANE + 2, y=y_s_row + STALL_D, w=X_RET - X_LANE - 4, h=LOT_S - y_s_row - STALL_D))
+TR_Y, TR_L = y_n_aisle + 4, 60                 # trailer stop: 24' x 60' of the west lane, gated at both ends
+add("trailer-stop", "Trailer stop", 0, TR_Y, X_LANE, TR_L, "circulation", 1, kind="yard", note="gate at each end")
+DRIVES = []
+
+# Handling yard, 72' x 84', west of the lane (the layout on the study plan, after the Priefert Bud Box):
+# lead-up alley and Bud Box along the north side, single-file alley dropping south beside the box gate to the
+# chute on the scale, and a holding pen with chamfered corners that wraps around the chute.
+# Coordinates are relative to the yard's north-west corner; slides/bud-box.html uses the same numbers.
+HX, HY, HW, HH = -6 * M, y_park, 6 * M, 7 * M
+YARD = [[0, 0], [72, 0], [72, 68], [56, 84], [16, 84], [0, 64]]
+add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", note="",
+    outline=[[HX + px, HY + py] for px, py in YARD], zones=[
+    dict(label="Holding pen", poly=[[0, 12], [16, 12], [16, 36], [15.3, 36], [15.3, 45], [19.3, 45], [19.3, 36], [18.6, 36], [18.6, 12], [72, 12], [72, 68], [56, 84], [16, 84], [0, 64]], at=[44, 50]),
+    dict(label="Lead-up alley", x=20, y=0, w=52, h=12),
+    dict(label="Bud Box", x=0, y=0, w=20, h=12, fill=True),
+    dict(label="", x=16, y=12, w=2.6, h=24),
+    dict(label="Chute", x=15.3, y=36, w=4, h=9, fill=True, side=True),
+])
 # Level 2
 add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note="14 pens", pens=cattle_pens)
 add("small-a", "Small animal & swine barn A", x_small, yA, SMALL_W, MOD, "small_animal", 2, pens=small_pens)
@@ -137,11 +149,10 @@ C = [
     dict(id="lane-mid", kind="service", label="", pts=[[x_small - TURNOUT_SMALL, yB + MOD + LANE / 2], [EAST, yB + MOD + LANE / 2]]),
     dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[x_ta, yB - 14], [x_ta, y_end]]),
     dict(id="aisle-small", kind="service", label="", pts=[[x_small + SMALL_W / 2, yB - 14], [x_small + SMALL_W / 2, y_end]]),
-    # counter-clockwise, keeping right: east along the south aisle, back west along the north aisle
-    dict(id="loop-parking", kind="loop", label="One-way loop", pts=[[40, y_s_aisle + 12], [178, y_s_aisle + 12], [178, y_n_aisle + 12], [23, y_n_aisle + 12], [23, y_s_aisle + 2]]),
-    dict(id="entry", kind="loop", label="Entry drive", pts=[[-50, LOT_S + 26], [18, y_s_aisle + 14]]),
-    dict(id="exit", kind="loop", label="To the Red House", pts=[[184, y_s_aisle + 16], [226, LOT_S + 26]]),
-    dict(id="trailers", kind="loop", label="Trailers pull through", pts=[[HX + 60, LOT_S + 6], [HX + 60, y_cross]]),
+    # counter-clockwise: north up the east return, west along the north aisle, south down the west lane
+    dict(id="loop-parking", kind="loop", label="One-way loop",
+         pts=[[X_RET + 17, LOT_S + 16], [X_RET + 17, y_n_aisle + 12], [X_LANE / 2, y_n_aisle + 12], [X_LANE / 2, LOT_S + 16]]),
+    dict(id="loop-mid", kind="loop", label="", pts=[[X_RET + 6, y_m_aisle + 12], [X_LANE + 8, y_m_aisle + 12]]),
     dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
     dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
     dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
@@ -151,7 +162,7 @@ C = [
 
 pad = 34
 left = x_small - 6 * M - 26
-view = [left - pad, yB - 14 - pad, EAST - left + 2 * pad + 20, LOT_S + 30 - yB + 14 + 2 * pad]
+view = [left - pad, yB - 14 - pad, EAST - left + 2 * pad + 20, LOT_S + 34 - yB + 14 + 2 * pad]
 dims = [
     {"label": f"{MOD}'", "x1": EAST + 12, "y1": yB, "x2": EAST + 12, "y2": yB + MOD},
     {"label": f"{LANE}'", "x1": EAST + 12, "y1": yB + MOD, "x2": EAST + 12, "y2": yA},
@@ -164,6 +175,7 @@ dims = [
 ]
 data = {
     "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "drives": DRIVES, "circulation": C, "dims": dims,
+    "notes": [dict(x=X_RET + 17, y=LOT_S + 26, text="In, from the Red House side"), dict(x=X_LANE / 2, y=LOT_S + 26, text="Out, to the entry drive")],
     "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W), "parking": n_stalls},
     "module_ft": M, "lane_ft": LANE,
 }
@@ -184,9 +196,14 @@ def pens_svg(e):
                     out.append(f'<rect x="{e["x"] + off}" y="{e["y"] + i * p["w"]}" width="{depth}" height="{p["w"]}"/>')
                 else:
                     out.append(f'<rect x="{e["x"] + i * p["w"]}" y="{e["y"] + off}" width="{p["w"]}" height="{depth}"/>')
-    for rx, ry, n in e.get("rows", []):
+    for row in e.get("rows", []):
+        rx, ry, n = row[:3]
+        sw, sd = e["stall"]
         for i in range(n):
-            out.append(f'<rect x="{rx + i * e["stall"][0]}" y="{ry}" width="{e["stall"][0]}" height="{e["stall"][1]}"/>')
+            if len(row) > 3:
+                out.append(f'<rect x="{rx}" y="{ry + i * sw}" width="{sd}" height="{sw}"/>')
+            else:
+                out.append(f'<rect x="{rx + i * sw}" y="{ry}" width="{sw}" height="{sd}"/>')
     for z in e.get("zones", []):
         if "poly" in z:
             out.append('<polygon points="' + " ".join(f'{e["x"] + px},{e["y"] + py}' for px, py in z["poly"]) + '"/>')
