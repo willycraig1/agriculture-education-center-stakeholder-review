@@ -75,8 +75,12 @@
   }
   function parking(e) {
     const [w, d] = e.stall; let st = "";
-    e.rows.forEach(([x, y, n]) => { for (let k = 0; k < n; k++) st += `<rect x="${x + k * w}" y="${y}" width="${w}" height="${d}"/>`; });
-    return `<g class="pens" fill="#fff" fill-opacity=".55" stroke="var(--circulation)" stroke-width=".5">${st}</g>`;
+    e.rows.forEach(([x, y, n, v]) => { for (let k = 0; k < n; k++)
+      st += v ? `<rect x="${x}" y="${y + k * w}" width="${d}" height="${w}"/>` : `<rect x="${x + k * w}" y="${y}" width="${w}" height="${d}"/>`; });
+    const is = e.island;
+    return `<g class="pens" fill="#fff" fill-opacity=".55" stroke="var(--circulation)" stroke-width=".5">${st}</g>` +
+      (is ? `<rect class="pens" x="${is.x}" y="${is.y}" width="${is.w}" height="${is.h}" rx="3" fill="var(--water-tint)" stroke="var(--water)" stroke-width=".5"/>
+        <text class="note" x="${is.x + is.w / 2}" y="${is.y + is.h / 2 + 1.5}" text-anchor="middle" font-size="4.4">${is.label}</text>` : "");
   }
   function zones(e) {
     return `<g class="pens" stroke="var(--cattle)" stroke-width=".5">${e.zones.map(z => z.poly
@@ -104,7 +108,7 @@
   A.elements.forEach(e => {
     const lines = e.kind === "container" || e.kind === "parking" || e.zones ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
     const cx = e.x + e.w / 2;
-    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + e.h + 6 : e.zones ? e.y + e.h + 6 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
+    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + 8 : e.zones ? e.y + e.h + 6 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
     const narrow = e.w < 45 && e.h > e.w * 1.6;     // tall, narrow buildings read better with a rotated label
     const txt = narrow
       ? `<text transform="translate(${e.x + 5} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
@@ -141,7 +145,7 @@
     const vert = p.length === 2 && xa === xb;
     return `<g class="run ${c.kind}"><path d="${rounded(p, 9)}" marker-end="url(#ah-${c.kind})" ${both ? `marker-start="url(#ah-${c.kind})"` : ""}/>
       ${c.label ? `<text ${vert ? `transform="translate(${mid[0] - 4} ${mid[1]}) rotate(-90)"` : `x="${mid[0]}" y="${mid[1] - 4}"`} text-anchor="middle" font-size="5">${c.label}</text>` : ""}</g>`;
-  }).join("");
+  }).join("") + (A.notes || []).map(n => `<g class="run"><text x="${n.x}" y="${n.y}" text-anchor="middle" font-size="4.6">${n.text}</text></g>`).join("");
   const defs = `<defs>${["service", "animal", "loop"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
     <path d="M0 0L10 5L0 10z" fill="${k === "animal" ? "var(--cattle)" : "var(--ink)"}"/></marker>`).join("")}</defs>`;
   document.getElementById("plan").insertAdjacentHTML("afterbegin",
@@ -151,10 +155,10 @@
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", "Main parking lot, 10' × 20' stalls"] },
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`] },
     { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal & swine barn A, ${sa} pens`, "First feed storage container, by the parking", "Existing barn becomes storage"] },
     { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Small animal barn B, ${sa} more pens`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
-    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "Cars loop one way, counter-clockwise, keeping right", "Trailers pull through the handling yard and out onto the cross drive", "Two breaks in the north row hand off to the tractor lanes"] },
+    { b: "Flow", h: "Straight lines", items: [`Two ${A.lane_ft}' lanes run the length of the barnyard`, "Tractor aisles pass straight through both barns of a run", "Every barn opens onto its own turnout", "One cross drive links feed, pens and handling", "One-way loop, counter-clockwise: in from the Red House side, out to the entry drive", "Trailers stop in the west lane, close a gate at each end, unload and drive on", "An apron at the north-west corner hands off to the tractor lanes"] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
