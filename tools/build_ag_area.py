@@ -173,22 +173,67 @@ C = [
     dict(id="an-pens", kind="animal", label="", pts=[[x_col + MOD / 2, y_pens + 8], [x_col + MOD / 2, y_pens - 30]]),
 ]
 
+# ---------------------------------------------------------------- shift relative to the existing barn and pens
+# Architect, 2026-10-13: everything new moves 24' west and 24' south; the existing barn and pens stay put.
+# This pulls the new work off the wet soil along the north edge. The layout above is unchanged internally.
+DX, DY = -24, 24
+def _mv(p):
+    return [p[0] + DX, p[1] + DY]
+for e in E:
+    if e["id"].startswith("existing"):
+        continue
+    e["x"] += DX; e["y"] += DY
+    if "outline" in e:
+        e["outline"] = [_mv(q) for q in e["outline"]]
+    if "rows" in e:
+        e["rows"] = [[r[0] + DX, r[1] + DY, *r[2:]] for r in e["rows"]]
+    if "island" in e:
+        e["island"]["x"] += DX; e["island"]["y"] += DY
+for c in C:
+    c["pts"] = [_mv(q) for q in c["pts"]]
+NOTES_ = [dict(x=X_ELEG + DX, y=LOT_S + 26 + DY, text="In, from the Red House side"), dict(x=X_WLEG + DX, y=LOT_S + 26 + DY, text="Out, to the entry drive")]
+by_id = {e["id"]: e for e in E}
+# cattle turnout A would now run into the existing pens: it stops at their north edge and west end instead
+ta = by_id["turnout-cattle-a"]
+ta["h"] = y_pens - ta["y"]
+# the cross drive now lines up with the existing pens; its arrow stops short of them
+for c in C:
+    if c["id"] == "drive-cross":
+        c["pts"][1][0] = min(c["pts"][1][0], x_col - 6)
+    if c["id"] == "an-pens":            # existing pens (fixed) up into the shifted turnout A
+        xm = (max(x_col, ta["x"]) + min(EAST, ta["x"] + ta["w"])) / 2
+        c["pts"] = [[xm, y_pens + 8], [xm, y_pens - 30]]
+STALLS_BOX = [LOT_X0 + DX, y_park + DY, LOT_X1 + DX, y_s_row + STALL_D + DY]
+CROSS_DRIVE_BOX = [x_small + DX, y_drive + DY, x_col + DX, y_drive + LANE + DY]
+
 pad = 34
-left = HX - 8
-view = [left - pad, yB - 14 - pad, EAST - left + 2 * pad + 20, LOT_S + 34 - yB + 14 + 2 * pad]
+xs = [v for e in E for v in (e["x"], e["x"] + e["w"])] + [q[0] for c in C for q in c["pts"]]
+ys = [v for e in E for v in (e["y"], e["y"] + e["h"])] + [q[1] for c in C for q in c["pts"]]
+view = [min(xs) - pad, min(ys) - pad - 14, max(xs) - min(xs) + 2 * pad + 34, max(ys) - min(ys) + 2 * pad + 30]
+
+# dimension strings. North string: across the top of the new work. Small barn: at the extension's north end.
+# East string: complete, from the north end of cattle barn B down to the south end of the existing barn.
+def dim(label, x1, y1, x2, y2):
+    return {"label": label, "x1": x1, "y1": y1, "x2": x2, "y2": y2}
+yt = yB + DY - 24
+xe = EAST + 12
+cb, ca = by_id["cattle-b"], by_id["cattle-a"]
+ext = by_id["small-b"]
 dims = [
-    {"label": f"{MOD}'", "x1": EAST + 12, "y1": yB, "x2": EAST + 12, "y2": yB + MOD},
-    {"label": f"{LANE}'", "x1": EAST + 12, "y1": yB + MOD, "x2": EAST + 12, "y2": yA},
-    {"label": f"{SMALL_W}'", "x1": x_small, "y1": yB - 24, "x2": x_small + SMALL_W, "y2": yB - 24},
-    {"label": f"{LANE}'", "x1": x_west_lane, "y1": yB - 24, "x2": x_mid, "y2": yB - 24},
-    {"label": f"{ARENA_W}'", "x1": x_mid, "y1": yB - 24, "x2": x_east_lane, "y2": yB - 24},
-    {"label": f"{LANE}'", "x1": x_east_lane, "y1": yB - 24, "x2": x_cattle, "y2": yB - 24},
-    {"label": f"{CATTLE_W}'", "x1": x_cattle, "y1": yB - 24, "x2": x_col, "y2": yB - 24},
-    {"label": f"{MOD}'", "x1": x_col, "y1": yB - 24, "x2": EAST, "y2": yB - 24},
+    dim(f"{SMALL_W}'", ext["x"], ext["y"] - 10, ext["x"] + ext["w"], ext["y"] - 10),
+    dim(f"{LANE}'", x_west_lane + DX, yt, x_mid + DX, yt),
+    dim(f"{ARENA_W}'", x_mid + DX, yt, x_east_lane + DX, yt),
+    dim(f"{LANE}'", x_east_lane + DX, yt, x_cattle + DX, yt),
+    dim(f"{CATTLE_W}'", x_cattle + DX, yt, x_col + DX, yt),
+    dim(f"{MOD}'", x_col + DX, yt, EAST + DX, yt),
 ]
+string = [cb["y"], cb["y"] + cb["h"], ca["y"], ca["y"] + ca["h"], y_pens + PEN_D, y_barn, SOUTH]
+for a_, b_ in zip(string, string[1:]):
+    if b_ - a_ > 0.5:
+        dims.append(dim(f"{b_ - a_:g}'", xe, a_, xe, b_))
 data = {
     "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "drives": DRIVES, "circulation": C, "dims": dims,
-    "notes": [dict(x=X_ELEG, y=LOT_S + 26, text="In, from the Red House side"), dict(x=X_WLEG, y=LOT_S + 26, text="Out, to the entry drive")],
+    "notes": NOTES_, "shift_ft": [DX, DY], "stalls_box": STALLS_BOX, "cross_drive_box": CROSS_DRIVE_BOX,
     "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (MOD // SA_PEN_W), "small_animal_pens": {"2": 2 * (MOD // SA_PEN_W), "3": 2 * (MOD // SA_PEN_W) + 2 * (EXT // SA_PEN_W)}, "parking": n_stalls},
     "module_ft": M, "lane_ft": LANE,
 }
