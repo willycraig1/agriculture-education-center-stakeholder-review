@@ -5,7 +5,7 @@ window.AG_AREA = {
   -132,
   -48,
   466,
-  380
+  468
  ],
  "north_cw_from_up": -17,
  "elements": [
@@ -53,36 +53,147 @@ window.AG_AREA = {
   },
   {
    "id": "handling",
-   "label": "New corral, chute and scale",
+   "label": "Cattle handling",
    "x": -72,
    "y": 216,
    "w": 72,
-   "h": 72,
+   "h": 84,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "Bud Box layout to come",
-   "assumed": false
+   "note": "",
+   "assumed": false,
+   "zones": [
+    {
+     "label": "Bud Box",
+     "x": 0,
+     "y": 0,
+     "w": 20,
+     "h": 12,
+     "fill": true
+    },
+    {
+     "label": "Lead-up alley",
+     "x": 20,
+     "y": 0,
+     "w": 28,
+     "h": 12
+    },
+    {
+     "label": "Trailer unloading",
+     "x": 48,
+     "y": 0,
+     "w": 24,
+     "h": 84,
+     "rot": true
+    },
+    {
+     "label": "Holding pen",
+     "x": 24,
+     "y": 12,
+     "w": 24,
+     "h": 72,
+     "rot": true
+    },
+    {
+     "label": "",
+     "x": 16,
+     "y": 12,
+     "w": 2.6,
+     "h": 24
+    },
+    {
+     "label": "Chute + scale",
+     "x": 15.3,
+     "y": 36,
+     "w": 4,
+     "h": 9,
+     "fill": true,
+     "side": true
+    },
+    {
+     "label": "Release",
+     "x": 0,
+     "y": 48,
+     "w": 24,
+     "h": 36
+    }
+   ]
   },
   {
    "id": "parking",
    "label": "Main parking lot",
-   "x": 60,
+   "x": 10,
    "y": 228,
-   "w": 93,
-   "h": 64,
+   "w": 182,
+   "h": 128,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "continues south",
+   "note": "46 spaces shown",
    "assumed": false,
-   "stalls": {
-    "n": 9,
-    "w": 10,
-    "d": 20,
-    "aisle": 24,
-    "inset": 1.5
-   }
+   "rows": [
+    [
+     14,
+     228,
+     2
+    ],
+    [
+     62,
+     228,
+     9
+    ],
+    [
+     180,
+     228,
+     1
+    ],
+    [
+     42,
+     272,
+     12
+    ],
+    [
+     42,
+     292,
+     12
+    ],
+    [
+     50,
+     336,
+     10
+    ]
+   ],
+   "stall": [
+    10,
+    20
+   ],
+   "outline": [
+    [
+     10,
+     228
+    ],
+    [
+     192,
+     228
+    ],
+    [
+     192,
+     336
+    ],
+    [
+     172,
+     356
+    ],
+    [
+     30,
+     356
+    ],
+    [
+     10,
+     336
+    ]
+   ]
   },
   {
    "id": "cattle-a",
@@ -296,14 +407,14 @@ window.AG_AREA = {
    "x": 36,
    "y": 216,
    "w": 24,
-   "h": 76
+   "h": 32
   },
   {
    "id": "drive-east",
-   "x": 153,
+   "x": 153.0,
    "y": 216,
    "w": 24,
-   "h": 76
+   "h": 32
   }
  ],
  "circulation": [
@@ -400,23 +511,72 @@ window.AG_AREA = {
   {
    "id": "loop-parking",
    "kind": "loop",
-   "label": "",
+   "label": "One-way loop",
    "pts": [
     [
-     48.0,
-     233
+     24,
+     324
     ],
     [
-     48.0,
-     260.0
+     24,
+     260
     ],
     [
-     165.0,
-     260.0
+     176,
+     260
     ],
     [
-     165.0,
-     233
+     176,
+     324
+    ],
+    [
+     44,
+     324
+    ]
+   ]
+  },
+  {
+   "id": "entry",
+   "kind": "loop",
+   "label": "Entry drive",
+   "pts": [
+    [
+     -46,
+     382
+    ],
+    [
+     16,
+     328
+    ]
+   ]
+  },
+  {
+   "id": "exit",
+   "kind": "loop",
+   "label": "To the Red House",
+   "pts": [
+    [
+     182,
+     328
+    ],
+    [
+     226,
+     382
+    ]
+   ]
+  },
+  {
+   "id": "trailers",
+   "kind": "loop",
+   "label": "Trailers",
+   "pts": [
+    [
+     14,
+     260
+    ],
+    [
+     -18,
+     260
     ]
    ]
   },
@@ -561,7 +721,7 @@ window.AG_AREA = {
    "3": 35
   },
   "small_animal_pens_per_barn": 28,
-  "parking": 18
+  "parking": 46
  },
  "module_ft": 12,
  "lane_ft": 24
