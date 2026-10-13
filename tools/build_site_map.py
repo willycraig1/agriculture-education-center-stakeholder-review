@@ -5,7 +5,7 @@ Writes
   slides/data/site-map.js    the same SVG as a string, for slides/site.html (works from file://)
   drawings/data/soils.json   soil units, drainage class and acreage inside the map
 
-Layers: aerial · soils · water · trees · paddocks · campus · barnyard · labels.
+Layers: aerial · ground · soils · water · trees · paddocks · campus · barnyard · labels.
 The barnyard layer is the diagram from tools/build_ag_area.py (run that first), placed to scale on the survey.
 Soils are rebuilt from the survey sheet's soil map: each soil unit is drawn there as a fill or a dense
 hatch in one color, so strokes and fills of a color are merged into polygons and named from the
@@ -234,8 +234,15 @@ land = (f'<path d="{poly_d(footprint)}" fill="none" stroke="#fff" stroke-width="
         + land_label("Site Pasture", "pasture", "Site pasture") + land_label("Bonus Pasture", "bonus", "Bonus pasture"))
 
 # ---------------------------------------------------------------- campus
+# The unfinished barn is not among the architect's outlines. On the survey it is an open, roofed frame: a
+# dashed overhang rectangle (BUILDING OH, about 41' x 52') with no wall lines, north of the existing barn.
+from shapely.geometry import MultiPoint as _MP
+_ub = [(M_SP * complex(q.x, q.y) + T_SP) for d in cadpdf.export(SURVEY, ["BUILDING OH"]).get("BUILDING OH", [])
+       for it in d["items"] if it[0] == "l" for q in (it[1], it[2])]
+_ub = [(z.real, z.imag) for z in _ub if abs(z.real - 1177) < 25 and abs(z.imag - 264) < 25]
+UNFINISHED_BARN = list(_MP(_ub).minimum_rotated_rectangle.exterior.coords) if len(_ub) >= 3 else []
 if EDITS:
-    _structs = "".join(f'<path transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{st_["d"]}Z"/>' for st_ in EDITS["structures"])
+    _structs = (f'<polygon id="unfinished-barn" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in UNFINISHED_BARN)}"/>' if UNFINISHED_BARN else "") + "".join(f'<path transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{st_["d"]}Z"/>' for st_ in EDITS["structures"])
     _camp0 = f'<g fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="1">{_structs}</g>'
 else:
     _camp0 = (g_paths(sv.get("BUILDING", []), M_SP, T_SP, f'fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="{1/abs(M_SP):.3f}"')
@@ -412,6 +419,7 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        f'<rect x="{x0 - 4000}" y="{y0 - 4000}" width="{W + 8000}" height="{H + 8000}" fill="{N["paper"]}"/>'
        f'<g id="map-content">'
        + layer("aerial", "Aerial (Sarasota County PA)", aerial)
+       + layer("ground", "Site ground (used when the aerial is off)", f'<path d="{poly_d(footprint)}" fill="#F2F5EA" stroke="{N["ink"]}" stroke-width="2.5" data-w="2.5"/>')
        + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000).difference(footprint))}" fill="{N["paper"]}" fill-opacity="0.72"/>'
                f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
        + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")

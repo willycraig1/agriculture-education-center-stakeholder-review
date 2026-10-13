@@ -47,7 +47,7 @@
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="levels" id="levels"></ol>
       <div class="fit" data-step="3" id="fit"></div>
-      <p class="src" data-step="0">The barnyard diagram placed to scale on the survey and County aerial, pinned to the existing barn's surveyed pen line.
+      <p class="src" data-step="0">The barnyard diagram placed to scale on the survey, pinned to the existing barn's surveyed pen line.
         North is to the left.</p>
     </div>
   </div>
@@ -62,7 +62,7 @@
   const mapEl = document.getElementById("map");
   mapEl.insertAdjacentHTML("afterbegin", M.svg);
   const svg = mapEl.querySelector(":scope > svg");
-  ["land", "soils", "labels"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
+  ["land", "soils", "labels", "aerial", "veil"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
   svg.querySelectorAll("#aerial, #veil, #water, #trees, #paddocks, #campus, #barnyard").forEach(g => g.setAttribute("data-layer", g.id));
 
   const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];

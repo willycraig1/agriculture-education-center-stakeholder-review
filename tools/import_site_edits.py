@@ -47,6 +47,7 @@ for d in page.get_drawings():
         out["boundary"] = xy
     elif fill is not None and fill[2] > fill[0]:                  # blue: ponds
         cx = (r.x0 + r.x1) / 2 + ORIGIN[0]
+        # the pond beside the campus is the proposed retention pond (confirmed by the architect)
         out["ponds"].append({"kind": "proposed retention" if 1100 < cx < 1350 else "existing", "d": path, "pts": xy})
     elif fill is not None and fill[0] > 0.5 and len(d["items"]) >= 3:   # red: structures (skip stray single strokes)
         key = tuple(round(v) for v in r)
