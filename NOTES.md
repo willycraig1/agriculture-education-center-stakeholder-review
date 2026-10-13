@@ -206,3 +206,10 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   units of an end, then extends 100 ft on the channel's heading.
 - **Trees.** Surveyed trees are plain discs at 70%% opacity with no white outline; the survey's dashed tree line is no longer drawn (the canopy traced from the aerial replaces it).
 - **Tree count corrected.** On the study plan each tree symbol came through as up to four marks stacked within a foot, so trees were drawn as stacked discs and counted several times. `siteframe._one_per_tree` keeps one mark per tree: 176 surveyed trees (80 study plan, 96 survey), not 362. Fit check: 3 trees in the parking footprint, not 12.
+- **South roads (approximate, not survey).** `tools/build_south_roads.py` → `drawings/data/south-roads.json`, merged
+  into the road shape by `build_site_map.py`. Three centrelines: the lane along Cow Pen Slough from the end of the
+  surveyed road to the south building drive (located from the aerial trace's drive pixels on 89 of 143 sections,
+  bridged and smoothed between; drawn 19 ft wide, the surveyed road's width at its south end), and the two drive
+  lines on the fencing plan's sketch layer that the aerial confirms (lane → house loop → long barn → east property
+  line; lane → south building and round it), drawn 12 ft wide. Run order: build_fences, build_canopy,
+  build_south_roads, build_site_map.
