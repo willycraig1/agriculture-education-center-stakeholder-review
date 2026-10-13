@@ -111,7 +111,8 @@ TR_X, TR_W, TR_L = XW0 - 6 - LANE, LANE, 60    # trailer lane, 6' clear of the w
 HW, HH = 6 * M, 7 * M
 HX, HY = TR_X - HW, y_island                   # yard top = south edge of the north aisle
 LOT_S = max(y_s_row + STALL_D + 36, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
-LOT_X0, LOT_X1 = 0, XE1 + STALL_D              # architect's edit: the lot is a plain rectangle, 197' wide
+LOT_X0, LOT_X1 = 0, XE1                        # architect's edits: a plain rectangle ending at the east leg (177');
+                                               # the stall column by the existing barn sits outside the fill
 add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces",
     rows=ROWS, stall=[STALL_W, STALL_D],
     outline=[[LOT_X0, y_park], [LOT_X1, y_park], [LOT_X1, LOT_S], [LOT_X0, LOT_S]],

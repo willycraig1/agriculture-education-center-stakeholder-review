@@ -56,7 +56,7 @@ window.AG_AREA = {
    "label": "Main parking lot",
    "x": 0,
    "y": 228,
-   "w": 197.0,
+   "w": 177.0,
    "h": 164,
    "use": "circulation",
    "level": 1,
@@ -101,11 +101,11 @@ window.AG_AREA = {
      228
     ],
     [
-     197.0,
+     177.0,
      228
     ],
     [
-     197.0,
+     177.0,
      392
     ],
     [
