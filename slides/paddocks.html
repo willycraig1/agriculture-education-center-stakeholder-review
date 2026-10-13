@@ -42,7 +42,7 @@
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="levels" id="levels"></ol>
-      <p class="src" data-step="0">Proposed fencing plan A0.1 over the County aerial, with surveyed trees. Capacity from the pasture worksheet (UF/IFAS AN155).
+      <p class="src" data-step="0">Proposed fencing plan A0.1 with surveyed trees. Capacity from the pasture worksheet (UF/IFAS AN155).
         Fence lines for all three Levels are shown throughout.</p>
     </div>
   </div>
@@ -58,7 +58,7 @@
   const mapEl = document.getElementById("map");
   mapEl.insertAdjacentHTML("afterbegin", M.svg);
   const svg = mapEl.querySelector(":scope > svg");
-  ["land", "soils", "labels", "barnyard"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
+  ["land", "soils", "labels", "barnyard", "aerial", "veil"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
   svg.querySelectorAll("#aerial, #veil, #water, #trees, #paddocks, #campus").forEach(g => g.setAttribute("data-layer", g.id));
   const siteTags = [...svg.querySelectorAll(".tag.site")], bonusTags = [...svg.querySelectorAll(".tag.bonus")];
   const xOf = t => +t.getAttribute("transform").match(/translate\(([-\d.]+)/)[1];
