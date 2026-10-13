@@ -220,3 +220,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   requires it. The existing flared apron and island are still drawn as surveyed. The entry arrow on the site slide
   sits on the centreline of the straight entry drive and ignores the apron. Mentioned in the Level 1 text of the
   barnyard-on-site slide.
+- **Slough linework and label.** The survey top-of-bank line that runs along Cow Pen Slough itself is no longer drawn.
+  The other four top-of-bank lines are kept for now: they trace the historical slough bed across the site, and the
+  architect wants to work on how they are shown. The "Cowpen Slough" label moved to the middle of the slough's
+  longest straight reach (beside the site pasture), upright, on the off-site bank.
+- **Stakeholder question added** (input slide, Water and wet ground): how sacred is the historical slough bed? It
+  conflicts with some of the program and complicates the civil design.
