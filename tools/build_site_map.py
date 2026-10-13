@@ -265,7 +265,11 @@ UNFINISHED_BARN = list(_MP(_ub).minimum_rotated_rectangle.exterior.coords) if le
 if EDITS:
     # open-sided structures are drawn with the canopies below, not as enclosed buildings (architect, 2026-10-13):
     # the unfinished barn, and the 27' x 10' shed north-west of the cattle pens
-    OPEN_SHED = lambda st_: abs((st_["bbox"][0] + st_["bbox"][2]) / 2 - 1128.8) < 3 and abs((st_["bbox"][1] + st_["bbox"][3]) / 2 - 338.5) < 3
+    # and the 12' x 10' canopy on its own at the pasture edge west of the campus
+    _OPEN_AT = {"pens-shed": (1128.8, 338.5), "pasture-canopy": (1094.1, 366.5)}
+    def OPEN_SHED(st_):
+        cx_, cy_ = (st_["bbox"][0] + st_["bbox"][2]) / 2, (st_["bbox"][1] + st_["bbox"][3]) / 2
+        return next((k for k, (x, y) in _OPEN_AT.items() if abs(cx_ - x) < 3 and abs(cy_ - y) < 3), None)
     _structs = "".join(f'<path transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{st_["d"]}Z"/>' for st_ in EDITS["structures"] if not OPEN_SHED(st_))
     _camp0 = f'<g fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="1">{_structs}</g>'
     # the buildings in the south bonus pasture are drawn on the fencing plan (layer P-WALL), not in the edits file
@@ -293,7 +297,7 @@ if UNFINISHED_BARN:
     CANOPIES.append({"id": "unfinished-barn", "label": "Unfinished barn", "pts": UNFINISHED_BARN[:-1]})
 for st_ in (EDITS["structures"] if EDITS else []):
     if OPEN_SHED(st_):
-        CANOPIES.append({"id": "pens-shed", "label": "", "pts": st_["pts"]})
+        CANOPIES.append({"id": OPEN_SHED(st_), "label": "", "pts": st_["pts"]})
 _cp = _oh_pts(1220, 376, 1243, 399)
 if len(_cp) >= 4:
     CANOPIES.append({"id": "carport", "label": "Carport", "pts": list(_MP(_cp).minimum_rotated_rectangle.exterior.coords)[:-1]})
