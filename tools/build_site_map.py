@@ -304,8 +304,17 @@ _canopies = ('<g id="canopies" fill="{}" fill-opacity=".9" stroke="{}" stroke-wi
              + "".join(f'<polygon id="{c_["id"]}" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in c_["pts"])}"/>' for c_ in CANOPIES) + "</g>")
 print("canopies:", [(c_["id"], round(Polygon(c_["pts"]).area * (FT_PER_PT / abs(M_FP)) ** 2)) for c_ in CANOPIES], "sf")
 _road_area = ""
+unit_ft_map = FT_PER_PT / abs(M_FP)
 if os.path.exists(_fp) and FENCES.get("road_area"):
-    _rd = " ".join("M" + " L".join(f"{x},{y}" for x, y in ring) + "Z" for g_ in FENCES["road_area"] for ring in [g_["outer"]] + g_["holes"])
+    _ra = unary_union([Polygon(g_["outer"], g_["holes"]).buffer(0) for g_ in FENCES["road_area"]])
+    # the unsurveyed drives south of the campus, approximated (tools/build_south_roads.py), join the same shape
+    _sp = os.path.join(OUT, "data", "south-roads.json")
+    if os.path.exists(_sp):
+        _south = unary_union([LineString(r_["map"]).buffer(r_["width_ft"] / unit_ft_map / 2, cap_style=2, join_style=1)
+                              for r_ in json.load(open(_sp))["roads"]]).intersection(footprint.buffer(2))
+        _ra = unary_union([_ra, _south]).buffer(1.2).buffer(-1.2)
+    _rd = " ".join("M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in ring.coords) + "Z"
+                   for g_ in getattr(_ra, "geoms", [_ra]) for ring in [g_.exterior] + list(g_.interiors))
     _road_area = (f'<path id="road-area" d="{_rd}" fill-rule="evenodd" fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" '
                   f'stroke-width="1" data-w="1.2" stroke-linejoin="round"/>')
 campus = (_road_area + _camp0 + _canopies
