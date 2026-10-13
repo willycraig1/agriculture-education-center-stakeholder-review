@@ -2,9 +2,9 @@
 window.AG_AREA = {
  "units": "feet",
  "view": [
-  -154,
+  -116.0,
   -38,
-  502,
+  464.0,
   508
  ],
  "north_cw_from_up": -17,
@@ -26,9 +26,9 @@ window.AG_AREA = {
    "id": "turnout-small-a",
    "label": "Turnout",
    "x": -72,
-   "y": 120.0,
+   "y": 132,
    "w": 48,
-   "h": 96.0,
+   "h": 84,
    "use": "arena",
    "level": 2,
    "kind": "yard",
@@ -41,7 +41,7 @@ window.AG_AREA = {
    "x": -72,
    "y": 90,
    "w": 48,
-   "h": 30.0,
+   "h": 42,
    "use": "arena",
    "level": 3,
    "kind": "yard",
@@ -170,21 +170,47 @@ window.AG_AREA = {
   {
    "id": "trailer-stop",
    "label": "Trailer stop",
-   "x": -48,
-   "y": 284,
+   "x": -10.0,
+   "y": 271,
    "w": 24,
-   "h": 60,
+   "h": 84,
    "use": "circulation",
    "level": 1,
    "kind": "yard",
-   "note": "gate at each end",
-   "assumed": false
+   "note": "pull-off bay",
+   "assumed": false,
+   "outline": [
+    [
+     -10.0,
+     271
+    ],
+    [
+     0.0,
+     271
+    ],
+    [
+     14.0,
+     284
+    ],
+    [
+     14.0,
+     339
+    ],
+    [
+     0.0,
+     355
+    ],
+    [
+     -10.0,
+     355
+    ]
+   ]
   },
   {
    "id": "handling",
    "label": "Cattle handling",
-   "x": -120,
-   "y": 284,
+   "x": -82.0,
+   "y": 271,
    "w": 72,
    "h": 84,
    "use": "cattle",
@@ -194,28 +220,28 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     -120,
-     284
+     -82.0,
+     271
     ],
     [
-     -48,
-     284
+     -10.0,
+     271
     ],
     [
-     -48,
-     352
+     -10.0,
+     339
     ],
     [
-     -64,
-     368
+     -26.0,
+     355
     ],
     [
-     -104,
-     368
+     -66.0,
+     355
     ],
     [
-     -120,
-     348
+     -82.0,
+     335
     ]
    ],
    "zones": [
@@ -484,8 +510,12 @@ window.AG_AREA = {
     ],
     [
      24.0,
-     256
+     272
     ]
+   ],
+   "heads": [
+    true,
+    false
    ]
   },
   {
@@ -499,8 +529,12 @@ window.AG_AREA = {
     ],
     [
      98.0,
-     219
+     228.0
     ]
+   ],
+   "heads": [
+    true,
+    false
    ]
   },
   {
@@ -516,6 +550,10 @@ window.AG_AREA = {
      169,
      228.0
     ]
+   ],
+   "heads": [
+    true,
+    true
    ]
   },
   {
@@ -524,13 +562,17 @@ window.AG_AREA = {
    "label": "",
    "pts": [
     [
-     15,
+     24.0,
      120.0
     ],
     [
      160,
      120.0
     ]
+   ],
+   "heads": [
+    false,
+    true
    ]
   },
   {
@@ -544,8 +586,12 @@ window.AG_AREA = {
     ],
     [
      141.0,
-     256
+     272
     ]
+   ],
+   "heads": [
+    true,
+    false
    ]
   },
   {
@@ -559,8 +605,12 @@ window.AG_AREA = {
     ],
     [
      -6.0,
-     219
+     228.0
     ]
+   ],
+   "heads": [
+    true,
+    false
    ]
   },
   {
@@ -611,16 +661,16 @@ window.AG_AREA = {
      272
     ],
     [
-     -36.0,
-     272
+     2.0,
+     282
     ],
     [
-     -36.0,
+     2.0,
+     345
+    ],
+    [
+     18.0,
      358
-    ],
-    [
-     20.0,
-     378
     ]
    ]
   },
