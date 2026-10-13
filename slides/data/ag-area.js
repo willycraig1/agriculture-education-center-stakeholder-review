@@ -2,7 +2,7 @@
 window.AG_AREA = {
  "units": "feet",
  "view": [
-  -154.0,
+  -154,
   -38,
   502.0,
   520
@@ -54,35 +54,35 @@ window.AG_AREA = {
   {
    "id": "parking",
    "label": "Main parking lot",
-   "x": -24,
+   "x": 14.0,
    "y": 252,
-   "w": 177.0,
+   "w": 139.0,
    "h": 164,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "48 spaces",
+   "note": "36 spaces",
    "assumed": false,
    "rows": [
     [
-     7.5,
+     36.5,
      252,
-     12
+     9
     ],
     [
-     7.5,
+     36.5,
      296,
-     12
+     9
     ],
     [
-     7.5,
+     36.5,
      316,
-     12
+     9
     ],
     [
-     7.5,
+     36.5,
      360,
-     12
+     9
     ]
    ],
    "stall": [
@@ -91,7 +91,7 @@ window.AG_AREA = {
    ],
    "outline": [
     [
-     -24,
+     14.0,
      252
     ],
     [
@@ -103,22 +103,22 @@ window.AG_AREA = {
      416
     ],
     [
-     -24,
+     14.0,
      416
     ]
    ],
    "island": {
     "label": "Bioswale island",
-    "x": 8.0,
+    "x": 36.0,
     "y": 380,
-    "w": 119.0,
+    "w": 91.0,
     "h": 36
    }
   },
   {
    "id": "trailer-stop",
    "label": "Trailer stop",
-   "x": -48.0,
+   "x": -48,
    "y": 296,
    "w": 24,
    "h": 60,
@@ -131,7 +131,7 @@ window.AG_AREA = {
   {
    "id": "handling",
    "label": "Cattle handling",
-   "x": -120.0,
+   "x": -120,
    "y": 296,
    "w": 72,
    "h": 84,
@@ -142,27 +142,27 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     -120.0,
+     -120,
      296
     ],
     [
-     -48.0,
+     -48,
      296
     ],
     [
-     -48.0,
+     -48,
      364
     ],
     [
-     -64.0,
+     -64,
      380
     ],
     [
-     -104.0,
+     -104,
      380
     ],
     [
-     -120.0,
+     -120,
      360
     ]
    ],
@@ -471,7 +471,7 @@ window.AG_AREA = {
     ],
     [
      24.0,
-     219
+     268
     ]
    ]
   },
@@ -546,7 +546,7 @@ window.AG_AREA = {
     ],
     [
      -6.0,
-     268
+     219
     ]
    ]
   },
@@ -564,11 +564,11 @@ window.AG_AREA = {
      284
     ],
     [
-     -6.0,
+     24.0,
      284
     ],
     [
-     -6.0,
+     24.0,
      432
     ]
    ]
@@ -583,7 +583,7 @@ window.AG_AREA = {
      348
     ],
     [
-     8.0,
+     36.0,
      348
     ]
    ]
@@ -594,7 +594,7 @@ window.AG_AREA = {
    "label": "",
    "pts": [
     [
-     -20.0,
+     12.0,
      284
     ],
     [
@@ -606,7 +606,7 @@ window.AG_AREA = {
      370
     ],
     [
-     -12.0,
+     20.0,
      390
     ]
    ]
@@ -765,7 +765,7 @@ window.AG_AREA = {
    "text": "In, from the Red House side"
   },
   {
-   "x": -6.0,
+   "x": 24.0,
    "y": 442,
    "text": "Out, to the entry drive"
   }
@@ -775,7 +775,7 @@ window.AG_AREA = {
   24
  ],
  "stalls_box": [
-  -24,
+  14.0,
   252,
   153.0,
   380
@@ -797,7 +797,7 @@ window.AG_AREA = {
    "2": 28,
    "3": 42
   },
-  "parking": 48
+  "parking": 36
  },
  "module_ft": 12,
  "lane_ft": 24
