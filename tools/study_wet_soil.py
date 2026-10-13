@@ -20,13 +20,20 @@ wet = shape(json.load(open(os.path.join(ROOT, "drawings", "data", "soils-in-barn
 trees = [Point(x, y) for x, y in json.load(open(os.path.join(ROOT, "drawings", "data", "trees-in-barnyard-frame.json")))]
 BASE = {e["id"]: e for e in A["elements"]}
 KEEP = ["existing-barn", "existing-pens", "cattle-a", "cattle-b", "small-a", "small-b", "arena", "feed-1", "feed-2",
-        "turnout-cattle-a", "turnout-cattle-b", "turnout-small-a", "turnout-small-b"]
+        "turnout-cattle-a", "turnout-cattle-b", "turnout-small-a", "turnout-small-b", "parking", "trailer-stop", "handling"]
+NEW = [k for k in KEEP if not k.startswith("existing")]
+from shapely.geometry import LineString
+BLD = [LineString([(a, b), (c, d)]) for a, b, c, d in json.load(open(os.path.join(ROOT, "drawings", "data", "buildings-in-barnyard-frame.json")))]
 
 
 def option(name, note, moves):
     els = {k: copy.deepcopy(BASE[k]) for k in KEEP}
     for k, ch in moves.items():
-        els[k].update(ch)
+        if "dx" in ch:
+            els[k]["x"] += ch["dx"]; els[k]["y"] += ch["dy"]
+            els[k].pop("outline", None)
+        else:
+            els[k].update(ch)
     return dict(name=name, note=note, els=els)
 
 
@@ -49,6 +56,9 @@ OPTIONS = [
            "Barn B goes where the feed containers are; the containers move to the west run's north slot. Barn B has no turnout of its own.",
            {"small-b": {"x": 67, "y": 108}, "feed-1": {"x": -2, "y": 66}, "feed-2": {"x": -2, "y": 74},
             "turnout-small-b": {"x": 0, "y": 0, "w": 0, "h": 0}}),
+    option("F. Everything new 48' south and 12' west",
+           "Every new element, the parking and handling yard included, moves 48' south and 12' west. The existing barn and pens stay put.",
+           {k: {"dx": -12, "dy": 48} for k in NEW}),
     option("E. C, plus slide the arena and cattle barn B 12' south",
            "Barn B beside barn A, and the two remaining north-row buildings pulled 12' south. Only a corner of the arena (5%) is left on wet soil.",
            {"small-b": {"x": -60, "y": 108}, "turnout-small-a": {"x": -24, "y": 108, "w": 24, "h": 84},
@@ -75,6 +85,22 @@ def assess(opt):
             if geom(els[a]).intersection(geom(els[b])).area > 1:
                 out["overlaps"].append([a, b])
     out["trees_in_buildings"] = sum(1 for t in trees if any(geom(els[k]).contains(t) for k in solid if not k.startswith("existing")))
+    # yards and lots against what already exists
+    ex = [k for k in els if k.startswith("existing")]
+    for k in els:
+        if k in ex or els[k]["w"] <= 0:
+            continue
+        for x in ex:
+            a_ = geom(els[k]).intersection(geom(els[x])).area
+            if a_ > 1 and [k, x] not in out["overlaps"]:
+                out["overlaps"].append([k, x, round(a_)])
+    park = geom(els["parking"])
+    stalls = box(park.bounds[0], park.bounds[1], park.bounds[2], park.bounds[1] + 128)
+    out["trees_in_parking"] = sum(1 for t in trees if park.contains(t))
+    # surveyed building lines south of y = 300 are the Red House and its outbuildings
+    rh = [l for l in BLD if min(l.coords[0][1], l.coords[1][1]) > 300]
+    out["stalls_to_red_house_ft"] = round(min(l.distance(stalls) for l in rh))
+    out["red_house_wall_ft_inside_stalls"] = round(sum(l.intersection(stalls).length for l in rh))
     out["small_b_to_small_a_ft"] = round(geom(els["small-b"]).distance(geom(els["small-a"])))
     return out
 
@@ -85,15 +111,16 @@ for o in OPTIONS:
     results.append({"name": o["name"], "note": o["note"], **r})
     w = r["wet_pct"]
     print(f'{o["name"]:48s} small B {w.get("small-b", 0):3d}%  arena {w.get("arena", 0):3d}%  cattle B {w.get("cattle-b", 0):3d}%  '
-          f'turnout small B {w.get("turnout-small-b", "-")}  turnout cattle B {w.get("turnout-cattle-b", 0)}  overlaps {r["overlaps"]}  trees {r["trees_in_buildings"]}')
+          f'| overlaps {r["overlaps"]} | trees in buildings {r["trees_in_buildings"]}, in parking {r["trees_in_parking"]} | stalls to Red House {r["stalls_to_red_house_ft"]} ft, wall inside stalls {r["red_house_wall_ft_inside_stalls"]} ft')
 
 os.makedirs(os.path.join(ROOT, "drawings", "studies"), exist_ok=True)
 json.dump(results, open(os.path.join(ROOT, "drawings", "studies", "wet-soil-options.json"), "w"), indent=1)
 
 # ---- small multiples
-VX0, VY0, VW, VH = -120, -30, 410, 340
+VX0, VY0, VW, VH = -120, -30, 410, 480
 PW, GAP = 410, 30
-cols = 3
+for l in []: pass
+cols = 4
 rows = (len(OPTIONS) + cols - 1) // cols
 W = cols * PW + (cols + 1) * GAP
 H = rows * (VH + 130) + GAP + 50
@@ -118,9 +145,12 @@ for i, (o, r) in enumerate(zip(OPTIONS, results)):
     svg.append(f'<g transform="translate({ox} {oy})"><text x="0" y="16" font-size="17" font-weight="700" fill="{N["ink"]}">{o["name"]}</text>')
     svg.append(f'<g transform="translate({-VX0} {26 - VY0})"><rect x="{VX0}" y="{VY0}" width="{VW}" height="{VH}" fill="#fff"/>'
                f'<path d="{wet_d}" fill="#9FB9C6" fill-opacity=".75"/>')
+    svg.append(''.join(f'<line x1="{l.coords[0][0]}" y1="{l.coords[0][1]}" x2="{l.coords[1][0]}" y2="{l.coords[1][1]}" stroke="{P["education"]["base"]}" stroke-width="1.4"/>' for l in BLD if clipbox.contains(l)))
     for k, e in o["els"].items():
         if e["w"] <= 0:
             continue
+        if k in ('parking', 'handling', 'trailer-stop'):
+            svg.append(f'<rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="none" stroke="{N["line"]}" stroke-width="1"/>')
         use = "circulation" if k in ("existing-barn",) else e["use"]
         c = P[use]
         yard = e["kind"] == "yard"
@@ -128,6 +158,8 @@ for i, (o, r) in enumerate(zip(OPTIONS, results)):
         dash = ' stroke-dasharray="4 3"' if yard else ""
         svg.append(f'<rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{"none" if yard else c["tint"]}" stroke="{N["ink"] if hot else c["base"]}" '
                    f'stroke-width="{2.4 if hot else 1}"{dash}/>')
+        if k in ('parking', 'handling', 'trailer-stop'):
+            continue
         if short.get(k):
             svg.append(f'<text x="{e["x"] + e["w"] / 2}" y="{e["y"] + e["h"] / 2 + 3}" text-anchor="middle" font-size="8.5" font-weight="700" fill="{N["ink"]}">{short[k]}</text>')
     svg.append("</g>")
