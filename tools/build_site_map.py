@@ -227,7 +227,12 @@ if os.path.exists(_fp):
 else:
     _fence_art = (g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"')
                   + g_paths(fence_ds, M_FP, T_FP, f'fill="none" stroke="{N["ink"]}" stroke-width="2" stroke-linecap="round"'))
-paddocks = (_fence_art
+_gd = cadpdf.export(FENCE, ["A-DOOR"]).get("A-DOOR", [])
+_leaf = [d for d in _gd if all(it[0] == "l" for it in d["items"])]
+_arc = [d for d in _gd if any(it[0] == "c" for it in d["items"])]
+gates = (g_paths(_arc, M_FP, T_FP, f'fill="none" stroke="{P["cattle"]["base"]}" stroke-width="1" stroke-opacity=".8"')
+         + g_paths(_leaf, M_FP, T_FP, f'fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" stroke-linecap="round"'))
+paddocks = (_fence_art + f'<g id="gates">{gates}</g>'
             + g_paths(drive_ds, M_FP, T_FP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="2.6"')
             + "".join(tags))
 
@@ -259,6 +264,8 @@ UNFINISHED_BARN = list(_MP(_ub).minimum_rotated_rectangle.exterior.coords) if le
 if EDITS:
     _structs = (f'<polygon id="unfinished-barn" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in UNFINISHED_BARN)}"/>' if UNFINISHED_BARN else "") + "".join(f'<path transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{st_["d"]}Z"/>' for st_ in EDITS["structures"])
     _camp0 = f'<g fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="1">{_structs}</g>'
+    # the buildings in the south bonus pasture are drawn on the fencing plan (layer P-WALL), not in the edits file
+    _camp0 += g_paths(bldg_ds, M_FP, T_FP, f'id="bonus-buildings" fill="{P["education"]["base"]}" fill-opacity=".85" stroke="{P["education"]["base"]}" stroke-width="1"')
 else:
     _camp0 = (g_paths(sv.get("BUILDING", []), M_SP, T_SP, f'fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="{1/abs(M_SP):.3f}"')
               + g_paths(bldg_ds, M_FP, T_FP, f'fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" stroke-width="1.2"'))

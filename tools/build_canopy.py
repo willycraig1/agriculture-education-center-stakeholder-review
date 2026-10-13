@@ -144,6 +144,32 @@ if os.path.exists(_fp):
         _d = [slough_line.interpolate(k, normalized=True).distance(_parts[0]) for k in np.linspace(0.05, 0.95, 40)]
         slough_offset_ft = float(np.median(_d)) * unit_ft
         slough_line = _parts[0] if len(_parts) == 1 else LineString([c for g in sorted(_parts[:2], key=lambda g: g.coords[0][0]) for c in g.coords])
+# Ends: where the property line turns away from the waterway at each end of the site, cut the line back to the
+# last straight stretch and carry the slough on about 100 ft along that heading (architect, 2026-10-13).
+def _tidy_end(coords, ext_ft=100.0, look=140.0, max_turn=14.0):
+    c = [np.array(q, float) for q in coords]
+    # walk in from the end: drop end vertices while the last leg turns sharply against the stretch before it
+    while len(c) > 3:
+        run = 0.0; k = len(c) - 1
+        heading_end = c[-1] - c[-2]
+        j = len(c) - 2
+        while j > 0 and run < look:
+            run += np.linalg.norm(c[j] - c[j - 1]); j -= 1
+        heading_in = c[-2] - c[j]
+        cosang = (heading_end @ heading_in) / ((np.linalg.norm(heading_end) * np.linalg.norm(heading_in)) or 1)
+        if np.degrees(np.arccos(np.clip(cosang, -1, 1))) > max_turn and np.linalg.norm(heading_end) < look:
+            c.pop()
+        else:
+            break
+    j = len(c) - 1; run = 0.0
+    while j > 0 and run < 60:
+        run += np.linalg.norm(c[j] - c[j - 1]); j -= 1
+    u = (c[-1] - c[j]) / (np.linalg.norm(c[-1] - c[j]) or 1)
+    c.append(c[-1] + u * ext_ft / unit_ft)
+    return c
+_c = _tidy_end(list(slough_line.coords))
+_c = _tidy_end(_c[::-1])[::-1]
+slough_line = LineString(_c)
 slough = slough_line.buffer(width / 2, cap_style=2, join_style=1)
 slough_raw_width_ft = width * unit_ft
 
