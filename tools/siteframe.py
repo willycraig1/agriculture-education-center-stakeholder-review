@@ -146,8 +146,13 @@ M_TP, T_TP = M_FP * M_TF, M_FP * T_TF + T_FP                  # study plan -> pr
 M_SA, T_SA = cz(reg["survey_to_aerial"]["m"]), cz(reg["survey_to_aerial"]["t"])
 M_AP = M_SP / M_SA                                            # aerial px -> presentation
 T_AP = T_SP - M_SP * T_SA / M_SA
-if "map_to_aerial_pl" in reg:                                 # fitted to the surveyed property lines (tools/register_aerial.py)
-    _m, _t = cz(reg["map_to_aerial_pl"]["m"]), cz(reg["map_to_aerial_pl"]["t"])
-    M_AP, T_AP = 1 / _m, -_t / _m
+# Aerial placement as an SVG matrix (aerial px -> map). Prefer the affine fit to the surveyed property lines
+# (tools/register_aerial.py); otherwise the survey-based scale-and-rotate registration above.
+def aerial_matrix(scale=1.0):
+    """SVG transform for the aerial (scale=1) or for artwork drawn at 1/scale of its pixels (the trace: scale=2)."""
+    if "map_to_aerial_affine" in reg:
+        (a, c, e), (b, d, f) = reg["map_to_aerial_affine"]["aerial_to_map"]
+        return f"matrix({a * scale:.8f} {b * scale:.8f} {c * scale:.8f} {d * scale:.8f} {e:.4f} {f:.4f})"
+    return mat(M_AP * scale, T_AP)
 AERIAL = os.path.join(SRC, "Site Aerial from SCPA.jpg")
 AERIAL_SIZE = tuple(reg["survey_to_aerial"]["image_size"])

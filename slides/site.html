@@ -55,7 +55,7 @@
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
-      <p class="src" data-step="0">Aerial: Sarasota County Property Appraiser; tree canopy, drives and the slough are traced from it. Survey, soils, trees and fencing: Seibert Architects CAD sheets,
+      <p class="src" data-step="0">Aerial: Sarasota County Property Appraiser; tree canopy is traced from it. Survey, soils, trees and fencing: Seibert Architects CAD sheets,
         aligned by matching their geometry. Soil drainage classes follow NRCS series descriptions; confirm in Web Soil Survey.</p>
     </div>
   </div>
@@ -116,7 +116,7 @@
       show: ["ground", "property", "canopy", "water", "trees", "labels"], muted: true },
     { t: "The campus", p: "The Red House and the existing barns sit near the center of the site. The drive comes in from the west, at the bottom of the map.",
       lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`, frame: "campus",
-      show: ["ground", "property", "canopy", "drives", "water", "trees", "campus", "labels"], muted: true },
+      show: ["ground", "property", "canopy", "water", "trees", "campus", "labels"], muted: true },
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
@@ -128,7 +128,7 @@
     const f = s.frame || "full";
     if (f !== lastFrame) { viewer.home(frames[f]); viewer.flyTo(frames[f], lastFrame === null || document.documentElement.classList.contains("static") ? 0 : 1200); lastFrame = f; }
     svg.querySelectorAll("[data-layer]").forEach(g => {
-      if (!["aerial", "veil", "ground", "property", "canopy", "drives", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"].includes(g.id)) return;
+      if (!["aerial", "veil", "ground", "property", "canopy", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"].includes(g.id)) return;
       g.classList.toggle("off", !s.show.includes(g.id));
     });
     svg.querySelector("#aerial").classList.toggle("muted", !!s.muted);

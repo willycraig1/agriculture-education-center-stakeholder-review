@@ -47,24 +47,57 @@
   },
   "fence_ft_per_pt": 2.59,
   "fence_ft_per_pt_note": "Calibrated from the 14.4 AC and 4.9 AC paddock labels (2.586 and 2.592 ft/pt); about 1 in = 186 ft on the 36x24 sheet.",
-  "map_to_aerial_pl": {
-    "m": [
-      0.01850334078592324,
-      0.7722611459811052
+  "map_to_aerial_affine": {
+    "C": [
+      [
+        0.002169923473659288,
+        0.7797027281481475
+      ],
+      [
+        -0.7513686244444063,
+        0.00058421418355331
+      ],
+      [
+        1440.3500884281566,
+        -67.48195654338186
+      ]
     ],
-    "t": [
-      1437.775248639992,
-      -77.43390684410747
+    "aerial_to_map": [
+      [
+        0.0009972155616887214,
+        1.282537305587752,
+        85.11178719847845
+      ],
+      [
+        -1.330901775221164,
+        0.003703918043285973,
+        1917.2144372654316
+      ]
     ],
-    "median_residual_px": 1.9648090703975332,
-    "median_residual_ft": 6.587662015626383,
-    "before_median_residual_ft": 15.102229097462331,
-    "aerial_shift_ft": {
-      "campus": 36,
-      "north-west end": 29,
-      "south end": 50
+    "fit_lines": {
+      "west": [
+        "pl-02",
+        "pl-03"
+      ],
+      "east": "pl-01"
     },
-    "scale_change_pct": -0.5157551523197856,
-    "rotation_change_deg": -0.5276951052644934
+    "east_yellow_lines_found": 2,
+    "median_residual_ft_by_line": {
+      "pl-01": 1.4,
+      "pl-02": 5.6,
+      "pl-03": 2.0,
+      "pl-04": 29.3,
+      "pl-05": 4.5,
+      "pl-06": 109.2,
+      "pl-07": 28.1
+    },
+    "aerial_shift_ft_vs_first_registration": {
+      "campus": 28,
+      "north-west end": 1,
+      "south end": 44,
+      "east line, south end": 79
+    },
+    "stretch_ratio": 1.0377700511875962,
+    "ft_per_aerial_px": 3.383827685347219
   }
 }

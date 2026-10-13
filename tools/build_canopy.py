@@ -20,7 +20,7 @@ from shapely.ops import unary_union
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from siteframe import ROOT, OUT, VIEW, M_AP, T_AP, mat, FT_PER_PT, M_FP
+from siteframe import ROOT, OUT, VIEW, aerial_matrix, FT_PER_PT, M_FP
 
 TRACE = os.path.join(ROOT, "source", "site-edits", "aerial-trace-2026-10-13.svg")
 E = json.load(open(os.path.join(OUT, "data", "site-edits.json")))
@@ -34,7 +34,7 @@ css = dict(re.findall(r"\.(st\d+)\s*\{\s*fill:\s*(#[0-9a-fA-F]{6})", src))
 body = src[src.index("</defs>") + 7:src.rindex("</svg>")]
 body = re.sub(r'class="(st\d+)"', lambda m: f'fill="{css[m.group(1)]}"', body)
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x0} {y0} {x1 - x0} {y1 - y0}" width="{W}" height="{H}">'
-       f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" fill="#ffffff"/><g transform="{mat(M_AP * 2, T_AP)}">{body}</g></svg>')
+       f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" fill="#ffffff"/><g transform="{aerial_matrix(2)}">{body}</g></svg>')
 tmp = os.path.join(OUT, "data", "_trace_tmp.svg")
 open(tmp, "w").write(svg)
 pix = pymupdf.open(tmp)[0].get_pixmap(matrix=pymupdf.Matrix(1, 1), alpha=False)
