@@ -32,12 +32,12 @@ window.LEVELS = {
       { text: "Same as Level 1", confirmed: true } ] },
     { key: "swine", label: "Swine", cells: [
       { text: "Reuse hog enclosures; hog pens in the existing barn", confirmed: true },
-      { text: "Move to the new small animal & swine barn; existing barn becomes storage", confirmed: true },
+      { text: "Move to small animal barn A; existing barn becomes storage", confirmed: true },
       { text: "Same as Level 2", confirmed: true } ] },
     { key: "small_animal", label: "Small animals & poultry", cells: [
       { text: "Poultry in the small unfinished barns", confirmed: true },
-      { text: "New small animal & swine barn", confirmed: true },
-      { text: "Same as Level 2", confirmed: true } ] },
+      { text: "Small animal barn A, shared with the hogs", confirmed: true },
+      { text: "Add small animal barn B", confirmed: true } ] },
     { key: "arena", label: "Arena / demonstration", cells: [
       { text: "None (use the turnout yards)", confirmed: true },
       { text: "None", confirmed: true },

@@ -306,7 +306,7 @@ window.AG_AREA = {
    "y": 108,
    "w": 36,
    "h": 84,
-   "use": "small_animal",
+   "use": "swine",
    "level": 2,
    "kind": "building",
    "note": "",

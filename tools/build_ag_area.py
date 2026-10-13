@@ -132,7 +132,7 @@ add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", not
 # Level 2. Turnouts (architect's edit of 2026-10-12): each pair meets halfway across the 24' gap between the barn rows.
 y_split = yB + MOD + LANE / 2
 add("cattle-a", "Cattle barn A", x_cattle, yA, CATTLE_W, MOD, "cattle", 2, note="14 pens", pens=cattle_pens)
-add("small-a", "Small animal barn A", x_small, yA, SMALL_W, MOD, "small_animal", 2, pens=small_pens)
+add("small-a", "Small animal barn A", x_small, yA, SMALL_W, MOD, "swine", 2, pens=small_pens)   # hog color: the hogs move here from the existing barn
 add("feed-1", "Feed storage 1", x_mid + 5, y_drive - BOX_W - 4, BOX_L, BOX_W, "circulation", 2, kind="container", note="8' x 40' container", doors="w")
 add("turnout-cattle-a", "Turnout", x_col, y_split, MOD, y_pens - y_split, "arena", 2, kind="yard")
 add("turnout-small-a", "Turnout", x_small - TURNOUT_SMALL, y_split, TURNOUT_SMALL, yA + MOD - y_split, "arena", 2, kind="yard")
