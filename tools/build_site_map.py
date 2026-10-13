@@ -345,6 +345,15 @@ for d in sv.get("BUILDING", []):
                 _d.append(LineString([(a_.real, a_.imag), (b_.real, b_.imag)]).distance(_stalls))
 if _d:
     checks["stalls_to_red_house_ft"] = round(min(_d))
+def _to_diagram(g_):
+    mi = 1 / M_DP; ti = -T_DP / M_DP
+    return sp_shape(g_, mi, ti)
+wet_dg = {cls: _to_diagram(g_) for cls, g_ in soil_by_class.items()}
+import shapely
+json.dump({cls: shapely.geometry.mapping(g_.simplify(0.5)) for cls, g_ in wet_dg.items()},
+          open(os.path.join(OUT, "data", "soils-in-barnyard-frame.json"), "w"))
+_tz = [(complex(tp.x, tp.y) - T_DP) / M_DP for tp in tree_pts]
+json.dump([[round(z.real, 1), round(z.imag, 1)] for z in _tz], open(os.path.join(OUT, "data", "trees-in-barnyard-frame.json"), "w"))
 ext = unary_union(list(polys.values())).bounds
 checks["barnyard_box"] = [round(v, 1) for v in ext]
 

@@ -1,0 +1,121 @@
+[
+ {
+  "name": "As drawn",
+  "note": "For reference.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 9,
+   "small-a": 0,
+   "small-b": 62,
+   "arena": 18,
+   "feed-1": 0,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 17,
+   "turnout-small-a": 0,
+   "turnout-small-b": 82
+  },
+  "overlaps": [],
+  "trees_in_buildings": 0,
+  "small_b_to_small_a_ft": 24
+ },
+ {
+  "name": "A. Slide the north row 12' south",
+  "note": "Barn B, the arena, cattle barn B and their turnouts all move 12' south. The gap between barn rows drops from 24' to 12'.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 0,
+   "small-a": 0,
+   "small-b": 48,
+   "arena": 5,
+   "feed-1": 0,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 5,
+   "turnout-small-a": 0,
+   "turnout-small-b": 69
+  },
+  "overlaps": [],
+  "trees_in_buildings": 0,
+  "small_b_to_small_a_ft": 12
+ },
+ {
+  "name": "B. Swap barn B and the arena",
+  "note": "Barn B takes the middle strip; the arena moves to the west run. The arena, not a barn, ends up on the wet corner.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 9,
+   "small-a": 0,
+   "small-b": 18,
+   "arena": 62,
+   "feed-1": 0,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 17,
+   "turnout-small-a": 0,
+   "turnout-small-b": 83
+  },
+  "overlaps": [],
+  "trees_in_buildings": 0,
+  "small_b_to_small_a_ft": 39
+ },
+ {
+  "name": "C. Barn B beside barn A",
+  "note": "Both small animal barns in the south row, side by side, each with a turnout. The north-west corner is left as pasture.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 9,
+   "small-a": 0,
+   "small-b": 0,
+   "arena": 18,
+   "feed-1": 0,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 17,
+   "turnout-small-a": 0,
+   "turnout-small-b": 0
+  },
+  "overlaps": [],
+  "trees_in_buildings": 0,
+  "small_b_to_small_a_ft": 24
+ },
+ {
+  "name": "D. Barn B in the middle strip, south of the arena",
+  "note": "Barn B goes where the feed containers are; the containers move to the west run's north slot. Barn B has no turnout of its own.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 9,
+   "small-a": 0,
+   "small-b": 0,
+   "arena": 18,
+   "feed-1": 2,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 17,
+   "turnout-small-a": 0
+  },
+  "overlaps": [],
+  "trees_in_buildings": 0,
+  "small_b_to_small_a_ft": 31
+ },
+ {
+  "name": "E. C, plus slide the arena and cattle barn B 12' south",
+  "note": "Barn B beside barn A, and the two remaining north-row buildings pulled 12' south. Only a corner of the arena (5%) is left on wet soil.",
+  "wet_pct": {
+   "cattle-a": 0,
+   "cattle-b": 0,
+   "small-a": 0,
+   "small-b": 0,
+   "arena": 5,
+   "feed-1": 0,
+   "feed-2": 0,
+   "turnout-cattle-a": 0,
+   "turnout-cattle-b": 5,
+   "turnout-small-a": 0,
+   "turnout-small-b": 0
+  },
+  "overlaps": [],
+  "trees_in_buildings": 0,
+  "small_b_to_small_a_ft": 24
+ }
+]

@@ -111,12 +111,17 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   - South stall row is about 27' from the nearest Red House wall line; the loop's east leg cannot run straight south and has to bend around the house (as on the CAD plan). The diagram's bioswale-island stub south of the stalls is schematic.
   - The fencing plan's paddock lines around the campus follow the earlier U-shaped layout and need redrawing for this one.
 
+## Layout study: small animal barn B and the wet soil (2026-10-12, awaiting the architect's choice)
+- `tools/study_wet_soil.py` → `drawings/studies/wet-soil-options.svg/.png/.json`. In the barnyard frame the very poorly drained soil is a wedge coming in from the north-west corner (down to about y = 80' at x = -40') plus a band across the whole north edge (y < 0 to 12'). The south barn row is entirely clear.
+- Share of footprint on that soil (small barn B / arena / cattle barn B): as drawn 62 / 18 / 9; A slide north row 12' south 48 / 5 / 0; B swap barn B and arena 18 / 62 / 9; C barn B beside barn A (south row) 0 / 18 / 9; D barn B in the middle strip south of the arena 0 / 18 / 9; E = C plus arena and cattle barn B 12' south 0 / 5 / 0. No option puts surveyed trees inside a building.
+- The deck's barnyard is unchanged until the architect picks an option.
+
 ## Water quality
 - Reference given by the Owner's side: the 2025 Water Quality Playbook, Gulf Coast Community Foundation (https://waterqualityplaybook.org), a regional blueprint for reducing nutrient pollution, organised as Reduce / Remove / Sustain. Most relevant actions: 4.6 (education and resources for farmers and ranchers: rotational/adaptive grazing, manure management, silvopasture, composting, FDACS BMPs incl. the 2024 Small Farms manual, UF/IFAS outreach to small farms), 4.7 (composting, rebuilding soils), chapter 2 (septic), chapters 6–7 (stormwater, 7.4 demonstration projects), 8.1 (wetland and shoreline habitat). It does not cover livestock exclusion from water or riparian buffers directly.
 - Figures used (action 4.6, citing USDA 2022): 286 farms in Sarasota County, about half under 10 acres; cow/calf is 59% of farms; about 46% of registered, eligible farmland is in FDACS BMP programs; only about one-third of farms under 10 acres are enrolled.
 - Slide `slides/water-quality.html` (Act 5): site measures grouped under Reduce / Remove / Sustain, each tagged with the Playbook action it follows. The site measures come from the draft program criteria (§3.7, D.5, F.2, J.3–J.5) and the study plan (retention area, bioswale). Page 7.4 could not be fetched (server error); its title is cited only.
 
 ## Open questions
-- Barnyard: parking count (20 drawn vs 51 + 9 on the study plan); where the entry drive meets the barnyard; visitor route to the arena
+- Which wet-soil layout option to adopt (see layout study)
 - Campus plan by Level and barn interior plans for Act 5 (user collecting)
 - Paddock boundaries as closed polylines, so paddocks can be filled by Level and bonus fences hidden at Levels 1–2 (user working on it)
