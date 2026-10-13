@@ -270,8 +270,35 @@ if EDITS:
 else:
     _camp0 = (g_paths(sv.get("BUILDING", []), M_SP, T_SP, f'fill="{P["education"]["base"]}" stroke="{P["education"]["base"]}" stroke-width="{1/abs(M_SP):.3f}"')
               + g_paths(bldg_ds, M_FP, T_FP, f'fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" stroke-width="1.2"'))
-campus = (_camp0
-          + (f'<g id="roads" fill="none" stroke="{P["circulation"]["base"]}" stroke-width="1.4" data-w="1.4" stroke-linejoin="round" stroke-linecap="round">'
+# Open canopies (roof, no walls) come from the survey's overhang lines (BUILDING OH): the cattle pens' lean-to
+# along the existing barn's west wall with the small canopy at its north wall, and the carport at the Red House.
+# They are drawn as a tinted, dashed outline so they read differently from the enclosed buildings.
+_oh = [[(z.real, z.imag) for z in (M_SP * complex(it[1].x, it[1].y) + T_SP, M_SP * complex(it[2].x, it[2].y) + T_SP)]
+       for d in cadpdf.export(SURVEY, ["BUILDING OH"]).get("BUILDING OH", []) for it in d["items"] if it[0] == "l"]
+def _oh_pts(x0, y0, x1, y1):
+    return [q for sg in _oh for q in sg if x0 < q[0] < x1 and y0 < q[1] < y1]
+def _near(pts, x, y):
+    return min(pts, key=lambda q: (q[0] - x) ** 2 + (q[1] - y) ** 2)
+CANOPIES = []
+_pp = _oh_pts(1136, 296, 1168, 339)
+if len(_pp) >= 8:
+    # pens: the dashed overhang line runs down the west side; the barn's west wall closes the east side
+    CANOPIES.append({"id": "cattle-pens-canopy", "label": "Cattle pens", "pts": [_near(_pp, *q) for q in
+                     ((1150.8, 299.0), (1155.4, 300.4), (1153.9, 305.3), (1156.9, 306.2), (1147.8, 336.0), (1140.2, 333.7))]})
+    CANOPIES.append({"id": "barn-canopy", "label": "", "pts": [_near(_pp, *q) for q in ((1156.9, 306.2), (1158.5, 300.9), (1165.0, 302.8), (1163.4, 308.1))]})
+_cp = _oh_pts(1220, 376, 1243, 399)
+if len(_cp) >= 4:
+    CANOPIES.append({"id": "carport", "label": "Carport", "pts": list(_MP(_cp).minimum_rotated_rectangle.exterior.coords)[:-1]})
+_canopies = ('<g id="canopies" fill="{}" fill-opacity=".9" stroke="{}" stroke-width="1" data-w="1.6" stroke-dasharray="3 2" data-dash="5 3" stroke-linejoin="round">'.format(P["education"]["tint"], P["education"]["base"])
+             + "".join(f'<polygon id="{c_["id"]}" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in c_["pts"])}"/>' for c_ in CANOPIES) + "</g>")
+print("canopies:", [(c_["id"], round(Polygon(c_["pts"]).area * (FT_PER_PT / abs(M_FP)) ** 2)) for c_ in CANOPIES], "sf")
+_road_area = ""
+if os.path.exists(_fp) and FENCES.get("road_area"):
+    _rd = " ".join("M" + " L".join(f"{x},{y}" for x, y in ring) + "Z" for g_ in FENCES["road_area"] for ring in [g_["outer"]] + g_["holes"])
+    _road_area = (f'<path id="road-area" d="{_rd}" fill-rule="evenodd" fill="{P["circulation"]["tint"]}" stroke="{P["circulation"]["base"]}" '
+                  f'stroke-width="1" data-w="1.2" stroke-linejoin="round"/>')
+campus = (_road_area + _camp0 + _canopies
+          + ("" if _road_area else f'<g id="roads" fill="none" stroke="{P["circulation"]["base"]}" stroke-width="1.4" data-w="1.4" stroke-linejoin="round" stroke-linecap="round">'
              + "".join(f'<polyline points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES.get("roads", [])) + "</g>"
              if os.path.exists(_fp) and FENCES.get("roads") else
              g_paths(sv.get("EDGE OF PAVEMENT", []), M_SP, T_SP, f'fill="none" stroke="{P["circulation"]["base"]}" stroke-width="{1.4/abs(M_SP):.3f}"')))

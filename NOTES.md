@@ -187,3 +187,19 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - Arena (18%) and cattle barn B (9%) still touch the wettest soil; a 12' slide south would take them to 5% and 0%
 - Campus plan by Level and barn interior plans for Act 5 (user collecting)
 - Paddock boundaries as closed polylines, so paddocks can be filled by Level and bonus fences hidden at Levels 1–2 (user working on it)
+
+### Alignment round 5 (2026-10-13)
+- **Road as one shape.** `tools/build_fences.py` joins the three open road-edge runs across each mouth of the road
+  (north entry, south end, campus branch at the Red House) into a closed ring, with the two closed runs as islands;
+  written to `fences.json` as `road_area` (1.71 ac) and drawn filled on the campus layer (`#road-area`).
+- **Gate on the 4.8 ac paddock.** The plan jogs the last 7 ft of that fence over to the gate hinge; the stroke was too
+  short and too sharply turned to chain, so the gate straddled the fence end. Runs are now carried on to a gate hinge
+  that sits within 6 units of a run end but not on any run (1 case). Short fence stubs that carry a gate are also
+  kept (the west arm of the pinwheel in the 10.2 ac paddock).
+- **Open canopies.** From the survey's overhang lines (BUILDING OH): cattle pens lean-to along the existing barn's
+  west wall (about 21' x 96', 1,830 sf), a small canopy at the barn's north wall (14' x 18'), and the carport at the
+  Red House (29' x 38'). Drawn tinted with a dashed outline (`#canopies`), enclosed buildings stay solid. The
+  unfinished barn is still drawn solid although the survey shows it as an open frame.
+- **Slough, north end.** The property line turns a sharp corner onto the site's north line; that leg is 540 ft long, so
+  the earlier end trim (short hooks only) left it in. `_tidy_end` now cuts at any corner over 40 degrees within 320
+  units of an end, then extends 100 ft on the channel's heading.

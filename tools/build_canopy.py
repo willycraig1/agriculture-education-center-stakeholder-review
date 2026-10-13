@@ -146,10 +146,21 @@ if os.path.exists(_fp):
         slough_line = _parts[0] if len(_parts) == 1 else LineString([c for g in sorted(_parts[:2], key=lambda g: g.coords[0][0]) for c in g.coords])
 # Ends: where the property line turns away from the waterway at each end of the site, cut the line back to the
 # last straight stretch and carry the slough on about 100 ft along that heading (architect, 2026-10-13).
-def _tidy_end(coords, ext_ft=100.0, look=140.0, max_turn=14.0):
+def _tidy_end(coords, ext_ft=100.0, look=140.0, max_turn=14.0, corner_look=320.0):
     c = [np.array(q, float) for q in coords]
+    # a sharp corner near the end is the property line leaving the waterway (the north line of the site, however
+    # long that leg is): drop everything beyond the corner
+    run = 0.0; cut = False
+    for j in range(len(c) - 2, 0, -1):
+        run += np.linalg.norm(c[j + 1] - c[j])
+        if run > corner_look:
+            break
+        a_, b_ = c[j] - c[j - 1], c[j + 1] - c[j]
+        cosang = (a_ @ b_) / ((np.linalg.norm(a_) * np.linalg.norm(b_)) or 1)
+        if np.degrees(np.arccos(np.clip(cosang, -1, 1))) > 40:
+            c = c[:j + 1]; cut = True; break
     # walk in from the end: drop end vertices while the last leg turns sharply against the stretch before it
-    while len(c) > 3:
+    while len(c) > 3 and not cut:                      # no corner: trim a short hook at the very end, if any
         run = 0.0; k = len(c) - 1
         heading_end = c[-1] - c[-2]
         j = len(c) - 2
