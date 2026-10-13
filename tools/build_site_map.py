@@ -172,6 +172,15 @@ for k, codes in units.items():
 # ---------------------------------------------------------------- water
 sv = cadpdf.export(SURVEY, ["TOP OF BANK", "FEMA FLOOD ZONE", "TREE LINE", "BUILDING", "EDGE OF PAVEMENT"])
 slough = [d for d in sv.get("TOP OF BANK", []) if d["rect"].height > 150 or d["rect"].width > 150]
+# The top-of-bank line that runs along Cow Pen Slough itself is dropped (the slough is redrawn as a band). The
+# others are kept: they trace the historical slough bed across the site.
+_adp = os.path.join(OUT, "data", "aerial-derived.json")
+if os.path.exists(_adp):
+    _scl = LineString(json.load(open(_adp))["slough_centre"])
+    def _along_slough(d):
+        q = [pt(M_SP, T_SP, it[1].x, it[1].y) for it in d["items"] if it[0] in ("l", "c")]
+        return len(q) > 1 and float(np.median([_scl.distance(Point(*c)) for c in q])) * FT_PER_PT / abs(M_FP) < 100
+    slough = [d for d in slough if not _along_slough(d)]
 
 
 def g_paths(ds, m, t, attrs):
@@ -486,9 +495,16 @@ W, H = x1 - x0, y1 - y0
 font = "font-family=\"'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif\""
 if AD:
     # label the redrawn slough about a third of the way along it, turned to follow the channel
-    _sc = AD["slough_centre"]; _k = int(len(_sc) * 0.3)
-    _ang = math.degrees(math.atan2(_sc[_k + 2][1] - _sc[_k - 2][1], _sc[_k + 2][0] - _sc[_k - 2][0]))
-    slough_lbl = (f'<g transform="translate({_sc[_k][0]:.0f} {_sc[_k][1]:.0f}) rotate({_ang:.1f})"><text data-fixed="1" y="-14" text-anchor="middle" font-size="30" font-style="italic" font-weight="600" '
+    # label the redrawn slough at the middle of its longest straight reach (beside the site pasture), turned to
+    # follow the channel but never upside down, and set on the off-site bank where the paper is clear
+    _sc = AD["slough_centre"]
+    _k = max(range(len(_sc) - 1), key=lambda i: math.hypot(_sc[i + 1][0] - _sc[i][0], _sc[i + 1][1] - _sc[i][1]))
+    _lx, _ly = (_sc[_k][0] + _sc[_k + 1][0]) / 2, (_sc[_k][1] + _sc[_k + 1][1]) / 2
+    _ang = math.degrees(math.atan2(_sc[_k + 1][1] - _sc[_k][1], _sc[_k + 1][0] - _sc[_k][0]))
+    _ang = (_ang + 90) % 180 - 90
+    _nx, _ny = -math.sin(math.radians(_ang)), math.cos(math.radians(_ang))          # the label's "down"
+    _dy = 40 if not footprint.contains(Point(_lx + _nx * 30, _ly + _ny * 30)) else -18
+    slough_lbl = (f'<g transform="translate({_lx:.0f} {_ly:.0f}) rotate({_ang:.1f})"><text data-fixed="1" y="{_dy}" text-anchor="middle" font-size="30" font-style="italic" font-weight="600" '
                   f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="5" paint-order="stroke">Cowpen Slough</text></g>')
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
        f'viewBox="{x0} {y0} {W} {H}" {font}>'
