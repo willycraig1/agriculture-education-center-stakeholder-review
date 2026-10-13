@@ -92,7 +92,7 @@ a, b = sorted((i_n, i_s))
 chain1, chain2 = B[a:b + 1], B[b:] + B[:a + 1]
 west = chain1 if len(chain1) > len(chain2) else chain2                    # the many-vertex side follows the slough
 west_line = LineString(west)
-corridor = west_line.buffer(26)
+corridor = west_line.buffer(34)
 dark = np.isin(cls, greys[:2])
 m = dark & raster(corridor)
 m = ndimage.binary_closing(m, iterations=6)
@@ -105,7 +105,7 @@ if n:
 # it is, smooth both along the line, and draw the smoothed centreline at the typical width.
 step = 6.0
 n_s = int(west_line.length // step)
-offs = np.arange(-26, 26.5, 0.5)
+offs = np.arange(-34, 34.5, 0.5)
 cen, wid, pts_, nrm = [], [], [], []
 for k in range(n_s + 1):
     p0, p1 = west_line.interpolate(max(0, k * step - 3)), west_line.interpolate(min(west_line.length, k * step + 3))
@@ -130,6 +130,20 @@ cen = ndimage.uniform_filter1d(cen, size=13, mode="nearest")
 width = float(np.median(wid[good & (wid > 2)]))
 centre = [(px + c * nx, py + c * ny) for (px, py), (nx, ny), c in zip(pts_, nrm, cen)]
 slough_line = LineString(centre).simplify(0.8)
+slough_offset_ft = float(np.median(np.abs(cen[good]))) * unit_ft     # how far the traced water sits from the boundary line
+# The west property line is the centreline of the waterway (architect). When the surveyed property lines are
+# available, the slough is drawn centred on that line; the trace only supplies its width.
+_fp = os.path.join(OUT, "data", "fences.json")
+if os.path.exists(_fp):
+    from shapely.ops import linemerge
+    _pl = [LineString(r["map"]) for r in json.load(open(_fp)).get("property_lines", []) if len(r["map"]) > 8]   # the curved runs
+    if _pl:
+        _m = linemerge(_pl)
+        _parts = sorted(getattr(_m, "geoms", [_m]), key=lambda g: -g.length)
+        # the measured centreline tells us how far the traced water sits from the true centreline
+        _d = [slough_line.interpolate(k, normalized=True).distance(_parts[0]) for k in np.linspace(0.05, 0.95, 40)]
+        slough_offset_ft = float(np.median(_d)) * unit_ft
+        slough_line = _parts[0] if len(_parts) == 1 else LineString([c for g in sorted(_parts[:2], key=lambda g: g.coords[0][0]) for c in g.coords])
 slough = slough_line.buffer(width / 2, cap_style=2, join_style=1)
 slough_raw_width_ft = width * unit_ft
 
@@ -156,6 +170,6 @@ drives = polys(m, 40, 1.0).buffer(1.5).buffer(-1.5)
 
 acres = lambda g: round(g.area * unit_ft ** 2 / 43560, 1)
 out = {"source": os.path.relpath(TRACE, ROOT), "canopy": d_of(canopy), "drives": d_of(drives), "slough": d_of(slough),
-       "canopy_acres": acres(canopy), "site_acres": acres(site), "slough_centre": [[round(x, 1), round(y, 1)] for x, y in slough_line.coords], "slough_width_ft": round(slough_raw_width_ft)}
+       "canopy_acres": acres(canopy), "site_acres": acres(site), "slough_centre": [[round(x, 1), round(y, 1)] for x, y in slough_line.coords], "slough_width_ft": round(slough_raw_width_ft), "traced_water_offset_from_centreline_ft": round(slough_offset_ft)}
 json.dump(out, open(os.path.join(OUT, "data", "aerial-derived.json"), "w"))
-print("canopy", out["canopy_acres"], "ac of", out["site_acres"], "ac site |", "paths KB: canopy", len(out["canopy"]) // 1024, "drives", len(out["drives"]) // 1024, "slough", len(out["slough"]) // 1024, "| slough width ft", out["slough_width_ft"])
+print("canopy", out["canopy_acres"], "ac of", out["site_acres"], "ac site |", "paths KB: canopy", len(out["canopy"]) // 1024, "drives", len(out["drives"]) // 1024, "slough", len(out["slough"]) // 1024, "| slough width ft", out["slough_width_ft"], "| traced water off the property line by ft", out["traced_water_offset_from_centreline_ft"])

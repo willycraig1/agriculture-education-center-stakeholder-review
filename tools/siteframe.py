@@ -16,7 +16,10 @@ import cadpdf
 from trees import tree_marks
 
 SRC = os.path.join(ROOT, "source")
-FENCE = os.path.join(SRC, "Clark Farm Proposed Fencing Plan.pdf")
+# Revised fencing plan of 2026-10-13: same sheet frame as the first one, with the surveyed property lines added
+# (layer SECTION LINE) and the 7.7 and 2.5 ac bonus paddocks merged into one of 10.2 ac.
+FENCE = os.path.join(SRC, "Revised fencing plan with PL.pdf")
+FENCE_V1 = os.path.join(SRC, "Clark Farm Proposed Fencing Plan.pdf")
 STUDY = os.path.join(SRC, "Clark Farm Study Plan-A0.1 (3)1.pdf")
 SURVEY = os.path.join(SRC, "Survey + Soils Map Info.pdf")
 XLSX = os.path.join(SRC, "Clark_Farm_Pasture_Calculations.xlsx")
@@ -124,6 +127,7 @@ for row in wb["Paddock Detail"].iter_rows(min_row=5, max_row=20, values_only=Tru
     else:
         cls = "open"
     canopy[round(float(ac), 1)] = (area, cls)
+canopy.setdefault(10.2, ("Bonus Pasture", "75% dense woods"))      # 7.7 ac dense woods + 2.5 ac open, merged on the revised plan
 
 labels = []
 page = pymupdf.open(FENCE)[0]
@@ -142,5 +146,8 @@ M_TP, T_TP = M_FP * M_TF, M_FP * T_TF + T_FP                  # study plan -> pr
 M_SA, T_SA = cz(reg["survey_to_aerial"]["m"]), cz(reg["survey_to_aerial"]["t"])
 M_AP = M_SP / M_SA                                            # aerial px -> presentation
 T_AP = T_SP - M_SP * T_SA / M_SA
+if "map_to_aerial_pl" in reg:                                 # fitted to the surveyed property lines (tools/register_aerial.py)
+    _m, _t = cz(reg["map_to_aerial_pl"]["m"]), cz(reg["map_to_aerial_pl"]["t"])
+    M_AP, T_AP = 1 / _m, -_t / _m
 AERIAL = os.path.join(SRC, "Site Aerial from SCPA.jpg")
 AERIAL_SIZE = tuple(reg["survey_to_aerial"]["image_size"])

@@ -23,6 +23,8 @@ python3 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt
 .venv/bin/python tools/build_capacity_data.py # slides/data/pasture-capacity.js from the pasture worksheet
 .venv/bin/python tools/import_site_edits.py   # architect's boundary, ponds, structures -> drawings/data/site-edits.json
 .venv/bin/python tools/build_ag_area.py       # barnyard diagram (run before the site map)
+.venv/bin/python tools/build_fences.py        # fences and property lines as polylines -> drawings/data/fences.json
+.venv/bin/python tools/register_aerial.py     # fit the aerial to the property lines
 .venv/bin/python tools/build_canopy.py        # canopy, drives, slough from the aerial trace -> drawings/data/aerial-derived.json
 .venv/bin/python tools/build_site_map.py      # drawings/site-layers.svg + slides/data/site-map.js
 .venv/bin/python tools/build_red_house.py     # drawings/red-house-levels.svg + slides/data/red-house.js

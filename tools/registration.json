@@ -46,5 +46,25 @@
     ]
   },
   "fence_ft_per_pt": 2.59,
-  "fence_ft_per_pt_note": "Calibrated from the 14.4 AC and 4.9 AC paddock labels (2.586 and 2.592 ft/pt); about 1 in = 186 ft on the 36x24 sheet."
+  "fence_ft_per_pt_note": "Calibrated from the 14.4 AC and 4.9 AC paddock labels (2.586 and 2.592 ft/pt); about 1 in = 186 ft on the 36x24 sheet.",
+  "map_to_aerial_pl": {
+    "m": [
+      0.01850334078592324,
+      0.7722611459811052
+    ],
+    "t": [
+      1437.775248639992,
+      -77.43390684410747
+    ],
+    "median_residual_px": 1.9648090703975332,
+    "median_residual_ft": 6.587662015626383,
+    "before_median_residual_ft": 15.102229097462331,
+    "aerial_shift_ft": {
+      "campus": 36,
+      "north-west end": 29,
+      "south end": 50
+    },
+    "scale_change_pct": -0.5157551523197856,
+    "rotation_change_deg": -0.5276951052644934
+  }
 }
