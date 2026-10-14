@@ -380,3 +380,16 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   of the stage; it is now compact enough to fit.
 - Residence keeps the education colour (architect).
 - **Barnyard slide opening view** tightened (architect): from the west side of the cattle handling yard to the dimension strings on the north and east, and down to the parking loop's in/out notes. Holding pens, Red House, horticulture and residence are reached by panning. The plan panel is wider than this frame, so a strip of the holding pens still shows at the left edge.
+
+### Parking lot south loop, from the architect's CAD sketch (2026-10-13)
+- The architect's earlier CAD sketch of the lot (screenshot, 2026-10-12; not saved to the repo, coordinates read
+  off it into `build_ag_area.py`) is placed on the diagram by the Red House carport drawn on it: its four corners
+  are matched to the survey's carport (BUILDING OH, 29' x 38'). Fit within 0.4 ft, 4.36 px/ft, turned 0.6 degrees;
+  the sketch's Red House steps land on the Red House. So the south loop is positioned off the Red House, and it
+  lines up with the horticulture strip (from the study plan) without adjustment.
+- Taken from the sketch: the west leg carries on south and turns south-east along a row of nine angled stalls
+  backing onto the horticulture strip, ending at the carport; the drive on the east side runs down toward the Red
+  House; the bioswale island gets the sketch's rounded south end. Kept from the current layout: the north part of
+  the lot (rows, legs, 36 stalls). The island is cut to the space between the two legs, south of the south row.
+  Lot now 45 stalls. Drawn on the barnyard slide, the static diagram SVG and the site plans
+  (`stalls_extra`, `island_poly`). First pass, for the architect's markup.

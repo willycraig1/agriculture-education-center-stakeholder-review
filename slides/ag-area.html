@@ -77,9 +77,12 @@
     const [w, d] = e.stall; let st = "";
     e.rows.forEach(([x, y, n, v]) => { for (let k = 0; k < n; k++)
       st += v ? `<rect x="${x}" y="${y + k * w}" width="${d}" height="${w}"/>` : `<rect x="${x + k * w}" y="${y}" width="${w}" height="${d}"/>`; });
-    const is = e.island;
+    (e.stalls_extra || []).forEach(q => { st += `<polygon points="${q.map(p => p.join(",")).join(" ")}"/>`; });   // angled stalls of the south loop
+    const is = e.island, ip = e.island_poly, la = is && is.label_at;
     return `<g class="pens" fill="#fff" fill-opacity=".55" stroke="var(--circulation)" stroke-width=".5">${st}</g>` +
-      (is ? `<rect class="pens" x="${is.x}" y="${is.y}" width="${is.w}" height="${is.h}" rx="3" fill="var(--water-tint)" stroke="var(--water)" stroke-width=".5"/>
+      (ip ? `<polygon class="pens" points="${ip.map(p => p.join(",")).join(" ")}" fill="var(--water-tint)" stroke="var(--water)" stroke-width=".5"/>
+        <text class="note" x="${la[0]}" y="${la[1] + 1.5}" text-anchor="middle" font-size="4.4">${is.label}</text>`
+      : is ? `<rect class="pens" x="${is.x}" y="${is.y}" width="${is.w}" height="${is.h}" rx="3" fill="var(--water-tint)" stroke="var(--water)" stroke-width=".5"/>
         <text class="note" x="${is.x + is.w / 2}" y="${is.y + is.h / 2 + 1.5}" text-anchor="middle" font-size="4.4">${is.label}</text>` : "");
   }
   function zones(e) {
