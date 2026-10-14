@@ -512,3 +512,4 @@ use); 24' clear between all buildings; small animal barn A at Level 2, B at Leve
   freed, the pens follow the sketch again: 5 and 3 along the top, 4 and 2 below, pen 1 east of the yard, two columns
   either side of an 8' alley in line with the yard's east side. The Bud Box slide itself still draws the 72' x 84'
   yard (its note says Option B is sized down).
+- **Cache-busting:** `tools/stamp.py` adds ?v=<time> to every slide's data/design links. Browsers had been showing an old ag-area.js on the barnyard slide after a rebuild. Run it after the build tools, before committing. Run order: build_fences, build_canopy, build_south_roads, build_slough_bed, build_civil, build_ag_area, build_site_map, build_retention_markup, build_site_map, build_capacity_data, stamp.
