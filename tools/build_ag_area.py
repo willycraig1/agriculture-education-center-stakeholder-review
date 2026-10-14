@@ -342,7 +342,12 @@ for _c in C:
 NOTES_ = []                                       # the old "in / out" notes no longer apply
 _P = by_id["parking"]
 _P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-1]
-_P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _island.exterior.coords][:-1]
+# The island is cut out of the lot's paving (its edge is the curb), and the swale itself is drawn inside it, set
+# back 5' from the curb (architect, 2026-10-14: 4' to 6').
+SWALE_SETBACK = 5
+_P["holes"] = [[[round(x, 1), round(y, 1)] for x, y in _island.exterior.coords][:-1]]
+_swale = _island.buffer(-SWALE_SETBACK, join_style=1).simplify(0.3)
+_P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _swale.exterior.coords][:-1]
 _P["island"]["label_at"] = [round(_island.centroid.x, 1), round(_island.centroid.y, 1)]
 _P["stalls_extra"] = [[list(q) for q in st] for st in SOUTH_STALLS]
 n_stalls += len(SOUTH_STALLS)
@@ -462,7 +467,9 @@ for lv in (1, 2, 3):
         c = P[use]
         dash = ' stroke-dasharray="3 2"' if e["kind"] == "yard" else ""
         fill = c["tint"] if e["kind"] != "yard" else "none"
-        if e.get("outline"):
+        if e.get("holes"):
+            shape = '<path fill-rule="evenodd" d="' + " ".join("M" + " L".join(f"{px},{py}" for px, py in ring) + "Z" for ring in [e["outline"]] + e["holes"]) + f'" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
+        elif e.get("outline"):
             shape = '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + f'" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
         else:
             shape = f'<rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'

@@ -556,6 +556,8 @@ for e in AG["elements"]:
         inner = inner[:-4] + "".join(f'<polygon points="{" ".join(f"{px},{py}" for px, py in q)}"/>' for q in e.get("stalls_extra", [])) + "</g>"
         isl = e.get("island")
         if e.get("island_poly"):
+            # the island is planted ground: it hides the existing drive surveyed under it, then the swale sits inside
+            inner += "".join('<polygon points="' + " ".join(f"{px},{py}" for px, py in h_) + '" fill="#F2F5EA" stroke="none"/>' for h_ in e.get("holes", []))
             inner += '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["island_poly"]) + f'" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
         elif isl:
             inner += f'<rect x="{isl["x"]}" y="{isl["y"]}" width="{isl["w"]}" height="{isl["h"]}" rx="3" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
@@ -564,13 +566,23 @@ for e in AG["elements"]:
             inner += '<polygon points="' + " ".join(f'{e["x"] + px},{e["y"] + py}' for px, py in z["poly"]) + f'" fill="{P["arena"]["tint"]}" stroke="{P["cattle"]["base"]}" stroke-width=".5"/>'
         else:
             inner += f'<rect x="{e["x"] + z["x"]}" y="{e["y"] + z["y"]}" width="{z["w"]}" height="{z["h"]}" fill="{P["cattle"]["tint"] if z.get("fill") else "none"}" stroke="{P["cattle"]["base"]}" stroke-width=".5"/>'
-    shape = ('<polygon class="shape" points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + '"' if e.get("outline")
+    shape = ('<path class="shape" fill-rule="evenodd" d="' + " ".join("M" + " L".join(f"{px},{py}" for px, py in r_) + "Z" for r_ in [e["outline"]] + e["holes"]) + '"' if e.get("holes")
+             else '<polygon class="shape" points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + '"' if e.get("outline")
              else f'<rect class="shape" x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}"')
     yard = e["kind"] == "yard"
     shape += (f' fill="{"none" if yard else P[use3]["tint"]}" stroke="{P[use3]["base"]}" stroke-width="1.6"' + (' stroke-dasharray="4 3"' if yard else "") + "/>")
     by.append(f'<g class="by" data-id="{e["id"]}" data-level="{e["level"]}" data-kind="{e["kind"]}" data-use="{e["use"]}" '
               f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
 barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
+# Surveyed trees inside the parking lot's swale island are drawn again above the barnyard, so the swale sits behind
+# them (the lot's paving is cut out around the island, so nothing else covers them there).
+_isl_d = [e_ for e_ in AG["elements"] if e_.get("holes")]
+if _isl_d:
+    _isl_m = unary_union([Polygon([pt(M_DP, T_DP, x, y) for x, y in h_]) for e_ in _isl_d for h_ in e_["holes"]])
+    _isl_trees = [(px, py, s_) for _src, x, y, s_ in trees for px, py in [pt(M_FP, T_FP, x, y)] if _isl_m.contains(Point(px, py))]
+    barnyard += (f'<g id="swale-trees" fill="{P["woodland"]["base"]}" fill-opacity="0.7">'
+                 + "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s_ > 20 else 3.8}"/>' for px, py, s_ in _isl_trees) + "</g>")
+    print("trees in the swale island, drawn over it:", len(_isl_trees))
 BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Extension",
              "arena": "Arena", "parking": "Parking", "handling": "Handling", "horticulture": "Horticulture", "residence": "RV / residence", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""

@@ -117,7 +117,8 @@
       ? `<text transform="translate(${e.x + 5} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
       : lines.map((l, i) => `<text x="${cx}" y="${cy + i * fs * 1.2}" text-anchor="middle" font-size="${fs}" dy="${e.kind === "container" ? 1.5 : 2}">${l.replace("&", "&amp;")}</text>`).join("") +
         (e.kind === "container" ? "" : `<text class="note" x="${cx}" y="${cy + lines.length * fs * 1.2}" text-anchor="middle" font-size="${fs * 0.72}" dy="2"></text>`);
-    const shape = e.outline ? `<polygon class="shape" points="${e.outline.map(p => p.join(",")).join(" ")}" stroke-width="1"/>`
+    const shape = e.holes ? `<path class="shape" fill-rule="evenodd" d="${[e.outline, ...e.holes].map(r => "M" + r.map(p => p.join(",")).join(" L") + "Z").join(" ")}" stroke-width="1"/>`
+      : e.outline ? `<polygon class="shape" points="${e.outline.map(p => p.join(",")).join(" ")}" stroke-width="1"/>`
       : `<rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="${e.kind === "container" ? 0.8 : 1.2}"/>`;
     shapes.push(`<g class="el" data-id="${e.id}">${shape}
       ${e.kind === "parking" ? parking(e) : e.kind === "container" ? container(e) : e.zones ? zones(e) : pens(e)}
