@@ -318,3 +318,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   Level 1 and stays there at every Level. Levels matrix split into a Poultry row (unfinished barn, same at all
   Levels) and a Small animals row (Level 1 "None yet", marked to confirm; barn A at Level 2; extension at Level 3).
   Map label on the unfinished barn reads "Poultry".
+- **Levels matrix:** swine and small animals merged into one row, "Swine & small animals", in the swine pink (same kinds of pens and barns); the separate Small animals row and its "None yet" cell are gone. Poultry keeps its own row. 7 / 15 / 28 CE accepted by the architect: the land dictates the number.
