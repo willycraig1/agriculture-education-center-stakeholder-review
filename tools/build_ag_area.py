@@ -313,6 +313,22 @@ SOUTH_STALLS = [[_lerp(*_stall_front, i / 9), _lerp(*_stall_front, (i + 1) / 9),
 _south = _Poly([(_lx0, _row_back), (_lx1, _row_back), _sk(1136, 787), _sk(975, 1062), _sk(1056, 1118), _sk(963, 1257), _sk(862, 1183),
                 _sk(815, 1255), _sk(483, 1035), (_lx0, _sk(520, 955)[1])]).buffer(0)
 _lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south]).buffer(0.01).buffer(-0.01).simplify(0.3)
+# The entry drive, from the same sketch: about 12' between edges, meeting the west leg with 10' curb returns. It
+# lies on the existing surveyed drive (the survey's edges cross the diagram at y = 391 and 402); it is carried on
+# west to the line of the handling yard's west side, where the drive continues off the diagram toward the lane.
+import math as _math
+def _ret(cx, cy, r, a0, a1, n=6):
+    return [_sk(cx + r * _math.cos(_math.radians(a0 + (a1 - a0) * i / n)), cy + r * _math.sin(_math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
+_w_end = _hd["x"]                                                          # west end of the drive on the diagram
+_top_l, _bot_l = _sk(270, 745), _sk(270, 800)
+_ENTRY = [(_w_end, _top_l[1] + (_top_l[1] - _sk(475, 752)[1]) * (_w_end - _top_l[0]) / (_top_l[0] - _sk(475, 752)[0]))] + [_top_l, _sk(475, 752)] + \
+         _ret(475, 708, 45, 90, 0) + [_sk(520, 700), _sk(530, 700), _sk(530, 860), _sk(520, 860)] + _ret(475, 850, 45, 0, -90) + \
+         [_sk(478, 806), _bot_l, (_w_end, _bot_l[1] + (_bot_l[1] - _sk(478, 806)[1]) * (_w_end - _bot_l[0]) / (_bot_l[0] - _sk(478, 806)[0]))]
+# the sketch's west leg sits about 5' west of this lot's: move the drive east with it so its returns meet the leg
+_shift = _lx0 - _sk(520, 700)[0]
+_entry = _Poly([(x + _shift if x > _w_end else x, y) for x, y in _ENTRY]).buffer(0)
+_lot = _union([_lot, _entry]).buffer(0.01).buffer(-0.01).simplify(0.3)
+print("entry drive: width ft", round(abs(_sk(270, 800)[1] - _sk(270, 745)[1]), 1), "| west end x", _w_end)
 _P = by_id["parking"]
 _P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-1]
 _P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _island.exterior.coords][:-1]

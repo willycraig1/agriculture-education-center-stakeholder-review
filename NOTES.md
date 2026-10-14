@@ -393,3 +393,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   the lot (rows, legs, 36 stalls). The island is cut to the space between the two legs, south of the south row.
   Lot now 45 stalls. Drawn on the barnyard slide, the static diagram SVG and the site plans
   (`stalls_extra`, `island_poly`). First pass, for the architect's markup.
+- **Entry drive** (next step from the same sketch): about 12.6' between edges, meeting the lot's west leg with 10' curb returns, drawn as part of the lot's pavement. It lies on the existing surveyed entry drive (the survey's edges cross the diagram at y = 391 and 402) and is carried west to the line of the handling yard's west side, where the drive continues toward the lane. Moved 5' east with the lot's west leg, which sits 5' east of the sketch's.
