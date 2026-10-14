@@ -18,7 +18,7 @@
   .map #historic-slough { transition: fill-opacity .8s var(--ease); }
   .map.strong #historic-slough { fill-opacity: .6; }
   .map #campus { opacity: .7; }
-  .map.plan #compensation { display: inline; }   /* discussion item, shown on the plan step only */
+  .map.plan #compensation, .map.plan #retention-label { display: inline; }   /* discussion item, shown on the plan step only */
   .map:not(.plan) .pond.proposed { display: none; }   /* proposed pond only on the plan step */
   .steps { position: absolute; left: 22px; bottom: 22px; width: 470px; list-style: none; margin: 0; padding: 10px; display: flex; flex-direction: column; gap: 4px;
            background: rgba(250,247,240,.94); border-radius: 14px; border: 1.5px solid var(--line); }
@@ -92,7 +92,7 @@
     { t: "Wet ground", p: "The wettest soils sit beside the old bed and across the east pastures. Grazing there is timed to ground conditions.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
       show: ["ground", "property", "soils", "water", "labels"], frame: "bed" },
-    { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The retention pond sits beside the campus, where runoff from the parking, drives and roofs collects. For discussion: a compensation area of about ${M.compensation_acres} acres on the open ground east of the head pond.`,
+    { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The retention pond, about ${M.retention_acres} acres, sits beside the campus, where runoff from the parking, drives and roofs collects. For discussion: a compensation area of about ${M.compensation_acres} acres on the open ground east of the head pond. Together, about ${(M.retention_acres + M.compensation_acres).toFixed(1)} acres, intended to compensate for the new campus elements.`,
       lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Proposed retention pond</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Compensation area, for discussion</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
   ];
