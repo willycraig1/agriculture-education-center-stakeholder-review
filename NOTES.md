@@ -423,3 +423,26 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   behind the bank, then square to the barnyard grid west of the existing barn and its pens, and along the north
   edge of the cross drive to the south-east corner of cattle barn A. It crosses no drive except the cross drive
   at the barn. A small surveyed outbuilding (about 10' x 9') sits just beside the walk behind the bank.
+
+### Civil's stormwater comments (email from John Monville, 2026-10-14; report with numbers due Friday)
+- **No phasing of site work.** Permitting, stormwater and floodplain compensation are done for the whole plan up
+  front (at Level 1); only the interior development is phased. Doing compensation phase by phase would disrupt the
+  pastures. Added: a Levels matrix row ("Site work: stormwater, floodplain compensation": all at Level 1), a
+  sentence on the three-levels slide, the water quality slide's civil line, and a new water-site step.
+- **Retention:** the retention shown is undersized and is to be expanded, preferably as civil sketched (cyan, along
+  the barnyard's north and west edges) to save cost and underground piping.
+- **Floodplain:** the whole site is in the floodplain; nearly all fill needs compensation. The spoil could cover
+  the adjacent County landfill (which the property was likely bought for). Option 1 lowers an area uniformly by
+  stripping topsoil and reseeding/resodding (drainage unchanged); Option 2 clears/grubs and lowers a larger area,
+  costlier and may need connectivity, but the biggest grazing gain (low forage value today). Both spread wide and
+  shallow to stay as dry as possible.
+- **Finished floor 21.70'** for covered livestock buildings, slightly above the County model's 100-year level;
+  little freeboard; civil leaves the cost/benefit of going higher to the team. Added as a fact on the water-site
+  slide and as a question for the tables (water-site and closing slide).
+- **Sketches placed** by `tools/build_civil.py` (sources in `source/civil/`): retention expansion 0.6 ac (two
+  parts), Option 1 4.4 ac (paddock north-west of the campus), Option 2 13.0 ac (the north pasture). Drawn on the
+  new water-site step "Floodplain compensation, all at Level 1"; they replace the discussion-only compensation area.
+  **Conflict:** civil drew the retention against the study plan's older barnyard, so as placed it overlaps cattle
+  barn B (~1,800 sf), its turnout (~3,200 sf), holding pens 1-3 (~6,900 sf) and the arena edge; Option 1 overlaps
+  cattle turnout B (~2,600 sf). To resolve with civil.
+- Parking sketch saved as `source/site-edits/parking-sketch-2026-10-12.png`.
