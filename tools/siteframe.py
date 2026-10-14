@@ -175,3 +175,36 @@ def aerial_matrix(scale=1.0):
     return mat(M_AP * scale, T_AP)
 AERIAL = os.path.join(SRC, "Site Aerial from SCPA.jpg")
 AERIAL_SIZE = tuple(reg["survey_to_aerial"]["image_size"])
+
+
+# ---------------------------------------------------------------- site boundary
+def snapped_boundary(boundary, tol=30.0):
+    """The architect's hand-drawn site boundary with its west side replaced by the property line.
+
+    The west property line is the centreline of Cow Pen Slough and is the source of truth (fences.json,
+    chained from the fencing plan's SECTION LINE layer). The hand-drawn boundary follows it loosely, up to about
+    65 ft off in the south. The run of boundary vertices lying within tol sheet units of the property line is
+    swapped for the property line itself between the same two ends; the rest of the boundary is untouched.
+    """
+    from shapely.geometry import LineString, Point
+    from shapely.ops import linemerge, substring
+    fp = os.path.join(OUT, "data", "fences.json")
+    if not os.path.exists(fp):
+        return boundary
+    pl = [LineString(r["map"]) for r in json.load(open(fp)).get("property_lines", []) if len(r["map"]) > 8]
+    if not pl:
+        return boundary
+    W = linemerge(pl)
+    if W.geom_type != "LineString":
+        W = max(W.geoms, key=lambda g: g.length)
+    B = [tuple(p) for p in boundary]
+    if B[0] == B[-1]:
+        B = B[:-1]
+    near = [W.distance(Point(p)) < tol for p in B]
+    if not any(near) or all(near):
+        return boundary
+    k0 = next(i for i in range(len(B)) if near[i] and not near[i - 1])           # first vertex of the west run
+    B = B[k0:] + B[:k0]; near = near[k0:] + near[:k0]
+    n = next((i for i, v in enumerate(near) if not v), len(B))                     # the run is B[0:n]
+    seg = substring(W, W.project(Point(B[0])), W.project(Point(B[n - 1])))
+    return [list(c) for c in seg.coords] + [list(p) for p in B[n:]]

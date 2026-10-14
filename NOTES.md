@@ -252,3 +252,10 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Bed against the plan.** `SITE_MAP.slough_bed`: 3.38 ac; the only proposed barnyard element the surveyed bed
   crosses is a turnout (about 2,320 sf). It also passes under the existing entry drive.
 - **Act 1 site slide:** the historical slough bed stays on the Water step but downplayed (16% fill, no map label, legend entry only, no sentence in the step text). Water-site step 1 now says the waterway was "channelized".
+- **Ditch floor.** `build_slough_bed.py` now also writes the toe-of-slope lines and the floor between each pair
+  (0.43 ac, about 7 ft wide). The map draws the floor darker than the banks with the toe lines fine on top
+  (`#historic-slough-floor`); hidden on the Act 1 site slide, where the bed stays downplayed.
+- **Site boundary, west side.** `siteframe.snapped_boundary()` swaps the run of hand-drawn boundary vertices that
+  follow the west property line (they were up to about 65 ft off in the south) for the property line itself, the
+  centreline of Cow Pen Slough. Used by `build_site_map.py` and `build_canopy.py`. The source edits file is not
+  changed. Site area 158.5 → 154.9 ac; canopy 60.8 ac of it.

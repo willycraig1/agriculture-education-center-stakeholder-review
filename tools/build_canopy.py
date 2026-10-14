@@ -20,7 +20,7 @@ from shapely.ops import unary_union
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from siteframe import ROOT, OUT, VIEW, aerial_matrix, FT_PER_PT, M_FP
+from siteframe import ROOT, OUT, VIEW, aerial_matrix, FT_PER_PT, M_FP, snapped_boundary
 
 TRACE = os.path.join(ROOT, "source", "site-edits", "aerial-trace-2026-10-13.svg")
 E = json.load(open(os.path.join(OUT, "data", "site-edits.json")))
@@ -78,7 +78,7 @@ def d_of(g):
             d += "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in ring.coords) + "Z"
     return d
 
-site = Polygon(E["boundary"]).buffer(0)
+site = Polygon(snapped_boundary(E["boundary"])).buffer(0)       # west side on the property line
 site_m = raster(site)
 ponds = unary_union([Polygon(p["pts"]).buffer(3) for p in E["ponds"] if len(p["pts"]) >= 3])
 structs = unary_union([Polygon(s["pts"]).buffer(4) for s in E["structures"] if len(s["pts"]) >= 3])

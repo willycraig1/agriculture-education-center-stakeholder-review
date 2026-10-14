@@ -53,11 +53,26 @@ closed = unary_union([g.buffer(r) for g in banks + toe + water]).buffer(-r)
 along_toe = unary_union(toe).buffer(typical, cap_style=2)
 bed = unary_union([closed, along_toe] + [Polygon(g.coords) for g in water if len(g.coords) >= 4]).buffer(0.8).buffer(-0.8).simplify(0.35)
 parts = [g for g in getattr(bed, "geoms", [bed]) if g.area * unit_ft ** 2 > 400]
-out = {"source": "survey: TOP OF BANK, TOE OF SLOPE, EDGE OF WATER", "acres": round(sum(g.area for g in parts) * unit_ft ** 2 / 43560, 2),
+# The bottom of the ditch: the toe-of-slope lines run in pairs, one at the foot of each bank. The floor between
+# them is filled the same way (thicken until the pair meets, shrink back) and drawn darker than the banks.
+_gap = []
+for g in toe:
+    others = unary_union([o for o in toe if o is not g])
+    _gap += [others.distance(g.interpolate(k, normalized=True)) for k in np.linspace(0.1, 0.9, 9)]
+r_toe = float(np.percentile([v for v in _gap if v < typical * 2], 90)) * 0.6
+floor = unary_union([g.buffer(r_toe) for g in toe]).buffer(-r_toe).intersection(bed).buffer(0)
+floor_parts = [g for g in getattr(floor, "geoms", [floor]) if g.geom_type == "Polygon" and g.area * unit_ft ** 2 > 150]
+out = {"toe_lines": [[[round(x, 1), round(y, 1)] for x, y in g.simplify(0.25).coords] for g in toe],
+       "floor": [{"outer": [[round(x, 1), round(y, 1)] for x, y in g.exterior.coords],
+                  "holes": [[[round(x, 1), round(y, 1)] for x, y in h.coords] for h in g.interiors]} for g in floor_parts],
+       "floor_acres": round(sum(g.area for g in floor_parts) * unit_ft ** 2 / 43560, 2),
+       "floor_width_ft": round(float(np.median([v for v in _gap if v < typical * 2])) * unit_ft),
+       "source": "survey: TOP OF BANK, TOE OF SLOPE, EDGE OF WATER", "acres": round(sum(g.area for g in parts) * unit_ft ** 2 / 43560, 2),
        "typical_bank_to_toe_ft": round(typical * unit_ft), "bank_pieces_used": len(banks), "bank_pieces_total": len(tob),
        "parts": [{"outer": [[round(x, 1), round(y, 1)] for x, y in g.exterior.coords],
                   "holes": [[[round(x, 1), round(y, 1)] for x, y in h.coords] for h in g.interiors]} for g in parts]}
 json.dump(out, open(os.path.join(OUT, "data", "slough-bed.json"), "w"))
+print("ditch floor: parts", len(floor_parts), "| acres", out["floor_acres"], "| typical width ft", out["floor_width_ft"])
 print("bank pieces used", len(banks), "of", len(tob), "| toe lines", len(toe), "| water edges", len(water),
       "| bank to toe ft: typical", out["typical_bank_to_toe_ft"], "thicken", round(r * unit_ft), "| parts", len(parts), "| acres", out["acres"],
       "| widths ft:", [round(2 * g.area / g.length * unit_ft) for g in parts])
