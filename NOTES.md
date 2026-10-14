@@ -415,3 +415,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **One-way drive past the Red House (architect, 2026-10-14):** 13' wide (`DIAG_W`), 5' off the Red House (`RH_SETBACK`) to leave room for an accessible sidewalk; the only one-way stretch of the loop. The aisle stub into the carport (the T-turn south of the Red House) is removed; the stall row now ends at the one-way drive. Loop arrows: west along the north aisle, south down the west leg, south-east along the stalls, north up the one-way drive and the east leg. The island grows into the space freed; the two surveyed trees fall inside it again.
 - **Swale island south corner:** the inside corner of the turn from the stall aisle up the one-way drive has a 20' radius (other corners keep 4').\n- **Parking bank (architect):** five 90-degree stalls off the east side of the east leg, between the existing barn and the Red House, centred in the gap (`BANK`). Lot total 50. The site map's parking renderer now draws stall columns (rows flagged "v") correctly.
 - **Swale clear of trees (architect):** the swale is cut back from the three surveyed trees in or beside the island, by each tree's drawn canopy plus 3'; about 4,070 sf of swale remains.
+- **Parking bank re-angled (architect):** the five stalls are now on the Red House grid, square to the one-way drive
+  and opening off its line carried north, with a 24' aisle in front; the paving is filled back to the east leg so
+  no slivers remain between the two grids. They start 12' north of the Red House's north-west corner.
+- **Accessible walk, first pass (architect):** 5' wide, about 340 ft, element `walk` (Level 1, white). Route: the 5'
+  strip between the Red House and the one-way drive, between the Red House's north-west corner and the bank,
+  behind the bank, then square to the barnyard grid west of the existing barn and its pens, and along the north
+  edge of the cross drive to the south-east corner of cattle barn A. It crosses no drive except the cross drive
+  at the barn. A small surveyed outbuilding (about 10' x 9') sits just beside the walk behind the bank.
