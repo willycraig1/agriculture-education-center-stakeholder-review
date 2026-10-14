@@ -83,7 +83,9 @@ EDITS = None
 _ep = os.path.join(OUT, "data", "site-edits.json")
 if os.path.exists(_ep):
     EDITS = json.load(open(_ep))
-    footprint = Polygon(EDITS["boundary"]).buffer(0)
+    footprint_drawn = Polygon(EDITS["boundary"]).buffer(0)
+    footprint = Polygon(snapped_boundary(EDITS["boundary"])).buffer(0)       # west side on the property line
+    print("site boundary: west side snapped to the property line; acres", round(footprint_drawn.area * (FT_PER_PT / abs(M_FP)) ** 2 / 43560, 1), "->", round(footprint.area * (FT_PER_PT / abs(M_FP)) ** 2 / 43560, 1))
 
 # ---------------------------------------------------------------- soils
 soil_ds = cadpdf.export(SURVEY, ["I-DWG-PEN-01"])["I-DWG-PEN-01"]
@@ -200,9 +202,15 @@ if os.path.exists(_ad):
 # in place of the survey's separate bank lines.
 _bp = os.path.join(OUT, "data", "slough-bed.json")
 if os.path.exists(_bp):
-    _bd = " ".join("M" + " L".join(f"{x},{y}" for x, y in ring) + "Z" for p_ in json.load(open(_bp))["parts"] for ring in [p_["outer"]] + p_["holes"])
-    _bed_svg = (f'<path id="historic-slough" d="{_bd}" fill="{P["water"]["base"]}" fill-opacity=".32" fill-rule="evenodd"/>'
-                f'<g transform="translate(905 437)"><text data-fixed="1" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" '
+    _BJ = json.load(open(_bp))
+    _ring_d = lambda parts: " ".join("M" + " L".join(f"{x},{y}" for x, y in ring) + "Z" for p_ in parts for ring in [p_["outer"]] + p_["holes"])
+    _bd = _ring_d(_BJ["parts"])
+    # the ditch floor between the toe-of-slope lines, darker than the banks, with the toe lines drawn fine
+    _floor = (f'<g id="historic-slough-floor"><path d="{_ring_d(_BJ.get("floor", []))}" fill="{P["water"]["base"]}" fill-opacity=".38" fill-rule="evenodd"/>'
+              f'<g fill="none" stroke="{P["water"]["base"]}" stroke-opacity=".75" stroke-width=".7" data-w="1.1" stroke-linejoin="round">'
+              + "".join(f'<polyline points="{" ".join(f"{x},{y}" for x, y in ln)}"/>' for ln in _BJ.get("toe_lines", [])) + "</g></g>") if _BJ.get("toe_lines") else ""
+    _bed_svg = (f'<path id="historic-slough" d="{_bd}" fill="{P["water"]["base"]}" fill-opacity=".32" fill-rule="evenodd"/>' + _floor +
+                f'<g id="historic-slough-label" transform="translate(905 437)"><text data-fixed="1" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" '
                 f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Historical slough bed</text></g>')
 else:
     _bed_svg = g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{(2.2 if AD else 6)/abs(M_SP):.3f}" stroke-opacity="0.9"')
