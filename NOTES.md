@@ -336,3 +336,14 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   been 3.7 before the pens). Site pasture 44.7 ac, 99.2 ac with bonus. 6.9 / 14.3 / 27.3 CE, so the planning
   figures are back to **7 / 14 / 27**. Hard-coded mentions reset to match.
 - **Handling yard corners, corrected (architect's markup).** I had misread the earlier note and squared the yard's south-east corner; it is chamfered again, with nothing drawn outside the chamfer. At the south-west corner, pen 1's south fence now runs straight on to the end of the chamfer, so there is no fence across the small triangle there (pen 1 is 9,330 sf). Capacity unchanged: 7 / 14 / 27 CE.
+
+### Compensation area widened after civil's note (2026-10-13)
+- **Civil's strategy (email to the architect, 2026-10-13; report and quantities still to come):** a larger, more
+  expansive floodplain compensation area at a shallower depth, so water levels stay lower outside major storms
+  and the area keeps its grazing vegetation; minimal change to the historical stormwater flows; less and cleaner
+  stormwater discharged to Cow Pen Slough. Stormwater treatment and added storage are a separate matter (County /
+  SWFWMD) from floodplain compensation, though treated similarly.
+- **Map:** the discussion-only compensation area grows from 1.1 to 2.3 ac: the open ground of the 4.8 ac paddock
+  east of the head pond, between the flood zone line and the historical bed, as far as the paddock's east fence
+  (`COMP_PTS`, extent chosen by eye). Label and step text say it is only a few inches deep and stays in grazing.
+  With the 0.8 ac retention pond: 3.1 ac. No depth figure or quantity from civil yet.

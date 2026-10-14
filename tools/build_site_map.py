@@ -214,17 +214,22 @@ if os.path.exists(_bp):
                 f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Historical slough bed</text></g>')
 else:
     _bed_svg = g_paths(slough, M_SP, T_SP, f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{(2.2 if AD else 6)/abs(M_SP):.3f}" stroke-opacity="0.9"')
-# A possible compensation area, for discussion only (architect's markup on the water slide, 2026-10-13): the open
-# ground east of the head pond, between the historical bed to the south and west and the flood zone line to the
-# north. Traced from the markup by eye; not designed or sized. Hidden unless a slide turns it on.
-COMP_PTS = [(739, 326), (770, 331), (800, 335), (831, 334), (834, 338), (833, 404), (829, 407), (760, 407), (742, 400), (738, 394)]
+# A possible floodplain compensation area, for discussion only. First traced from the architect's markup on the
+# water slide (2026-10-13, about 1.1 ac east of the head pond). Widened the same day after civil's note that the
+# strategy is a larger, more expansive compensation area at a shallower depth, so water stands lower between
+# major storms and the area stays in grazing: it now takes the open ground of the paddock east of the head
+# pond, between the flood zone line to the north and the historical bed to the south, as far as the paddock's
+# east fence. Extent chosen by eye; civil's quantities are not in yet. Not designed or sized. Hidden unless a
+# slide turns it on.
+COMP_PTS = [(739, 326), (770, 331), (800, 336), (822, 331), (846, 317), (884, 315), (910, 314), (912, 318), (912, 413), (906, 414),
+            (860, 413), (820, 409), (780, 407), (760, 405), (742, 400), (738, 394)]
 _comp = Polygon(COMP_PTS).buffer(-4).buffer(4)
 COMP_ACRES = round(_comp.area * (FT_PER_PT / abs(M_FP)) ** 2 / 43560, 1)
 _comp_svg = (f'<g id="compensation" display="none"><path d="{poly_d(_comp)}" fill="{P["water"]["tint"]}" fill-opacity=".75" stroke="{P["water"]["base"]}" '
              f'stroke-width="2" data-w="2.5" stroke-dasharray="6 4" data-dash="8 5"/>'
              f'<g transform="translate({_comp.centroid.x:.0f} {_comp.centroid.y:.0f})"><g data-fixed="1">'
              f'<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Compensation area</text>'
-             f'<text y="18" text-anchor="middle" font-size="15" font-style="italic" font-weight="600" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">{COMP_ACRES} ac, for discussion</text></g></g></g>')
+             f'<text y="18" text-anchor="middle" font-size="15" font-style="italic" font-weight="600" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">{COMP_ACRES} ac, a few inches deep, for discussion</text></g></g></g>')
 # The proposed retention pond's area, labelled with the compensation area on the water slide's plan step.
 RET_ACRES, _ret_lbl = None, ""
 for _pd in (EDITS["ponds"] if EDITS else []):
