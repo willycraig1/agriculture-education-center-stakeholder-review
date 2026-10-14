@@ -798,10 +798,13 @@ if _RM:
     _small = lambda g, l1, l2: (f'<g transform="translate({g.representative_point().x:.0f} {g.representative_point().y:.0f})"><g data-fixed="1">'
                                f'<text y="-3" text-anchor="middle" font-size="14" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="3.5" paint-order="stroke">{l1}</text>'
                                f'<text y="13" text-anchor="middle" font-size="13" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="3.5" paint-order="stroke">{l2}</text></g></g>')
-    _wild_svg = ('<g id="wildcard" display="none">'
+    # the second site pond belongs with the site retention pond (shown on every plan step); bonus ponds only with the
+    # compensation step
+    _wild_svg = ('<g id="site-retention" display="none">'
                  + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="2" data-w="2.5" stroke-dasharray="8 5" data-dash="8 5"/>' for g_ in _sp)
-                 + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["base"]}" fill-opacity=".14" stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>' for g_ in _bp)
                  + "".join(_small(g_, "Site retention pond", f"{a_} ac") for g_, a_ in zip(_sp, _RM["site_ponds_acres"][1:]))
+                 + '</g><g id="wildcard" display="none">'
+                 + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["base"]}" fill-opacity=".14" stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>' for g_ in _bp)
                  + "".join(_small(g_, "Bonus retention", f"{a_} ac") for g_, a_ in zip(_bp, _RM["bonus_ponds_acres"]))
                  + "</g>")
     print("retention markup: site ponds ac", _RM["site_ponds_acres"], "| bonus ponds ac", _RM["bonus_ponds_acres"])
