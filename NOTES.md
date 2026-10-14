@@ -461,3 +461,12 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   retention** on Solid Waste land, 3.3 ac: that pond and the proposed retention pond extended south, plus two more
   ponds past the outfall drive. Replaces the wildcard zone, which was too far south to use without underground
   equalization pipes (architect). "Wildcard" renamed "bonus", matching the bonus pasture.
+- **Entry apron cleaned up:** on the map the drive is carried to the lane's surveyed near edge with 10' curb returns
+  (computed in map coordinates in `build_site_map.py`; the barnyard diagram keeps its rough lane position). The old
+  flared apron and island beneath are covered with ground colour on the plan views; the entry culvert is redrawn
+  over that patch, still under the new drive (`.infra-copy`). Act 1 still shows the existing apron.
+- **Ponds cleaned up (architect's markup):** the markup's pond beside the proposed retention pond is merged into it
+  (no line between them) and each pond's edges run straight across the parcel line (convex hull of its part within
+  60' of the line). Site retention pond by the campus 0.9 ac (it replaces the drawn pond on the map); second site
+  retention pond 0.4 ac. Bonus retention 3.3 ac in four ponds (1.0, 0.7, 0.6, 1.0 ac), each labelled with its own
+  area. Labels now read "Site retention pond" (not "Retention pond" / "New retention").
