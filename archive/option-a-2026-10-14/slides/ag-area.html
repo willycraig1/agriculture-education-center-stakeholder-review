@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Barnyard</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1180px 1fr; gap: 36px; margin-top: 22px; flex: 1; min-height: 0; }
+  .plan { position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; align-self: start; }
+  .plan > svg { display: block; width: 100%; height: 816px; }
+  .el .shape { transition: fill .8s var(--ease), stroke .8s var(--ease), stroke-width .5s, opacity .8s var(--ease); }
+  .el .pens, .el text, .el .new { transition: opacity .8s var(--ease); }
+  .el.future .shape { fill: none !important; stroke: var(--line) !important; stroke-dasharray: 3 3; }
+  .el.future .pens, .el.future .new { opacity: 0; }
+  .el.future text { opacity: .45; }
+  .el:not(.isnew) .new { opacity: 0; }
+  .el text { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 1.6px; }
+  .el text.note { font-weight: 500; fill: var(--muted); }
+  #circ { opacity: 0; transition: opacity .9s var(--ease); } #circ.on { opacity: 1; }
+  .run path { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke: var(--ink); } .run.animal path { stroke: var(--cattle); stroke-width: 2.6; } .run.loop path { stroke-dasharray: 5 3; }
+  .run text { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 1.8px; }
+  .dim line { stroke: var(--muted); stroke-width: .5; } .dim text { font-family: var(--sans); font-weight: 600; fill: var(--muted); }
+  .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .levels > li { padding: 14px 18px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .levels > li header { display: flex; align-items: center; gap: 12px; }
+  .levels > li h3 { font: 600 24px/1.2 var(--serif); margin: 0; }
+  .levels > li .badge { background: var(--muted); }
+  .levels > li ul { margin: 10px 0 0; padding-left: 20px; font: 400 17px/1.5 var(--sans); display: none; }
+  .levels > li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .levels > li.now .badge { background: var(--ink); }
+  .levels > li.now ul { display: block; }
+  .levels > li.done { color: var(--ink); }
+  .static .levels li ul { display: block; font-size: 15px; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-top: 18px; font: 500 15px/1.2 var(--sans); color: var(--ink); }
+  .legend i { display: inline-block; width: 18px; height: 14px; border-radius: 3px; margin-right: 8px; vertical-align: -2px; border: 1.5px solid; }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+</style>
+</head>
+<body data-drivers="module">
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <h1 data-step="0">The barnyard, Level by Level</h1>
+  <div class="body">
+    <div class="plan card" data-step="0" id="plan"><span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span></div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="levels" id="levels"></ol>
+      <div class="legend" data-step="0" id="legend"></div>
+      <p class="src" data-step="0">Diagram to scale, in feet, drawn square to the existing barn. Everything sits on a 12' module with 24' lanes.
+        Black arrows are vehicles and service; brown arrows are animals moving to turnout.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/ag-area.js"></script>
+<script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
+<script>
+(function () {
+  const A = window.AG_AREA, v = A.view;
+  const css = k => `var(--${k.replace("_", "-")})`;
+  const useAt = (e, n) => { let u = e.use, note = e.note; for (let k = 2; k <= n; k++) if (e.becomes && e.becomes[k]) { u = e.becomes[k].use; note = e.becomes[k].note; } return { u, note }; };
+  const wrap = s => { const out = []; let line = ""; s.split(" ").forEach(w => { if ((line + " " + w).trim().length > 15 && line) { out.push(line); line = w; } else line = (line + " " + w).trim(); }); out.push(line); return out; };
+
+  function pens(e) {
+    const p = e.pens; if (!p) return "";
+    let s = "";
+    p.rows.forEach(([off, depth]) => { for (let i = 0; i < p.n; i++)
+      s += p.vertical ? `<rect x="${e.x + off}" y="${e.y + i * p.w}" width="${depth}" height="${p.w}"/>`
+                      : `<rect x="${e.x + i * p.w}" y="${e.y + off}" width="${p.w}" height="${depth}"/>`; });
+    return `<g class="pens" fill="none" stroke="var(--ink)" stroke-width=".4" opacity=".4">${s}</g>`;
+  }
+  function parking(e) {
+    const [w, d] = e.stall; let st = "";
+    e.rows.forEach(([x, y, n, v]) => { for (let k = 0; k < n; k++)
+      st += v ? `<rect x="${x}" y="${y + k * w}" width="${d}" height="${w}"/>` : `<rect x="${x + k * w}" y="${y}" width="${w}" height="${d}"/>`; });
+    (e.stalls_extra || []).forEach(q => { st += `<polygon points="${q.map(p => p.join(",")).join(" ")}"/>`; });   // angled stalls of the south loop
+    const is = e.island, ip = e.island_poly, la = is && is.label_at;
+    return `<g class="pens" fill="#fff" fill-opacity=".55" stroke="var(--circulation)" stroke-width=".5">${st}</g>` +
+      (ip ? `<polygon class="pens" points="${ip.map(p => p.join(",")).join(" ")}" fill="var(--water-tint)" stroke="var(--water)" stroke-width=".5"/>
+        <text class="note" x="${la[0]}" y="${la[1] + 1.5}" text-anchor="middle" font-size="4.4">${is.label}</text>`
+      : is ? `<rect class="pens" x="${is.x}" y="${is.y}" width="${is.w}" height="${is.h}" rx="3" fill="var(--water-tint)" stroke="var(--water)" stroke-width=".5"/>
+        <text class="note" x="${is.x + is.w / 2}" y="${is.y + is.h / 2 + 1.5}" text-anchor="middle" font-size="4.4">${is.label}</text>` : "");
+  }
+  function zones(e) {
+    return `<g class="pens" stroke="var(--cattle)" stroke-width=".5">${e.zones.map(z => z.poly
+      ? `<polygon points="${z.poly.map(p => `${e.x + p[0]},${e.y + p[1]}`).join(" ")}" fill="var(--arena-tint)" fill-opacity=".6"/>`
+      : `<rect x="${e.x + z.x}" y="${e.y + z.y}" width="${z.w}" height="${z.h}" fill="${z.fill ? "var(--cattle-tint)" : z.w > 20 ? "var(--circulation-tint)" : "none"}"/>`).join("")}</g>`;
+  }
+  function zoneLabels(e) {
+    return e.zones.filter(z => z.label).map(z => {
+      const cx = e.x + (z.at ? z.at[0] : z.x + z.w / 2), cy = e.y + (z.at ? z.at[1] : z.y + z.h / 2);
+      return z.side ? `<text class="note" x="${e.x + z.x + z.w + 1.5}" y="${cy + 1.2}" font-size="3.3">${z.label}</text>`
+           : z.rot ? `<text class="note" transform="translate(${cx} ${cy}) rotate(-90)" text-anchor="middle" font-size="3.4" dy="1.2">${z.label}</text>`
+           : `<text class="note" x="${cx}" y="${cy + 1.2}" text-anchor="middle" font-size="3.6">${z.label}</text>`;
+    }).join("");
+  }
+  // shipping container details: double doors on one end, AC unit on the other
+  function container(e) {
+    const dw = e.doors === "w", xd = dw ? e.x : e.x + e.w, sgn = dw ? -1 : 1, xa = dw ? e.x + e.w : e.x - 3;
+    return `<g class="pens" fill="none" stroke="var(--ink)" stroke-width=".45">
+      <path d="M${xd} ${e.y}h${4 * sgn}M${xd} ${e.y + e.h}h${4 * sgn}"/>
+      <path d="M${xd + 4 * sgn} ${e.y}A4 4 0 0 ${dw ? 0 : 1} ${xd} ${e.y + 4}M${xd + 4 * sgn} ${e.y + e.h}A4 4 0 0 ${dw ? 1 : 0} ${xd} ${e.y + 4}" stroke-dasharray="1 1"/>
+      <rect x="${xa}" y="${e.y + 2}" width="3" height="4" fill="var(--circulation-tint)"/></g>
+      <text class="note" x="${xa + 1.5}" y="${e.y + 5}" text-anchor="middle" font-size="1.9">AC</text>`;
+  }
+  const shapes = [], labels = [];
+  A.elements.forEach(e => {
+    const lines = e.kind === "container" || e.kind === "parking" || e.zones ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
+    const cx = e.x + e.w / 2;
+    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + 8 : e.zones ? e.y + e.h + 6 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
+    const narrow = e.w < 45 && e.h > e.w * 1.6;     // tall, narrow buildings read better with a rotated label
+    const txt = narrow
+      ? `<text transform="translate(${e.x + 5} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
+      : lines.map((l, i) => `<text x="${cx}" y="${cy + i * fs * 1.2}" text-anchor="middle" font-size="${fs}" dy="${e.kind === "container" ? 1.5 : 2}">${l.replace("&", "&amp;")}</text>`).join("") +
+        (e.kind === "container" ? "" : `<text class="note" x="${cx}" y="${cy + lines.length * fs * 1.2}" text-anchor="middle" font-size="${fs * 0.72}" dy="2"></text>`);
+    const shape = e.holes ? `<path class="shape" fill-rule="evenodd" d="${[e.outline, ...e.holes].map(r => "M" + r.map(p => p.join(",")).join(" L") + "Z").join(" ")}" stroke-width="1"/>`
+      : e.outline ? `<polygon class="shape" points="${e.outline.map(p => p.join(",")).join(" ")}" stroke-width="1"/>`
+      : `<rect class="shape" x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="${e.kind === "yard" ? 3 : 1}" stroke-width="${e.kind === "container" ? 0.8 : 1.2}"/>`;
+    shapes.push(`<g class="el" data-id="${e.id}">${shape}
+      ${e.kind === "parking" ? parking(e) : e.kind === "container" ? container(e) : e.zones ? zones(e) : pens(e)}
+      <g class="new" transform="translate(${e.x + e.w - 2} ${e.y + 2})"><rect x="-19" y="0" width="19" height="8" rx="2" fill="var(--ink)"/><text x="-9.5" y="5.9" text-anchor="middle" font-size="4.6" style="fill:#fff;stroke:none">NEW</text></g></g>`);
+    labels.push(`<g class="el lbl" data-id="${e.id}">${txt}${e.zones ? zoneLabels(e) : ""}</g>`);
+  });
+  const drives = (A.drives || []).map(d => `<rect x="${d.x}" y="${d.y}" width="${d.w}" height="${d.h}" fill="var(--circulation-tint)" opacity=".6"/>`).join("");
+  const dims = A.dims.map(d => {
+    const vert = d.x1 === d.x2, mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2;
+    return `<g class="dim"><line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}"/>
+      <line x1="${d.x1 - (vert ? 3 : 0)}" y1="${d.y1 - (vert ? 0 : 3)}" x2="${d.x1 + (vert ? 3 : 0)}" y2="${d.y1 + (vert ? 0 : 3)}"/>
+      <line x1="${d.x2 - (vert ? 3 : 0)}" y1="${d.y2 - (vert ? 0 : 3)}" x2="${d.x2 + (vert ? 3 : 0)}" y2="${d.y2 + (vert ? 0 : 3)}"/>
+      <text ${vert ? `transform="translate(${mx + 7} ${my}) rotate(90)"` : `x="${mx}" y="${my - 3}"`} text-anchor="middle" font-size="5.5">${d.label}</text></g>`;
+  }).join("");
+  function rounded(pts, r) {
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const [px, py] = pts[i - 1], [x, y] = pts[i], [nx, ny] = pts[i + 1];
+      const a = Math.hypot(x - px, y - py), b = Math.hypot(nx - x, ny - y);
+      d += `L${x + (px - x) / a * r} ${y + (py - y) / a * r}Q${x} ${y} ${x + (nx - x) / b * r} ${y + (ny - y) / b * r}`;
+    }
+    const e = pts[pts.length - 1];
+    return d + `L${e[0]} ${e[1]}`;
+  }
+  const circ = A.circulation.map(c => {
+    const p = c.pts, [xa, ya] = p[0], [xb, yb] = p[p.length - 1], both = c.kind === "service";
+    const mid = p.length > 2 ? [(p[1][0] + p[2][0]) / 2, (p[1][1] + p[2][1]) / 2] : [(xa + xb) / 2, (ya + yb) / 2];
+    const vert = p.length === 2 && xa === xb;
+    return `<g class="run ${c.kind}"><path d="${rounded(p, 9)}" ${!c.heads || c.heads[1] ? `marker-end="url(#ah-${c.kind})"` : ""} ${both && (!c.heads || c.heads[0]) ? `marker-start="url(#ah-${c.kind})"` : ""}/>
+      ${c.label ? `<text ${vert ? `transform="translate(${mid[0] - 4} ${mid[1]}) rotate(-90)"` : `x="${mid[0]}" y="${mid[1] - 4}"`} text-anchor="middle" font-size="5">${c.label}</text>` : ""}</g>`;
+  }).join("") + (A.notes || []).map(n => `<g class="run"><text x="${n.x}" y="${n.y}" text-anchor="middle" font-size="4.6">${n.text}</text></g>`).join("");
+  const defs = `<defs>${["service", "animal", "loop"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
+    <path d="M0 0L10 5L0 10z" fill="${k === "animal" ? "var(--cattle)" : "var(--ink)"}"/></marker>`).join("")}</defs>`;
+  document.getElementById("plan").insertAdjacentHTML("afterbegin",
+    `<svg viewBox="${v.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${drives}${shapes.join("")}${dims}<g id="circ">${circ}</g>${labels.join("")}</svg>`);
+  const svg = document.querySelector("#plan > svg");
+  const viewer = Viewer(svg, { ftPerUnit: 1, north: A.north_cw_from_up, damp: 0 });
+
+  const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
+  const text = [
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Horticulture area south of the Red House, with camper / RV hookups (pan down to see them)", "Accessible walk (white) from the Red House to cattle barn A"] },
+    { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal barn A, ${sa} pens: the hogs move here`, "First feed storage container, by the parking", "Existing barn, emptied of hogs, becomes storage"] },
+    { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Barn A extended 42': ${A.counts.small_animal_pens[3]} small animal pens in all, kept off the wet corner`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
+    { b: "Flow", h: "Straight lines", items: ["The loop's west leg continues the west lane; its east leg continues the cattle tractor aisle", "One-way loop, counter-clockwise: in from the Red House side, out to the entry drive", "Trailers pull off the loop into a bay beside the handling yard, unload, and drive on", "Every barn opens onto its own turnout", `Two ${A.lane_ft}' lanes and a cross drive serve feed, pens and the arena`] },
+  ];
+  document.getElementById("levels").innerHTML = text.map((t, k) =>
+    `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
+  const uses = [["cattle", "Cattle"], ["small_animal", "Small animals"], ["swine", "Swine"], ["arena", "Arena and turnout"], ["circulation", "Storage, parking, service"], ["education", "Red House"], ["horticulture", "Horticulture"]];
+  document.getElementById("legend").innerHTML = uses.map(([k, l]) => `<span><i style="background:${css(k)}-tint;background:var(--${k.replace("_", "-")}-tint);border-color:${css(k)}"></i>${l}</span>`).join("");
+
+  function apply(step) {
+    const n = Math.min(step + 1, 3);
+    svg.querySelector("#circ").classList.toggle("on", step >= 3);
+    A.elements.forEach(e => {
+      const g = svg.querySelector(`.el[data-id="${e.id}"]:not(.lbl)`), lb = svg.querySelector(`.lbl[data-id="${e.id}"]`), { u, note } = useAt(e, n);
+      lb.classList.toggle("future", e.level > n);
+      const rect = g.querySelector(".shape");
+      g.classList.toggle("future", e.level > n);
+      g.classList.toggle("isnew", step < 3 && e.level === n && e.kind !== "container" && !(e.id.startsWith("existing") || e.id === "parking"));
+      rect.style.fill = e.kind === "yard" ? "none" : e.kind === "walk" ? "#fff" : `var(--${u.replace("_", "-")}-tint)`;
+      rect.style.stroke = css(u);
+      rect.style.strokeDasharray = e.kind === "yard" ? "3 2" : "";
+      const nt = lb.querySelector("text.note"); if (nt) nt.textContent = e.level <= n ? (note || "") : `Level ${e.level}`;
+    });
+    document.querySelectorAll("#levels > li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.k === step);
+      li.classList.toggle("done", +li.dataset.k < step);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(3);
+})();
+</script>
+</body>
+</html>

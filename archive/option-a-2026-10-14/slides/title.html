@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Title</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { justify-content: center; padding: 96px 120px; }
+  .title { font: 600 104px/1.0 var(--serif); margin: 18px 0 26px; letter-spacing: -.015em; max-width: 14ch; }
+  .sub { font: 400 32px/1.35 var(--sans); color: var(--muted); max-width: 46ch; margin: 0; }
+  .strip { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin-top: 64px; width: 900px; }
+  .strip i { flex: 1; }
+  .meta { display: flex; gap: 48px; margin-top: 34px; font: 500 20px/1.4 var(--sans); color: var(--muted); }
+  .meta b { display: block; color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body class="no-firm">
+<div class="stage">
+  <div class="eyebrow" data-step="0">Clark Farm · 9600 SR-72, Sarasota</div>
+  <div class="title" data-step="0">Agriculture Education Center</div>
+  <p class="sub" data-step="0">Beginning Farmer and 4-H Youth Agriculture Complex. Master plan study for stakeholder review.</p>
+  <div class="strip" data-step="0">
+    <i style="background:var(--pasture)"></i><i style="background:var(--woodland)"></i><i style="background:var(--cattle)"></i>
+    <i style="background:var(--education)"></i><i style="background:var(--small-animal)"></i><i style="background:var(--swine)"></i>
+    <i style="background:var(--arena)"></i><i style="background:var(--horticulture)"></i><i style="background:var(--water)"></i>
+  </div>
+  <div class="meta" data-step="0">
+    <div><b>Stakeholder review</b>October 21, 2026 · 5:30 pm<br>Extension Green Room</div>
+    <div><b>Seibert Architects</b>Project 2601</div>
+    <div><b>Draft</b>for discussion</div>
+  </div>
+</div>
+<script src="../design/deck.js"></script>
+<script>Deck.start();</script>
+</body>
+</html>
