@@ -288,3 +288,17 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Act 1 site slide, "The land" step:** the two pasture areas are shown as plain colour fields with no paddock
   lines (`#pasture-areas`), since fences are not proposed until Act 5.
 - Fills are hidden on the barnyard-on-site slide. Colours are the palette's `pasture` and `bonus`.
+
+### Campus fence redrawn to the turnout yards (2026-10-13)
+- The fencing plan's run round the north and west of the campus (`fence-07`, drawn for an earlier layout, cutting
+  through cattle barn B and the arena) is replaced on the map by a line on the outer edges of the barnyard: east
+  edge of the cattle turnouts, north face of cattle barn B and the arena, round the small animal turnouts, down the
+  west side of the handling yard, then back onto the plan's last leg to its gate at the lane. Built in
+  `build_site_map.py` from the barnyard diagram's own elements, so it follows the diagram if that moves. The plan's
+  first two and last vertices are kept. `fences.json` (the plan as drawn) is unchanged; the redrawn run is written
+  to `drawings/data/campus-fence.json`. 1,089 ft → 1,101 ft.
+- **Paddock areas:** the 3.4 ac paddock west of the campus now measures 3.8 ac, because the fence moved in to the
+  turnouts. Its label and the capacity worksheet still say 3.4. All other paddocks stay within 0.3 ac of their labels.
+- The "fence lines need redrawing" finding is removed from the barnyard-on-site slide.
+- **Poultry label:** the unfinished barn is labelled "Poultry (Level 1)" on the barnyard-on-site slide, per the
+  Levels matrix (poultry moves to small animal barn A at Level 2).
