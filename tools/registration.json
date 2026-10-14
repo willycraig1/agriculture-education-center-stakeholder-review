@@ -99,5 +99,33 @@
     },
     "stretch_ratio": 1.0377700511875962,
     "ft_per_aerial_px": 3.383827685347219
+  },
+  "aerial_1948": {
+    "source": "1948 Aerial of historic Slough Bed.jpg",
+    "image_size": [
+      1860,
+      1864
+    ],
+    "to_current_aerial": {
+      "zoom": 0.8325,
+      "shift_px": [
+        185,
+        13
+      ],
+      "match_score": 265.9,
+      "next_best_zoom_score": 162.1
+    },
+    "to_map": [
+      [
+        0.00083018,
+        1.06771231,
+        101.96925705
+      ],
+      [
+        -1.10797573,
+        0.00308351,
+        1671.04575978
+      ]
+    ]
   }
 }
