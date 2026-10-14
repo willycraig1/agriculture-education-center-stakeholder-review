@@ -342,8 +342,16 @@ if os.path.exists(_fp):
         _tb, _ar, _ts, _hd = _el["turnout-cattle-b"], _el["arena"], _el["turnout-small-b"], _el["handling"]
         _east, _north = _tb["x"] + _tb["w"], _tb["y"]
         _end_d = _to_d(_cf["map"][-1])
-        _new_d = [(_east, _north), (_ar["x"], _north), (_ar["x"], _ts["y"]), (_ts["x"], _ts["y"]), (_ts["x"], _hd["y"]),
-                  (_hd["x"], _hd["y"]), (_hd["x"], round(_end_d.imag, 1))]
+        if "holding-3" in _el and "holding-1" in _el:
+            # round the outside of the holding pens: along pen 3's north side, down the pens' west fence to the
+            # level of the plan's last leg, then along that leg to its gate at the lane
+            (_nwx, _nwy), (_swx, _swy) = _el["holding-3"]["outline"][3], _el["holding-1"]["outline"][2]
+            _ye = round(_end_d.imag, 1)
+            _xw = _nwx + (_swx - _nwx) * (_ye - _nwy) / (_swy - _nwy)
+            _new_d = [(_east, _north), (_ar["x"], _north), (_ar["x"], _ts["y"]), (_ts["x"], _ts["y"]), (_nwx, _nwy), (round(_xw, 1), _ye)]
+        else:
+            _new_d = [(_east, _north), (_ar["x"], _north), (_ar["x"], _ts["y"]), (_ts["x"], _ts["y"]), (_ts["x"], _hd["y"]),
+                      (_hd["x"], _hd["y"]), (_hd["x"], round(_end_d.imag, 1))]
         _old_ft = _cf["length_ft"]
         _cf["map"] = _cf["map"][:2] + [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
         _cf["length_ft"] = round(LineString(_cf["map"]).length * FT_PER_PT / abs(M_FP))
@@ -558,7 +566,7 @@ for e in AG["elements"]:
               f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
 barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
 BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Extension",
-             "arena": "Arena", "parking": "Parking", "handling": "Handling", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
+             "arena": "Arena", "parking": "Parking", "handling": "Handling", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""
 for e in AG["elements"]:
     if e["id"] in BY_LABELS:

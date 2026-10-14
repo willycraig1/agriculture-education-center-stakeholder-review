@@ -2,9 +2,9 @@
 window.AG_AREA = {
  "units": "feet",
  "view": [
-  -116.0,
+  -234.0,
   -38,
-  464.0,
+  582.0,
   508
  ],
  "north_cw_from_up": -17,
@@ -229,10 +229,6 @@ window.AG_AREA = {
     ],
     [
      -10.0,
-     339
-    ],
-    [
-     -26.0,
      355
     ],
     [
@@ -495,6 +491,134 @@ window.AG_AREA = {
    "note": "second container",
    "assumed": false,
    "doors": "e"
+  },
+  {
+   "id": "holding-1",
+   "label": "Pen 1",
+   "x": -200.0,
+   "y": 271,
+   "w": 118.0,
+   "h": 84,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "9,170 sf",
+   "assumed": false,
+   "outline": [
+    [
+     -82.0,
+     271
+    ],
+    [
+     -82.0,
+     355
+    ],
+    [
+     -200.0,
+     355
+    ],
+    [
+     -182.2,
+     271
+    ]
+   ],
+   "holding": true
+  },
+  {
+   "id": "holding-2",
+   "label": "Pen 2",
+   "x": -182.24905660377357,
+   "y": 174.0,
+   "w": 100.24905660377357,
+   "h": 97.0,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "8,730 sf",
+   "assumed": false,
+   "outline": [
+    [
+     -82.0,
+     174.0
+    ],
+    [
+     -82.0,
+     271
+    ],
+    [
+     -182.2,
+     271
+    ],
+    [
+     -161.8,
+     174.0
+    ]
+   ],
+   "holding": true
+  },
+  {
+   "id": "holding-3",
+   "label": "Pen 3",
+   "x": -161.7509433962264,
+   "y": 90,
+   "w": 79.7509433962264,
+   "h": 84.0,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "5,950 sf",
+   "assumed": false,
+   "outline": [
+    [
+     -82.0,
+     90
+    ],
+    [
+     -82.0,
+     174.0
+    ],
+    [
+     -161.8,
+     174.0
+    ],
+    [
+     -144.0,
+     90
+    ]
+   ],
+   "holding": true
+  },
+  {
+   "id": "holding-4",
+   "label": "Pen 4",
+   "x": -72,
+   "y": 216,
+   "w": 48,
+   "h": 55,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "2,640 sf",
+   "assumed": false,
+   "outline": [
+    [
+     -72,
+     216
+    ],
+    [
+     -24,
+     216
+    ],
+    [
+     -24,
+     271
+    ],
+    [
+     -72,
+     271
+    ]
+   ],
+   "holding": true
   }
  ],
  "drives": [],
