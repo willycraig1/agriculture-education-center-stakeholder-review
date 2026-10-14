@@ -327,6 +327,9 @@ gates = (g_paths(_arc, M_FP, T_FP, f'fill="none" stroke="{P["cattle"]["base"]}" 
          + g_paths(_leaf, M_FP, T_FP, f'fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" stroke-linecap="round"'))
 _pw = "".join(f'<g transform="translate({pw_["map"][0]:.1f} {pw_["map"][1]:.1f})"><g data-fixed="1"><text y="-16" text-anchor="middle" font-size="15" font-weight="700" '
               f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Feed + water</text></g></g>' for pw_ in FENCES.get("pinwheels", [])) if os.path.exists(_fp) else ""
+if os.path.exists(_fp) and FENCES.get("gates_added"):
+    gates += (f'<g id="gates-added" fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" stroke-linecap="round">'
+              + "".join(f'<line x1="{g_["map"][0][0]}" y1="{g_["map"][0][1]}" x2="{g_["map"][1][0]}" y2="{g_["map"][1][1]}"/>' for g_ in FENCES["gates_added"]) + "</g>")
 paddocks = (_fence_art + f'<g id="gates">{gates}</g><g id="pinwheel-labels">{_pw}</g>'
             + "".join(tags))
 
