@@ -302,3 +302,19 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - The "fence lines need redrawing" finding is removed from the barnyard-on-site slide.
 - **Poultry label:** the unfinished barn is labelled "Poultry (Level 1)" on the barnyard-on-site slide, per the
   Levels matrix (poultry moves to small animal barn A at Level 2).
+
+### Capacity from the areas as fenced; poultry (2026-10-13)
+- **Paddock acres.** `drawings/data/paddocks.json` (from `build_site_map.py`): each paddock keeps the fencing plan's
+  own acreage, adjusted only where a fence has moved since, by the change measured between the plan's fence and the
+  redrawn one. Two paddocks changed with the campus fence: 3.4 → 3.7 ac (open pasture, west of the campus) and
+  8.0 → 7.8 ac (dense woods, north of it). Site pasture 45.1 → 45.2 ac; with bonus 99.6 → 99.7 ac. Map tags and
+  the Site pasture total use these.
+- **Capacity.** `build_capacity_data.py` now reads those acres (worksheet's dense-woods shares and AN155 rates
+  unchanged): 7.0 → 7.1, 14.4 → 14.5, 27.5 → 27.6 CE. Rounded planning figures are now **7 / 15 / 28** (were
+  7 / 14 / 27): Levels 2 and 3 sat just under a half and the extra 0.3 ac of open pasture tipped them over. The
+  source worksheet is not edited. Hard-coded mentions updated (water quality slide, outline). Run order:
+  build_fences, build_canopy, build_south_roads, build_slough_bed, build_site_map, build_capacity_data.
+- **Poultry (architect correction).** Poultry is not a "small animal": it is housed in the unfinished barn from
+  Level 1 and stays there at every Level. Levels matrix split into a Poultry row (unfinished barn, same at all
+  Levels) and a Small animals row (Level 1 "None yet", marked to confirm; barn A at Level 2; extension at Level 3).
+  Map label on the unfinished barn reads "Poultry".

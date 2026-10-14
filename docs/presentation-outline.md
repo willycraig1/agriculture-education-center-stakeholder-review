@@ -24,7 +24,7 @@ Nothing proposed appears before Act 5.
 | **0 · Why we're here** | How do the Owner's goals shape the design, and what are the Levels? | 3 min | Design drivers (`drivers.html`) · One plan, three Levels, ending on the thesis (`three-levels.html`) | Built |
 | **1 · What we have** | What does the land give us, and what is already built? | 8 min | Site, layer by layer: aerial, the land, water, soils, trees, campus (`site.html`) · Existing buildings, with site photos (`existing.html`) | Built, all six photos in |
 | **2 · What the program needs** | Who uses it, with which animals, and what does each need? | 5 min | Program needs (`program.html`) | Built |
-| **3 · What the land can carry** | How many cattle, and what changes that number? | 7 min | Pasture capacity 7 / 14 / 27 CE (`pasture-capacity.html`) · 4-H pens 7 / 21 / 35 (`cattle-pens.html`) | Built |
+| **3 · What the land can carry** | How many cattle, and what changes that number? | 7 min | Pasture capacity 7 / 15 / 28 CE (`pasture-capacity.html`) · 4-H pens 7 / 21 / 35 (`cattle-pens.html`) | Built |
 | **4 · The strategy** | How do we plan for the best case but start with the minimum? | 3 min | What each Level buys (`levels.html`) | Built |
 | **5 · The plan** | Given all that, how should the site be laid out? | 10 min | Paddocks and rotation (`paddocks.html`) · The barnyard, Level by Level, then its circulation (`ag-area.html`) · The Bud Box (`bud-box.html`) · The barnyard on the site, to scale (`site-plan.html`) · Water on the site: the 1948 aerial, the historical slough bed, wet ground, where the plan meets it (`water-site.html`) · Water quality, after the regional Playbook (`water-quality.html`) · Red House by Level (`red-house.html`) | Built; entry drive and Bud Box procedure to confirm |
 | **6 · Over to you** | What should the tables work on? | 2 min | Working-session topics (`input.html`) | Built |
@@ -43,7 +43,7 @@ Red House, existing barn, the 7 cattle pens, hog enclosures, the small unfinishe
 Small animals, swine and poultry need housing. People need a classroom for about 50, a conference room for 20–25, offices for 5 staff and a demonstration kitchen.
 The Ag Guide is the animal-care standard.
 
-**Act 3. What the land can carry.** Pasture capacity in cow equivalents: 7 CE on the site as it is managed today, 14 with rotational grazing, 27 with the bonus pasture.
+**Act 3. What the land can carry.** Pasture capacity in cow equivalents: 7 CE on the site as it is managed today, 15 with rotational grazing, 28 with the bonus pasture.
 Management matters as much as land. Then 4-H pens: 7 exist, and new barns add 14 at a time as enrollment grows.
 *Comic relief:* the last build on the pens slide is a sticky note: "Yes, we are putting cow pens on Cow Pen Slough." It lands mid-deck, after the densest numbers.
 

@@ -325,6 +325,7 @@ M_DP, T_DP = M_TP * _m, M_TP * _t + T_TP                 # diagram feet -> prese
 _fp = os.path.join(OUT, "data", "fences.json")
 if os.path.exists(_fp):
     FENCES = json.load(open(_fp))
+    _PLAN_RUNS = [LineString(r_["map"]) for r_ in FENCES["runs"]]            # the fencing plan as drawn, before the campus redraw
     # ---- campus fence, redrawn to the barnyard (architect, 2026-10-13)
     # The fencing plan's line round the north and west of the campus was drawn for an earlier layout and cut
     # through the new barns. It is replaced, between its two ends, by a line on the outer edges of the turnout
@@ -372,25 +373,51 @@ if os.path.exists(_fp) and FENCES.get("gates_added"):
 # are joined first. A face is a paddock when one acreage label sits in it.
 PADS, _pad_svg, _area_svg = [], "", ""
 if os.path.exists(_fp) and FENCES.get("runs"):
-    _R = [LineString(r_["map"]) for r_ in FENCES["runs"]]
-    _loose = []
-    for _i, _r in enumerate(_R):
-        for _e in (_r.coords[0], _r.coords[-1]):
-            if min(o.distance(Point(_e)) for _j, o in enumerate(_R) if _j != _i) > 9:
-                _loose.append(_e)
-    _close = [LineString([a_, b_]) for _k, a_ in enumerate(_loose) for b_ in _loose[_k + 1:] if 9 < math.hypot(a_[0] - b_[0], a_[1] - b_[1]) < 80]
     _G = 6.0
-    _faces = footprint.buffer(-0.5).difference(unary_union(_R + _close).buffer(_G))
-    _faces = list(getattr(_faces, "geoms", [_faces]))
     _uf2 = (FT_PER_PT / abs(M_FP)) ** 2 / 43560
+    def _pad_polys(_R):
+        _loose = []
+        for _i, _r in enumerate(_R):
+            for _e in (_r.coords[0], _r.coords[-1]):
+                if min(o.distance(Point(_e)) for _j, o in enumerate(_R) if _j != _i) > 9:
+                    _loose.append(_e)
+        _close = [LineString([a_, b_]) for _k, a_ in enumerate(_loose) for b_ in _loose[_k + 1:] if 9 < math.hypot(a_[0] - b_[0], a_[1] - b_[1]) < 80]
+        _faces = footprint.buffer(-0.5).difference(unary_union(_R + _close).buffer(_G))
+        _faces = list(getattr(_faces, "geoms", [_faces]))
+        out_ = []
+        for ac, x, y in labels:
+            px, py = pt(M_FP, T_FP, x, y)
+            _in = [f_ for f_ in _faces if f_.contains(Point(px, py))] or [min(_faces, key=lambda f_: f_.distance(Point(px, py)))]
+            out_.append(_in[0].buffer(_G, join_style=2).intersection(footprint).simplify(0.4))
+        return out_
+    _now = _pad_polys([LineString(r_["map"]) for r_ in FENCES["runs"]])
+    _plan = _pad_polys(_PLAN_RUNS)
+    # Acres: the fencing plan's own figure for each paddock, adjusted only where the fence has since moved (the
+    # campus redraw), by the change this script measures between the plan's fence and the redrawn one.
+    _dense = {round(float(r_[1]), 1): float(r_[2] or 0) for r_ in wb["Paddock Detail"].iter_rows(min_row=5, max_row=20, values_only=True) if r_[0] and r_[1]}
+    _dense.setdefault(10.2, 7.7 / 10.2)                      # 7.7 ac dense woods + 2.5 ac open, merged on the revised plan
     for _ti, (ac, x, y) in enumerate(labels):
-        px, py = pt(M_FP, T_FP, x, y)
-        _in = [f_ for f_ in _faces if f_.contains(Point(px, py))] or [min(_faces, key=lambda f_: f_.distance(Point(px, py)))]
-        _poly = _in[0].buffer(_G, join_style=2).intersection(footprint).simplify(0.4)
+        _d = (_now[_ti].area - _plan[_ti].area) * _uf2
         _site = canopy.get(ac, ("?", "?"))[0] == "Site Pasture"
-        PADS.append({"i": _ti, "label_ac": ac, "measured_ac": round(_poly.area * _uf2, 1), "site": _site, "poly": _poly})
-    _bad = [(p_["label_ac"], p_["measured_ac"]) for p_ in PADS if abs(p_["label_ac"] - p_["measured_ac"]) > 0.3]
-    print("paddock shapes:", len(PADS), "| labelled vs measured acres off by more than 0.3:", _bad or "none")
+        PADS.append({"i": _ti, "label_ac": ac, "measured_ac": round(_now[_ti].area * _uf2, 1), "change_ac": round(_d, 2),
+                     "acres": round(ac + _d, 1) if abs(_d) >= 0.05 else ac, "site": _site, "dense": round(_dense.get(round(ac, 1), 0), 4), "poly": _now[_ti]})
+    _bad = [(p_["label_ac"], p_["measured_ac"]) for p_ in PADS if abs(p_["acres"] - p_["measured_ac"]) > 0.3]
+    print("paddock shapes:", len(PADS), "| acres vs measured off by more than 0.3:", _bad or "none", "| changed by the campus redraw:", [(p_["label_ac"], p_["acres"]) for p_ in PADS if p_["acres"] != p_["label_ac"]])
+    json.dump({"note": "Paddock acres used for capacity: the fencing plan's figure, adjusted where the campus fence was redrawn. dense = share treated as dense woods (pasture worksheet).",
+               "paddocks": [{"group": "site" if p_["site"] else "bonus", "plan_acres": p_["label_ac"], "acres": p_["acres"], "change_ac": p_["change_ac"],
+                             "measured_acres": p_["measured_ac"], "dense": p_["dense"]} for p_ in PADS]},
+              open(os.path.join(OUT, "data", "paddocks.json"), "w"), indent=1)
+    # tags and area totals carry the adjusted acres
+    tags, tag_pts = [], {}
+    for p_ in PADS:
+        ac0, x, y = labels[p_["i"]]
+        area = "Site Pasture" if p_["site"] else "Bonus Pasture"
+        c = P["pasture"] if p_["site"] else P["bonus"]
+        px, py = pt(M_FP, T_FP, x, y)
+        tag_pts.setdefault(area, []).append((px, py, p_["acres"]))
+        tags.append(f'<g class="tag {"site" if p_["site"] else "bonus"}" data-pad="{p_["i"]}" transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
+                    f'fill="{c["tint"]}" stroke="{c["base"]}" stroke-width="2"/>'
+                    f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{p_["acres"]:g} ac</text></g></g>')
     for p_ in PADS:
         c_ = P["pasture"] if p_["site"] else P["bonus"]
         _pad_svg += (f'<path class="pad {"site" if p_["site"] else "bonus"}" data-pad="{p_["i"]}" d="{poly_d(p_["poly"])}" fill="{c_["base"]}" fill-opacity=".3" '
@@ -537,11 +564,11 @@ for e in AG["elements"]:
         by_labels += (f'<text data-level="{e["level"]}" x="{lx:.1f}" y="{ly + 1.4:.1f}" text-anchor="middle" font-size="4.2" font-weight="700" fill="{N["ink"]}" '
                       f'stroke="#fff" stroke-width="1.1" paint-order="stroke">{BY_LABELS[e["id"]]}</text>')
 
-# the unfinished barn houses poultry at Level 1 (Levels matrix); labelled with the barnyard on the site plan slide
+# the unfinished barn houses poultry from Level 1 on, at every Level; labelled with the barnyard on the site plan slide
 if UNFINISHED_BARN:
     _ubx, _uby = sum(q[0] for q in UNFINISHED_BARN[:-1]) / 4, sum(q[1] for q in UNFINISHED_BARN[:-1]) / 4
     by_labels += (f'<text data-level="1" x="{_ubx:.1f}" y="{_uby + 1.4:.1f}" text-anchor="middle" font-size="4.2" font-weight="700" fill="{N["ink"]}" '
-                  f'stroke="#fff" stroke-width="1.1" paint-order="stroke">Poultry (Level 1)</text>')
+                  f'stroke="#fff" stroke-width="1.1" paint-order="stroke">Poultry</text>')
 
 # fit checks against the survey (presentation frame; reported in feet)
 from shapely.geometry import MultiPoint
