@@ -14,7 +14,7 @@ Soil Survey before relying on them).
 
 Run:  python tools/build_site_map.py   (needs pymupdf, numpy, scipy, openpyxl, shapely)
 """
-import json, math, os, sys
+import json, math, os, re, sys
 import numpy as np
 import pymupdf
 from shapely import affinity
@@ -248,12 +248,15 @@ else:
     _comp_svg = ""
 # The proposed retention pond's area, labelled with the compensation area on the water slide's plan step.
 RET_ACRES, _ret_lbl = None, ""
+_rp_ = os.path.join(OUT, "data", "retention-markup.json")
+_RM = json.load(open(_rp_)) if os.path.exists(_rp_) else None
+_RET_MERGED = Polygon(_RM["site_ponds"][0]) if _RM else None       # proposed pond, merged and cleaned with the markup
 for _pd in (EDITS["ponds"] if EDITS else []):
     if _pd["kind"] != "existing" and len(_pd.get("pts", [])) >= 3:
-        _rp = Polygon(_pd["pts"]).buffer(0)
+        _rp = _RET_MERGED if _RET_MERGED is not None else Polygon(_pd["pts"]).buffer(0)
         RET_ACRES = round(_rp.area * (FT_PER_PT / abs(M_FP)) ** 2 / 43560, 1)
         _ret_lbl = (f'<g id="retention-label" display="none" transform="translate({_rp.centroid.x:.0f} {_rp.centroid.y:.0f})"><g data-fixed="1">'
-                    f'<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Retention pond</text>'
+                    f'<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Site retention pond</text>'
                     f'<text y="18" text-anchor="middle" font-size="16" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">{RET_ACRES} ac</text></g></g>')
         print("proposed retention pond acres:", RET_ACRES, "| centroid", round(_rp.centroid.x), round(_rp.centroid.y))
 # Drainage infrastructure on the historical bed (architect, 2026-10-13). The outfall is drawn from the survey. The
@@ -306,8 +309,9 @@ if os.path.exists(_bp) and AD:
 water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
          + _bed_svg + _comp_svg
          + (g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3"') if not EDITS else
-            "".join(f'<path class="pond {"proposed" if pd_["kind"] != "existing" else "existing"}" transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{pd_["d"]}Z" '
-                    f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3" data-w="3"'
+            "".join((f'<path class="pond proposed" d="{poly_d(_RET_MERGED)}" ' if pd_["kind"] != "existing" and _RET_MERGED is not None else
+                     f'<path class="pond {"proposed" if pd_["kind"] != "existing" else "existing"}" transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{pd_["d"]}Z" ')
+                    + f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3" data-w="3"'
                     + (' stroke-dasharray="8 5" data-dash="8 5"' if pd_["kind"] != "existing" else "") + "/>" for pd_ in EDITS["ponds"]))
          + g_paths(sv.get("FEMA FLOOD ZONE", []), M_SP, T_SP,
                    f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{5/abs(M_SP):.3f}" '
@@ -557,6 +561,48 @@ def ag_poly(e):
     return [pt(M_DP, T_DP, px, py) for px, py in pts]
 
 
+# ---- the new entry apron where the drive meets the lane (Level 1), drawn cleanly on the map
+# The barnyard diagram only knows the lane's position roughly, so here the drive is carried on to the lane's surveyed
+# near edge (the survey's edge-of-pavement either side of the entry) and given 10' curb returns there. The old
+# flared apron and its island, surveyed under it, are covered with ground colour on the plan views.
+_apron_patch = ""
+_pk = next((e_ for e_ in AG["elements"] if e_["id"] == "parking"), None)
+if _pk and FENCES.get("road_area"):
+    from shapely.geometry import box as _bx
+    from shapely import affinity as _aff
+    _inv = lambda x, y: (lambda z: (z.real, z.imag))((complex(x, y) - T_DP) / M_DP)
+    _Pm = Polygon([pt(M_DP, T_DP, x, y) for x, y in _pk["outline"]]).buffer(0)
+    _dbox = lambda x0, x1: Polygon([pt(M_DP, T_DP, x, y) for x, y in ((x0, -9999), (x1, -9999), (x1, 9999), (x0, 9999))])
+    _core = _Pm.intersection(_dbox(-255, -160))
+    _rr = list(_core.minimum_rotated_rectangle.exterior.coords)[:4]
+    _sides = sorted([(math.hypot(_rr[i + 1 - 4 * (i == 3)][0] - _rr[i][0], _rr[i + 1 - 4 * (i == 3)][1] - _rr[i][1]), i) for i in range(4)])
+    _w_half = _sides[0][0] / 2
+    _A, _B = (1021.94, 479.5), (1255.77, 591.05)                         # lane's near edge, surveyed, either side of the entry
+    _ln = LineString([(_A[0] - (_B[0] - _A[0]), _A[1] - (_B[1] - _A[1])), (_B[0] + (_B[0] - _A[0]), _B[1] + (_B[1] - _A[1]))])
+    _site_side = Polygon(list(_ln.coords) + [(_ln.coords[1][0], -9999), (_ln.coords[0][0], -9999)]).buffer(0)
+    _c0 = _core.centroid
+    _ax = _core.minimum_rotated_rectangle
+    _east, _west = pt(M_DP, T_DP, -160, 389), pt(M_DP, T_DP, -400, 389)
+    _cl = LineString([_east, _west])
+    _strip = _cl.buffer(_w_half, cap_style=2).intersection(_site_side)
+    _band = _ln.buffer(8).difference(_site_side).intersection(_cl.buffer(60))
+    _r = 10 / (FT_PER_PT / abs(M_FP))
+    _apron = unary_union([_strip, _band]).buffer(_r, join_style=1).buffer(-_r, join_style=1).intersection(_site_side).intersection(_cl.buffer(_w_half + 2 * _r))
+    _Pn = unary_union([_Pm.difference(_dbox(-9999, -255)), _apron]).buffer(0.05).buffer(-0.05)
+    if _Pn.geom_type == "MultiPolygon":
+        _Pn = max(_Pn.geoms, key=lambda g: g.area)
+    _pk = dict(_pk, outline=[[round(v, 2) for v in _inv(x, y)] for x, y in _Pn.exterior.coords][:-1])
+    AG["elements"] = [(_pk if e_["id"] == "parking" else e_) for e_ in AG["elements"]]
+    _x_cross = _ln.intersection(_cl)
+    _filled = unary_union([Polygon(g_.exterior) for g_ in getattr(_ra, "geoms", [_ra])])
+    _old = _filled.buffer(1.2).intersection(_site_side.buffer(-1.6)).intersection(Point(_x_cross.x, _x_cross.y).buffer(40)) if not _x_cross.is_empty else None
+    if _old is not None and not _old.is_empty:
+        _apron_patch = f'<path d="{" ".join(poly_d(g_) for g_ in getattr(_old, "geoms", [_old]))}" fill="#F2F5EA" stroke="none"/>'
+        # the entry culvert runs under this spot: redrawn over the patch, still under the new drive
+        _m_ec = re.search(r'<g id="entry-culvert">(.*?)</g>', _infra) if _infra else None
+        if _m_ec:
+            _apron_patch += f'<g class="infra-copy" display="none">{_m_ec.group(1)}</g>'
+    print("entry apron: drive half-width ft", round(_w_half * FT_PER_PT / abs(M_FP), 1), "| return radius ft 10")
 by = []
 for e in AG["elements"]:
     if e["id"] == "existing-red-house":
@@ -591,7 +637,7 @@ for e in AG["elements"]:
     shape += (f' fill="{"none" if yard else "#fff" if walk else P[use3]["tint"]}" stroke="{P[use3]["base"]}" stroke-width="{0.6 if walk else 1.6}"' + (' stroke-dasharray="4 3"' if yard else "") + "/>")
     by.append(f'<g class="by" data-id="{e["id"]}" data-level="{e["level"]}" data-kind="{e["kind"]}" data-use="{e["use"]}" '
               f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
-barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
+barnyard = _apron_patch + f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
 # Surveyed trees inside the parking lot's swale island are drawn again above the barnyard, so the swale sits behind
 # them (the lot's paving is cut out around the island, so nothing else covers them there).
 _isl_d = [e_ for e_ in AG["elements"] if e_.get("holes")]
@@ -746,20 +792,19 @@ if os.path.exists(_bp):
 # its land (hence the bonus pasture), and the same could apply to stormwater. Replaces the earlier wildcard zone,
 # which was too far south to use without underground equalization pipes.
 _wild_svg, WILD = "", None
-_rp_ = os.path.join(OUT, "data", "retention-markup.json")
-if os.path.exists(_rp_):
-    _RM = json.load(open(_rp_))
-    WILD = {"site_acres": _RM["site_acres"], "bonus_acres": _RM["bonus_acres"]}
-    _sp = [Polygon(q) for q in _RM["site_ponds"]]; _bp = [Polygon(q) for q in _RM["bonus_ponds"]]
-    _wc = max(_bp, key=lambda g: g.area).centroid if _bp else None
-    _sc = max(_sp, key=lambda g: g.area).centroid if _sp else None
+if _RM:
+    WILD = {"site_acres": round(sum(_RM["site_ponds_acres"][1:]), 1), "bonus_acres": _RM["bonus_acres"], "bonus_ponds_acres": _RM["bonus_ponds_acres"]}
+    _sp = [Polygon(q) for q in _RM["site_ponds"][1:]]; _bp = [Polygon(q) for q in _RM["bonus_ponds"]]
+    _small = lambda g, l1, l2: (f'<g transform="translate({g.representative_point().x:.0f} {g.representative_point().y:.0f})"><g data-fixed="1">'
+                               f'<text y="-3" text-anchor="middle" font-size="14" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="3.5" paint-order="stroke">{l1}</text>'
+                               f'<text y="13" text-anchor="middle" font-size="13" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="3.5" paint-order="stroke">{l2}</text></g></g>')
     _wild_svg = ('<g id="wildcard" display="none">'
                  + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="2" data-w="2.5" stroke-dasharray="8 5" data-dash="8 5"/>' for g_ in _sp)
                  + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["base"]}" fill-opacity=".14" stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>' for g_ in _bp)
-                 + (_lbl(_wc.x, _wc.y, "Bonus retention", f'{_RM["bonus_acres"]} ac on Solid Waste land', P["water"]["base"]) if _wc else "")
-                 + (_lbl(_sc.x - 18, _sc.y + 6, "New retention", f'{_RM["site_acres"]} ac', P["water"]["base"]) if _sc else "")
+                 + "".join(_small(g_, "Site retention pond", f"{a_} ac") for g_, a_ in zip(_sp, _RM["site_ponds_acres"][1:]))
+                 + "".join(_small(g_, "Bonus retention", f"{a_} ac") for g_, a_ in zip(_bp, _RM["bonus_ponds_acres"]))
                  + "</g>")
-    print("retention markup: site ac", _RM["site_acres"], "| bonus ac", _RM["bonus_acres"])
+    print("retention markup: site ponds ac", _RM["site_ponds_acres"], "| bonus ponds ac", _RM["bonus_ponds_acres"])
 
 W, H = x1 - x0, y1 - y0
 font = "font-family=\"'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif\""

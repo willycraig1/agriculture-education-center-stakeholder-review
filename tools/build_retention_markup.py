@@ -53,13 +53,30 @@ _pl = [r["map"] for r in json.load(open(os.path.join(OUT, "data", "fences.json")
 (_x0, _y0), (_x1, _y1) = _pl[0], _pl[-1]
 _dx, _dy = _x1 - _x0, _y1 - _y0
 site = Polygon([(_x0 - _dx * 5, _y0 - _dy * 5), (_x1 + _dx * 5, _y1 + _dy * 5), (-5000, _y1 + _dy * 5), (-5000, _y0 - _dy * 5)])
-site_parts = [p.intersection(site) for p in ponds]
-bonus_parts = [p.difference(site) for p in ponds]
+# Clean-up (architect, 2026-10-14): the pond that meets the proposed retention pond becomes one shape with it
+# (no line between them), and where a pond crosses the parcel line its edges run straight across: each pond is
+# filled out with the convex hull of its part within 60' of the line, then the whole is split at the line.
+_ret = [Polygon(pd["pts"]).buffer(0) for pd in json.load(open(os.path.join(OUT, "data", "site-edits.json")))["ponds"] if pd["kind"] != "existing"]
+_line = site.exterior
+W60 = 60 / unit_ft
+groups = []
+for p in ponds:
+    if _ret and p.distance(_ret[0]) < 3:
+        p = unary_union([p, _ret[0]]).buffer(1.5).buffer(-1.5)
+    near = p.intersection(_line.buffer(W60))
+    if not near.is_empty:
+        p = unary_union([p, near.convex_hull]).buffer(0)
+    groups.append(p)
 flat = lambda gs: [g for x in gs for g in getattr(x, "geoms", [x]) if g.geom_type == "Polygon" and g.area * unit_ft ** 2 > 2000]
-site_p, bonus_p = flat(site_parts), flat(bonus_parts)
+site_p = flat([g.intersection(site) for g in groups])
+bonus_p = flat([g.difference(site) for g in groups])
+site_p = [g.buffer(-2).buffer(2).simplify(0.4) for g in site_p]
+bonus_p = [g.buffer(-2).buffer(2).simplify(0.4) for g in bonus_p]
+site_p.sort(key=lambda g: -g.area); bonus_p.sort(key=lambda g: g.centroid.x)
 rnd = lambda p: [[round(x, 1), round(y, 1)] for x, y in p.exterior.coords]
 out = {"source": os.path.relpath(SRC, ROOT), "fit_scale_px_per_unit": round(k, 4), "fit_max_residual_px": round(float(res), 1),
-       "site_ponds": [rnd(p) for p in site_p], "site_acres": round(sum(acres(p) for p in site_p), 1),
-       "bonus_ponds": [rnd(p) for p in bonus_p], "bonus_acres": round(sum(acres(p) for p in bonus_p), 1)}
+       "site_ponds": [rnd(p) for p in site_p], "site_ponds_acres": [acres(p) for p in site_p], "site_acres": round(sum(acres(p) for p in site_p), 1),
+       "bonus_ponds": [rnd(p) for p in bonus_p], "bonus_ponds_acres": [acres(p) for p in bonus_p], "bonus_acres": round(sum(acres(p) for p in bonus_p), 1),
+       "note": "site_ponds[0] is the proposed retention pond, merged with the markup's pond beside it; it replaces the drawn pond on the map."}
 json.dump(out, open(os.path.join(OUT, "data", "retention-markup.json"), "w"))
 print("fit: scale", round(k, 3), "max residual px", round(float(res), 1), "| ponds", len(ponds), "| site parts", [acres(p) for p in site_p], "| bonus parts", [acres(p) for p in bonus_p])
