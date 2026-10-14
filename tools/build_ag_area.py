@@ -335,12 +335,17 @@ _island = _island.buffer(-4, join_style=1).buffer(4, join_style=1)
 # the south corner is the inside of the turn from the stall aisle up the one-way drive: a 20' radius there
 _cS = _Pt(*_xy(_ui - CURB, -AISLE_S - CURB))
 _island = _island.difference(_cS.buffer(40).difference(_island_r20))
-# A bank of five stalls on the east side of the east leg, between the existing barn and the Red House (architect,
-# 2026-10-14), bringing the lot to about 50. Centred in the gap; clear of the barn's west apron and its doors.
-_eb, _rh_top = by_id["existing-barn"], min(q[1] for q in by_id["existing-red-house"]["outline"])
-_bank_y = round(((_eb["y"] + _eb["h"]) + _rh_top) / 2 - 25)
-BANK = [_lx1, _bank_y, 5, "v"]
-_lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south, _box(_lx1, _bank_y, _lx1 + STALL_D, _bank_y + 50)]).buffer(0.01).buffer(-0.01).simplify(0.3)
+# A bank of five stalls between the existing barn and the Red House (architect, 2026-10-14), bringing the lot to
+# 50. They are on the Red House grid, square to the one-way drive and opening off its line carried north: the drive
+# is widened there to a 24' aisle in front of them. They start 12' north of the Red House's north-west corner so
+# the accessible walk can pass between.
+BANK_N0 = -150
+BANK_STALLS = [[_xy(_ue, BANK_N0 - 10 * i), _xy(_ue, BANK_N0 - 10 * (i + 1)), _xy(_ue + STALL_D, BANK_N0 - 10 * (i + 1)), _xy(_ue + STALL_D, BANK_N0 - 10 * i)] for i in range(5)]
+_bank_aisle = _Poly([_xy(_ue - AISLE_S, BANK_N0 + 30), _xy(_ue, BANK_N0 + 30), _xy(_ue, BANK_N0 - 50), _xy(_ue - AISLE_S, BANK_N0 - 50)])
+# paving: the aisle and stalls, filled back to the east leg's edge so no slivers are left between the two grids
+_bank_paving = _MPt(list(_bank_aisle.exterior.coords) + [BANK_STALLS[0][0], BANK_STALLS[-1][1], BANK_STALLS[-1][2], BANK_STALLS[0][3],
+                        (_lx1, _y_at_n(_lx1, BANK_N0 - 50)), (_lx1, _y_at_n(_lx1, BANK_N0 + 30))]).convex_hull
+_lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south, _bank_paving]).buffer(0.01).buffer(-0.01).simplify(0.3)
 _uc = _ue - DIAG_W / 2
 # The entry drive, from the same sketch: about 12' between edges, meeting the west leg with 10' curb returns. It
 # lies on the existing surveyed drive (the survey's edges cross the diagram at y = 391 and 402); it is carried on
@@ -394,8 +399,24 @@ _swale = _swale.simplify(0.3)
 _P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _swale.exterior.coords][:-1]
 _P["island"]["label_at"] = [round(_island.centroid.x, 1), round(_island.centroid.y, 1)]
 _P["stalls_extra"] = [[list(q) for q in st] for st in SOUTH_STALLS]
-_P["rows"] = _P["rows"] + [BANK]
-n_stalls += len(SOUTH_STALLS) + BANK[2]
+_P["stalls_extra"] = _P["stalls_extra"] + [[list(q) for q in st] for st in BANK_STALLS]
+n_stalls += len(SOUTH_STALLS) + len(BANK_STALLS)
+# ---- accessible walk, Red House to cattle barn A: first pass (architect, 2026-10-14). 5' wide. It runs in the 5'
+# strip between the Red House and the one-way drive, crosses between the Red House's north-west corner and the
+# parking bank, passes behind the bank, then turns square to the barnyard grid: west of the existing barn and
+# its pens, and along the north edge of the cross drive to the south-east corner of cattle barn A.
+_ab = by_id["cattle-a"]
+_wD = _xy(_ue + STALL_D + 2.5, BANK_N0 - 55)
+_x_wpens = min(by_id["existing-barn"]["x"], by_id["existing-pens"]["x"]) - 8.5
+WALK = [_xy(_ue + 2.5, -45), _xy(_ue + 2.5, BANK_N0 + 5.5), _xy(_ue + STALL_D + 2.5, BANK_N0 + 5.5), _wD,
+        (_x_wpens, _wD[1]), (_x_wpens, _ab["y"] + _ab["h"] + 2.5), (_ab["x"] + _ab["w"] - 2, _ab["y"] + _ab["h"] + 2.5)]
+from shapely.geometry import LineString as _LS
+_walk = _LS(WALK).buffer(2.5, cap_style=2, join_style=2).simplify(0.2)
+_wx_, _wy_ = [q[0] for q in WALK], [q[1] for q in WALK]
+add("walk", "", min(_wx_), min(_wy_), max(_wx_) - min(_wx_), max(_wy_) - min(_wy_), "circulation", 1, kind="walk", note="5' wide",
+    outline=[[round(x, 1), round(y, 1)] for x, y in _walk.exterior.coords][:-1], context=True)
+by_id["walk"] = E[-1]
+print("accessible walk ft:", round(_LS(WALK).length))
 _P["note"] = f"{n_stalls} spaces"
 print("south loop: carport fit within", round(_sk_err, 1), "ft | scale px/ft", round(1 / abs(_MS), 2), "| rotation", round(__import__("math").degrees(__import__("cmath").phase(_MS)), 1),
       "| lot outline pts", len(_P["outline"]), "| stalls", n_stalls)
@@ -511,7 +532,7 @@ for lv in (1, 2, 3):
         use = e.get("becomes", {}).get("2", {}).get("use", e["use"])
         c = P[use]
         dash = ' stroke-dasharray="3 2"' if e["kind"] == "yard" else ""
-        fill = c["tint"] if e["kind"] != "yard" else "none"
+        fill = "#fff" if e["kind"] == "walk" else c["tint"] if e["kind"] != "yard" else "none"     # the walk: plain concrete
         if e.get("holes"):
             shape = '<path fill-rule="evenodd" d="' + " ".join("M" + " L".join(f"{px},{py}" for px, py in ring) + "Z" for ring in [e["outline"]] + e["holes"]) + f'" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
         elif e.get("outline"):

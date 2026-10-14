@@ -571,7 +571,8 @@ for e in AG["elements"]:
              else '<polygon class="shape" points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + '"' if e.get("outline")
              else f'<rect class="shape" x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}"')
     yard = e["kind"] == "yard"
-    shape += (f' fill="{"none" if yard else P[use3]["tint"]}" stroke="{P[use3]["base"]}" stroke-width="1.6"' + (' stroke-dasharray="4 3"' if yard else "") + "/>")
+    walk = e["kind"] == "walk"
+    shape += (f' fill="{"none" if yard else "#fff" if walk else P[use3]["tint"]}" stroke="{P[use3]["base"]}" stroke-width="{0.6 if walk else 1.6}"' + (' stroke-dasharray="4 3"' if yard else "") + "/>")
     by.append(f'<g class="by" data-id="{e["id"]}" data-level="{e["level"]}" data-kind="{e["kind"]}" data-use="{e["use"]}" '
               f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
 barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"

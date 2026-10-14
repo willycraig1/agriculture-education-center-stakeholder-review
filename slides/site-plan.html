@@ -99,7 +99,7 @@
       g.classList.toggle("future", +g.dataset.level > n);
       const use = n >= 2 && g.dataset.use2 ? g.dataset.use2 : g.dataset.use, sh = g.querySelector(".shape"), v = use.replace("_", "-");
       sh.style.stroke = `var(--${v})`;
-      if (g.dataset.kind !== "yard") sh.style.fill = `var(--${v}-tint)`;
+      if (g.dataset.kind !== "yard") sh.style.fill = g.dataset.kind === "walk" ? "#fff" : `var(--${v}-tint)`;
     });
     svg.querySelectorAll("#barnyard-labels text").forEach(t => t.classList.toggle("future", +t.dataset.level > n));
     const f = text[step].f;
