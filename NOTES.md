@@ -506,3 +506,9 @@ use); 24' clear between all buildings; small animal barn A at Level 2, B at Leve
   170..194, y 132..216). The yard's holding pen is pen 1; pens 2 to 5 sit north of the yard (y 80..132) in two
   columns either side of an 8' alley. The service drive's east leg runs through the bay. The accessible walk now
   avoids the bay: west along the cross drive's north edge, north beside the arena's west side, east to cattle barn A.
+- **Holding yard sized for four cattle (architect):** 36' x 42' (half the slide's yard each way), corner chamfers as
+  single 12' panels (8.5' each way); Bud Box 20' x 12', 16' single-file alley and chute kept; the lead-up is the 16'
+  beside the Bud Box; the bay matches the yard's 42' depth. Yard x 194..230, bay 170..194, y 174..216. With the space
+  freed, the pens follow the sketch again: 5 and 3 along the top, 4 and 2 below, pen 1 east of the yard, two columns
+  either side of an 8' alley in line with the yard's east side. The Bud Box slide itself still draws the 72' x 84'
+  yard (its note says Option B is sized down).
