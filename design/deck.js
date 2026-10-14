@@ -59,7 +59,21 @@
 
   window.Deck = {
     onStep: f => hooks.push(f), show, next, prev, all, play,
+    // The four design drivers (slides/drivers.html). A slide that a driver shapes carries its icon at the top right.
+    drivers: {
+      pasture: ["Pasture is scarce", `<circle cx="24" cy="24" r="23" fill="var(--pasture-tint)"/><path fill="none" stroke="var(--pasture)" stroke-width="3" stroke-linecap="round" d="M14 36c0-7 1-12 4-17M22 36c0-9 0-15 2-22M30 36c0-8 2-13 6-17M18 36c-1-5-3-8-6-10M34 36c1-4 3-6 6-8"/>`],
+      reuse: ["Reuse first", `<circle cx="24" cy="24" r="23" fill="var(--education-tint)"/><path fill="none" stroke="var(--education)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" d="M11 25l13-11 13 11M15 23v12h18V23M21 35v-7h6v7"/>`],
+      module: ["Grow by module", `<circle cx="24" cy="24" r="23" fill="var(--cattle-tint)"/><g fill="none" stroke="var(--cattle)" stroke-width="3" stroke-linejoin="round"><rect x="10" y="20" width="8" height="14"/><rect x="20" y="20" width="8" height="14"/><rect x="30" y="20" width="8" height="14" stroke-dasharray="3 3"/></g><path d="M34 11v8M30 15h8" stroke="var(--cattle)" stroke-width="3" stroke-linecap="round"/>`],
+      water: ["Protect the water", `<circle cx="24" cy="24" r="23" fill="var(--water-tint)"/><path fill="none" stroke="var(--water)" stroke-width="3" stroke-linecap="round" d="M10 20c4-4 7 4 11 0s7 4 11 0 5 2 6 1M10 29c4-4 7 4 11 0s7 4 11 0 5 2 6 1"/>`],
+    },
+    driverTags() {
+      const keys = (document.body.dataset.drivers || "").split(/\s+/).filter(k => this.drivers[k]), stage = document.querySelector(".stage");
+      if (!keys.length || !stage || stage.querySelector(".driver-tags")) return;
+      stage.insertAdjacentHTML("beforeend", `<div class="driver-tags" data-step="0">${keys.map(k =>
+        `<span class="driver-tag"><svg viewBox="0 0 48 48" aria-hidden="true">${this.drivers[k][1]}</svg>${this.drivers[k][0]}</span>`).join("")}</div>`);
+    },
     start() {
+      this.driverTags();
       if (params.has("static") || reduced) { root.classList.add("static"); all(); }
       else if (params.has("play")) play();
       else if (params.has("end")) all();

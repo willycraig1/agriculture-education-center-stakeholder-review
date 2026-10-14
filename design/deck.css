@@ -56,3 +56,9 @@ h1 { font: 600 64px/1.05 var(--serif); margin: 14px 0 10px; letter-spacing: -.01
   html, body { background: none; overflow: visible; }
   .stage { position: static; transform: none !important; }
 }
+
+/* Design-driver tags: the icons from the "design drivers" slide, repeated at the top right of the slides each
+   driver shapes. A slide opts in with <body data-drivers="water"> (pasture, reuse, module, water); deck.js draws them. */
+.driver-tags { position: absolute; top: 52px; right: 96px; display: flex; gap: 22px; align-items: center; }
+.driver-tag { display: flex; align-items: center; gap: 12px; font: 600 15px/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.driver-tag svg { width: 58px; height: 58px; flex: none; }
