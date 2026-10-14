@@ -59,8 +59,10 @@ _gap = []
 for g in toe:
     others = unary_union([o for o in toe if o is not g])
     _gap += [others.distance(g.interpolate(k, normalized=True)) for k in np.linspace(0.1, 0.9, 9)]
-r_toe = float(np.percentile([v for v in _gap if v < typical * 2], 90)) * 0.6
-floor = unary_union([g.buffer(r_toe) for g in toe]).buffer(-r_toe).intersection(bed).buffer(0)
+# Thicken by twice the usual bank-to-toe distance: enough to fill the wide basins where the two toes swing apart
+# (the bend east of the retention pond), and still held inside the banks by clipping to the bed.
+r_toe = typical * 2.0
+floor = unary_union([g.buffer(r_toe) for g in toe]).buffer(-r_toe).intersection(bed.buffer(-0.4)).buffer(0)
 floor_parts = [g for g in getattr(floor, "geoms", [floor]) if g.geom_type == "Polygon" and g.area * unit_ft ** 2 > 150]
 out = {"toe_lines": [[[round(x, 1), round(y, 1)] for x, y in g.simplify(0.25).coords] for g in toe],
        "floor": [{"outer": [[round(x, 1), round(y, 1)] for x, y in g.exterior.coords],

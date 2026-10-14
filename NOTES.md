@@ -259,3 +259,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   follow the west property line (they were up to about 65 ft off in the south) for the property line itself, the
   centreline of Cow Pen Slough. Used by `build_site_map.py` and `build_canopy.py`. The source edits file is not
   changed. Site area 158.5 → 154.9 ac; canopy 60.8 ac of it.
+- **Ditch floor fill widened.** Where the two toe lines swing apart (the bend east of the retention pond) the floor was left unfilled; the fill now thickens by twice the usual bank-to-toe distance and is clipped to the bed. Floor 0.57 ac.
