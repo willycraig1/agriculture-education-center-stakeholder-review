@@ -30,7 +30,7 @@
   <p class="lede" data-step="0">Planned from the best case down. Level 1 is the lightest touch that meets the program,
     and each Level above adds facilities as funding and demand allow.</p>
   <div class="grid" id="grid"></div>
-  <div class="key" data-step="4"><span><span class="sw tbc"></span>Dashed outline: proposed placement, to confirm with the Owner</span>
+  <div class="key" data-step="4"><span id="tbc-key" hidden><span class="sw tbc"></span>Dashed outline: proposed placement, to confirm with the Owner</span>
     <span>CE from the pasture worksheet (UF/IFAS AN155); pens on the 7-pen module</span></div>
 </div>
 
@@ -55,6 +55,8 @@
     });
   });
   document.getElementById("grid").innerHTML = html;
+  // the dashed-outline key only appears while some placement is still unconfirmed
+  document.getElementById("tbc-key").hidden = !document.querySelector("#grid .cell.tbc");
   Deck.start();
 })();
 </script>
