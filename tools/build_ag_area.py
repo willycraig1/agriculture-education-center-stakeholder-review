@@ -117,7 +117,10 @@ TR_X = XW0 - TR_W
 HW, HH = 6 * M, 7 * M
 HX, HY = TR_X - HW, y_n_aisle + 11
 BAY = [[TR_X, HY], [TR_X + 10, HY], [XW0, HY + 13], [XW0, HY + 68], [TR_X + 10, HY + HH], [TR_X, HY + HH]]
-LOT_S = max(y_s_row + STALL_D + 36, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
+# Tightened (architect, 2026-10-13): the planted island behind the south stall row is one 12' module deep, not 36',
+# so the lot ends 24' further north and stands clear of the Red House and the horticulture area.
+ISLAND_D = 12
+LOT_S = max(y_s_row + STALL_D + ISLAND_D, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
 LOT_X0, LOT_X1 = XW0, XE1                        # architect's edits: a plain rectangle ending at the east leg (177');
                                                # the stall column by the existing barn sits outside the fill
 add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_park, "circulation", 1, kind="parking", note=f"{n_stalls} spaces",
@@ -230,6 +233,43 @@ _pen(2, [[_xe, _y2], [_xe, _y1], [_wx(_y1), _y1], [_wx(_y2), _y2]])
 _pen(3, [[_xe, _yn], [_xe, _y2], [_wx(_y2), _y2], [_wx(_yn), _yn]])
 _pen(4, [[_tsa["x"], _tsa["y"] + _tsa["h"]], [_tsa["x"] + _tsa["w"], _tsa["y"] + _tsa["h"]], [_tsa["x"] + _tsa["w"], _y1], [_tsa["x"], _y1]])
 print("holding pens:", [(e["id"], e["note"]) for e in E if e.get("holding")])
+
+# The Red House footprint and the horticulture area, brought in from the site drawings so the barnyard reads in
+# its setting. Both are placed by turning their surveyed outlines into this diagram's feet (the inverse of the
+# transform that puts the diagram on the map, siteframe.diagram_transform).
+#   Red House     the architect's outline of the existing building (drawings/data/site-edits.json)
+#   Horticulture  the "HORTICULTURE AREA" rectangle on the study plan A0.2 (layer A-WALL-OTLN), 100' x 30',
+#                 beside the drive south of the Red House. The 20' x 30' "RESIDENCE" drawn at its north-west
+#                 end on that plan is left out.
+import sys as _sys
+_sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import siteframe as _sf
+_M, _T = _sf.diagram_transform(x_col + MOD / 2, y_pens)
+_to_d = lambda q: [round(v, 1) for v in (lambda z: (z.real, z.imag))((complex(*q) - _T) / _M)]
+def _ext(id_, label, pts, use, kind, note, **extra):
+    xs_, ys_ = [q[0] for q in pts], [q[1] for q in pts]
+    add(id_, label, min(xs_), min(ys_), max(xs_) - min(xs_), max(ys_) - min(ys_), use, 1, kind=kind, note=note, outline=pts, context=True, **extra)
+    by_id[id_] = E[-1]
+_edits = json.load(open(os.path.join(_sf.OUT, "data", "site-edits.json")))
+_rh = max(_edits["structures"], key=lambda s_: (max(q[0] for q in s_["pts"]) - min(q[0] for q in s_["pts"])) * (max(q[1] for q in s_["pts"]) - min(q[1] for q in s_["pts"])) if 1180 < s_["pts"][0][0] < 1240 and 340 < s_["pts"][0][1] < 400 else 0)
+_ext("existing-red-house", "Red House", [_to_d(q) for q in _rh["pts"][:-1]], "education", "building", "")
+_hl = []
+for _d in _sf.cadpdf.export(_sf.STUDY, ["A-WALL-OTLN"]).get("A-WALL-OTLN", []):
+    for _it in _d["items"]:
+        if _it[0] == "l":
+            _a, _b = (_sf.M_TP * complex(q.x, q.y) + _sf.T_TP for q in (_it[1], _it[2]))
+            if abs(_b - _a) * _sf.FT_PER_PT / abs(_sf.M_FP) > 25 and abs((_a + _b) / 2 - complex(1216, 430)) < 40:     # the rectangle south of the Red House only
+                _hl.append((_a, _b))
+_long = sorted(_hl, key=lambda sg: -abs(sg[1] - sg[0]))[:2]                       # the two 120' sides
+_lends = [z for sg in _long for z in sg]
+_div = max((sg for sg in _hl if sg not in _long), key=lambda sg: min(abs(z - e_) for z in sg for e_ in _lends))   # the short line that is not an end: it cuts off the residence
+_far = lambda sg, p: max(sg, key=lambda z: abs(z - p))                             # the end of a long side away from the residence
+_h = [_div[0], _far(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1] - _div[0]))), _div[0]),
+      _far(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1]), _div[1]]
+_ext("horticulture", "Horticulture area", [_to_d((z.real, z.imag)) for z in _h], "horticulture", "garden", "Raised beds and pots",
+     becomes={"2": {"use": "horticulture", "note": "Beds with irrigation"}, "3": {"use": "horticulture", "note": "Shade area, planting tables"}})
+print("red house and horticulture (diagram ft):", by_id["existing-red-house"]["outline"][:3], "...", by_id["horticulture"]["outline"],
+      "| horticulture sides ft:", [round(abs(_h[i] - _h[(i + 1) % 4]) * _sf.FT_PER_PT / abs(_sf.M_FP)) for i in range(4)])
 E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)   # turnouts are drawn first, behind the barns
 # the cross drive now lines up with the existing pens; its arrow stops short of them
 for c in C:
@@ -253,8 +293,11 @@ STALLS_BOX = [LOT_X0 + DX, y_park + DY, LOT_X1 + DX, y_s_row + STALL_D + DY]
 CROSS_DRIVE_BOX = [x_small + DX, y_drive + DY, x_col + DX, y_drive + LANE + DY]
 
 pad = 34
-xs = [v for e in E for v in (e["x"], e["x"] + e["w"])] + [q[0] for c in C for q in c["pts"]]
-ys = [v for e in E for v in (e["y"], e["y"] + e["h"])] + [q[1] for c in C for q in c["pts"]]
+# The opening view frames the barnyard itself. The Red House and the horticulture area (context) lie south of it:
+# they are drawn, and come into view when the viewer pans down, but do not widen the frame.
+_core = [e for e in E if not e.get("context")]
+xs = [v for e in _core for v in (e["x"], e["x"] + e["w"])] + [q[0] for c in C for q in c["pts"]]
+ys = [v for e in _core for v in (e["y"], e["y"] + e["h"])] + [q[1] for c in C for q in c["pts"]]
 view = [min(xs) - pad, min(ys) - pad - 14, max(xs) - min(xs) + 2 * pad + 34, max(ys) - min(ys) + 2 * pad + 30]
 
 # dimension strings. North string: across the top of the new work. Small barn: at the extension's north end.
