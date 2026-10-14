@@ -19,7 +19,7 @@
   .map.strong #historic-slough { fill-opacity: .6; }
   .map #campus { opacity: .7; }
   .map.plan #retention-label { display: inline; }
-  .map.comp #compensation { display: inline; }
+  .map.comp #compensation, .map.comp #wildcard { display: inline; }
   .map.infra #infrastructure, .map.infra #infrastructure-labels { display: inline; }   /* discussion item, shown on the plan step only */
   .map:not(.plan) .pond.proposed { display: none; }   /* proposed pond only on the plan step */
   .steps { position: absolute; left: 22px; bottom: 22px; width: 470px; list-style: none; margin: 0; padding: 10px; display: flex; flex-direction: column; gap: 4px;
@@ -38,10 +38,13 @@
   .steps li.now .lg { display: flex; }
   .steps li.done { color: var(--ink); }
   .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
-  .facts { display: flex; flex-direction: column; gap: 22px; }
-  .fact b { display: block; font: 600 54px/1 var(--serif); color: var(--water); }
-  .fact span { font: 500 17px/1.3 var(--sans); color: var(--muted); }
-  .ask { margin-top: 26px; padding: 16px 20px; border-left: 6px solid var(--water); background: #fff; border-radius: 0 10px 10px 0; font: 500 19px/1.4 var(--sans); }
+  .facts { display: flex; flex-direction: column; gap: 12px; }
+  .fact b { display: block; font: 600 40px/1 var(--serif); color: var(--water); }
+  .fact span { font: 500 16px/1.3 var(--sans); color: var(--muted); }
+  .ask { margin-top: 16px; padding: 12px 18px; border-left: 6px solid var(--water); background: #fff; border-radius: 0 10px 10px 0; font: 500 17px/1.4 var(--sans); }
+  .opts { margin-top: 12px; font: 400 15px/1.38 var(--sans); }
+  .opts div { padding: 6px 0; border-top: 1.5px solid #ece6d9; }
+  .opts b { font-weight: 700; }
   .ask b { display: block; font: 700 13px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--water); margin-bottom: 8px; }
 </style>
 </head>
@@ -57,7 +60,7 @@
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
       <div class="ask" data-step="3"><b>For the tables</b>How sacred is the historical slough bed? It conflicts with some of the program and makes the civil design harder to work around.</div>
-      <div class="ask" data-step="4"><b>Also for the tables</b>Covered livestock buildings sit at 21.70', with little freeboard. Is raising them further worth the extra fill and compensation?</div>
+      <div class="opts" data-step="4" id="opts"></div>
       <p class="src" data-step="0">1948 aerial: Sarasota County Property Appraiser, placed by matching its parcel lines to the current aerial's; its position is approximate.
         Slough bed: top of bank and toe of slope from the survey. Soil drainage classes follow NRCS series descriptions. North is to the left.</p>
     </div>
@@ -98,8 +101,8 @@
     { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The whole site is in the floodplain. Civil sets the covered livestock buildings at a finished floor of 21.70', just above the County's 100-year flood level, with little freeboard.`,
       lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Proposed retention pond</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
-    { t: "Floodplain compensation, all at Level 1", p: `Fill for the new work has to be balanced by lowering ground elsewhere, and civil recommends permitting and building all of it, with the stormwater, up front at Level 1. Option 1 (about ${C.option1_acres} acres) strips topsoil from the open ground north-west of the campus and reseeds it. Option 2 (about ${C.option2_acres} acres) clears and lowers the north pasture: costlier, but the biggest gain in forage. Both stay shallow and in grazing; the soil removed could cover the County landfill next door. The retention shown is undersized and is expanded along the barnyard's edges.`,
-      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Retention, expanded</span>`,
+    { t: "Floodplain compensation, all at Level 1", p: `The whole site is in the floodplain. Civil recommends permitting and building all the stormwater and compensation up front, at Level 1: fill for new work is balanced by lowering ground elsewhere, wide and shallow so it stays in grazing.`,
+      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Retention, expanded</span><span><i style="background:none;border:2px dotted var(--water)"></i>Wildcard retention zone</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, comp: true, frame: "full" },
     { t: "The pipes that connect it", p: "Two structures tie the old bed together. The culvert under the entry is undersized and hard to maintain: it is replaced with the new entry apron at Level 1. The outfall from the bed to Cow Pen Slough, two 36-inch pipes under the lane, is in good shape and sized for what the plan needs, so it stays.",
       lg: `<span><i style="background:var(--education);height:5px;margin-bottom:4px"></i>Replace</span><span><i style="background:var(--woodland);height:5px;margin-bottom:4px"></i>Keep</span>`,
@@ -107,6 +110,12 @@
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
+  document.getElementById("opts").innerHTML = [
+    `<b>Option 1</b>, about ${C.option1_acres} ac north-west of the campus: strip topsoil, reseed. Drainage unchanged.`,
+    `<b>Option 2</b>, about ${C.option2_acres} ac, the north pasture: clear and lower. Costlier; the biggest gain in forage.`,
+    `<b>Retention</b>: the pond shown is undersized; expanded along the barnyard's edges.`,
+    `<b>Wildcard</b>: Solid Waste, which controls the land, is open to more IFAS use, so extra ponds could go in the bonus pastures near the outfall.`,
+    `The soil removed could cover the County landfill next door.`].map(t => `<div>${t}</div>`).join("");
   const facts = [[1, bedAc, "acres of historical slough bed, bank to bank"], [2, `${wet}%`, "of the mapped site is very poorly drained"], [3, "21.70′", "finished floor for covered livestock buildings, just above the 100-year flood"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) => `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
 

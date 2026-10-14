@@ -446,3 +446,10 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   barn B (~1,800 sf), its turnout (~3,200 sf), holding pens 1-3 (~6,900 sf) and the arena edge; Option 1 overlaps
   cattle turnout B (~2,600 sf). To resolve with civil.
 - Parking sketch saved as `source/site-edits/parking-sketch-2026-10-12.png`.
+- **Wildcard retention (architect, 2026-10-14):** the County's Solid Waste department controls the property and drew
+  the site line somewhat arbitrarily; it is open to IFAS using more of its land (hence the bonus pasture). The same
+  approach could put extra retention ponds in the bonus pastures near the outfall. Shown on the water-site
+  compensation step as a dotted zone (`#wildcard`): the bonus paddocks within 300' of the outfall, the 3.8 ac and
+  8.2 ac paddocks (12.0 ac), not a design. The Solid Waste point is also added to the Act 1 site slide's "The land"
+  step. The compensation step's text was shortened and the options moved to a list beside the map; the second
+  "for the tables" box (freeboard) was dropped from that slide to fit; the question remains on the closing slide.
