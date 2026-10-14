@@ -240,7 +240,10 @@ _mid = np.array([[(g[0][0] + g[1][0]) / 2, (g[0][1] + g[1][1]) / 2] for g in gat
 out["gates"] = [{"length_ft": round(float(np.hypot(g[1][0] - g[0][0], g[1][1] - g[0][1]) * FT_PER_PT), 1),
                  "sheet": [[round(v, 2) for v in q] for q in g], "map": [to_p(q) for q in g]} for g in gate_leaves]
 out["gate_arcs"] = [{"sheet": [[round(v, 2) for v in q] for q in a], "map": [to_p(q) for q in a]} for a in gate_arcs]
-out["pinwheels"] = [{"gates": len(c), "map": to_p(_mid[c].mean(0))} for c in _cluster(_mid, 30) if len(c) >= 4]
+# A pinwheel is four gate swings round one point. Count the swing arcs, not the leaves: at the pinwheel in the middle
+# of the site pasture the plan draws the four arcs but no leaves.
+_amid = np.array([[(a_[0][0] + a_[3][0]) / 2, (a_[0][1] + a_[3][1]) / 2] for a_ in gate_arcs])
+out["pinwheels"] = [{"gates": len(c), "map": to_p(_amid[c].mean(0))} for c in _cluster(_amid, 30) if len(c) >= 4]
 # Roads: the survey's edge-of-pavement lines are plotted in short pieces; chain them the same way so each
 # road edge is one continuous polyline.
 from siteframe import SURVEY, M_SP, T_SP
