@@ -127,7 +127,9 @@ add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_pa
 add("trailer-stop", "Trailer stop", TR_X, HY, TR_W, HH, "circulation", 1, kind="yard", note="pull-off bay", outline=BAY)
 DRIVES = []
 ALLEY_L = 16                                   # single-file alley; with the chute it holds four cattle
-YARD = [[0, 0], [72, 0], [72, 68], [56, 84], [16, 84], [0, 64]]
+# The yard's south-east corner is square, as on the Bud Box slide: the diagonal there is the receiving gate, which
+# swings across the corner, not a fence. Only the south-west corner is chamfered.
+YARD = [[0, 0], [72, 0], [72, 84], [16, 84], [0, 64]]
 ay = 12 + ALLEY_L
 add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", note="",
     outline=[[HX + px, HY + py] for px, py in YARD], zones=[
@@ -205,6 +207,28 @@ ta = by_id["turnout-cattle-a"]
 ta["h"] = y_pens - ta["y"]
 for k in ("turnout-cattle-a", "turnout-cattle-b"):          # east edge lines up with the existing pens
     by_id[k]["w"] = EAST - by_id[k]["x"]
+# Holding pens for the handling yard (architect's sketch, 2026-10-13), Level 1. Three pens run down the west side,
+# their east fence on the line of the handling yard's west side, their west fence a straight line set back from
+# the historical slough bed (62' deep at the north end, 118' at the south; the sketch's line trimmed about 7' to clear the bank). Pen 1 is beside the handling yard,
+# where its gate to pasture opens; pen 2 runs north from there to the middle of small animal barn A; pen 3 on
+# to the north end of the small animal turnouts. Pen 4 fills the gap between the small animal turnout and the
+# handling yard's Bud Box. Sizes are read from the sketch, not dimensioned.
+_hd, _tsa, _tsb = by_id["handling"], by_id["turnout-small-a"], by_id["turnout-small-b"]
+_xe, _yn, _ys, _y1 = _hd["x"], _tsb["y"], _hd["y"] + _hd["h"], _hd["y"]
+_y2 = _tsa["y"] + _tsa["h"] / 2
+PEN_DEPTH_N, PEN_DEPTH_S = 62, 118        # pens' depth west of the handling line, north and south ends (ft)
+_wx = lambda y: _xe - PEN_DEPTH_N - (PEN_DEPTH_S - PEN_DEPTH_N) * (y - _yn) / (_ys - _yn)
+def _pen(n, pts, level=1):
+    xs_, ys_ = [q[0] for q in pts], [q[1] for q in pts]
+    area = abs(sum(pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1] for i in range(len(pts)))) / 2
+    add(f"holding-{n}", f"Pen {n}", min(xs_), min(ys_), max(xs_) - min(xs_), max(ys_) - min(ys_), "cattle", level, kind="yard",
+        note=f"{round(area, -1):,.0f} sf", outline=[[round(x, 1), round(y, 1)] for x, y in pts], holding=True)
+    by_id[f"holding-{n}"] = E[-1]
+_pen(1, [[_xe, _y1], [_xe, _ys], [_wx(_ys), _ys], [_wx(_y1), _y1]])
+_pen(2, [[_xe, _y2], [_xe, _y1], [_wx(_y1), _y1], [_wx(_y2), _y2]])
+_pen(3, [[_xe, _yn], [_xe, _y2], [_wx(_y2), _y2], [_wx(_yn), _yn]])
+_pen(4, [[_tsa["x"], _tsa["y"] + _tsa["h"]], [_tsa["x"] + _tsa["w"], _tsa["y"] + _tsa["h"]], [_tsa["x"] + _tsa["w"], _y1], [_tsa["x"], _y1]])
+print("holding pens:", [(e["id"], e["note"]) for e in E if e.get("holding")])
 E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)   # turnouts are drawn first, behind the barns
 # the cross drive now lines up with the existing pens; its arrow stops short of them
 for c in C:

@@ -319,3 +319,19 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   Levels) and a Small animals row (Level 1 "None yet", marked to confirm; barn A at Level 2; extension at Level 3).
   Map label on the unfinished barn reads "Poultry".
 - **Levels matrix:** swine and small animals merged into one row, "Swine & small animals", in the swine pink (same kinds of pens and barns); the separate Small animals row and its "None yet" cell are gone. Poultry keeps its own row. 7 / 15 / 28 CE accepted by the architect: the land dictates the number.
+
+### Holding pens and handling yard corner (2026-10-13)
+- **Holding pens (Level 1), from the architect's sketch.** Four yard elements in `build_ag_area.py` (`holding-1..4`),
+  so they appear wherever the barnyard is drawn (barnyard slide, barnyard-on-site slide). Pens 1 to 3 run down the
+  west side on the line of the handling yard's west fence: pen 1 beside the handling yard (9,170 sf), pen 2 north
+  to the middle of small animal barn A (8,730 sf), pen 3 on to the north end of the small animal turnouts
+  (5,950 sf). Pen 4 fills the gap between the small animal turnout and the Bud Box (2,640 sf). Sizes are read from
+  the sketch, not dimensioned. The west fence was first set at 68'/126' deep from the sketch, which clipped the
+  historical slough bed by about 950 sf; it is set at 62'/118' (`PEN_DEPTH_N/S`), which clears it.
+- **Handling yard corner.** Its south-east corner is now square, as on the Bud Box slide (the diagonal there is the
+  receiving gate, not a fence). Only the south-west corner is chamfered.
+- **Campus fence** now runs round the outside of the pens (pen 3's north side, the pens' west fence, then the
+  plan's last leg to its gate at the lane): 1,054 ft.
+- **Capacity again.** The pens come out of the paddock west of the campus: 3.4 ac on the plan → 3.2 ac (it had
+  been 3.7 before the pens). Site pasture 44.7 ac, 99.2 ac with bonus. 6.9 / 14.3 / 27.3 CE, so the planning
+  figures are back to **7 / 14 / 27**. Hard-coded mentions reset to match.
