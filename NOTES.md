@@ -262,3 +262,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Ditch floor fill widened.** Where the two toe lines swing apart (the bend east of the retention pond) the floor was left unfilled; the fill now thickens by twice the usual bank-to-toe distance and is clipped to the bed. Floor 0.57 ac.
 - **Compensation area, for discussion.** A possible compensation area (about 1.1 ac) on the open ground east of the head pond, between the historical bed and the flood zone line, traced by eye from the architect's markup (`COMP_PTS` in `build_site_map.py`). Not designed or sized. Drawn dashed with a label, hidden everywhere except the last step of the water site slide, where the text and legend name it. The earlier request to extend the two cut-off slough arms from the 1948 aerial was cancelled; nothing was changed for it.
 - **Retention pond acreage.** The proposed retention pond measures 0.8 ac from the architect's outline; with the 1.1 ac compensation area that is 1.9 ac. The water site slide's plan step labels both on the map with their acres and says the two together are intended to compensate for the new campus elements (the architect's intent; no compensation calculation has been done here).
+- **Drainage infrastructure (architect, 2026-10-13).** Two solid lines on the map (`#infrastructure`, hidden unless a
+  slide shows it), drawn between the surveyed ends of the ditch floor; diagrammatic, the pipes are not on the survey.
+  *Entry culvert* (red, about 123 ft as drawn) joins the bed either side of the entry drive: to be replaced for
+  sizing and maintenance. *Outfall* (green, about 98 ft as drawn) runs from the south end of the bed to Cow Pen
+  Slough: civil says it is in good shape and sized for the plan. Shown on a new fifth step of the water site
+  slide, "The pipes that connect it". The step text ties the culvert replacement to the new Level 1 entry apron.

@@ -14,7 +14,7 @@ Soil Survey before relying on them).
 
 Run:  python tools/build_site_map.py   (needs pymupdf, numpy, scipy, openpyxl, shapely)
 """
-import json, os, sys
+import json, math, os, sys
 import numpy as np
 import pymupdf
 from shapely import affinity
@@ -235,6 +235,35 @@ for _pd in (EDITS["ponds"] if EDITS else []):
                     f'<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Retention pond</text>'
                     f'<text y="18" text-anchor="middle" font-size="16" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">{RET_ACRES} ac</text></g></g>')
         print("proposed retention pond acres:", RET_ACRES, "| centroid", round(_rp.centroid.x), round(_rp.centroid.y))
+# Drainage infrastructure on the historical bed (architect, 2026-10-13), drawn as solid lines between the surveyed
+# ends of the ditch floor. Diagrammatic: the pipes themselves are not on the survey.
+#   entry culvert  under the entry apron, joining the bed either side of the drive: to be replaced (sizing, maintenance)
+#   outfall        from the south end of the bed to Cow Pen Slough: in good shape and sized for the plan (civil)
+_infra = ""
+INFRA = {}
+if os.path.exists(_bp) and AD:
+    _toe_ends = [tuple(q) for ln in json.load(open(_bp))["toe_lines"] for q in (ln[0], ln[-1])]
+    _near = lambda x, y: min(_toe_ends, key=lambda q: (q[0] - x) ** 2 + (q[1] - y) ** 2)
+    _c0, _c1 = _near(1141, 501), _near(1184, 521)                      # either side of the entry drive
+    _o0 = _near(1388, 653)                                             # south end of the bed
+    _sl = LineString(AD["slough_centre"])
+    _on = _sl.interpolate(_sl.project(Point(_o0)))
+    _len = math.hypot(_on.x - _o0[0], _on.y - _o0[1])
+    _k = 1 - (AD["slough_width_ft"] / 2 / (FT_PER_PT / abs(M_FP))) / _len      # stop at the slough's near bank
+    _o1 = (_o0[0] + (_on.x - _o0[0]) * _k, _o0[1] + (_on.y - _o0[1]) * _k)
+    _uf = FT_PER_PT / abs(M_FP)
+    INFRA = {"entry_culvert_ft": round(math.hypot(_c1[0] - _c0[0], _c1[1] - _c0[1]) * _uf), "outfall_ft": round(math.hypot(_o1[0] - _o0[0], _o1[1] - _o0[1]) * _uf)}
+    def _pipe(a, b, col, id_, l1, l2, dx, dy, anchor):
+        mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        return (f'<g id="{id_}"><line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="#fff" stroke-width="4" data-w="8" stroke-linecap="round"/>'
+                f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="{col}" stroke-width="2.4" data-w="5" stroke-linecap="round"/>'
+                f'<g transform="translate({mx:.1f} {my:.1f})"><g data-fixed="1">'
+                f'<text x="{dx}" y="{dy}" text-anchor="{anchor}" font-size="17" font-weight="700" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l1}</text>'
+                f'<text x="{dx}" y="{dy + 20}" text-anchor="{anchor}" font-size="15" font-weight="600" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l2}</text></g></g></g>')
+    _infra = ('<g id="infrastructure" display="none">'
+              + _pipe(_c0, _c1, P["education"]["base"], "entry-culvert", "Culvert under the entry", "replace: undersized, hard to maintain", -14, 34, "end")
+              + _pipe(_o0, _o1, P["woodland"]["base"], "outfall", "Outfall to Cow Pen Slough", "keep: sound and sized for the plan", 16, -22, "start") + "</g>")
+    print("infrastructure lines ft:", INFRA)
 water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
          + _bed_svg + _comp_svg
          + (g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3"') if not EDITS else
@@ -244,7 +273,7 @@ water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fil
          + g_paths(sv.get("FEMA FLOOD ZONE", []), M_SP, T_SP,
                    f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{5/abs(M_SP):.3f}" '
                    f'stroke-dasharray="{18/abs(M_SP):.2f} {10/abs(M_SP):.2f}"')
-         + _ret_lbl)
+         + _ret_lbl + _infra)
 
 # ---------------------------------------------------------------- trees
 tree_svg = "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s > 20 else 3.8}"/>'
@@ -598,7 +627,7 @@ CAMPUS_BOX = [min(c[0] for c in _cb), min(c[1] for c in _cb), max(c[0] for c in 
 meta = {"canopy_acres": AD["canopy_acres"] if AD else None, "campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
                      "bearing_deg": math.degrees(cmath.phase(FENCE_ST[1] - FENCE_ST[0]))},
         "view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "site_acres_footprint_previous": round(footprint_auto.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
-        "soils": soil_json, "ft_per_unit": FT_PER_PT, "slough_bed": bed_meta, "compensation_acres": COMP_ACRES, "retention_acres": RET_ACRES}
+        "soils": soil_json, "ft_per_unit": FT_PER_PT, "slough_bed": bed_meta, "compensation_acres": COMP_ACRES, "retention_acres": RET_ACRES, "infrastructure": INFRA}
 with open(os.path.join(SLIDES, "data", "site-map.js"), "w") as fh:
     fh.write("// Generated by tools/build_site_map.py. Do not edit by hand.\n")
     fh.write("window.SITE_MAP = " + json.dumps({"svg": svg, **meta}) + ";\n")

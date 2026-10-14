@@ -18,7 +18,8 @@
   .map #historic-slough { transition: fill-opacity .8s var(--ease); }
   .map.strong #historic-slough { fill-opacity: .6; }
   .map #campus { opacity: .7; }
-  .map.plan #compensation, .map.plan #retention-label { display: inline; }   /* discussion item, shown on the plan step only */
+  .map.plan #compensation, .map.plan #retention-label { display: inline; }
+  .map.infra #infrastructure { display: inline; }   /* discussion item, shown on the plan step only */
   .map:not(.plan) .pond.proposed { display: none; }   /* proposed pond only on the plan step */
   .steps { position: absolute; left: 22px; bottom: 22px; width: 470px; list-style: none; margin: 0; padding: 10px; display: flex; flex-direction: column; gap: 4px;
            background: rgba(250,247,240,.94); border-radius: 14px; border: 1.5px solid var(--line); }
@@ -50,7 +51,7 @@
   <div class="body">
     <div class="map card" data-step="0" id="map">
       <ol class="steps" id="steps"></ol>
-      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span>
+      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
@@ -75,7 +76,7 @@
 
   const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
   // the slough bed and the campus, set in the part of the map the step panel leaves open
-  const frames = { full, bed: [330, 150, 1180, 750] };
+  const frames = { full, bed: [330, 150, 1180, 750], pipes: [840, 330, 700, 445] };
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Full site", box: frames.full }, { label: "Slough bed", box: frames.bed }],
     uiStyle: "right:auto;top:auto;left:512px;bottom:22px;max-width:none;justify-content:flex-start" });
@@ -95,6 +96,9 @@
     { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The retention pond, about ${M.retention_acres} acres, sits beside the campus, where runoff from the parking, drives and roofs collects. For discussion: a compensation area of about ${M.compensation_acres} acres on the open ground east of the head pond. Together, about ${(M.retention_acres + M.compensation_acres).toFixed(1)} acres, intended to compensate for the new campus elements.`,
       lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Proposed retention pond</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Compensation area, for discussion</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
+    { t: "The pipes that connect it", p: "Two structures tie the old bed together. The culvert under the entry is undersized and hard to maintain: it is replaced with the new entry apron at Level 1. The outfall from the bed to Cow Pen Slough is in good shape and sized for what the plan needs, so it stays.",
+      lg: `<span><i style="background:var(--education);height:5px;margin-bottom:4px"></i>Replace</span><span><i style="background:var(--woodland);height:5px;margin-bottom:4px"></i>Keep</span>`,
+      show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, infra: true, frame: "pipes" },
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
@@ -109,6 +113,7 @@
     svg.querySelector("#aerial1948").classList.toggle("under", !!s.under);
     mapEl.classList.toggle("strong", !!s.strong);
     mapEl.classList.toggle("plan", !!s.plan);
+    mapEl.classList.toggle("infra", !!s.infra);
     document.querySelectorAll("#steps li").forEach(li => {
       const i = +li.dataset.i;
       li.classList.toggle("now", i === n);
