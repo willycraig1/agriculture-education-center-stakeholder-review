@@ -31,7 +31,9 @@
   .steps li.now .n { background: var(--ink); border-color: var(--ink); color: #fff; }
   .steps li.now p { display: block; }
   .steps li.done { color: var(--ink); }
-  .static .steps li p { display: block; font-size: 15px; }
+  .static .steps li p { display: block; font-size: 14px; line-height: 1.35; margin-top: 3px; }   /* every step's text at once: kept compact so it fits */
+  .static .steps li { padding: 4px 14px; }
+  .static .steps { gap: 3px; }
   .why { margin-top: 12px; padding: 12px 18px; border-left: 6px solid var(--cattle); background: var(--cattle-tint); border-radius: 0 10px 10px 0; font: 500 16px/1.45 var(--sans); }
   .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
 </style>

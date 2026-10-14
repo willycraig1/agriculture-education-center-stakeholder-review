@@ -62,3 +62,6 @@ h1 { font: 600 64px/1.05 var(--serif); margin: 14px 0 10px; letter-spacing: -.01
 .driver-tags { position: absolute; top: 52px; right: 96px; display: flex; gap: 22px; align-items: center; }
 .driver-tag { display: flex; align-items: center; gap: 12px; font: 600 15px/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .driver-tag svg { width: 58px; height: 58px; flex: none; }
+
+/* Firm credit on every slide except the title (which carries it in its meta line); drawn by deck.js */
+.firm { position: absolute; right: 96px; bottom: 20px; font: 600 13px/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--muted); opacity: .8; }
