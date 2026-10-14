@@ -330,8 +330,17 @@ _south = _Poly([(_lx0, _row_back), (_lx1, _row_back), (_lx1, _y_at(_lx1, _ue)), 
 # island: between the legs, south of the stall rows, inside the curb of the diagonal drive and the south aisle
 _island = _Poly([_xy(_ui - CURB, -AISLE_S - CURB), _xy(_ui - CURB, -400), _xy(-400, -400), _xy(-400, -AISLE_S - CURB)]).intersection(
     _box(XW1 + DX + CURB, _row_back, XE0 + DX - CURB, 9999))
+_island_r20 = _island.buffer(-20, join_style=1).buffer(20, join_style=1)
 _island = _island.buffer(-4, join_style=1).buffer(4, join_style=1)
-_lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south]).buffer(0.01).buffer(-0.01).simplify(0.3)
+# the south corner is the inside of the turn from the stall aisle up the one-way drive: a 20' radius there
+_cS = _Pt(*_xy(_ui - CURB, -AISLE_S - CURB))
+_island = _island.difference(_cS.buffer(40).difference(_island_r20))
+# A bank of five stalls on the east side of the east leg, between the existing barn and the Red House (architect,
+# 2026-10-14), bringing the lot to about 50. Centred in the gap; clear of the barn's west apron and its doors.
+_eb, _rh_top = by_id["existing-barn"], min(q[1] for q in by_id["existing-red-house"]["outline"])
+_bank_y = round(((_eb["y"] + _eb["h"]) + _rh_top) / 2 - 25)
+BANK = [_lx1, _bank_y, 5, "v"]
+_lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south, _box(_lx1, _bank_y, _lx1 + STALL_D, _bank_y + 50)]).buffer(0.01).buffer(-0.01).simplify(0.3)
 _uc = _ue - DIAG_W / 2
 # The entry drive, from the same sketch: about 12' between edges, meeting the west leg with 10' curb returns. It
 # lies on the existing surveyed drive (the survey's edges cross the diagram at y = 391 and 402); it is carried on
@@ -373,7 +382,8 @@ _swale = _island.buffer(-SWALE_SETBACK, join_style=1).simplify(0.3)
 _P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _swale.exterior.coords][:-1]
 _P["island"]["label_at"] = [round(_island.centroid.x, 1), round(_island.centroid.y, 1)]
 _P["stalls_extra"] = [[list(q) for q in st] for st in SOUTH_STALLS]
-n_stalls += len(SOUTH_STALLS)
+_P["rows"] = _P["rows"] + [BANK]
+n_stalls += len(SOUTH_STALLS) + BANK[2]
 _P["note"] = f"{n_stalls} spaces"
 print("south loop: carport fit within", round(_sk_err, 1), "ft | scale px/ft", round(1 / abs(_MS), 2), "| rotation", round(__import__("math").degrees(__import__("cmath").phase(_MS)), 1),
       "| lot outline pts", len(_P["outline"]), "| stalls", n_stalls)

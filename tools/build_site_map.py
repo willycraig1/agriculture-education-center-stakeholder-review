@@ -552,7 +552,8 @@ for e in AG["elements"]:
     if e.get("rows"):
         sw, sd = e["stall"]
         inner += '<g fill="#fff" fill-opacity=".55" stroke="{}" stroke-width=".5">'.format(P["circulation"]["base"]) + "".join(
-            f'<rect x="{r[0] + k * sw}" y="{r[1]}" width="{sw}" height="{sd}"/>' for r in e["rows"] for k in range(r[2])) + "</g>"
+            (f'<rect x="{r[0]}" y="{r[1] + k * sw}" width="{sd}" height="{sw}"/>' if len(r) > 3 else f'<rect x="{r[0] + k * sw}" y="{r[1]}" width="{sw}" height="{sd}"/>')
+            for r in e["rows"] for k in range(r[2])) + "</g>"
         inner = inner[:-4] + "".join(f'<polygon points="{" ".join(f"{px},{py}" for px, py in q)}"/>' for q in e.get("stalls_extra", [])) + "</g>"
         isl = e.get("island")
         if e.get("island_poly"):
