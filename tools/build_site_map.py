@@ -363,7 +363,15 @@ if os.path.exists(_fp):
         _tb, _ar, _ts, _hd = _el["turnout-cattle-b"], _el["arena"], _el["turnout-small-b"], _el["handling"]
         _east, _north = _tb["x"] + _tb["w"], _tb["y"]
         _end_d = _to_d(_cf["map"][-1])
-        if "holding-3" in _el and "holding-1" in _el:
+        if AG.get("counts", {}).get("option") == "B":
+            # Option B: round the north side of the cattle turnouts, the west end of the small animal barns' turnout,
+            # and back down to the plan's last leg at the lane; east of the turnouts it follows the holding pens' top
+            _ts = _el["turnout-small-b"]; _hp = _el["holding-3"]
+            _xw_ = _ts["x"]; _ye = round(_end_d.imag, 1)
+            _new_d = [(_hp["x"] + _hp["w"], _hp["y"]), (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _hp["y"]),
+                      (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _tb["y"]), (_tb["x"], _tb["y"]), (_tb["x"], _ts["y"] - 12),
+                      (_xw_, _ts["y"] - 12), (_xw_, _ye)]
+        elif "holding-3" in _el and "holding-1" in _el:
             # round the outside of the holding pens: along pen 3's north side, down the pens' west fence to the
             # level of the plan's last leg, then along that leg to its gate at the lane
             (_nwx, _nwy), (_swx, _swy) = _el["holding-3"]["outline"][3], _el["holding-1"]["outline"][-2]
@@ -381,6 +389,24 @@ if os.path.exists(_fp):
         json.dump({"note": "The campus fence as redrawn to the barnyard's turnout yards; replaces this run of fences.json on the map.",
                    "id": _cf["id"], "length_ft": _cf["length_ft"], "plan_length_ft": _old_ft, "diagram_ft": [list(q) for q in _new_d], "map": _cf["map"]},
                   open(os.path.join(OUT, "data", "campus-fence.json"), "w"), indent=1)
+        # fences that ran to the old campus line are carried on to the new one (straight, along their last leg)
+        _cfl = LineString(_cf["map"])
+        for _r in FENCES["runs"]:
+            if _r is _cf:
+                continue
+            for _k in (0, -1):
+                _e = Point(_r["map"][_k]); _dd = _cfl.distance(_e) * FT_PER_PT / abs(M_FP)
+                if 1 < _dd < 80 and _PLAN_RUNS and min(g_.distance(_e) for g_ in [LineString(rr_["map"]) for rr_ in FENCES["runs"] if rr_ is not _r and rr_ is not _cf] or [Point(1e9, 1e9)]) > 2:
+                    _q = _r["map"][1] if _k == 0 else _r["map"][-2]
+                    _dx, _dy = _e.x - _q[0], _e.y - _q[1]
+                    _L = math.hypot(_dx, _dy) or 1
+                    _ray = LineString([(_e.x, _e.y), (_e.x + _dx / _L * 60, _e.y + _dy / _L * 60)])
+                    _hit = _ray.intersection(_cfl)
+                    _hp_ = _hit if _hit.geom_type == "Point" else (min(getattr(_hit, "geoms", []), key=lambda g: g.distance(_e)) if not _hit.is_empty else None)
+                    if _hp_ is not None and _hp_.geom_type == "Point":
+                        if _k == 0: _r["map"].insert(0, [round(_hp_.x, 2), round(_hp_.y, 2)])
+                        else: _r["map"].append([round(_hp_.x, 2), round(_hp_.y, 2)])
+                        print("  fence", _r["id"], "carried", round(_dd), "ft to the campus fence")
         print("campus fence redrawn:", _cf["id"], _old_ft, "ft ->", _cf["length_ft"], "ft")
     _pl = "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES["runs"])
     _fence_art = (f'<g fill="none" stroke="#fff" stroke-width="5" data-w="5" stroke-linejoin="round" stroke-linecap="round">{_pl.replace(" id=", " data-id=")}</g>'
@@ -647,7 +673,7 @@ if _isl_d:
     barnyard += (f'<g id="swale-trees" fill="{P["woodland"]["base"]}" fill-opacity="0.7">'
                  + "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s_ > 20 else 3.8}"/>' for px, py, s_ in _isl_trees) + "</g>")
     print("trees in the swale island, drawn over it:", len(_isl_trees))
-BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Extension",
+BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Small animal barn B", "feed": "Feed storage", "holding-5": "Pen 5",
              "arena": "Arena", "parking": "Parking", "handling": "Handling", "horticulture": "Horticulture", "residence": "RV / residence", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""
 for e in AG["elements"]:

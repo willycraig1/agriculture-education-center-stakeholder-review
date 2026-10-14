@@ -34,7 +34,9 @@
   .levels > li.now .badge { background: var(--ink); }
   .levels > li.now ul { display: block; }
   .levels > li.done { color: var(--ink); }
-  .static .levels li ul { display: block; font-size: 15px; }
+  .static .levels li ul { display: block; font-size: 13px; line-height: 1.32; margin-top: 4px; }   /* all Levels at once: compact */
+  .static .levels > li { padding: 7px 14px; }
+  .static .levels { gap: 4px; }
   .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-top: 18px; font: 500 15px/1.2 var(--sans); color: var(--ink); }
   .legend i { display: inline-block; width: 18px; height: 14px; border-radius: 3px; margin-right: 8px; vertical-align: -2px; border: 1.5px solid; }
   .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
@@ -42,7 +44,7 @@
 </head>
 <body data-drivers="module">
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <div class="eyebrow" data-step="0">Act 5 · The plan · Option B</div>
   <h1 data-step="0">The barnyard, Level by Level</h1>
   <div class="body">
     <div class="plan card" data-step="0" id="plan"><span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span></div>
@@ -159,9 +161,9 @@
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Horticulture area south of the Red House, with camper / RV hookups (pan down to see them)", "Accessible walk (white) from the Red House to cattle barn A"] },
-    { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal barn A, ${sa} pens: the hogs move here`, "First feed storage container, by the parking", "Existing barn, emptied of hogs, becomes storage"] },
-    { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Barn A extended 42': ${A.counts.small_animal_pens[3]} small animal pens in all, kept off the wet corner`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "Holding pens 1 to 5 north of the existing pens, with the Bud Box, chute and scale in their south-west corner", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Horticulture area south of the Red House, with camper / RV hookups (pan down to see them)", "Accessible walk (white) from the Red House to cattle barn A"] },
+    { b: "Level 2", h: "First new barns", items: [`Cattle barn A, with its turnout 36' off its north side: ${c[2]} pens in all`, `Small animal barn A, ${sa} pens, for hogs or small animals: the hogs move here`, "Feed storage: two 8' × 40' containers", "Existing barn, emptied of hogs, becomes storage"] },
+    { b: "Level 3", h: "Best case", items: [`Cattle barn B beside barn A, with its turnout: ${c[3]} pens in all`, `Small animal barn B, with a turnout 36' off its west side: ${A.counts.small_animal_pens[3]} small animal pens in all`, "Arena, 84' × 50', south of cattle barn A", "24' clear between all buildings"] },
     { b: "Flow", h: "Straight lines", items: ["The loop's west leg continues the west lane; its east leg continues the cattle tractor aisle", "One-way loop, counter-clockwise: in from the Red House side, out to the entry drive", "Trailers pull off the loop into a bay beside the handling yard, unload, and drive on", "Every barn opens onto its own turnout", `Two ${A.lane_ft}' lanes and a cross drive serve feed, pens and the arena`] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
