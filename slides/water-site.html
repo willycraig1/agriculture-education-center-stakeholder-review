@@ -42,8 +42,8 @@
   .fact b { display: block; font: 600 40px/1 var(--serif); color: var(--water); }
   .fact span { font: 500 16px/1.3 var(--sans); color: var(--muted); }
   .ask { margin-top: 16px; padding: 12px 18px; border-left: 6px solid var(--water); background: #fff; border-radius: 0 10px 10px 0; font: 500 17px/1.4 var(--sans); }
-  .opts { margin-top: 12px; font: 400 15px/1.38 var(--sans); }
-  .opts div { padding: 6px 0; border-top: 1.5px solid #ece6d9; }
+  .opts { margin-top: 10px; font: 400 14.5px/1.32 var(--sans); }
+  .opts div { padding: 4px 0; border-top: 1.5px solid #ece6d9; }
   .opts b { font-weight: 700; }
   .ask b { display: block; font: 700 13px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--water); margin-bottom: 8px; }
 </style>
@@ -113,9 +113,9 @@
   document.getElementById("opts").innerHTML = [
     `<b>Option 1</b>, about ${C.option1_acres} ac north-west of the campus: strip topsoil, reseed. Drainage unchanged.`,
     `<b>Option 2</b>, about ${C.option2_acres} ac, the north pasture: clear and lower. Costlier; the biggest gain in forage.`,
-    `<b>Retention</b>: the pond shown is undersized; expanded along the barnyard's edges.`,
+    `<b>Retention</b>: undersized as drawn; expanded along the barnyard's edges.`,
     `<b>Site retention</b>, about ${(M.retention_acres + (W.site_acres || 0)).toFixed(1)} ac in all: the pond by the campus (${M.retention_acres} ac) and a second between the old bed and the lane (${W.site_acres} ac).`,
-    `<b>Bonus retention</b>, about ${W.bonus_acres} ac in ${(W.bonus_ponds_acres || []).length} ponds: Solid Waste, which controls the land, is open to more IFAS use, so both ponds can extend south onto its land, with two more ponds past the outfall drive.`,
+    `<b>Bonus retention</b>, about ${W.bonus_acres} ac in all (${(W.bonus_ponds_acres || []).map(a => a.toFixed(1)).join(", ")} ac), on Solid Waste land: both site ponds extend south, plus two ponds past the outfall drive.`,
     `The soil removed could cover the County landfill next door.`].map(t => `<div>${t}</div>`).join("");
   const facts = [[1, bedAc, "acres of historical slough bed, bank to bank"], [2, `${wet}%`, "of the mapped site is very poorly drained"], [3, "21.70′", "finished floor for covered livestock buildings, just above the 100-year flood"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) => `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
