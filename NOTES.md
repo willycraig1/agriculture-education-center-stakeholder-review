@@ -403,3 +403,12 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - The Python build environment in the scratchpad lost its packages overnight; rebuilt (`venv2`). The build
   reproduced the committed outputs exactly before any change.
 - **Swale island (architect, 2026-10-14):** the island is cut out of the parking lot's paving (`holes` on the parking element; drawn with an even-odd path in all three renderers). The swale is drawn inside it, set back 5' from the curb (`SWALE_SETBACK`; asked for 4-6'). On the site plans the island is filled with ground colour (hiding the existing drive surveyed under it) and the two surveyed trees inside it are redrawn above the swale (`#swale-trees`).
+- **South loop redrawn on the Red House's grid (architect, 2026-10-14: edges not parallel, poorly registered, too
+  much paving south of the Red House).** The Red House, carport, angled stalls and horticulture strip are square to
+  one another (about 34 degrees off the diagram grid), so the south loop is laid out in that frame (u along the
+  stall row, n across it), with only the stall-front line taken from the sketch. The stall row now starts where the
+  west leg meets the stall fronts (its west end is a stall side, square to the row); the drive from the east leg
+  runs parallel to the Red House's west face, 24' wide and set back 10' from it, then along a 24' aisle (14' clear of
+  the Red House's south face) straight into the carport. The paved apron south of the Red House is gone. The swale
+  island follows the drive edges with 2' curbs and 4' rounded corners; it is now roughly triangular, and the two
+  surveyed trees that were in it fall under paving.

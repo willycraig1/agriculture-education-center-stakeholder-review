@@ -303,16 +303,35 @@ _, _MS, _TS, _sk_err = _best
 _sk = lambda x, y: (lambda z: (round(z.real, 1), round(z.imag, 1)))(_MS * complex(x, y) + _TS)
 _lx0, _lx1 = by_id["parking"]["x"], by_id["parking"]["x"] + by_id["parking"]["w"]          # this lot's west and east edges
 _row_back = y_s_row + STALL_D + DY                                                         # back of the south stall row
-_island = _Poly([_sk(*q) for q in [(596, 613), (1083, 613), (1083, 730), (1072, 772), (1060, 800), (950, 960), (920, 990), (885, 1010),
-                                  (845, 1015), (805, 1010), (770, 995), (650, 912), (618, 880), (600, 840), (596, 805)]])
-_island = _island.intersection(_box(XW1 + DX + 2, _row_back, XE0 + DX - 2, 9999))
-_stall_front = [_sk(530, 962), _sk(862, 1183)]
-_stall_back = [_sk(483, 1035), _sk(815, 1255)]
-_lerp = lambda a, b, f: (round(a[0] + (b[0] - a[0]) * f, 1), round(a[1] + (b[1] - a[1]) * f, 1))
-SOUTH_STALLS = [[_lerp(*_stall_front, i / 9), _lerp(*_stall_front, (i + 1) / 9), _lerp(*_stall_back, (i + 1) / 9), _lerp(*_stall_back, i / 9)] for i in range(9)]
-_south = _Poly([(_lx0, _row_back), (_lx1, _row_back), _sk(1136, 787), _sk(975, 1062), _sk(1056, 1118), _sk(963, 1257), _sk(862, 1183),
-                _sk(815, 1255), _sk(483, 1035), (_lx0, _sk(520, 955)[1])]).buffer(0)
+# Laid out on the Red House's own grid (architect, 2026-10-14: edges parallel, registered to the Red House): the
+# Red House, its carport, the angled stall row and the horticulture strip are all square to one another, about 34
+# degrees off this diagram's grid. u runs along the stall row (south-east), n across it (south-west); the origin is
+# on the stall fronts. The sketch only sets where the stall fronts lie.
+_f0, _f1 = complex(*_sk(530, 962)), complex(*_sk(862, 1183))
+_U = (_f1 - _f0) / abs(_f1 - _f0); _N = _U * 1j                          # n points south-west, away from the island
+_xy = lambda u, n: (lambda z: (round(z.real, 1), round(z.imag, 1)))(_f0 + _U * u + _N * n)
+_uv = lambda x, y: (lambda d: ((d * _U.conjugate()).real, (d * _N.conjugate()).real))(complex(x, y) - _f0)
+AISLE_S, CURB, RH_SETBACK = 24, 2, 10
+_u_cp = min(_uv(z.real, z.imag)[0] for z in _cpd)                          # carport's west face: the drive runs into it
+_u_rh = min(_uv(*q)[0] for q in by_id["existing-red-house"]["outline"])      # Red House's westernmost face
+_ue = _u_rh - RH_SETBACK                                                   # east edge of the diagonal drive, 10' off the Red House
+_ui = _ue - AISLE_S                                                        # its west edge
+def _y_at(x, u):                                                           # y where the vertical x = const reaches the given u
+    return round((u - _uv(x, 0)[0]) / _U.imag, 1)
+def _y_at_n(x, n):
+    n0 = _uv(x, 0)[1]; return round((n - n0) / _N.imag, 1)
+_u0 = _uv(_lx0, _y_at_n(_lx0, 0))[0]                                       # stall row starts where the west leg meets the stall fronts
+SOUTH_STALLS = [[_xy(_u0 + 10 * i, 0), _xy(_u0 + 10 * (i + 1), 0), _xy(_u0 + 10 * (i + 1), STALL_D), _xy(_u0 + 10 * i, STALL_D)] for i in range(9)]
+_u9 = _u0 + 90
+_south = _Poly([(_lx0, _row_back), (_lx1, _row_back), (_lx1, _y_at(_lx1, _ue)), _xy(_ue, -AISLE_S), _xy(_u_cp, -AISLE_S), _xy(_u_cp, 0),
+                _xy(_u9, 0), _xy(_u9, STALL_D), _xy(_u0, STALL_D), (_lx0, _y_at_n(_lx0, 0))]).buffer(0)
+# island: between the legs, south of the stall rows, inside the curb of the diagonal drive and the south aisle
+_island = _Poly([_xy(_ui - CURB, -AISLE_S - CURB), _xy(_ui - CURB, -400), _xy(-400, -400), _xy(-400, -AISLE_S - CURB)]).intersection(
+    _box(XW1 + DX + CURB, _row_back, XE0 + DX - CURB, 9999))
+_island = _island.buffer(-4, join_style=1).buffer(4, join_style=1)
 _lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south]).buffer(0.01).buffer(-0.01).simplify(0.3)
+_LOOP = [list(_xy(_u_cp - 8, -AISLE_S / 2)), list(_xy(_ue - AISLE_S / 2, -AISLE_S / 2)),
+         [_lx1 - 12, _y_at(_lx1 - 12, _ue - AISLE_S / 2)], None, None, [_lx0 + 10, _y_at_n(_lx0 + 10, -AISLE_S / 2)], list(_xy(_ui - 14, -AISLE_S / 2))]
 # The entry drive, from the same sketch: about 12' between edges, meeting the west leg with 10' curb returns. It
 # lies on the existing surveyed drive (the survey's edges cross the diagram at y = 391 and 402); it is carried on
 # west to the line of the handling yard's west side, where the drive continues off the diagram toward the lane.
@@ -338,7 +357,7 @@ print("entry drive: width ft", round(abs(_sk(270, 800)[1] - _sk(270, 745)[1]), 1
 for _c in C:
     if _c["id"] == "loop-parking":
         _xe_, _xw_, _yn_ = _c["pts"][0][0], _c["pts"][2][0], _c["pts"][1][1]
-        _c["pts"] = [list(_sk(940, 1120)), [_xe_, _sk(1105, 830)[1]], [_xe_, _yn_], [_xw_, _yn_], [_xw_, _sk(590, 937)[1]], list(_sk(816, 1089)), list(_sk(870, 1128))]
+        _c["pts"] = [_LOOP[0], _LOOP[1], [_xe_, _y_at(_xe_, _ue - AISLE_S / 2)], [_xe_, _yn_], [_xw_, _yn_], [_xw_, _y_at_n(_xw_, -AISLE_S / 2)], _LOOP[6]]
 NOTES_ = []                                       # the old "in / out" notes no longer apply
 _P = by_id["parking"]
 _P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-1]
