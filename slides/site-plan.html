@@ -39,7 +39,7 @@
 </head>
 <body>
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <div class="eyebrow" data-step="0">Act 5 · The plan · Option B</div>
   <h1 data-step="0">The barnyard, on the site</h1>
   <div class="body">
     <div class="map card" data-step="0" id="map">
@@ -73,9 +73,9 @@
     presets: [{ label: "Barnyard", box: yard }, { label: "Full site", box: full }] });
 
   const text = [
-    { b: "Level 1", h: "What is there today, put to work", p: "The existing barn and its seven pens, a new handling yard with four holding pens, and the parking lot on the existing drive. The entry gets a new apron off the lane, which the stormwater design requires.", f: yard },
-    { b: "Level 2", h: "First barns", p: "Cattle barn A and small animal barn A go up north of the existing pens, with their turnouts and the first feed container.", f: yard },
-    { b: "Level 3", h: "Full barnyard", p: "Cattle barn B, the arena and a 42' extension of small animal barn A. The wet north-west corner stays pasture.", f: yard },
+    { b: "Level 1", h: "What is there today, put to work", p: "The existing barn and its seven pens, holding pens 1 to 5 with the Bud Box north of them, and the parking lot on the existing drive. The entry gets a new apron off the lane, which the stormwater design requires.", f: yard },
+    { b: "Level 2", h: "First barns", p: "Cattle barn A, with its turnout to the north, small animal barn A and the feed storage.", f: yard },
+    { b: "Level 3", h: "Full barnyard", p: "Cattle barn B beside barn A, the arena, and small animal barn B with its turnout to the west.", f: yard },
     { b: "Site", h: "In its pasture", p: "The whole barnyard takes up a small corner of the site. The paddocks wrap around it.", f: full },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>

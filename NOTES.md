@@ -477,3 +477,25 @@ The barnyard layout developed through 2026-10-14 is archived as **Option A**: gi
 (commit b866f2d, full source and tools) and a viewable copy of the deck in `archive/option-a-2026-10-14/`. The ag
 expert on the design team gave substantial feedback on the barnyard; the next option (Option B) follows
 `source/NEW SITE PLAN OPTION 10-14 SKETCH.jpg`. Work on Option B continues on `main`.
+
+## Option B (2026-10-14), from `source/NEW SITE PLAN OPTION 10-14 SKETCH.jpg`
+Architect's direction: carry over the parking lot (to be fitted to this scheme later); turnouts 36' off the north
+side of the cattle barns and 36' west of small animal barn B; the "hog barns" are the small animal barns (either
+use); 24' clear between all buildings; small animal barn A at Level 2, B at Level 3.
+- Built in `build_ag_area.py` (the OPTION B block after the walk): Option A's barnyard elements and circulation are
+  dropped and replaced; parking, Red House, horticulture, residence carry over. Final coordinates (diagram feet):
+  cattle barns B (-22..62) and A (86..170) at y 80..142, long sides east-west, pens both sides of an east-west
+  tractor aisle; turnouts y 44..80; holding pens 5 and 3 (y 80..116), 4 and 2 (116..164), 1 (164..216) in two
+  columns either side of an 8' alley (x 230..238), from cattle barn A's east wall to the existing pens' east edge;
+  handling (Bud Box, chute, scale) x 182..230, y 164..216 with a 14' working alley on its west side; arena 86..170,
+  y 166..216; feed storage 16' x 40' (two containers); small animal barns A and B 36' x 48', bottoms in line with
+  the arena; small animal barn B's turnout to its west. Service drive loop around the arena (the sketch's dotted
+  line). Sizes are the deck's standards; the sketch is freehand.
+- Campus fence re-routed round Option B (north of the turnouts, west of small animal barn B's turnout); fences that
+  ran to the old line are carried on to the new one (fence-19, 32'). Paddocks 8.0 → 7.9 ac and 3.4 → 3.6 ac;
+  capacity 7 / 14.5 / 27.6 → planning figures 7 / 15 / 28 CE.
+- The accessible walk's last leg is re-aimed at cattle barn A (north between the arena and the handling alley).
+- Fit checks: the two existing surveyed structures that sat under cattle barn A now sit under the arena; cattle
+  turnout B is 33% on the wettest soil; the historical slough bed touches the barnyard's north-west corner.
+- Slides: barnyard and barnyard-on-site eyebrows read "Option B"; Level texts and the Levels matrix updated; the Bud
+  Box slide still shows Option A's yard and says so.

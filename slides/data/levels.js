@@ -33,14 +33,14 @@ window.LEVELS = {
       { text: "Add one 14-pen barn", pens: 2, confirmed: true },
       { text: "Add a second 14-pen barn", pens: 3, confirmed: true } ] },
     { key: "cattle", label: "Pasture-stock handling", cells: [
-      { text: "New corral, squeeze chute and scale", confirmed: true },
+      { text: "Holding pens 1 to 5, Bud Box, chute and scale", confirmed: true },
       { text: "Same as Level 1", confirmed: true },
       { text: "Same as Level 1", confirmed: true } ] },
     // Swine and small animals share one row: they use the same kinds of pens and barns (architect, 2026-10-13).
     { key: "swine", label: "Swine & small animals", cells: [
       { text: "Reuse hog enclosures; pens in the existing barn", confirmed: true },
-      { text: "Move to small animal barn A; existing barn becomes storage", confirmed: true },
-      { text: "Extend barn A by 42'", confirmed: true } ] },
+      { text: "Small animal barn A (hogs or small animals); existing barn becomes storage", confirmed: true },
+      { text: "Add small animal barn B", confirmed: true } ] },
     // Poultry is not a "small animal" here: it is housed in the unfinished barn from Level 1 and stays there (architect, 2026-10-13).
     { key: "small_animal", label: "Poultry", cells: [
       { text: "In the unfinished barn", confirmed: true },
