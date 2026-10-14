@@ -553,8 +553,11 @@ for e in AG["elements"]:
         sw, sd = e["stall"]
         inner += '<g fill="#fff" fill-opacity=".55" stroke="{}" stroke-width=".5">'.format(P["circulation"]["base"]) + "".join(
             f'<rect x="{r[0] + k * sw}" y="{r[1]}" width="{sw}" height="{sd}"/>' for r in e["rows"] for k in range(r[2])) + "</g>"
+        inner = inner[:-4] + "".join(f'<polygon points="{" ".join(f"{px},{py}" for px, py in q)}"/>' for q in e.get("stalls_extra", [])) + "</g>"
         isl = e.get("island")
-        if isl:
+        if e.get("island_poly"):
+            inner += '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["island_poly"]) + f'" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
+        elif isl:
             inner += f'<rect x="{isl["x"]}" y="{isl["y"]}" width="{isl["w"]}" height="{isl["h"]}" rx="3" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
     for z in e.get("zones", []):
         if "poly" in z:

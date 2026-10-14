@@ -272,6 +272,57 @@ _r = [_near(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1] - _div
       _near(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1])]
 _ext("residence", "Residence", [_to_d((z.real, z.imag)) for z in _r], "education", "building", "Camper / RV hookups",
      becomes={"3": {"use": "education", "note": "Residence"}})
+# ---- the parking lot's south loop, from the architect's CAD sketch of the lot (2026-10-12)
+# The sketch (pixel coordinates read off the screenshot) is placed by the Red House carport drawn on it: its four
+# corners are matched to the carport on the survey (BUILDING OH, 29' x 38'). That places the sketch to within about
+# half a foot at the carport, at 4.35 px/ft and square to this diagram, with its Red House steps on the Red House.
+# Only the south part is taken: the west leg carries on south and turns south-east along a row of nine angled
+# stalls (backing onto the horticulture strip, as on the study plan) to the carport; the bioswale island gets
+# the sketch's rounded south end. The north part of the lot stays as already laid out, so the island is cut to
+# the space between the two legs, south of the south stall row, and the west edge follows this lot's west leg.
+from shapely.geometry import Polygon as _Poly, MultiPoint as _MPt, Point as _Pt, box as _box
+from shapely.ops import unary_union as _union
+_oh = [(_sf.M_SP * complex(q.x, q.y) + _sf.T_SP) for _d in _sf.cadpdf.export(_sf.SURVEY, ["BUILDING OH"]).get("BUILDING OH", [])
+       for _it in _d["items"] if _it[0] == "l" for q in (_it[1], _it[2])]
+_oh = [z for z in _oh if 1220 < z.real < 1243 and 376 < z.imag < 399]
+_cpm = list(_MPt([(z.real, z.imag) for z in _oh]).minimum_rotated_rectangle.exterior.coords)[:4]
+_cpd = [(complex(*q) - _T) / _M for q in _cpm]
+_SK_CARPORT = [complex(963, 1257), complex(1070, 1330), complex(1163, 1190), complex(1056, 1118)]
+_SK_STEPS = complex(1358, 750)                                    # the Red House's wood steps on the sketch
+_rhp = _Poly(by_id["existing-red-house"]["outline"])
+_best = None
+for _k in range(4):
+    _dd = [_cpd[(_k + i) % 4] for i in range(4)]
+    _m = (_dd[2] - _dd[0]) / (_SK_CARPORT[2] - _SK_CARPORT[0]); _t = _dd[0] - _m * _SK_CARPORT[0]
+    _err = max(abs(_m * _SK_CARPORT[i] + _t - _dd[i]) for i in range(4))
+    _w = _m * _SK_STEPS + _t
+    _score = _err + _rhp.exterior.distance(_Pt(_w.real, _w.imag))      # corners fit, and the steps land on the Red House
+    if _best is None or _score < _best[0]:
+        _best = (_score, _m, _t, _err)
+_, _MS, _TS, _sk_err = _best
+_sk = lambda x, y: (lambda z: (round(z.real, 1), round(z.imag, 1)))(_MS * complex(x, y) + _TS)
+_lx0, _lx1 = by_id["parking"]["x"], by_id["parking"]["x"] + by_id["parking"]["w"]          # this lot's west and east edges
+_row_back = y_s_row + STALL_D + DY                                                         # back of the south stall row
+_island = _Poly([_sk(*q) for q in [(596, 613), (1083, 613), (1083, 730), (1072, 772), (1060, 800), (950, 960), (920, 990), (885, 1010),
+                                  (845, 1015), (805, 1010), (770, 995), (650, 912), (618, 880), (600, 840), (596, 805)]])
+_island = _island.intersection(_box(XW1 + DX + 2, _row_back, XE0 + DX - 2, 9999))
+_stall_front = [_sk(530, 962), _sk(862, 1183)]
+_stall_back = [_sk(483, 1035), _sk(815, 1255)]
+_lerp = lambda a, b, f: (round(a[0] + (b[0] - a[0]) * f, 1), round(a[1] + (b[1] - a[1]) * f, 1))
+SOUTH_STALLS = [[_lerp(*_stall_front, i / 9), _lerp(*_stall_front, (i + 1) / 9), _lerp(*_stall_back, (i + 1) / 9), _lerp(*_stall_back, i / 9)] for i in range(9)]
+_south = _Poly([(_lx0, _row_back), (_lx1, _row_back), _sk(1136, 787), _sk(975, 1062), _sk(1056, 1118), _sk(963, 1257), _sk(862, 1183),
+                _sk(815, 1255), _sk(483, 1035), (_lx0, _sk(520, 955)[1])]).buffer(0)
+_lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south]).buffer(0.01).buffer(-0.01).simplify(0.3)
+_P = by_id["parking"]
+_P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-1]
+_P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _island.exterior.coords][:-1]
+_P["island"]["label_at"] = [round(_island.centroid.x, 1), round(_island.centroid.y, 1)]
+_P["stalls_extra"] = [[list(q) for q in st] for st in SOUTH_STALLS]
+n_stalls += len(SOUTH_STALLS)
+_P["note"] = f"{n_stalls} spaces"
+print("south loop: carport fit within", round(_sk_err, 1), "ft | scale px/ft", round(1 / abs(_MS), 2), "| rotation", round(__import__("math").degrees(__import__("cmath").phase(_MS)), 1),
+      "| lot outline pts", len(_P["outline"]), "| stalls", n_stalls)
+
 print("residence sides ft:", [round(abs(_r[i] - _r[(i + 1) % 4]) * _sf.FT_PER_PT / abs(_sf.M_FP)) for i in range(4)])
 print("red house and horticulture (diagram ft):", by_id["existing-red-house"]["outline"][:3], "...", by_id["horticulture"]["outline"],
       "| horticulture sides ft:", [round(abs(_h[i] - _h[(i + 1) % 4]) * _sf.FT_PER_PT / abs(_sf.M_FP)) for i in range(4)])
@@ -362,6 +413,10 @@ def pens_svg(e):
                 out.append(f'<rect x="{rx}" y="{ry + i * sw}" width="{sd}" height="{sw}"/>')
             else:
                 out.append(f'<rect x="{rx + i * sw}" y="{ry}" width="{sw}" height="{sd}"/>')
+    for q in e.get("stalls_extra", []):
+        out.append('<polygon points="' + " ".join(f"{px},{py}" for px, py in q) + '"/>')
+    if e.get("island_poly"):
+        out.append('<polygon points="' + " ".join(f"{px},{py}" for px, py in e["island_poly"]) + f'" fill="{P["water"]["tint"]}"/>')
     for z in e.get("zones", []):
         if "poly" in z:
             out.append('<polygon points="' + " ".join(f'{e["x"] + px},{e["y"] + py}' for px, py in z["poly"]) + '"/>')
