@@ -240,7 +240,7 @@ for _pd in (EDITS["ponds"] if EDITS else []):
 # ends of the ditch floor either side of the drive.
 #   entry culvert  under the entry apron, joining the bed either side of the drive: to be replaced (sizing, maintenance)
 #   outfall        from the south end of the bed to Cow Pen Slough: in good shape and sized for the plan (civil)
-_infra = ""
+_infra = _infra_lbl = ""
 INFRA = {}
 if os.path.exists(_bp) and AD:
     _toe_ends = [tuple(q) for ln in json.load(open(_bp))["toe_lines"] for q in (ln[0], ln[-1])]
@@ -271,14 +271,16 @@ if os.path.exists(_bp) and AD:
     INFRA = {"entry_culvert_ft": round(math.hypot(_c1[0] - _c0[0], _c1[1] - _c0[1]) * _uf), "outfall_ft": round(math.hypot(_o1[0] - _o0[0], _o1[1] - _o0[1]) * _uf)}
     def _pipe(a, b, col, id_, l1, l2, dx, dy, anchor):
         mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        # the pipe line stays in the water layer, under the drives; its note goes in the top (labels) layer
         return (f'<g id="{id_}"><line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="#fff" stroke-width="4" data-w="8" stroke-linecap="round"/>'
-                f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="{col}" stroke-width="2.4" data-w="5" stroke-linecap="round"/>'
+                f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="{col}" stroke-width="2.4" data-w="5" stroke-linecap="round"/></g>',
                 f'<g transform="translate({mx:.1f} {my:.1f})"><g data-fixed="1">'
                 f'<text x="{dx}" y="{dy}" text-anchor="{anchor}" font-size="17" font-weight="700" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l1}</text>'
-                f'<text x="{dx}" y="{dy + 20}" text-anchor="{anchor}" font-size="15" font-weight="600" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l2}</text></g></g></g>')
-    _infra = ('<g id="infrastructure" display="none">'
-              + _pipe(_c0, _c1, P["education"]["base"], "entry-culvert", "Culvert under the entry", "replace: undersized, hard to maintain", -14, 34, "end")
-              + _pipe(_o0, _o1, P["woodland"]["base"], "outfall", "Outfall: two 36&#8243; pipes, inv. 16.47&#8242; to 16.00&#8242;", "keep: sound and sized for the plan", 16, -22, "start") + "</g>")
+                f'<text x="{dx}" y="{dy + 20}" text-anchor="{anchor}" font-size="15" font-weight="600" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l2}</text></g></g>')
+    _p1 = _pipe(_c0, _c1, P["education"]["base"], "entry-culvert", "Culvert under the entry", "replace: undersized, hard to maintain", -14, 34, "end")
+    _p2 = _pipe(_o0, _o1, P["woodland"]["base"], "outfall", "Outfall: two 36&#8243; pipes, inv. 16.47&#8242; to 16.00&#8242;", "keep: sound and sized for the plan", 16, -22, "start")
+    _infra = '<g id="infrastructure" display="none">' + _p1[0] + _p2[0] + "</g>"
+    _infra_lbl = '<g id="infrastructure-labels" display="none">' + _p1[1] + _p2[1] + "</g>"
     print("infrastructure lines ft:", INFRA)
 water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
          + _bed_svg + _comp_svg
@@ -730,7 +732,7 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("paddocks", "Proposed paddocks", paddocks)
        + layer("campus", "Campus", campus)
        + layer("barnyard", "Proposed barnyard (Level 3 shown), to scale", barnyard + f'<g id="barnyard-labels">{by_labels}</g>')
-       + layer("labels", "Labels", slough_lbl)
+       + layer("labels", "Labels", slough_lbl + _infra_lbl)
        + "</g></svg>")
 
 open(os.path.join(OUT, "site-layers.svg"), "w").write(svg)
