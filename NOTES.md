@@ -394,3 +394,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   Lot now 45 stalls. Drawn on the barnyard slide, the static diagram SVG and the site plans
   (`stalls_extra`, `island_poly`). First pass, for the architect's markup.
 - **Entry drive** (next step from the same sketch): about 12.6' between edges, meeting the lot's west leg with 10' curb returns, drawn as part of the lot's pavement. It lies on the existing surveyed entry drive (the survey's edges cross the diagram at y = 391 and 402) and is carried west to the line of the handling yard's west side, where the drive continues toward the lane. Moved 5' east with the lot's west leg, which sits 5' east of the sketch's.
+- **Loop arrows** now follow the south loop: in past the carport, north up the east side and the east leg, west
+  along the north aisle, south down the west leg, then south-east along the angled stalls back toward the carport.
+  The old "In, from the Red House side" / "Out, to the entry drive" notes are removed.
+- **Entry drive to the lane (new Level 1 apron):** the drive now runs straight on to the lane's near edge (from the
+  surveyed road edges where the existing drive meets the lane, diagram x about -288), with 10' flares each side at
+  the road. On the site plans it lies over the existing tree-lined drive and its flared apron and island.
+- The Python build environment in the scratchpad lost its packages overnight; rebuilt (`venv2`). The build
+  reproduced the committed outputs exactly before any change.

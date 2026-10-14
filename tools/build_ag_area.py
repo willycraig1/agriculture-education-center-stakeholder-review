@@ -319,16 +319,27 @@ _lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south]).buff
 import math as _math
 def _ret(cx, cy, r, a0, a1, n=6):
     return [_sk(cx + r * _math.cos(_math.radians(a0 + (a1 - a0) * i / n)), cy + r * _math.sin(_math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
-_w_end = _hd["x"]                                                          # west end of the drive on the diagram
+# Carried all the way to the lane, standing for the new entry apron built at Level 1: the survey's lane edge where
+# the existing drive meets it (diagram x about -290 at the drive), flared 10' each side at the road.
+_lane_x = lambda y: -292 + 5 * (y - 314) / 95                                 # the lane's near edge, from the surveyed road edges
+_w_end = round(_lane_x(393), 1)                                            # west end of the drive: the lane
 _top_l, _bot_l = _sk(270, 745), _sk(270, 800)
 _ENTRY = [(_w_end, _top_l[1] + (_top_l[1] - _sk(475, 752)[1]) * (_w_end - _top_l[0]) / (_top_l[0] - _sk(475, 752)[0]))] + [_top_l, _sk(475, 752)] + \
          _ret(475, 708, 45, 90, 0) + [_sk(520, 700), _sk(530, 700), _sk(530, 860), _sk(520, 860)] + _ret(475, 850, 45, 0, -90) + \
          [_sk(478, 806), _bot_l, (_w_end, _bot_l[1] + (_bot_l[1] - _sk(478, 806)[1]) * (_w_end - _bot_l[0]) / (_bot_l[0] - _sk(478, 806)[0]))]
 # the sketch's west leg sits about 5' west of this lot's: move the drive east with it so its returns meet the leg
 _shift = _lx0 - _sk(520, 700)[0]
-_entry = _Poly([(x + _shift if x > _w_end else x, y) for x, y in _ENTRY]).buffer(0)
+_ENTRY = [(_w_end, _ENTRY[0][1] - 10), (_w_end + 10, _ENTRY[0][1])] + _ENTRY[1:-1] + [(_w_end + 10, _ENTRY[-1][1]), (_w_end, _ENTRY[-1][1] + 10)]   # apron flares
+_entry = _Poly([(x + _shift if x > _w_end + 12 else x, y) for x, y in _ENTRY]).buffer(0)
 _lot = _union([_lot, _entry]).buffer(0.01).buffer(-0.01).simplify(0.3)
 print("entry drive: width ft", round(abs(_sk(270, 800)[1] - _sk(270, 745)[1]), 1), "| west end x", _w_end)
+# The one-way loop now follows the south loop: in past the carport, north up the east side and the east leg, west
+# along the north aisle, south down the west leg, then south-east along the angled stalls back toward the carport.
+for _c in C:
+    if _c["id"] == "loop-parking":
+        _xe_, _xw_, _yn_ = _c["pts"][0][0], _c["pts"][2][0], _c["pts"][1][1]
+        _c["pts"] = [list(_sk(940, 1120)), [_xe_, _sk(1105, 830)[1]], [_xe_, _yn_], [_xw_, _yn_], [_xw_, _sk(590, 937)[1]], list(_sk(816, 1089)), list(_sk(870, 1128))]
+NOTES_ = []                                       # the old "in / out" notes no longer apply
 _P = by_id["parking"]
 _P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-1]
 _P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _island.exterior.coords][:-1]
