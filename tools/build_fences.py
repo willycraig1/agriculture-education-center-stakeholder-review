@@ -244,6 +244,34 @@ out["gate_arcs"] = [{"sheet": [[round(v, 2) for v in q] for q in a], "map": [to_
 # of the site pasture the plan draws the four arcs but no leaves.
 _amid = np.array([[(a_[0][0] + a_[3][0]) / 2, (a_[0][1] + a_[3][1]) / 2] for a_ in gate_arcs])
 out["pinwheels"] = [{"gates": len(c), "map": to_p(_amid[c].mean(0))} for c in _cluster(_amid, 30) if len(c) >= 4]
+# Leaves the plan leaves out: at that central pinwheel each swing is given a leaf to match the others. The leaf
+# runs from the swing's centre (the hinge) to the end of the arc that lies on a fence, so it is as long as the
+# arc's radius (about 14 ft as drawn there, not 16).
+def _arc_centre(a):
+    (x0, y0), (x1, y1), (x2, y2), (x3, y3) = a
+    d1, d2 = (x1 - x0, y1 - y0), (x2 - x3, y2 - y3)
+    den = d1[0] * d2[1] - d1[1] * d2[0]
+    if abs(den) < 1e-9:
+        return None
+    t = ((x3 - x0) * d2[1] - (y3 - y0) * d2[0]) / den
+    return (x0 + x3 - (x0 + t * d1[0]), y0 + y3 - (y0 + t * d1[1]))
+_runs_u = unary_union(runs)
+_leaf_ends = cKDTree(GP)
+out["gates_added"] = []
+for c in _cluster(_amid, 30):
+    if len(c) < 4:
+        continue
+    for k in c:
+        a = gate_arcs[k]
+        if min(_leaf_ends.query(a[0])[0], _leaf_ends.query(a[3])[0]) < 0.6:
+            continue                                            # this swing already has its leaf
+        ctr = _arc_centre(a)
+        if ctr is None:
+            continue
+        end = min((a[0], a[3]), key=lambda e: _runs_u.distance(Point(e)))
+        out["gates_added"].append({"length_ft": round(float(np.hypot(end[0] - ctr[0], end[1] - ctr[1]) * FT_PER_PT), 1),
+                                   "sheet": [[round(v, 2) for v in ctr], [round(v, 2) for v in end]], "map": [to_p(ctr), to_p(end)]})
+print("gate leaves added at pinwheels drawn without them:", len(out["gates_added"]), [g["length_ft"] for g in out["gates_added"]])
 # Roads: the survey's edge-of-pavement lines are plotted in short pieces; chain them the same way so each
 # road edge is one continuous polyline.
 from siteframe import SURVEY, M_SP, T_SP
