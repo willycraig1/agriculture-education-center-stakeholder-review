@@ -335,3 +335,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Capacity again.** The pens come out of the paddock west of the campus: 3.4 ac on the plan → 3.2 ac (it had
   been 3.7 before the pens). Site pasture 44.7 ac, 99.2 ac with bonus. 6.9 / 14.3 / 27.3 CE, so the planning
   figures are back to **7 / 14 / 27**. Hard-coded mentions reset to match.
+- **Handling yard corners, corrected (architect's markup).** I had misread the earlier note and squared the yard's south-east corner; it is chamfered again, with nothing drawn outside the chamfer. At the south-west corner, pen 1's south fence now runs straight on to the end of the chamfer, so there is no fence across the small triangle there (pen 1 is 9,330 sf). Capacity unchanged: 7 / 14 / 27 CE.

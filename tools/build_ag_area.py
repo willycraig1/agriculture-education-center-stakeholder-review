@@ -127,9 +127,8 @@ add("parking", "Main parking lot", LOT_X0, y_park, LOT_X1 - LOT_X0, LOT_S - y_pa
 add("trailer-stop", "Trailer stop", TR_X, HY, TR_W, HH, "circulation", 1, kind="yard", note="pull-off bay", outline=BAY)
 DRIVES = []
 ALLEY_L = 16                                   # single-file alley; with the chute it holds four cattle
-# The yard's south-east corner is square, as on the Bud Box slide: the diagonal there is the receiving gate, which
-# swings across the corner, not a fence. Only the south-west corner is chamfered.
-YARD = [[0, 0], [72, 0], [72, 84], [16, 84], [0, 64]]
+# Both south corners are chamfered (architect's markup, 2026-10-13): no square corner is drawn outside either one.
+YARD = [[0, 0], [72, 0], [72, 68], [56, 84], [16, 84], [0, 64]]
 ay = 12 + ALLEY_L
 add("handling", "Cattle handling", HX, HY, HW, HH, "cattle", 1, kind="yard", note="",
     outline=[[HX + px, HY + py] for px, py in YARD], zones=[
@@ -224,7 +223,9 @@ def _pen(n, pts, level=1):
     add(f"holding-{n}", f"Pen {n}", min(xs_), min(ys_), max(xs_) - min(xs_), max(ys_) - min(ys_), "cattle", level, kind="yard",
         note=f"{round(area, -1):,.0f} sf", outline=[[round(x, 1), round(y, 1)] for x, y in pts], holding=True)
     by_id[f"holding-{n}"] = E[-1]
-_pen(1, [[_xe, _y1], [_xe, _ys], [_wx(_ys), _ys], [_wx(_y1), _y1]])
+# pen 1 follows the handling yard's south-west chamfer: its south fence runs straight on to the chamfer's end, so
+# there is no fence across the little triangle at that corner
+_pen(1, [[_xe, _y1], [_xe, _y1 + YARD[-1][1]], [_xe + YARD[-2][0], _ys], [_wx(_ys), _ys], [_wx(_y1), _y1]])
 _pen(2, [[_xe, _y2], [_xe, _y1], [_wx(_y1), _y1], [_wx(_y2), _y2]])
 _pen(3, [[_xe, _yn], [_xe, _y2], [_wx(_y2), _y2], [_wx(_yn), _yn]])
 _pen(4, [[_tsa["x"], _tsa["y"] + _tsa["h"]], [_tsa["x"] + _tsa["w"], _tsa["y"] + _tsa["h"]], [_tsa["x"] + _tsa["w"], _y1], [_tsa["x"], _y1]])
