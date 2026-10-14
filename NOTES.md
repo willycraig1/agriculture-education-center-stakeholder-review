@@ -268,3 +268,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   sizing and maintenance. *Outfall* (green, about 98 ft as drawn) runs from the south end of the bed to Cow Pen
   Slough: civil says it is in good shape and sized for the plan. Shown on a new fifth step of the water site
   slide, "The pipes that connect it". The step text ties the culvert replacement to the new Level 1 entry apron.
+- **Outfall taken from the survey.** The outfall is on the survey's STORM SEWER layer (two lines, the walls of the
+  pipe run, 78 ft, under the ±11' asphalt lane). The map now draws it there instead of my estimate. The survey
+  detail sheet (`source/260036_SPS_Draft for FE_9-4-26.pdf`, sheet 10; its text is drawn as linework, so it was
+  read by eye) notes "(2) 36" CPP End of Pipe" at both ends: invert 16.47' at the bed end, 16.00' at the slough end.
+  The map label and step text carry the pipe size and inverts. The entry culvert is not on the STORM SEWER layer;
+  its line is still diagrammatic. Lesson: check the survey's utility layers before estimating infrastructure.

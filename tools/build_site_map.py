@@ -235,8 +235,9 @@ for _pd in (EDITS["ponds"] if EDITS else []):
                     f'<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Retention pond</text>'
                     f'<text y="18" text-anchor="middle" font-size="16" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">{RET_ACRES} ac</text></g></g>')
         print("proposed retention pond acres:", RET_ACRES, "| centroid", round(_rp.centroid.x), round(_rp.centroid.y))
-# Drainage infrastructure on the historical bed (architect, 2026-10-13), drawn as solid lines between the surveyed
-# ends of the ditch floor. Diagrammatic: the pipes themselves are not on the survey.
+# Drainage infrastructure on the historical bed (architect, 2026-10-13). The outfall is drawn from the survey. The
+# entry culvert is not on the survey's storm sewer layer, so its line is diagrammatic, drawn between the surveyed
+# ends of the ditch floor either side of the drive.
 #   entry culvert  under the entry apron, joining the bed either side of the drive: to be replaced (sizing, maintenance)
 #   outfall        from the south end of the bed to Cow Pen Slough: in good shape and sized for the plan (civil)
 _infra = ""
@@ -245,12 +246,15 @@ if os.path.exists(_bp) and AD:
     _toe_ends = [tuple(q) for ln in json.load(open(_bp))["toe_lines"] for q in (ln[0], ln[-1])]
     _near = lambda x, y: min(_toe_ends, key=lambda q: (q[0] - x) ** 2 + (q[1] - y) ** 2)
     _c0, _c1 = _near(1141, 501), _near(1184, 521)                      # either side of the entry drive
-    _o0 = _near(1388, 653)                                             # south end of the bed
-    _sl = LineString(AD["slough_centre"])
-    _on = _sl.interpolate(_sl.project(Point(_o0)))
-    _len = math.hypot(_on.x - _o0[0], _on.y - _o0[1])
-    _k = 1 - (AD["slough_width_ft"] / 2 / (FT_PER_PT / abs(M_FP))) / _len      # stop at the slough's near bank
-    _o1 = (_o0[0] + (_on.x - _o0[0]) * _k, _o0[1] + (_on.y - _o0[1]) * _k)
+    # The outfall is on the survey (layer STORM SEWER: the two walls of the pipe run, under the lane). Its line
+    # here is the middle of those two. The survey sheet notes it at both ends: "(2) 36" CPP End of Pipe",
+    # invert 16.47' at the bed end and 16.00' at the slough end
+    # (source/260036_SPS_Draft for FE_9-4-26.pdf, sheet 10).
+    _ss = [[pt(M_SP, T_SP, q.x, q.y) for q in (it[1], it[2])] for d in cadpdf.export(SURVEY, ["STORM SEWER"]).get("STORM SEWER", [])
+           for it in d["items"] if it[0] == "l"]
+    _ss = [sorted(sg, key=lambda q: q[1]) for sg in _ss if math.hypot(sg[1][0] - sg[0][0], sg[1][1] - sg[0][1]) > 10]
+    _o0 = tuple(sum(sg[0][k] for sg in _ss) / len(_ss) for k in (0, 1))        # bed end
+    _o1 = tuple(sum(sg[1][k] for sg in _ss) / len(_ss) for k in (0, 1))        # slough end
     _uf = FT_PER_PT / abs(M_FP)
     INFRA = {"entry_culvert_ft": round(math.hypot(_c1[0] - _c0[0], _c1[1] - _c0[1]) * _uf), "outfall_ft": round(math.hypot(_o1[0] - _o0[0], _o1[1] - _o0[1]) * _uf)}
     def _pipe(a, b, col, id_, l1, l2, dx, dy, anchor):
@@ -262,7 +266,7 @@ if os.path.exists(_bp) and AD:
                 f'<text x="{dx}" y="{dy + 20}" text-anchor="{anchor}" font-size="15" font-weight="600" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l2}</text></g></g></g>')
     _infra = ('<g id="infrastructure" display="none">'
               + _pipe(_c0, _c1, P["education"]["base"], "entry-culvert", "Culvert under the entry", "replace: undersized, hard to maintain", -14, 34, "end")
-              + _pipe(_o0, _o1, P["woodland"]["base"], "outfall", "Outfall to Cow Pen Slough", "keep: sound and sized for the plan", 16, -22, "start") + "</g>")
+              + _pipe(_o0, _o1, P["woodland"]["base"], "outfall", "Outfall: two 36&#8243; pipes, inv. 16.47&#8242; to 16.00&#8242;", "keep: sound and sized for the plan", 16, -22, "start") + "</g>")
     print("infrastructure lines ft:", INFRA)
 water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
          + _bed_svg + _comp_svg
