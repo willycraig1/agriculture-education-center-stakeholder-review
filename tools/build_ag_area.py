@@ -117,9 +117,7 @@ TR_X = XW0 - TR_W
 HW, HH = 6 * M, 7 * M
 HX, HY = TR_X - HW, y_n_aisle + 11
 BAY = [[TR_X, HY], [TR_X + 10, HY], [XW0, HY + 13], [XW0, HY + 68], [TR_X + 10, HY + HH], [TR_X, HY + HH]]
-# Tightened (architect, 2026-10-13): the planted island behind the south stall row is one 12' module deep, not 36',
-# so the lot ends 24' further north and stands clear of the Red House and the horticulture area.
-ISLAND_D = 12
+ISLAND_D = 36                                   # planted bioswale island behind the south stall row
 LOT_S = max(y_s_row + STALL_D + ISLAND_D, HY + HH + 14)   # diagram stops here; both legs of the loop continue south
 LOT_X0, LOT_X1 = XW0, XE1                        # architect's edits: a plain rectangle ending at the east leg (177');
                                                # the stall column by the existing barn sits outside the fill
@@ -239,8 +237,9 @@ print("holding pens:", [(e["id"], e["note"]) for e in E if e.get("holding")])
 # transform that puts the diagram on the map, siteframe.diagram_transform).
 #   Red House     the architect's outline of the existing building (drawings/data/site-edits.json)
 #   Horticulture  the "HORTICULTURE AREA" rectangle on the study plan A0.2 (layer A-WALL-OTLN), 100' x 30',
-#                 beside the drive south of the Red House. The 20' x 30' "RESIDENCE" drawn at its north-west
-#                 end on that plan is left out.
+#                 beside the drive south of the Red House.
+#   Residence     the 20' x 30' "RESIDENCE" at the north-west end of that rectangle. A Level 3 element; at
+#                 Levels 1 and 2 the same spot carries hookups for a camper or RV (architect, 2026-10-13).
 import sys as _sys
 _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import siteframe as _sf
@@ -268,6 +267,12 @@ _h = [_div[0], _far(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1
       _far(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1]), _div[1]]
 _ext("horticulture", "Horticulture area", [_to_d((z.real, z.imag)) for z in _h], "horticulture", "garden", "Raised beds and pots",
      becomes={"2": {"use": "horticulture", "note": "Beds with irrigation"}, "3": {"use": "horticulture", "note": "Shade area, planting tables"}})
+_near = lambda sg, p: min(sg, key=lambda z: abs(z - p))                           # the end of a long side at the residence
+_r = [_near(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1] - _div[0]))), _div[0]), _div[0], _div[1],
+      _near(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1])]
+_ext("residence", "Residence", [_to_d((z.real, z.imag)) for z in _r], "education", "building", "Camper / RV hookups",
+     becomes={"3": {"use": "education", "note": "Residence"}})
+print("residence sides ft:", [round(abs(_r[i] - _r[(i + 1) % 4]) * _sf.FT_PER_PT / abs(_sf.M_FP)) for i in range(4)])
 print("red house and horticulture (diagram ft):", by_id["existing-red-house"]["outline"][:3], "...", by_id["horticulture"]["outline"],
       "| horticulture sides ft:", [round(abs(_h[i] - _h[(i + 1) % 4]) * _sf.FT_PER_PT / abs(_sf.M_FP)) for i in range(4)])
 E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)   # turnouts are drawn first, behind the barns

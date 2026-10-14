@@ -48,6 +48,11 @@ window.LEVELS = {
       { text: "Renovate: classroom, conference, 4 offices, demo kitchen", confirmed: true },
       { text: "Add Office 5, men's & women's restrooms", confirmed: true },
       { text: "Add event space / classroom addition + equipment carport", confirmed: true } ] },
+    // The residence beside the horticulture area is a Level 3 element; before that the spot has camper / RV hookups (architect, 2026-10-13).
+    { key: "education", label: "Residence", cells: [
+      { text: "Hookups for a camper or RV", confirmed: true },
+      { text: "Same as Level 1", confirmed: true },
+      { text: "Residence", confirmed: true } ] },
     { key: "horticulture", label: "Horticulture", cells: [
       { text: "Raised beds and pots", confirmed: true },
       { text: "Beds with irrigation", confirmed: true },

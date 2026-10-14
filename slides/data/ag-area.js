@@ -5,7 +5,7 @@ window.AG_AREA = {
   -234.0,
   -38,
   582.0,
-  484
+  508
  ],
  "north_cw_from_up": -17,
  "elements": [
@@ -109,7 +109,7 @@ window.AG_AREA = {
    "x": 14.0,
    "y": 240,
    "w": 139.0,
-   "h": 140,
+   "h": 164,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
@@ -152,11 +152,11 @@ window.AG_AREA = {
     ],
     [
      153.0,
-     380
+     404
     ],
     [
      14.0,
-     380
+     404
     ]
    ],
    "island": {
@@ -164,7 +164,7 @@ window.AG_AREA = {
     "x": 36.0,
     "y": 368,
     "w": 91.0,
-    "h": 12
+    "h": 36
    }
   },
   {
@@ -733,6 +733,44 @@ window.AG_AREA = {
      "note": "Shade area, planting tables"
     }
    }
+  },
+  {
+   "id": "residence",
+   "label": "Residence",
+   "x": -41.5,
+   "y": 443.5,
+   "w": 33.6,
+   "h": 36.39999999999998,
+   "use": "education",
+   "level": 1,
+   "kind": "building",
+   "note": "Camper / RV hookups",
+   "assumed": false,
+   "outline": [
+    [
+     -24.6,
+     443.5
+    ],
+    [
+     -7.9,
+     454.7
+    ],
+    [
+     -24.7,
+     479.9
+    ],
+    [
+     -41.5,
+     468.8
+    ]
+   ],
+   "context": true,
+   "becomes": {
+    "3": {
+     "use": "education",
+     "note": "Residence"
+    }
+   }
   }
  ],
  "drives": [],
@@ -858,7 +896,7 @@ window.AG_AREA = {
    "pts": [
     [
      141.0,
-     396
+     420
     ],
     [
      141.0,
@@ -870,7 +908,7 @@ window.AG_AREA = {
     ],
     [
      24.0,
-     396
+     420
     ]
    ]
   },
@@ -1062,12 +1100,12 @@ window.AG_AREA = {
  "notes": [
   {
    "x": 141.0,
-   "y": 406,
+   "y": 430,
    "text": "In, from the Red House side"
   },
   {
    "x": 24.0,
-   "y": 406,
+   "y": 430,
    "text": "Out, to the entry drive"
   }
  ],
