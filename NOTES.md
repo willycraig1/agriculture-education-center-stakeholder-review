@@ -347,3 +347,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   east of the head pond, between the flood zone line and the historical bed, as far as the paddock's east fence
   (`COMP_PTS`, extent chosen by eye). Label and step text say it is only a few inches deep and stays in grazing.
   With the 0.8 ac retention pond: 3.1 ac. No depth figure or quantity from civil yet.
+
+### Design-driver icons carried through the deck (2026-10-13)
+- The four icons from the design drivers slide are defined once in `design/deck.js` (`Deck.drivers`) and drawn at the
+  top right of any slide whose `<body>` has `data-drivers="…"` (pasture, reuse, module, water), with the driver's name.
+- Tagged: **Protect the water** on water-site and water-quality; **Pasture is scarce** on pasture-capacity and
+  paddocks; **Reuse first** on existing and red-house; **Grow by module** on cattle-pens, levels and ag-area (on
+  cattle-pens the tag sits left of the sticky note). Not tagged: site, program, bud-box, site-plan, input, where no
+  single driver leads.
