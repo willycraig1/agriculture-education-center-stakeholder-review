@@ -499,3 +499,10 @@ use); 24' clear between all buildings; small animal barn A at Level 2, B at Leve
   turnout B is 33% on the wettest soil; the historical slough bed touches the barnyard's north-west corner.
 - Slides: barnyard and barnyard-on-site eyebrows read "Option B"; Level texts and the Levels matrix updated; the Bud
   Box slide still shows Option A's yard and says so.
+- **Option B handling yard = the Bud Box slide's yard, mirrored (architect, 2026-10-14).** Same geometry as slide 12
+  (72' x 84' yard; Bud Box and lead-up alley along the north; single-file alley, chute and scale; holding pen
+  wrapping the chute with chamfered corners; 24' tapered pull-through trailer bay), flipped east-west so the bay is
+  on the west side, in the lane east of the arena where the sketch's arrow runs north (yard x 194..266, bay
+  170..194, y 132..216). The yard's holding pen is pen 1; pens 2 to 5 sit north of the yard (y 80..132) in two
+  columns either side of an 8' alley. The service drive's east leg runs through the bay. The accessible walk now
+  avoids the bay: west along the cross drive's north edge, north beside the arena's west side, east to cattle barn A.

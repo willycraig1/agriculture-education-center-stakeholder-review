@@ -1201,103 +1201,135 @@ window.AG_AREA = {
    }
   },
   {
-   "id": "holding-5",
-   "label": "Pen 5",
-   "x": 170,
-   "y": 80,
-   "w": 60,
-   "h": 36,
-   "use": "cattle",
-   "level": 1,
-   "kind": "yard",
-   "note": "2,160 sf",
-   "assumed": false
-  },
-  {
-   "id": "holding-3",
-   "label": "Pen 3",
-   "x": 238,
-   "y": 80,
-   "w": 42,
-   "h": 36,
-   "use": "cattle",
-   "level": 1,
-   "kind": "yard",
-   "note": "1,512 sf",
-   "assumed": false
-  },
-  {
-   "id": "holding-4",
-   "label": "Pen 4",
-   "x": 196,
-   "y": 116,
-   "w": 34,
-   "h": 48,
-   "use": "cattle",
-   "level": 1,
-   "kind": "yard",
-   "note": "1,632 sf",
-   "assumed": false
-  },
-  {
-   "id": "holding-2",
-   "label": "Pen 2",
-   "x": 238,
-   "y": 116,
-   "w": 42,
-   "h": 48,
-   "use": "cattle",
-   "level": 1,
-   "kind": "yard",
-   "note": "2,016 sf",
-   "assumed": false
-  },
-  {
-   "id": "holding-1",
-   "label": "Pen 1",
-   "x": 238,
-   "y": 164,
-   "w": 42,
-   "h": 52,
-   "use": "cattle",
-   "level": 1,
-   "kind": "yard",
-   "note": "2,184 sf",
-   "assumed": false
-  },
-  {
    "id": "handling",
    "label": "Handling",
-   "x": 182,
-   "y": 164,
-   "w": 48,
-   "h": 52,
+   "x": 194,
+   "y": 132,
+   "w": 72,
+   "h": 84,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
    "note": "Bud Box, chute, scale",
    "assumed": false,
+   "outline": [
+    [
+     266,
+     132
+    ],
+    [
+     194,
+     132
+    ],
+    [
+     194,
+     200
+    ],
+    [
+     210,
+     216
+    ],
+    [
+     250,
+     216
+    ],
+    [
+     266,
+     196
+    ]
+   ],
    "zones": [
     {
-     "label": "Alley",
+     "label": "Pen 1 \u00b7 holding pen",
+     "poly": [
+      [
+       72,
+       12
+      ],
+      [
+       56,
+       12
+      ],
+      [
+       56,
+       28
+      ],
+      [
+       56.7,
+       28
+      ],
+      [
+       56.7,
+       37
+      ],
+      [
+       52.7,
+       37
+      ],
+      [
+       52.7,
+       28
+      ],
+      [
+       53.4,
+       28
+      ],
+      [
+       53.4,
+       12
+      ],
+      [
+       0,
+       12
+      ],
+      [
+       0,
+       68
+      ],
+      [
+       16,
+       84
+      ],
+      [
+       56,
+       84
+      ],
+      [
+       72,
+       64
+      ]
+     ],
+     "at": [
+      26,
+      50
+     ]
+    },
+    {
+     "label": "Lead-up alley",
      "x": 0,
      "y": 0,
-     "w": 14,
-     "h": 52,
-     "rot": true
+     "w": 52,
+     "h": 12
     },
     {
      "label": "Bud Box",
-     "x": 28,
+     "x": 52,
      "y": 0,
      "w": 20,
      "h": 12,
      "fill": true
     },
     {
+     "label": "",
+     "x": 53.4,
+     "y": 12,
+     "w": 2.6,
+     "h": 16
+    },
+    {
      "label": "Chute",
-     "x": 20,
-     "y": 22,
+     "x": 52.7,
+     "y": 28,
      "w": 4,
      "h": 9,
      "fill": true,
@@ -1306,11 +1338,102 @@ window.AG_AREA = {
    ]
   },
   {
+   "id": "trailer-stop",
+   "label": "Trailer bay",
+   "x": 170,
+   "y": 132,
+   "w": 24,
+   "h": 84,
+   "use": "circulation",
+   "level": 1,
+   "kind": "yard",
+   "note": "pull-through, gate at each end",
+   "assumed": false,
+   "outline": [
+    [
+     194,
+     132
+    ],
+    [
+     184,
+     132
+    ],
+    [
+     170,
+     145
+    ],
+    [
+     170,
+     200
+    ],
+    [
+     184,
+     216
+    ],
+    [
+     194,
+     216
+    ]
+   ]
+  },
+  {
+   "id": "holding-5",
+   "label": "Pen 5",
+   "x": 170,
+   "y": 80,
+   "w": 51.0,
+   "h": 26.0,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "1,326 sf",
+   "assumed": false
+  },
+  {
+   "id": "holding-4",
+   "label": "Pen 4",
+   "x": 170,
+   "y": 106.0,
+   "w": 51.0,
+   "h": 26.0,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "1,326 sf",
+   "assumed": false
+  },
+  {
+   "id": "holding-3",
+   "label": "Pen 3",
+   "x": 229.0,
+   "y": 80,
+   "w": 51.0,
+   "h": 26.0,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "1,326 sf",
+   "assumed": false
+  },
+  {
+   "id": "holding-2",
+   "label": "Pen 2",
+   "x": 229.0,
+   "y": 106.0,
+   "w": 51.0,
+   "h": 26.0,
+   "use": "cattle",
+   "level": 1,
+   "kind": "yard",
+   "note": "1,326 sf",
+   "assumed": false
+  },
+  {
    "id": "walk",
    "label": "",
-   "x": 115.6,
+   "x": 83.5,
    "y": 144.5,
-   "w": 103.9,
+   "w": 136.0,
    "h": 306.6,
    "use": "circulation",
    "level": 1,
@@ -1336,35 +1459,35 @@ window.AG_AREA = {
     ],
     [
      190.0,
-     221.5
+     225.5
     ],
     [
-     178.5,
-     221.5
+     86.0,
+     225.5
     ],
     [
-     178.5,
-     142.0
-    ],
-    [
-     160.0,
-     142.0
-    ],
-    [
-     160.0,
+     86.0,
      147.0
     ],
     [
-     173.5,
+     106.0,
      147.0
     ],
     [
-     173.5,
-     226.5
+     106.0,
+     142.0
+    ],
+    [
+     81.0,
+     142.0
+    ],
+    [
+     81.0,
+     230.5
     ],
     [
      185.0,
-     226.5
+     230.5
     ],
     [
      185.0,
@@ -1467,11 +1590,11 @@ window.AG_AREA = {
    "label": "Service drive",
    "pts": [
     [
-     176,
+     182,
      236
     ],
     [
-     176,
+     182,
      154.0
     ],
     [
@@ -1641,23 +1764,23 @@ window.AG_AREA = {
    "y2": 80
   },
   {
-   "label": "36'",
+   "label": "26'",
    "x1": 292,
    "y1": 80,
    "x2": 292,
-   "y2": 116
+   "y2": 106.0
   },
   {
-   "label": "48'",
+   "label": "26'",
    "x1": 292,
-   "y1": 116,
+   "y1": 106.0,
    "x2": 292,
-   "y2": 164
+   "y2": 132
   },
   {
-   "label": "52'",
+   "label": "84'",
    "x1": 292,
-   "y1": 164,
+   "y1": 132,
    "x2": 292,
    "y2": 216
   },
