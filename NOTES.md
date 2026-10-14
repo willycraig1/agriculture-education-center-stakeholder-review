@@ -366,5 +366,8 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   barnyard-on-site and water site plans (Level 1, notes by Level: raised beds and pots / beds with irrigation /
   shade area, planting tables). One surveyed tree falls inside it. The Red House is not redrawn on the site map,
   where it is already a structure.
-- **Parking lot tightened** (architect): the planted island behind the south stall row is one 12' module deep
-  instead of 36', so the lot is 140' deep instead of 164' and ends 24' further north. Still 36 stalls.
+- **Parking lot:** briefly cut to a 12' island and reverted. "Tighten up" meant representing the design intent more
+  closely, not shrinking it; to be worked on with the architect later. Lot back to 164' deep, 36' island.
+- **Residence (architect):** the 20' x 30' "RESIDENCE" at the end of the horticulture strip on study plan A0.2 is a
+  Level 3 element; at Levels 1 and 2 the spot has hookups for a camper or RV. Added as a context element
+  (`residence`, notes by Level) and as a Levels matrix row. Map label "RV / residence".
