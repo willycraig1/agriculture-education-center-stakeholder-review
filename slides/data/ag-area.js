@@ -2,10 +2,10 @@
 window.AG_AREA = {
  "units": "feet",
  "view": [
-  -234.0,
-  -38,
-  582.0,
-  508
+  -90.0,
+  -17,
+  399.0,
+  457
  ],
  "north_cw_from_up": -17,
  "elements": [

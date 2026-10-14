@@ -379,3 +379,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   Checked clear of content on all slides. The Bud Box slide's all-steps (static) view was running past the bottom
   of the stage; it is now compact enough to fit.
 - Residence keeps the education colour (architect).
+- **Barnyard slide opening view** tightened (architect): from the west side of the cattle handling yard to the dimension strings on the north and east, and down to the parking loop's in/out notes. Holding pens, Red House, horticulture and residence are reached by panning. The plan panel is wider than this frame, so a strip of the holding pens still shows at the left edge.

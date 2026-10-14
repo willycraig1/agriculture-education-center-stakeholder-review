@@ -297,13 +297,14 @@ for c in C:
 STALLS_BOX = [LOT_X0 + DX, y_park + DY, LOT_X1 + DX, y_s_row + STALL_D + DY]
 CROSS_DRIVE_BOX = [x_small + DX, y_drive + DY, x_col + DX, y_drive + LANE + DY]
 
-pad = 34
-# The opening view frames the barnyard itself. The Red House and the horticulture area (context) lie south of it:
-# they are drawn, and come into view when the viewer pans down, but do not widen the frame.
-_core = [e for e in E if not e.get("context")]
+# The opening view is held tight on the barnyard (architect, 2026-10-13): from the west side of the cattle handling
+# yard to the dimension strings on the north and east. The holding pens to the west and the Red House, horticulture
+# and residence to the south are drawn and come into view when the viewer pans; they do not widen the frame.
+pad = 8
+_core = [e for e in E if not e.get("context") and not e.get("holding")]
 xs = [v for e in _core for v in (e["x"], e["x"] + e["w"])] + [q[0] for c in C for q in c["pts"]]
 ys = [v for e in _core for v in (e["y"], e["y"] + e["h"])] + [q[1] for c in C for q in c["pts"]]
-view = [min(xs) - pad, min(ys) - pad - 14, max(xs) - min(xs) + 2 * pad + 34, max(ys) - min(ys) + 2 * pad + 30]
+view = None   # set once the dimension strings exist (below)
 
 # dimension strings. North string: across the top of the new work. Small barn: at the extension's north end.
 # East string: complete, from the north end of cattle barn B down to the south end of the existing barn.
@@ -325,6 +326,11 @@ string = [cb["y"], cb["y"] + cb["h"], ca["y"], ca["y"] + ca["h"], y_pens + PEN_D
 for a_, b_ in zip(string, string[1:]):
     if b_ - a_ > 0.5:
         dims.append(dim(f"{b_ - a_:g}'", xe, a_, xe, b_))
+_dxs = [v for d in dims for v in (d["x1"], d["x2"])] + xs
+_dys = [v for d in dims for v in (d["y1"], d["y2"])] + ys + [n_["y"] + 2 for n_ in NOTES_]      # and the loop's in/out notes
+# dimension text sits about 9' outside its line (above the north string, right of the east string)
+view = [min(_dxs) - pad, min(_dys) - pad - 9, max(_dxs) - min(_dxs) + 2 * pad + 9, max(_dys) - min(_dys) + 2 * pad + 9]
+
 data = {
     "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "drives": DRIVES, "circulation": C, "dims": dims,
     "notes": NOTES_, "shift_ft": [DX, DY], "stalls_box": STALLS_BOX, "cross_drive_box": CROSS_DRIVE_BOX,
