@@ -311,27 +311,28 @@ _f0, _f1 = complex(*_sk(530, 962)), complex(*_sk(862, 1183))
 _U = (_f1 - _f0) / abs(_f1 - _f0); _N = _U * 1j                          # n points south-west, away from the island
 _xy = lambda u, n: (lambda z: (round(z.real, 1), round(z.imag, 1)))(_f0 + _U * u + _N * n)
 _uv = lambda x, y: (lambda d: ((d * _U.conjugate()).real, (d * _N.conjugate()).real))(complex(x, y) - _f0)
-AISLE_S, CURB, RH_SETBACK = 24, 2, 10
+# The drive past the Red House is the one stretch of the loop that is one-way: 13' wide, 5' off the building to
+# leave room for an accessible sidewalk (architect, 2026-10-14). There is no turn-out to the carport.
+AISLE_S, CURB, RH_SETBACK, DIAG_W = 24, 2, 5, 13
 _u_cp = min(_uv(z.real, z.imag)[0] for z in _cpd)                          # carport's west face: the drive runs into it
 _u_rh = min(_uv(*q)[0] for q in by_id["existing-red-house"]["outline"])      # Red House's westernmost face
-_ue = _u_rh - RH_SETBACK                                                   # east edge of the diagonal drive, 10' off the Red House
-_ui = _ue - AISLE_S                                                        # its west edge
+_ue = _u_rh - RH_SETBACK                                                   # east edge of the one-way drive, 5' off the Red House
+_ui = _ue - DIAG_W                                                         # its west edge
 def _y_at(x, u):                                                           # y where the vertical x = const reaches the given u
     return round((u - _uv(x, 0)[0]) / _U.imag, 1)
 def _y_at_n(x, n):
     n0 = _uv(x, 0)[1]; return round((n - n0) / _N.imag, 1)
-_u0 = _uv(_lx0, _y_at_n(_lx0, 0))[0]                                       # stall row starts where the west leg meets the stall fronts
+_u0 = _ue - 90                                                             # nine 10' stalls, the row ending at the one-way drive
 SOUTH_STALLS = [[_xy(_u0 + 10 * i, 0), _xy(_u0 + 10 * (i + 1), 0), _xy(_u0 + 10 * (i + 1), STALL_D), _xy(_u0 + 10 * i, STALL_D)] for i in range(9)]
 _u9 = _u0 + 90
-_south = _Poly([(_lx0, _row_back), (_lx1, _row_back), (_lx1, _y_at(_lx1, _ue)), _xy(_ue, -AISLE_S), _xy(_u_cp, -AISLE_S), _xy(_u_cp, 0),
-                _xy(_u9, 0), _xy(_u9, STALL_D), _xy(_u0, STALL_D), (_lx0, _y_at_n(_lx0, 0))]).buffer(0)
+_south = _Poly([(_lx0, _row_back), (_lx1, _row_back), (_lx1, _y_at(_lx1, _ue)), _xy(_ue, STALL_D), _xy(_u0, STALL_D), _xy(_u0, 0),
+                (_lx0, _y_at_n(_lx0, 0))]).buffer(0)
 # island: between the legs, south of the stall rows, inside the curb of the diagonal drive and the south aisle
 _island = _Poly([_xy(_ui - CURB, -AISLE_S - CURB), _xy(_ui - CURB, -400), _xy(-400, -400), _xy(-400, -AISLE_S - CURB)]).intersection(
     _box(XW1 + DX + CURB, _row_back, XE0 + DX - CURB, 9999))
 _island = _island.buffer(-4, join_style=1).buffer(4, join_style=1)
 _lot = _union([_box(_lx0, by_id["parking"]["y"], _lx1, _row_back), _south]).buffer(0.01).buffer(-0.01).simplify(0.3)
-_LOOP = [list(_xy(_u_cp - 8, -AISLE_S / 2)), list(_xy(_ue - AISLE_S / 2, -AISLE_S / 2)),
-         [_lx1 - 12, _y_at(_lx1 - 12, _ue - AISLE_S / 2)], None, None, [_lx0 + 10, _y_at_n(_lx0 + 10, -AISLE_S / 2)], list(_xy(_ui - 14, -AISLE_S / 2))]
+_uc = _ue - DIAG_W / 2
 # The entry drive, from the same sketch: about 12' between edges, meeting the west leg with 10' curb returns. It
 # lies on the existing surveyed drive (the survey's edges cross the diagram at y = 391 and 402); it is carried on
 # west to the line of the handling yard's west side, where the drive continues off the diagram toward the lane.
@@ -357,7 +358,10 @@ print("entry drive: width ft", round(abs(_sk(270, 800)[1] - _sk(270, 745)[1]), 1
 for _c in C:
     if _c["id"] == "loop-parking":
         _xe_, _xw_, _yn_ = _c["pts"][0][0], _c["pts"][2][0], _c["pts"][1][1]
-        _c["pts"] = [_LOOP[0], _LOOP[1], [_xe_, _y_at(_xe_, _ue - AISLE_S / 2)], [_xe_, _yn_], [_xw_, _yn_], [_xw_, _y_at_n(_xw_, -AISLE_S / 2)], _LOOP[6]]
+        # west along the north aisle, south down the west leg, south-east along the stalls, north up the one-way
+        # drive past the Red House and on up the east leg
+        _c["pts"] = [[_xe_ - 14, _yn_], [_xw_, _yn_], [_xw_, _y_at_n(_xw_, -AISLE_S / 2)], list(_xy(_uc, -AISLE_S / 2)),
+                     [_xe_, _y_at(_xe_, _uc)], [_xe_, _yn_ + 16]]
 NOTES_ = []                                       # the old "in / out" notes no longer apply
 _P = by_id["parking"]
 _P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-1]

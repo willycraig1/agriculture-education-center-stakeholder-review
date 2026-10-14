@@ -412,3 +412,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   the Red House's south face) straight into the carport. The paved apron south of the Red House is gone. The swale
   island follows the drive edges with 2' curbs and 4' rounded corners; it is now roughly triangular, and the two
   surveyed trees that were in it fall under paving.
+- **One-way drive past the Red House (architect, 2026-10-14):** 13' wide (`DIAG_W`), 5' off the Red House (`RH_SETBACK`) to leave room for an accessible sidewalk; the only one-way stretch of the loop. The aisle stub into the carport (the T-turn south of the Red House) is removed; the stall row now ends at the one-way drive. Loop arrows: west along the north aisle, south down the west leg, south-east along the stalls, north up the one-way drive and the east leg. The island grows into the space freed; the two surveyed trees fall inside it again.
