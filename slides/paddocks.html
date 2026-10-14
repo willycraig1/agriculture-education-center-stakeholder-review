@@ -16,6 +16,8 @@
   .map .off { opacity: 0; }
   .map #aerial { filter: saturate(.45) brightness(1.06); }
   .map .tag.hot rect { stroke-width: 5; fill: #fff; }
+  .map .pad { transition: opacity .8s var(--ease), fill-opacity .5s var(--ease); }
+  .map .pad.hot { fill-opacity: .62; }
   .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   .levels li { padding: 14px 18px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
   .levels li header { display: flex; align-items: center; gap: 12px; }
@@ -60,6 +62,7 @@
   const svg = mapEl.querySelector(":scope > svg");
   ["land", "soils", "labels", "barnyard", "aerial", "veil"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
   svg.querySelectorAll("#aerial, #veil, #water, #trees, #paddocks, #campus").forEach(g => g.setAttribute("data-layer", g.id));
+  const pads = [...svg.querySelectorAll(".pad")];
   const siteTags = [...svg.querySelectorAll(".tag.site")], bonusTags = [...svg.querySelectorAll(".tag.bonus")];
   const xOf = t => +t.getAttribute("transform").match(/translate\(([-\d.]+)/)[1];
   siteTags.sort((a, b) => xOf(a) - xOf(b));
@@ -84,12 +87,18 @@
   function rotate(tags) {
     clearInterval(timer);
     [...siteTags, ...bonusTags].forEach(t => t.classList.remove("hot"));
+    pads.forEach(p => p.classList.remove("hot"));
     if (!tags || document.documentElement.classList.contains("static")) return;
-    timer = setInterval(() => { tags.forEach(t => t.classList.remove("hot")); tags[at++ % tags.length].classList.add("hot"); }, 700);
+    timer = setInterval(() => {
+      tags.forEach(t => t.classList.remove("hot")); pads.forEach(p => p.classList.remove("hot"));
+      const t = tags[at++ % tags.length]; t.classList.add("hot");
+      const p = svg.querySelector(`.pad[data-pad="${t.dataset.pad}"]`); if (p) p.classList.add("hot");
+    }, 700);
   }
   let last = null;
   function apply(n) {
     bonusTags.forEach(t => t.classList.toggle("off", n < 2));
+    svg.querySelectorAll(".pad.bonus").forEach(p => p.classList.toggle("off", n < 2));
     const f = text[n].f;
     if (f !== last) { viewer.home(frames[f]); viewer.flyTo(frames[f], last === null || document.documentElement.classList.contains("static") ? 0 : 1300); last = f; }
     rotate(n === 1 ? siteTags : n === 2 ? [...siteTags, ...bonusTags] : null);

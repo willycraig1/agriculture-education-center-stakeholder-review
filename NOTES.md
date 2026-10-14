@@ -277,3 +277,14 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Entry culvert shortened.** Its line now runs only where it passes under the driveway, plus 8 ft beyond the pavement on each side: about 27 ft as drawn (the drive is about 11 ft wide where the line crosses it).
 - **Fourth pinwheel labelled.** The pinwheel in the middle of the site pasture (12.4 / 8 / 4.8 / 3.4 ac) had no "Feed + water" label: the plan draws its four gate swings but no gate leaves, and pinwheels were being found from leaves. They are now found from the swing arcs: 4 pinwheels. That one still shows arcs only, as on the plan.
 - **Leaves added at the central pinwheel.** `fences.json` `gates_added`: four leaves, each from its swing's centre (hinge) to the arc end on its fence, about 14 ft long because the plan's arcs there have a 14 ft radius (the others are 16 ft). Drawn in the same style as the plan's own leaves (`#gates-added`).
+
+### Pasture colour fields (2026-10-13)
+- **Paddocks as closed shapes.** `build_site_map.py` thickens the fence lines until the gate openings close, which
+  cuts the site into faces, and grows each face back to the fence line. The two fence ends that stop short of each
+  other at the 3.8 ac paddock are joined first. All 15 paddocks come out within 0.3 ac of their labels.
+- **Paddocks slide:** each paddock is filled in its area's colour (site pasture green, bonus pasture olive, 30%
+  fill with a solid edge in the same colour) under the fence lines. Bonus fills appear with the bonus step; the
+  rotation highlight now also darkens the paddock being grazed.
+- **Act 1 site slide, "The land" step:** the two pasture areas are shown as plain colour fields with no paddock
+  lines (`#pasture-areas`), since fences are not proposed until Act 5.
+- Fills are hidden on the barnyard-on-site slide. Colours are the palette's `pasture` and `bonus`.

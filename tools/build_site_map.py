@@ -301,12 +301,12 @@ trees_layer = f'<g fill="{P["woodland"]["base"]}" fill-opacity="0.7">{tree_svg}<
 # ---------------------------------------------------------------- paddocks
 tags = []
 tag_pts = {}
-for ac, x, y in labels:
+for _ti, (ac, x, y) in enumerate(labels):
     area, cls = canopy.get(ac, ("?", "?"))
     c = P["pasture"] if area == "Site Pasture" else P["bonus"]
     px, py = pt(M_FP, T_FP, x, y)
     tag_pts.setdefault(area, []).append((px, py, ac))
-    tags.append(f'<g class="tag {"site" if area == "Site Pasture" else "bonus"}" transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
+    tags.append(f'<g class="tag {"site" if area == "Site Pasture" else "bonus"}" data-pad="{_ti}" transform="translate({px:.1f} {py:.1f})"><g data-fixed="1"><rect x="-42" y="-17" width="84" height="34" rx="17" '
                 f'fill="{c["tint"]}" stroke="{c["base"]}" stroke-width="2"/>'
                 f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{ac:g} ac</text></g></g>')
 # Fences: continuous polylines chained from the plan's dashes (tools/build_fences.py) when available,
@@ -330,7 +330,40 @@ _pw = "".join(f'<g transform="translate({pw_["map"][0]:.1f} {pw_["map"][1]:.1f})
 if os.path.exists(_fp) and FENCES.get("gates_added"):
     gates += (f'<g id="gates-added" fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" stroke-linecap="round">'
               + "".join(f'<line x1="{g_["map"][0][0]}" y1="{g_["map"][0][1]}" x2="{g_["map"][1][0]}" y2="{g_["map"][1][1]}"/>' for g_ in FENCES["gates_added"]) + "</g>")
-paddocks = (_fence_art + f'<g id="gates">{gates}</g><g id="pinwheel-labels">{_pw}</g>'
+# ---- paddocks as closed shapes, filled by area (site pasture / bonus pasture)
+# The fence lines are thickened until the gate openings close, which cuts the site into faces; each face is grown
+# back to the fence line. Two fence ends that stop short of each other (the 3.8 ac paddock, open toward the lane)
+# are joined first. A face is a paddock when one acreage label sits in it.
+PADS, _pad_svg, _area_svg = [], "", ""
+if os.path.exists(_fp) and FENCES.get("runs"):
+    _R = [LineString(r_["map"]) for r_ in FENCES["runs"]]
+    _loose = []
+    for _i, _r in enumerate(_R):
+        for _e in (_r.coords[0], _r.coords[-1]):
+            if min(o.distance(Point(_e)) for _j, o in enumerate(_R) if _j != _i) > 9:
+                _loose.append(_e)
+    _close = [LineString([a_, b_]) for _k, a_ in enumerate(_loose) for b_ in _loose[_k + 1:] if 9 < math.hypot(a_[0] - b_[0], a_[1] - b_[1]) < 80]
+    _G = 6.0
+    _faces = footprint.buffer(-0.5).difference(unary_union(_R + _close).buffer(_G))
+    _faces = list(getattr(_faces, "geoms", [_faces]))
+    _uf2 = (FT_PER_PT / abs(M_FP)) ** 2 / 43560
+    for _ti, (ac, x, y) in enumerate(labels):
+        px, py = pt(M_FP, T_FP, x, y)
+        _in = [f_ for f_ in _faces if f_.contains(Point(px, py))] or [min(_faces, key=lambda f_: f_.distance(Point(px, py)))]
+        _poly = _in[0].buffer(_G, join_style=2).intersection(footprint).simplify(0.4)
+        _site = canopy.get(ac, ("?", "?"))[0] == "Site Pasture"
+        PADS.append({"i": _ti, "label_ac": ac, "measured_ac": round(_poly.area * _uf2, 1), "site": _site, "poly": _poly})
+    _bad = [(p_["label_ac"], p_["measured_ac"]) for p_ in PADS if abs(p_["label_ac"] - p_["measured_ac"]) > 0.3]
+    print("paddock shapes:", len(PADS), "| labelled vs measured acres off by more than 0.3:", _bad or "none")
+    for p_ in PADS:
+        c_ = P["pasture"] if p_["site"] else P["bonus"]
+        _pad_svg += (f'<path class="pad {"site" if p_["site"] else "bonus"}" data-pad="{p_["i"]}" d="{poly_d(p_["poly"])}" fill="{c_["base"]}" fill-opacity=".3" '
+                     f'stroke="{c_["base"]}" stroke-width="2.2" data-w="3.5" stroke-linejoin="round"/>')
+    # the two pasture areas as plain colour fields, with no paddock lines (used where fences are not yet proposed)
+    for key_, site_ in (("pasture", True), ("bonus", False)):
+        _u = unary_union([p_["poly"] for p_ in PADS if p_["site"] == site_]).buffer(1.5).buffer(-1.5)
+        _area_svg += f'<path class="area {"site" if site_ else "bonus"}" d="{poly_d(_u)}" fill="{P[key_]["base"]}" fill-opacity=".3" stroke="{P[key_]["base"]}" stroke-width="2.2" data-w="3.5" stroke-linejoin="round"/>'
+paddocks = (f'<g id="paddock-fills">{_pad_svg}</g>' + _fence_art + f'<g id="gates">{gates}</g><g id="pinwheel-labels">{_pw}</g>'
             + "".join(tags))
 
 # ---------------------------------------------------------------- the land (existing: no proposed fences)
@@ -346,7 +379,8 @@ def land_label(area, key, title):
             f'<text y="28" text-anchor="middle" font-size="30" font-weight="700" fill="{c["base"]}">{tot:.1f} ac</text></g></g>')
 
 
-land = (f'<path d="{poly_d(footprint)}" fill="none" stroke="#fff" stroke-width="7" data-w="7"/>'
+land = (f'<g id="pasture-areas">{_area_svg}</g>'
+        f'<path d="{poly_d(footprint)}" fill="none" stroke="#fff" stroke-width="7" data-w="7"/>'
         f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["ink"]}" stroke-width="3" data-w="3"/>'
         + land_label("Site Pasture", "pasture", "Site pasture") + land_label("Bonus Pasture", "bonus", "Bonus pasture"))
 
