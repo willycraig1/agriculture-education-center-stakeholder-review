@@ -468,24 +468,31 @@ add("turnout-small-b", "Turnout", x_sa_b - TURN_D, y_sa, TURN_D, SA_L, "arena", 
 # wrapping the chute with chamfered corners; 24'-deep tapered trailer bay). The yard's holding pen is pen 1; pens
 # 2 to 5 sit north of the yard in two columns either side of an 8' alley, as in the sketch. All Level 1.
 _ex = _ep["x"] + _ep["w"]                                        # 280: east edge, in line with the existing pens
-HY_W, HY_D, BAY_W = 72, 84, 24
-_hx0, _hy0 = X_HOLD + BAY_W, _ep["y"] - HY_D                      # yard 194..266, 132..216
+# Sized for four cattle (architect, 2026-10-14): half the slide's 72' x 84' in each direction, 36' x 42', with the
+# corner chamfers as single 12' panels (8.5' each way). Bud Box 20' x 12' and the 16' single-file alley and chute
+# are kept; the lead-up alley is the 16' left beside the Bud Box. The bay matches the yard's depth.
+HY_W, HY_D, BAY_W, CH = 36, 42, 24, 8.5
+_hx0, _hy0 = X_HOLD + BAY_W, _ep["y"] - HY_D                      # yard 194..230, 174..216
 mx = lambda x: HY_W - x                                          # mirror within the yard
-_yard = [[0, 0], [72, 0], [72, 68], [56, 84], [16, 84], [0, 64]]
-_pen = [[0, 12], [16, 12], [16, 28], [15.3, 28], [15.3, 37], [19.3, 37], [19.3, 28], [18.6, 28], [18.6, 12], [72, 12], [72, 68], [56, 84], [16, 84], [0, 64]]
-_bay = [[72, 0], [82, 0], [96, 13], [96, 68], [82, 84], [72, 84]]
+_yard = [[0, 0], [HY_W, 0], [HY_W, HY_D - CH], [HY_W - CH, HY_D], [CH, HY_D], [0, HY_D - CH]]
+_pen = [[0, 12], [16, 12], [16, 28], [15.3, 28], [15.3, 37], [19.3, 37], [19.3, 28], [18.6, 28], [18.6, 12], [HY_W, 12],
+        [HY_W, HY_D - CH], [HY_W - CH, HY_D], [CH, HY_D], [0, HY_D - CH]]
+_bay = [[HY_W, 0], [HY_W + 10, 0], [HY_W + 24, 13], [HY_W + 24, HY_D - 13], [HY_W + 10, HY_D], [HY_W, HY_D]]
 add("handling", "Handling", _hx0, _hy0, HY_W, HY_D, "cattle", 1, kind="yard", note="Bud Box, chute, scale",
     outline=[[_hx0 + mx(x), _hy0 + y] for x, y in _yard], zones=[
-    dict(label="Pen 1 · holding pen", poly=[[mx(x), y] for x, y in _pen], at=[mx(46), 50]),
-    dict(label="Lead-up alley", x=mx(72), y=0, w=52, h=12),
+    dict(label="Holding pen", poly=[[mx(x), y] for x, y in _pen], at=[mx(27), 33]),
+    dict(label="Lead-up", x=mx(HY_W), y=0, w=HY_W - 20, h=12),
     dict(label="Bud Box", x=mx(20), y=0, w=20, h=12, fill=True),
     dict(label="", x=mx(18.6), y=12, w=2.6, h=16),
     dict(label="Chute", x=mx(19.3), y=28, w=4, h=9, fill=True, side=True)])
 add("trailer-stop", "Trailer bay", X_HOLD, _hy0, BAY_W, HY_D, "circulation", 1, kind="yard", note="pull-through, gate at each end",
     outline=[[_hx0 + mx(x), _hy0 + y] for x, y in _bay])
-_c1, _c2 = X_HOLD + (_ex - X_HOLD - 8) / 2, X_HOLD + (_ex - X_HOLD + 8) / 2      # alley between the pen columns
+# pens 1 to 5 as in the sketch: 5 and 3 along the top, 4 and 2 below them, 1 beside the yard; two columns either
+# side of an 8' alley in line with the yard's east side
+_c1, _c2 = _hx0 + HY_W, _hx0 + HY_W + 8
 _rm = (Y_ROW1 + _hy0) / 2
-for n_, (x0_, y0_, x1_, y1_) in {5: (X_HOLD, Y_ROW1, _c1, _rm), 4: (X_HOLD, _rm, _c1, _hy0), 3: (_c2, Y_ROW1, _ex, _rm), 2: (_c2, _rm, _ex, _hy0)}.items():
+for n_, (x0_, y0_, x1_, y1_) in {5: (X_HOLD, Y_ROW1, _c1, _rm), 4: (X_HOLD, _rm, _c1, _hy0), 3: (_c2, Y_ROW1, _ex, _rm), 2: (_c2, _rm, _ex, _hy0),
+                                 1: (_c2, _hy0, _ex, _ep["y"])}.items():
     add(f"holding-{n_}", f"Pen {n_}", x0_, y0_, x1_ - x0_, y1_ - y0_, "cattle", 1, kind="yard", note=f"{round((x1_ - x0_) * (y1_ - y0_)):,} sf")
 by_id = {e["id"]: e for e in E}
 # circulation: keep the parking loop; the rest follows the sketch
