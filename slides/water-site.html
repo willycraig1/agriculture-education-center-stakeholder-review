@@ -72,7 +72,7 @@
 <script src="../design/viewer.js"></script>
 <script>
 (function () {
-  const M = window.SITE_MAP, C = M.civil || {}, B = M.slough_bed || {}, bedAc = (B.acres || 0).toFixed(1);
+  const M = window.SITE_MAP, C = M.civil || {}, W = M.wildcard || {}, B = M.slough_bed || {}, bedAc = (B.acres || 0).toFixed(1);
   const mapEl = document.getElementById("map");
   mapEl.insertAdjacentHTML("afterbegin", M.svg);
   const svg = mapEl.querySelector("svg");
@@ -102,7 +102,7 @@
       lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Proposed retention pond</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
     { t: "Floodplain compensation, all at Level 1", p: `The whole site is in the floodplain. Civil recommends permitting and building all the stormwater and compensation up front, at Level 1: fill for new work is balanced by lowering ground elsewhere, wide and shallow so it stays in grazing.`,
-      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Retention, expanded</span><span><i style="background:none;border:2px dotted var(--water)"></i>Wildcard retention zone</span>`,
+      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Retention, expanded</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>New retention</span><span><i style="background:none;border:2px dotted var(--water)"></i>Bonus retention</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, comp: true, frame: "full" },
     { t: "The pipes that connect it", p: "Two structures tie the old bed together. The culvert under the entry is undersized and hard to maintain: it is replaced with the new entry apron at Level 1. The outfall from the bed to Cow Pen Slough, two 36-inch pipes under the lane, is in good shape and sized for what the plan needs, so it stays.",
       lg: `<span><i style="background:var(--education);height:5px;margin-bottom:4px"></i>Replace</span><span><i style="background:var(--woodland);height:5px;margin-bottom:4px"></i>Keep</span>`,
@@ -114,7 +114,8 @@
     `<b>Option 1</b>, about ${C.option1_acres} ac north-west of the campus: strip topsoil, reseed. Drainage unchanged.`,
     `<b>Option 2</b>, about ${C.option2_acres} ac, the north pasture: clear and lower. Costlier; the biggest gain in forage.`,
     `<b>Retention</b>: the pond shown is undersized; expanded along the barnyard's edges.`,
-    `<b>Wildcard</b>: Solid Waste, which controls the land, is open to more IFAS use, so extra ponds could go in the bonus pastures near the outfall.`,
+    `<b>New retention</b>, about ${W.site_acres} ac, between the old bed and the lane.`,
+    `<b>Bonus retention</b>, about ${W.bonus_acres} ac: Solid Waste, which controls the land, is open to more IFAS use, so both ponds can extend south onto its land, with two more ponds past the outfall drive.`,
     `The soil removed could cover the County landfill next door.`].map(t => `<div>${t}</div>`).join("");
   const facts = [[1, bedAc, "acres of historical slough bed, bank to bank"], [2, `${wet}%`, "of the mapped site is very poorly drained"], [3, "21.70′", "finished floor for covered livestock buildings, just above the 100-year flood"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) => `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");

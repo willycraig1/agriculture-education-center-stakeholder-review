@@ -739,23 +739,27 @@ if os.path.exists(_bp):
                                                    for k in new_ids if polys[k].intersection(_bedg).area * unit_ft ** 2 > 50]}
     print("slough bed crosses:", bed_meta["crosses"])
 
-# Wildcard retention (architect, 2026-10-14): the County's Solid Waste department controls the property and drew
-# its line somewhat arbitrarily; it is open to IFAS using more of its land (hence the bonus pasture). The same
-# approach could put extra retention ponds in the bonus pastures near the outfall. Shown as the bonus paddocks
-# within 300' of the outfall's bed end, outlined as a zone, not a design.
+# Retention from the architect's markup (tools/build_retention_markup.py): a new pond on the site between the
+# historical bed and the lane, and "bonus retention" on the Solid Waste land beyond the parcel line, extending this
+# pond and the proposed retention pond south, plus two more ponds past the outfall drive. The County's Solid Waste
+# department controls the property and drew the site line somewhat arbitrarily; it is open to IFAS using more of
+# its land (hence the bonus pasture), and the same could apply to stormwater. Replaces the earlier wildcard zone,
+# which was too far south to use without underground equalization pipes.
 _wild_svg, WILD = "", None
-if PADS and "_o0" in dir():
-    _near_o = [p_ for p_ in PADS if not p_["site"] and p_["poly"].distance(Point(_o0)) * (FT_PER_PT / abs(M_FP)) < 300]
-    if _near_o:
-        _wz = unary_union([p_["poly"] for p_ in _near_o]).buffer(-3).buffer(1)
-        WILD = {"paddocks_ac": [p_["acres"] for p_ in _near_o], "acres": round(sum(p_["acres"] for p_ in _near_o), 1)}
-        _wc = _wz.representative_point()
-        _wild_svg = (f'<g id="wildcard" display="none"><path d="{poly_d(_wz) if _wz.geom_type == "Polygon" else " ".join(poly_d(g_) for g_ in _wz.geoms)}" fill="{P["water"]["base"]}" fill-opacity=".1" '
-                     f'stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>'
-                     f'<g transform="translate({_wc.x:.0f} {_wc.y:.0f})"><g data-fixed="1">'
-                     f'<text y="-4" text-anchor="middle" font-size="18" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Wildcard</text>'
-                     f'<text y="18" text-anchor="middle" font-size="15" font-style="italic" font-weight="600" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">retention ponds near the outfall</text></g></g></g>')
-        print("wildcard retention zone: bonus paddocks", WILD)
+_rp_ = os.path.join(OUT, "data", "retention-markup.json")
+if os.path.exists(_rp_):
+    _RM = json.load(open(_rp_))
+    WILD = {"site_acres": _RM["site_acres"], "bonus_acres": _RM["bonus_acres"]}
+    _sp = [Polygon(q) for q in _RM["site_ponds"]]; _bp = [Polygon(q) for q in _RM["bonus_ponds"]]
+    _wc = max(_bp, key=lambda g: g.area).centroid if _bp else None
+    _sc = max(_sp, key=lambda g: g.area).centroid if _sp else None
+    _wild_svg = ('<g id="wildcard" display="none">'
+                 + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="2" data-w="2.5" stroke-dasharray="8 5" data-dash="8 5"/>' for g_ in _sp)
+                 + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["base"]}" fill-opacity=".14" stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>' for g_ in _bp)
+                 + (_lbl(_wc.x, _wc.y, "Bonus retention", f'{_RM["bonus_acres"]} ac on Solid Waste land', P["water"]["base"]) if _wc else "")
+                 + (_lbl(_sc.x - 18, _sc.y + 6, "New retention", f'{_RM["site_acres"]} ac', P["water"]["base"]) if _sc else "")
+                 + "</g>")
+    print("retention markup: site ac", _RM["site_acres"], "| bonus ac", _RM["bonus_acres"])
 
 W, H = x1 - x0, y1 - y0
 font = "font-family=\"'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif\""

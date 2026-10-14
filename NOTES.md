@@ -453,3 +453,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   8.2 ac paddocks (12.0 ac), not a design. The Solid Waste point is also added to the Act 1 site slide's "The land"
   step. The compensation step's text was shortened and the options moved to a list beside the map; the second
   "for the tables" box (freeboard) was dropped from that slide to fit; the question remains on the closing slide.
+- **Retention from the architect's markup (2026-10-14)** — `tools/build_retention_markup.py`, source
+  `source/site-edits/retention-markup-2026-10-14.webp` (a screenshot of the water slide's map, placed by a
+  scale-and-shift fit on eight labels in it, max residual 2.8 px). Red outlines filled; each pond split at the
+  parcel line pl-04 (the dash-dot line between the County site and the Solid Waste land). Result: **new retention**
+  on the site between the historical bed and the lane, 0.5 ac (plus a sliver by the proposed pond); **bonus
+  retention** on Solid Waste land, 3.3 ac: that pond and the proposed retention pond extended south, plus two more
+  ponds past the outfall drive. Replaces the wildcard zone, which was too far south to use without underground
+  equalization pipes (architect). "Wildcard" renamed "bonus", matching the bonus pasture.
