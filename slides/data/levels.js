@@ -18,6 +18,12 @@ window.LEVELS = {
     ],
   },
   rows: [
+    // Civil (2026-10-14): permitting, stormwater and floodplain compensation are done for the whole plan up front;
+    // only the buildings and programs inside the site are phased by Level.
+    { key: "water", label: "Site work: stormwater, floodplain compensation", cells: [
+      { text: "All of it, permitted and built up front", confirmed: true },
+      { text: "In place from Level 1", confirmed: true },
+      { text: "In place from Level 1", confirmed: true } ] },
     { key: "pasture", label: "Pasture (Beginning Rancher herd)", cells: [
       { text: "Site pasture, conservative management", ce: 1, confirmed: true },
       { text: "Rotational grazing on site pasture", ce: 2, confirmed: true },
