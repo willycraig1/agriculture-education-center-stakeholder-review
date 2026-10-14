@@ -402,3 +402,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   the road. On the site plans it lies over the existing tree-lined drive and its flared apron and island.
 - The Python build environment in the scratchpad lost its packages overnight; rebuilt (`venv2`). The build
   reproduced the committed outputs exactly before any change.
+- **Swale island (architect, 2026-10-14):** the island is cut out of the parking lot's paving (`holes` on the parking element; drawn with an even-odd path in all three renderers). The swale is drawn inside it, set back 5' from the curb (`SWALE_SETBACK`; asked for 4-6'). On the site plans the island is filled with ground colour (hiding the existing drive surveyed under it) and the two surveyed trees inside it are redrawn above the swale (`#swale-trees`).
