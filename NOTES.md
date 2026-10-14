@@ -251,3 +251,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   under its parcel lines is approximate.
 - **Bed against the plan.** `SITE_MAP.slough_bed`: 3.38 ac; the only proposed barnyard element the surveyed bed
   crosses is a turnout (about 2,320 sf). It also passes under the existing entry drive.
+- **Act 1 site slide:** the historical slough bed stays on the Water step but downplayed (16% fill, no map label, legend entry only, no sentence in the step text). Water-site step 1 now says the waterway was "channelized".

@@ -83,7 +83,7 @@
   const wet = Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0));
   const crosses = (B.crosses || []).map(c => `the ${c.name.toLowerCase()} (about ${c.sf.toLocaleString()} sf)`);
   const steps = [
-    { t: "1948: the slough before the canal", p: "The slough wandered across this land in a wide, shallow bed. It was later straightened into the canal that now runs along the west property line.",
+    { t: "1948: the slough before the canal", p: "The slough wandered across this land in a wide, shallow bed. The waterway was later channelized into the canal that now runs along the west property line.",
       show: ["aerial1948", "property"], frame: "full" },
     { t: "What is left of it", p: `The canal carries the flow today. The old bed is still cut into the ground, about ${bedAc} acres from bank to bank across the middle of the site.`,
       lg: `<span><i style="background:var(--water)"></i>Cow Pen Slough today</span><span><i style="background:var(--water);opacity:.6"></i>Historical slough bed</span><span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span>`,
