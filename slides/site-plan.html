@@ -90,7 +90,6 @@
   if (wet.length) items.push(`On the wettest soil: ${wet.map(([k, v]) => `${k.toLowerCase()} ${v}%`).join(", ")}.`);
   else items.push("No building sits on the wettest soil.");
   if (K.stalls_to_red_house_ft !== undefined) items.push(`The south stall row is about ${K.stalls_to_red_house_ft}' from the nearest Red House wall, so the loop's east leg has to bend around it.`);
-  items.push("The paddock fence lines around the campus were drawn for the earlier layout and need redrawing.");
   document.getElementById("fit").innerHTML = `<h3>What the overlay shows</h3><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
 
   let last = null;

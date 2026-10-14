@@ -311,9 +311,45 @@ for _ti, (ac, x, y) in enumerate(labels):
                 f'<text y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{N["ink"]}">{ac:g} ac</text></g></g>')
 # Fences: continuous polylines chained from the plan's dashes (tools/build_fences.py) when available,
 # so line weight, dash pattern and colour are ours to set; otherwise the raw dashes.
+import cmath, math
+_src = open(os.path.join(SLIDES, "data", "ag-area.js")).read()
+AG = json.loads(_src[_src.index("{"):_src.rindex("}") + 1])
+FENCE_ST = (complex(1599, 745), complex(1772, 799))      # surveyed pen fence line, study-plan points
+ST_FT = FT_PER_PT * abs(M_TF)                            # study plan: feet per point
+_pens = next(e for e in AG["elements"] if e["id"] == "existing-pens")
+_m = cmath.rect(1 / ST_FT, cmath.phase(FENCE_ST[1] - FENCE_ST[0]))
+_t = (FENCE_ST[0] + FENCE_ST[1]) / 2 - _m * complex(_pens["x"] + _pens["w"] / 2, _pens["y"])
+M_DP, T_DP = M_TP * _m, M_TP * _t + T_TP                 # diagram feet -> presentation frame
+
+
 _fp = os.path.join(OUT, "data", "fences.json")
 if os.path.exists(_fp):
     FENCES = json.load(open(_fp))
+    # ---- campus fence, redrawn to the barnyard (architect, 2026-10-13)
+    # The fencing plan's line round the north and west of the campus was drawn for an earlier layout and cut
+    # through the new barns. It is replaced, between its two ends, by a line on the outer edges of the turnout
+    # yards: up the east edge of the cattle turnouts, along the north face of the barnyard, round the small
+    # animal turnouts, and down the west side of the handling yard to where the old line turns for the lane.
+    # The first two and the last vertex of the plan's run are kept, so its gates and junctions are untouched.
+    _el = {e_["id"]: e_ for e_ in AG["elements"]}
+    _cf = min(FENCES["runs"], key=lambda r_: min(math.hypot(q[0] - 1087.2, q[1] - 339.6) for q in r_["map"]))      # the run through the old campus corner
+    if all(k in _el for k in ("turnout-cattle-b", "arena", "turnout-small-b", "handling")) and len(_cf["map"]) >= 6:
+        _to_d = lambda q: (complex(*q) - T_DP) / M_DP
+        _to_m = lambda x, y: [round(v, 2) for v in pt(M_DP, T_DP, x, y)]
+        _tb, _ar, _ts, _hd = _el["turnout-cattle-b"], _el["arena"], _el["turnout-small-b"], _el["handling"]
+        _east, _north = _tb["x"] + _tb["w"], _tb["y"]
+        _end_d = _to_d(_cf["map"][-1])
+        _new_d = [(_east, _north), (_ar["x"], _north), (_ar["x"], _ts["y"]), (_ts["x"], _ts["y"]), (_ts["x"], _hd["y"]),
+                  (_hd["x"], _hd["y"]), (_hd["x"], round(_end_d.imag, 1))]
+        _old_ft = _cf["length_ft"]
+        _cf["map"] = _cf["map"][:2] + [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
+        _cf["length_ft"] = round(LineString(_cf["map"]).length * FT_PER_PT / abs(M_FP))
+        _cf["redrawn"] = "campus fence aligned to the turnout yards, 2026-10-13"
+        _cf.pop("sheet", None)
+        json.dump({"note": "The campus fence as redrawn to the barnyard's turnout yards; replaces this run of fences.json on the map.",
+                   "id": _cf["id"], "length_ft": _cf["length_ft"], "plan_length_ft": _old_ft, "diagram_ft": [list(q) for q in _new_d], "map": _cf["map"]},
+                  open(os.path.join(OUT, "data", "campus-fence.json"), "w"), indent=1)
+        print("campus fence redrawn:", _cf["id"], _old_ft, "ft ->", _cf["length_ft"], "ft")
     _pl = "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES["runs"])
     _fence_art = (f'<g fill="none" stroke="#fff" stroke-width="5" data-w="5" stroke-linejoin="round" stroke-linecap="round">{_pl.replace(" id=", " data-id=")}</g>'
                   f'<g id="fence-lines" fill="none" stroke="{N["ink"]}" stroke-width="2" data-w="2" stroke-dasharray="14 6" data-dash="14 6" stroke-linejoin="round">{_pl}</g>')
@@ -460,16 +496,7 @@ rh = pt(M_SP, T_SP, 1358, 1137)
 # The diagram (tools/build_ag_area.py, feet, square to the existing barn) is pinned to the survey by its
 # existing pens: the middle of their north edge sits on the middle of the surveyed pen fence line on the
 # study plan (P-RAILING, 80.9' long), and the diagram is turned to that line's bearing (17.3 degrees).
-import cmath, math
-_src = open(os.path.join(SLIDES, "data", "ag-area.js")).read()
-AG = json.loads(_src[_src.index("{"):_src.rindex("}") + 1])
-FENCE_ST = (complex(1599, 745), complex(1772, 799))      # surveyed pen fence line, study-plan points
-ST_FT = FT_PER_PT * abs(M_TF)                            # study plan: feet per point
-_pens = next(e for e in AG["elements"] if e["id"] == "existing-pens")
-_m = cmath.rect(1 / ST_FT, cmath.phase(FENCE_ST[1] - FENCE_ST[0]))
-_t = (FENCE_ST[0] + FENCE_ST[1]) / 2 - _m * complex(_pens["x"] + _pens["w"] / 2, _pens["y"])
-M_DP, T_DP = M_TP * _m, M_TP * _t + T_TP                 # diagram feet -> presentation frame
-
+# (the diagram-to-map transform M_DP, T_DP is set up earlier, with the fences)
 
 def ag_poly(e):
     pts = e.get("outline") or [[e["x"], e["y"]], [e["x"] + e["w"], e["y"]], [e["x"] + e["w"], e["y"] + e["h"]], [e["x"], e["y"] + e["h"]]]
@@ -509,6 +536,12 @@ for e in AG["elements"]:
         lx, ly = pt(M_DP, T_DP, e["x"] + e["w"] / 2, e["y"] + e["h"] / 2)
         by_labels += (f'<text data-level="{e["level"]}" x="{lx:.1f}" y="{ly + 1.4:.1f}" text-anchor="middle" font-size="4.2" font-weight="700" fill="{N["ink"]}" '
                       f'stroke="#fff" stroke-width="1.1" paint-order="stroke">{BY_LABELS[e["id"]]}</text>')
+
+# the unfinished barn houses poultry at Level 1 (Levels matrix); labelled with the barnyard on the site plan slide
+if UNFINISHED_BARN:
+    _ubx, _uby = sum(q[0] for q in UNFINISHED_BARN[:-1]) / 4, sum(q[1] for q in UNFINISHED_BARN[:-1]) / 4
+    by_labels += (f'<text data-level="1" x="{_ubx:.1f}" y="{_uby + 1.4:.1f}" text-anchor="middle" font-size="4.2" font-weight="700" fill="{N["ink"]}" '
+                  f'stroke="#fff" stroke-width="1.1" paint-order="stroke">Poultry (Level 1)</text>')
 
 # fit checks against the survey (presentation frame; reported in feet)
 from shapely.geometry import MultiPoint
