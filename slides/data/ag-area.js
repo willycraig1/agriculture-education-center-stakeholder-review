@@ -229,6 +229,10 @@ window.AG_AREA = {
     ],
     [
      -10.0,
+     339
+    ],
+    [
+     -26.0,
      355
     ],
     [
@@ -497,12 +501,12 @@ window.AG_AREA = {
    "label": "Pen 1",
    "x": -200.0,
    "y": 271,
-   "w": 118.0,
+   "w": 134.0,
    "h": 84,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "9,170 sf",
+   "note": "9,330 sf",
    "assumed": false,
    "outline": [
     [
@@ -511,6 +515,10 @@ window.AG_AREA = {
     ],
     [
      -82.0,
+     335
+    ],
+    [
+     -66.0,
      355
     ],
     [

@@ -345,7 +345,7 @@ if os.path.exists(_fp):
         if "holding-3" in _el and "holding-1" in _el:
             # round the outside of the holding pens: along pen 3's north side, down the pens' west fence to the
             # level of the plan's last leg, then along that leg to its gate at the lane
-            (_nwx, _nwy), (_swx, _swy) = _el["holding-3"]["outline"][3], _el["holding-1"]["outline"][2]
+            (_nwx, _nwy), (_swx, _swy) = _el["holding-3"]["outline"][3], _el["holding-1"]["outline"][-2]
             _ye = round(_end_d.imag, 1)
             _xw = _nwx + (_swx - _nwx) * (_ye - _nwy) / (_swy - _nwy)
             _new_d = [(_east, _north), (_ar["x"], _north), (_ar["x"], _ts["y"]), (_ts["x"], _ts["y"]), (_nwx, _nwy), (round(_xw, 1), _ye)]
