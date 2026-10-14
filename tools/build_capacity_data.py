@@ -18,12 +18,20 @@ OUT = os.path.join(ROOT, "slides", "data", "pasture-capacity.js")
 
 RATES = {"conservative": {"open": 4, "wooded": 25}, "improved": {"open": 2, "wooded": 10}}
 
+# Paddock acres: drawings/data/paddocks.json when it exists (tools/build_site_map.py: the fencing plan's figure for
+# each paddock, adjusted where a fence has since been redrawn), with the worksheet's dense-woods share for each.
+# Otherwise the worksheet's own acres.
+PADS = os.path.join(ROOT, "drawings", "data", "paddocks.json")
 paddocks = []
-for row in openpyxl.load_workbook(XLSX)["Paddock Detail"].iter_rows(min_row=5, max_row=20, values_only=True):
-    area, ac, dense = row[0], row[1], row[2] or 0
-    if area and ac:
-        paddocks.append({"group": "site" if area == "Site Pasture" else "bonus", "acres": float(ac),
-                         "wooded": float(ac) * dense, "open": float(ac) * (1 - dense)})
+if os.path.exists(PADS):
+    for q in json.load(open(PADS))["paddocks"]:
+        paddocks.append({"group": q["group"], "acres": q["acres"], "wooded": q["acres"] * q["dense"], "open": q["acres"] * (1 - q["dense"])})
+else:
+    for row in openpyxl.load_workbook(XLSX)["Paddock Detail"].iter_rows(min_row=5, max_row=20, values_only=True):
+        area, ac, dense = row[0], row[1], row[2] or 0
+        if area and ac:
+            paddocks.append({"group": "site" if area == "Site Pasture" else "bonus", "acres": float(ac),
+                             "wooded": float(ac) * dense, "open": float(ac) * (1 - dense)})
 
 
 def sums(groups):
@@ -47,7 +55,7 @@ def level(n, name, sub, groups, mgmt):
 
 
 data = {
-    "source": "source/Clark_Farm_Pasture_Calculations.xlsx · UF/IFAS AN155 Stocking Rate Decisions",
+    "source": "source/Clark_Farm_Pasture_Calculations.xlsx · UF/IFAS AN155 Stocking Rate Decisions" + (" · paddock acres as fenced (drawings/data/paddocks.json)" if os.path.exists(PADS) else ""),
     "levels": [
         level(1, "Level 1", "Minimum to operate", ["site"], "conservative"),
         level(2, "Level 2", "Better management", ["site"], "improved"),

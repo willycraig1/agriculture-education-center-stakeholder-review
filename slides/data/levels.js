@@ -34,8 +34,13 @@ window.LEVELS = {
       { text: "Reuse hog enclosures; hog pens in the existing barn", confirmed: true },
       { text: "Move to small animal barn A; existing barn becomes storage", confirmed: true },
       { text: "Same as Level 2", confirmed: true } ] },
-    { key: "small_animal", label: "Small animals & poultry", cells: [
-      { text: "Poultry in the small unfinished barns", confirmed: true },
+    // Poultry is not a "small animal" here: it is housed in the unfinished barn from Level 1 and stays there (architect, 2026-10-13).
+    { key: "small_animal", label: "Poultry", cells: [
+      { text: "In the unfinished barn", confirmed: true },
+      { text: "Same as Level 1", confirmed: true },
+      { text: "Same as Level 1", confirmed: true } ] },
+    { key: "small_animal", label: "Small animals", cells: [
+      { text: "None yet", confirmed: false },
       { text: "Small animal barn A, shared with the hogs", confirmed: true },
       { text: "Extend barn A by 42'", confirmed: true } ] },
     { key: "arena", label: "Arena / demonstration", cells: [
