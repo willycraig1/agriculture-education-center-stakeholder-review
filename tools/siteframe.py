@@ -208,3 +208,19 @@ def snapped_boundary(boundary, tol=30.0):
     n = next((i for i, v in enumerate(near) if not v), len(B))                     # the run is B[0:n]
     seg = substring(W, W.project(Point(B[0])), W.project(Point(B[n - 1])))
     return [list(c) for c in seg.coords] + [list(p) for p in B[n:]]
+
+
+# ---------------------------------------------------------------- barnyard diagram on the map
+def diagram_transform(pens_mid_x, pens_y):
+    """Barnyard diagram feet -> presentation frame, as (m, t) with z' = m*z + t.
+
+    The diagram (tools/build_ag_area.py, square to the existing barn) is pinned to the survey by its existing
+    pens: the middle of their north edge sits on the middle of the surveyed pen fence line on the study plan
+    (P-RAILING, 80.9' long), and the diagram is turned to that line's bearing (17.3 degrees).
+    """
+    import cmath
+    fence_st = (complex(1599, 745), complex(1772, 799))      # surveyed pen fence line, study-plan points
+    st_ft = FT_PER_PT * abs(M_TF)                            # study plan: feet per point
+    m = cmath.rect(1 / st_ft, cmath.phase(fence_st[1] - fence_st[0]))
+    t = (fence_st[0] + fence_st[1]) / 2 - m * complex(pens_mid_x, pens_y)
+    return M_TP * m, M_TP * t + T_TP

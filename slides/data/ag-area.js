@@ -5,7 +5,7 @@ window.AG_AREA = {
   -234.0,
   -38,
   582.0,
-  508
+  484
  ],
  "north_cw_from_up": -17,
  "elements": [
@@ -109,7 +109,7 @@ window.AG_AREA = {
    "x": 14.0,
    "y": 240,
    "w": 139.0,
-   "h": 164,
+   "h": 140,
    "use": "circulation",
    "level": 1,
    "kind": "parking",
@@ -152,11 +152,11 @@ window.AG_AREA = {
     ],
     [
      153.0,
-     404
+     380
     ],
     [
      14.0,
-     404
+     380
     ]
    ],
    "island": {
@@ -164,7 +164,7 @@ window.AG_AREA = {
     "x": 36.0,
     "y": 368,
     "w": 91.0,
-    "h": 36
+    "h": 12
    }
   },
   {
@@ -627,6 +627,112 @@ window.AG_AREA = {
     ]
    ],
    "holding": true
+  },
+  {
+   "id": "existing-red-house",
+   "label": "Red House",
+   "x": 113.4,
+   "y": 382.7,
+   "w": 99.19999999999999,
+   "h": 99.80000000000001,
+   "use": "education",
+   "level": 1,
+   "kind": "building",
+   "note": "",
+   "assumed": false,
+   "outline": [
+    [
+     167.7,
+     454.3
+    ],
+    [
+     176.2,
+     460.0
+    ],
+    [
+     191.2,
+     437.3
+    ],
+    [
+     193.5,
+     438.8
+    ],
+    [
+     196.8,
+     433.8
+    ],
+    [
+     194.6,
+     432.3
+    ],
+    [
+     212.6,
+     405.2
+    ],
+    [
+     178.9,
+     382.7
+    ],
+    [
+     136.2,
+     446.9
+    ],
+    [
+     126.1,
+     440.1
+    ],
+    [
+     113.4,
+     459.0
+    ],
+    [
+     148.9,
+     482.5
+    ]
+   ],
+   "context": true
+  },
+  {
+   "id": "horticulture",
+   "label": "Horticulture area",
+   "x": -24.7,
+   "y": 454.7,
+   "w": 99.7,
+   "h": 80.50000000000006,
+   "use": "horticulture",
+   "level": 1,
+   "kind": "garden",
+   "note": "Raised beds and pots",
+   "assumed": false,
+   "outline": [
+    [
+     -7.9,
+     454.7
+    ],
+    [
+     75.0,
+     509.9
+    ],
+    [
+     58.2,
+     535.2
+    ],
+    [
+     -24.7,
+     479.9
+    ]
+   ],
+   "context": true,
+   "becomes": {
+    "2": {
+     "use": "horticulture",
+     "note": "Beds with irrigation"
+    },
+    "3": {
+     "use": "horticulture",
+     "note": "Shade area, planting tables"
+    }
+   }
   }
  ],
  "drives": [],
@@ -752,7 +858,7 @@ window.AG_AREA = {
    "pts": [
     [
      141.0,
-     420
+     396
     ],
     [
      141.0,
@@ -764,7 +870,7 @@ window.AG_AREA = {
     ],
     [
      24.0,
-     420
+     396
     ]
    ]
   },
@@ -956,12 +1062,12 @@ window.AG_AREA = {
  "notes": [
   {
    "x": 141.0,
-   "y": 430,
+   "y": 406,
    "text": "In, from the Red House side"
   },
   {
    "x": 24.0,
-   "y": 430,
+   "y": 406,
    "text": "Out, to the entry drive"
   }
  ],

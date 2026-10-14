@@ -321,12 +321,8 @@ for _ti, (ac, x, y) in enumerate(labels):
 import cmath, math
 _src = open(os.path.join(SLIDES, "data", "ag-area.js")).read()
 AG = json.loads(_src[_src.index("{"):_src.rindex("}") + 1])
-FENCE_ST = (complex(1599, 745), complex(1772, 799))      # surveyed pen fence line, study-plan points
-ST_FT = FT_PER_PT * abs(M_TF)                            # study plan: feet per point
 _pens = next(e for e in AG["elements"] if e["id"] == "existing-pens")
-_m = cmath.rect(1 / ST_FT, cmath.phase(FENCE_ST[1] - FENCE_ST[0]))
-_t = (FENCE_ST[0] + FENCE_ST[1]) / 2 - _m * complex(_pens["x"] + _pens["w"] / 2, _pens["y"])
-M_DP, T_DP = M_TP * _m, M_TP * _t + T_TP                 # diagram feet -> presentation frame
+M_DP, T_DP = diagram_transform(_pens["x"] + _pens["w"] / 2, _pens["y"])      # diagram feet -> presentation frame
 
 
 _fp = os.path.join(OUT, "data", "fences.json")
@@ -547,6 +543,8 @@ def ag_poly(e):
 
 by = []
 for e in AG["elements"]:
+    if e["id"] == "existing-red-house":
+        continue                                  # already on the map as a surveyed structure
     use3 = e["use"]
     for k in ("2", "3"):
         use3 = e.get("becomes", {}).get(k, {}).get("use", use3)
@@ -571,7 +569,7 @@ for e in AG["elements"]:
               f'data-use2="{e.get("becomes", {}).get("2", {}).get("use", "")}">{shape}{inner}</g>')
 barnyard = f'<g transform="{mat(M_DP, T_DP)}">' + "".join(by) + "</g>"
 BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Extension",
-             "arena": "Arena", "parking": "Parking", "handling": "Handling", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
+             "arena": "Arena", "parking": "Parking", "handling": "Handling", "horticulture": "Horticulture", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""
 for e in AG["elements"]:
     if e["id"] in BY_LABELS:
@@ -753,7 +751,7 @@ os.makedirs(os.path.join(SLIDES, "data"), exist_ok=True)
 _cb = [c for st_ in (EDITS["structures"] if EDITS else []) for c in st_["pts"]] + [list(q) for q in UNFINISHED_BARN]
 CAMPUS_BOX = [min(c[0] for c in _cb), min(c[1] for c in _cb), max(c[0] for c in _cb), max(c[1] for c in _cb)] if _cb else [rh[0] - 80, rh[1] - 80, rh[0] + 80, rh[1] + 80]
 meta = {"canopy_acres": AD["canopy_acres"] if AD else None, "campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
-                     "bearing_deg": math.degrees(cmath.phase(FENCE_ST[1] - FENCE_ST[0]))},
+                     "bearing_deg": math.degrees(cmath.phase(M_DP / M_TP))},
         "view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "site_acres_footprint_previous": round(footprint_auto.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
         "soils": soil_json, "ft_per_unit": FT_PER_PT, "slough_bed": bed_meta, "compensation_acres": COMP_ACRES, "retention_acres": RET_ACRES, "infrastructure": INFRA}
 with open(os.path.join(SLIDES, "data", "site-map.js"), "w") as fh:

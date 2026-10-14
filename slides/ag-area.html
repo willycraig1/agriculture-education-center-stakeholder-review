@@ -155,14 +155,14 @@
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`] },
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "New handling yard: Bud Box, chute and scale", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Horticulture area south of the Red House (pan down to see both)"] },
     { b: "Level 2", h: "First new barns", items: [`Cattle barn A and its turnout: ${c[2]} pens in all`, `Small animal barn A, ${sa} pens: the hogs move here`, "First feed storage container, by the parking", "Existing barn, emptied of hogs, becomes storage"] },
     { b: "Level 3", h: "Best case", items: [`Cattle barn B and its turnout: ${c[3]} pens in all`, `Barn A extended 42': ${A.counts.small_animal_pens[3]} small animal pens in all, kept off the wet corner`, "Arena, 50' × 84', between the runs", "Second feed storage container"] },
     { b: "Flow", h: "Straight lines", items: ["The loop's west leg continues the west lane; its east leg continues the cattle tractor aisle", "One-way loop, counter-clockwise: in from the Red House side, out to the entry drive", "Trailers pull off the loop into a bay beside the handling yard, unload, and drive on", "Every barn opens onto its own turnout", `Two ${A.lane_ft}' lanes and a cross drive serve feed, pens and the arena`] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
-  const uses = [["cattle", "Cattle"], ["small_animal", "Small animals"], ["swine", "Swine"], ["arena", "Arena and turnout"], ["circulation", "Storage, parking, service"]];
+  const uses = [["cattle", "Cattle"], ["small_animal", "Small animals"], ["swine", "Swine"], ["arena", "Arena and turnout"], ["circulation", "Storage, parking, service"], ["education", "Red House"], ["horticulture", "Horticulture"]];
   document.getElementById("legend").innerHTML = uses.map(([k, l]) => `<span><i style="background:${css(k)}-tint;background:var(--${k.replace("_", "-")}-tint);border-color:${css(k)}"></i>${l}</span>`).join("");
 
   function apply(step) {

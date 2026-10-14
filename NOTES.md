@@ -355,3 +355,16 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   paddocks; **Reuse first** on existing and red-house; **Grow by module** on cattle-pens, levels and ag-area (on
   cattle-pens the tag sits left of the sticky note). Not tagged: site, program, bud-box, site-plan, input, where no
   single driver leads.
+
+### Red House, horticulture area and a tighter parking lot (2026-10-13)
+- **Red House and horticulture in the barnyard diagram** (`build_ag_area.py`, as context elements): the Red House is
+  the architect's outline from the site edits; the horticulture area is the "HORTICULTURE AREA" rectangle on study
+  plan A0.2 (layer A-WALL-OTLN), 100' x 30', beside the drive south-west of the Red House (the 20' x 30'
+  "RESIDENCE" at its end on that plan is left out). Both are converted to diagram feet with the inverse of the
+  diagram-to-map transform, now shared as `siteframe.diagram_transform()`. The barnyard slide's opening view still
+  frames the barnyard only; the two appear when the viewer pans down. The horticulture area also shows on the
+  barnyard-on-site and water site plans (Level 1, notes by Level: raised beds and pots / beds with irrigation /
+  shade area, planting tables). One surveyed tree falls inside it. The Red House is not redrawn on the site map,
+  where it is already a structure.
+- **Parking lot tightened** (architect): the planted island behind the south stall row is one 12' module deep
+  instead of 36', so the lot is 140' deep instead of 164' and ends 24' further north. Still 36 stalls.
