@@ -493,7 +493,7 @@ use); 24' clear between all buildings; small animal barn A at Level 2, B at Leve
   line). Sizes are the deck's standards; the sketch is freehand.
 - Campus fence re-routed round Option B (north of the turnouts, west of small animal barn B's turnout); fences that
   ran to the old line are carried on to the new one (fence-19, 32'). Paddocks 8.0 → 7.9 ac and 3.4 → 3.6 ac;
-  capacity 7 / 14.5 / 27.6 → planning figures 7 / 15 / 28 CE.
+  capacity 7.0 / 14.5 / 27.6 CE; planning figures 7 / 14 / 28.
 - The accessible walk's last leg is re-aimed at cattle barn A (north between the arena and the handling alley).
 - Fit checks: the two existing surveyed structures that sat under cattle barn A now sit under the arena; cattle
   turnout B is 33% on the wettest soil; the historical slough bed touches the barnyard's north-west corner.
