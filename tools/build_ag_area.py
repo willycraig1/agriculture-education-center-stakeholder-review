@@ -378,7 +378,19 @@ _P["outline"] = [[round(x, 1), round(y, 1)] for x, y in _lot.exterior.coords][:-
 # back 5' from the curb (architect, 2026-10-14: 4' to 6').
 SWALE_SETBACK = 5
 _P["holes"] = [[[round(x, 1), round(y, 1)] for x, y in _island.exterior.coords][:-1]]
-_swale = _island.buffer(-SWALE_SETBACK, join_style=1).simplify(0.3)
+_swale = _island.buffer(-SWALE_SETBACK, join_style=1)
+# kept clear of the surveyed trees in the island (architect, 2026-10-14): each tree's drawn canopy plus 3'
+_uft = _sf.FT_PER_PT / abs(_sf.M_FP)
+_tr = []
+for _src_, _x_, _y_, _s_ in _sf.trees:
+    _z = (_sf.M_FP * complex(_x_, _y_) + _sf.T_FP - _T) / _M
+    if _island.buffer(15).contains(_Pt(_z.real, _z.imag)):
+        _tr.append(_Pt(_z.real, _z.imag).buffer((5.2 if _s_ > 20 else 3.8) * _uft + 3))
+if _tr:
+    _swale = _swale.difference(_union(_tr)).buffer(-2, join_style=1).buffer(2, join_style=1)
+    _swale = max(getattr(_swale, "geoms", [_swale]), key=lambda g: g.area)
+print("swale kept clear of", len(_tr), "trees | swale sf", round(_swale.area))
+_swale = _swale.simplify(0.3)
 _P["island_poly"] = [[round(x, 1), round(y, 1)] for x, y in _swale.exterior.coords][:-1]
 _P["island"]["label_at"] = [round(_island.centroid.x, 1), round(_island.centroid.y, 1)]
 _P["stalls_extra"] = [[list(q) for q in st] for st in SOUTH_STALLS]
