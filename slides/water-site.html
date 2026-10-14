@@ -114,7 +114,7 @@
     `<b>Option 1</b>, about ${C.option1_acres} ac north-west of the campus: strip topsoil, reseed. Drainage unchanged.`,
     `<b>Option 2</b>, about ${C.option2_acres} ac, the north pasture: clear and lower. Costlier; the biggest gain in forage.`,
     `<b>Retention</b>: the pond shown is undersized; expanded along the barnyard's edges.`,
-    `<b>Site retention</b>: the pond by the campus, about ${M.retention_acres} ac, and a second, about ${W.site_acres} ac, between the old bed and the lane.`,
+    `<b>Site retention</b>, about ${(M.retention_acres + (W.site_acres || 0)).toFixed(1)} ac in all: the pond by the campus (${M.retention_acres} ac) and a second between the old bed and the lane (${W.site_acres} ac).`,
     `<b>Bonus retention</b>, about ${W.bonus_acres} ac in ${(W.bonus_ponds_acres || []).length} ponds: Solid Waste, which controls the land, is open to more IFAS use, so both ponds can extend south onto its land, with two more ponds past the outfall drive.`,
     `The soil removed could cover the County landfill next door.`].map(t => `<div>${t}</div>`).join("");
   const facts = [[1, bedAc, "acres of historical slough bed, bank to bank"], [2, `${wet}%`, "of the mapped site is very poorly drained"], [3, "21.70′", "finished floor for covered livestock buildings, just above the 100-year flood"]];
