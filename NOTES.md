@@ -371,3 +371,11 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
 - **Residence (architect):** the 20' x 30' "RESIDENCE" at the end of the horticulture strip on study plan A0.2 is a
   Level 3 element; at Levels 1 and 2 the spot has hookups for a camper or RV. Added as a context element
   (`residence`, notes by Level) and as a Levels matrix row. Map label "RV / residence".
+
+### Firm credit and review date (2026-10-13)
+- **Stakeholder review moved:** Wednesday 2026-10-21, 5:30 pm, Extension Green Room (cover slide and outline updated).
+- **"Seibert Architects" footer** on every slide except the cover (which already credits the firm): drawn by
+  `design/deck.js` (`Deck.firm`), small letterspaced caps at the bottom right, inside the stage's bottom margin.
+  Checked clear of content on all slides. The Bud Box slide's all-steps (static) view was running past the bottom
+  of the stage; it is now compact enough to fit.
+- Residence keeps the education colour (architect).

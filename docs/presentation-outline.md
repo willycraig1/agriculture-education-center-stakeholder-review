@@ -1,4 +1,4 @@
-# Presentation Narrative: Stakeholder Review (Wed 2026-10-14)
+# Presentation Narrative: Stakeholder Review (Wed 2026-10-21, 5:30 pm, Extension Green Room)
 
 Outline of record, agreed 2026-10-11. 30–45 minutes of presentation, then a working session at tables.
 

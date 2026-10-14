@@ -72,8 +72,14 @@
       stage.insertAdjacentHTML("beforeend", `<div class="driver-tags" data-step="0">${keys.map(k =>
         `<span class="driver-tag"><svg viewBox="0 0 48 48" aria-hidden="true">${this.drivers[k][1]}</svg>${this.drivers[k][0]}</span>`).join("")}</div>`);
     },
+    firm() {
+      const stage = document.querySelector(".stage");
+      if (stage && !stage.querySelector(".firm") && !document.body.classList.contains("no-firm"))
+        stage.insertAdjacentHTML("beforeend", `<div class="firm" data-step="0">Seibert Architects</div>`);
+    },
     start() {
       this.driverTags();
+      this.firm();
       if (params.has("static") || reduced) { root.classList.add("static"); all(); }
       else if (params.has("play")) play();
       else if (params.has("end")) all();
