@@ -236,3 +236,18 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   the pinwheel end there. `source/1948 Aerial of historic Slough Bed.jpg` (north up) shows the original meandering
   channel before Cow Pen Slough was straightened; not yet registered to the map. Run order: build_fences,
   build_canopy, build_south_roads, build_slough_bed, build_site_map.
+
+### Water on the site slide (2026-10-13)
+- **New slide** `slides/water-site.html`, placed before the water quality slide (Act 5). Four steps on the site map:
+  the 1948 aerial; what is left (canal, historical bed field, ponds, with the 1948 photo faint underneath); wet
+  ground (soils); where the plan meets it (barnyard overlay, proposed retention pond). The stakeholder question on
+  the slough bed appears beside the map on the last step.
+- **1948 aerial registered.** `tools/register_aerial_1948.py` matches the yellow parcel lines of
+  `source/1948 Aerial of historic Slough Bed.jpg` to the current County aerial's (same web map, so zoom and shift
+  only: zoom 0.8325, shift 185, 13 px; the best match scored 266 against 162 for the next zoom tried) and chains
+  that with the current aerial's fit to the property lines. Stored as `aerial_1948` in `tools/registration.json`;
+  drawn by `build_site_map.py` as layer `aerial1948` (hidden unless a slide shows it), clipped to the site plus a
+  margin so the web map's search box and labels stay out of view. The County's own placement of the 1948 photo
+  under its parcel lines is approximate.
+- **Bed against the plan.** `SITE_MAP.slough_bed`: 3.38 ac; the only proposed barnyard element the surveyed bed
+  crosses is a turnout (about 2,320 sf). It also passes under the existing entry drive.
