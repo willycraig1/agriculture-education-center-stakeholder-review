@@ -274,3 +274,4 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   read by eye) notes "(2) 36" CPP End of Pipe" at both ends: invert 16.47' at the bed end, 16.00' at the slough end.
   The map label and step text carry the pipe size and inverts. The entry culvert is not on the STORM SEWER layer;
   its line is still diagrammatic. Lesson: check the survey's utility layers before estimating infrastructure.
+- **Entry culvert shortened.** Its line now runs only where it passes under the driveway, plus 8 ft beyond the pavement on each side: about 27 ft as drawn (the drive is about 11 ft wide where the line crosses it).

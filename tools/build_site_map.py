@@ -256,6 +256,18 @@ if os.path.exists(_bp) and AD:
     _o0 = tuple(sum(sg[0][k] for sg in _ss) / len(_ss) for k in (0, 1))        # bed end
     _o1 = tuple(sum(sg[1][k] for sg in _ss) / len(_ss) for k in (0, 1))        # slough end
     _uf = FT_PER_PT / abs(M_FP)
+    # the culvert is shown only where it passes under the driveway, carried 8 ft beyond the pavement on each side
+    _fj = os.path.join(OUT, "data", "fences.json")
+    _road = json.load(open(_fj)).get("road_area") if os.path.exists(_fj) else None
+    if _road:
+        _drive = unary_union([Polygon(g_["outer"], g_["holes"]).buffer(0) for g_ in _road])
+        _cl = LineString([_c0, _c1])
+        _hit = _cl.intersection(_drive)
+        if not _hit.is_empty:
+            _ts = [_cl.project(Point(q)) for g_ in getattr(_hit, "geoms", [_hit]) for q in g_.coords]
+            _a, _b = max(0.0, min(_ts) - 8 / _uf), min(_cl.length, max(_ts) + 8 / _uf)
+            _c0, _c1 = _cl.interpolate(_a).coords[0], _cl.interpolate(_b).coords[0]
+            print("entry culvert: driveway crossing ft", round((max(_ts) - min(_ts)) * _uf))
     INFRA = {"entry_culvert_ft": round(math.hypot(_c1[0] - _c0[0], _c1[1] - _c0[1]) * _uf), "outfall_ft": round(math.hypot(_o1[0] - _o0[0], _o1[1] - _o0[1]) * _uf)}
     def _pipe(a, b, col, id_, l1, l2, dx, dy, anchor):
         mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
