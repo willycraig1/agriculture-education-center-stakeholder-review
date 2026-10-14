@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Site</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
+  .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
+  .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
+  .map [data-layer] { transition: opacity .8s var(--ease), filter .8s var(--ease); }
+  .map .off { opacity: 0; }
+  .map .pond.proposed { display: none; }   /* this slide shows existing conditions only */
+  .map #aerial.muted { filter: saturate(.45) brightness(1.06); }
+  /* the historical slough bed is introduced on the water site plan (Act 5); here it stays a faint band with no map label */
+  .map #historic-slough { fill-opacity: .16; }
+  .map #historic-slough-label, .map #historic-slough-floor { display: none; }
+  .map #paddocks.dim { opacity: .35; }
+  .north { position: absolute; left: 22px; top: 20px; display: flex; align-items: center; gap: 8px;
+           font: 700 20px/1 var(--sans); color: var(--ink); background: rgba(250,247,240,.9); padding: 8px 12px; border-radius: 8px; }
+  .scale { position: absolute; right: 22px; bottom: 18px; background: rgba(250,247,240,.9); padding: 8px 12px 6px; border-radius: 8px;
+           font: 500 14px/1 var(--sans); color: var(--muted); }
+  .steps { position: absolute; left: 22px; bottom: 22px; width: 470px; list-style: none; margin: 0; padding: 10px; display: flex; flex-direction: column; gap: 4px;
+           background: rgba(250,247,240,.94); border-radius: 14px; border: 1.5px solid var(--line); }
+  .steps li { display: grid; grid-template-columns: 40px 1fr; gap: 0 12px; padding: 8px 12px; border-radius: 12px;
+              color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .steps li .n { width: 32px; height: 32px; border-radius: 50%; border: 2px solid currentColor; display: grid; place-items: center;
+                 font: 700 15px/1 var(--sans); margin-top: 2px; }
+  .steps li h3 { font: 600 22px/1.25 var(--serif); margin: 0; }
+  .steps li p { grid-column: 2; font: 400 17px/1.4 var(--sans); margin: 4px 0 0; display: none; }
+  .steps li .lg { grid-column: 2; display: none; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; font: 500 15px/1.2 var(--sans); }
+  .steps li .lg i { display: inline-block; width: 18px; height: 13px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .steps li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .steps li.now .n { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .steps li.now p, .steps li.now .lg { display: flex; }
+  .steps li.now p { display: block; }
+  .steps li.done { color: var(--ink); }
+  .static .steps li p, .static .steps li .lg { display: flex; }
+  .static .steps li p, .static .steps li .lg { display: none; }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+  .facts { display: flex; flex-direction: column; gap: 22px; }
+  .fact b { display: block; font: 600 54px/1 var(--serif); }
+  .fact span { font: 500 17px/1.3 var(--sans); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 1 · What we have</div>
+  <h1 data-step="0">Clark Farm, layer by layer</h1>
+  <div class="body">
+    <div class="map card" data-step="0" id="map">
+      <ol class="steps" id="steps"></ol>
+      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span><span data-step="5" hidden></span>
+    </div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <div class="facts" id="facts"></div>
+      <p class="src" data-step="0">Aerial: Sarasota County Property Appraiser; tree canopy is traced from it. Survey, soils, trees and fencing: Seibert Architects CAD sheets,
+        aligned by matching their geometry. Soil drainage classes follow NRCS series descriptions; confirm in Web Soil Survey.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/site-map.js"></script>
+<script src="data/pasture-capacity.js"></script>
+<script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
+<script>
+(function () {
+  const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
+  const site = C.levels[0].acres, all = C.levels[2].acres, bonus = Math.round((all - site) * 10) / 10;
+  const mapEl = document.getElementById("map");
+  mapEl.insertAdjacentHTML("afterbegin", M.svg);
+  const svg = mapEl.querySelector("svg");
+  svg.querySelectorAll("g[inkscape\\:groupmode], g[id]").forEach(g => { if (g.id) g.setAttribute("data-layer", g.id); });
+
+  // entry arrow: on the centreline of the straight entry drive, carried back to the lane. The flared apron and its
+  // island are ignored: a new apron is built at Level 1.
+  const [rx, ry] = M.red_house, entry = [1140.3, 540], entryDeg = 19.1;
+  svg.querySelector("#campus").insertAdjacentHTML("beforeend",
+    `<g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -96" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
+     <path d="M-20 -90 L0 -120 L20 -90 Z" fill="var(--education)"/></g>
+     <text x="-22" y="-34" text-anchor="end" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g></g>
+     <g transform="translate(${rx + 26} ${ry - 18})"><text data-fixed="1" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">Red House</text></g>`);
+
+  // pan/zoom viewer with preset framings (map units = presentation frame, north left)
+  const [vx0, vy0, vx1, vy1] = M.view;
+  const full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
+  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440], campus: null };
+  // Campus framing: centre the existing buildings in the part of the map the step panel leaves open
+  // (the panel covers the left 492 of 1300 px), with room around them.
+  {
+    const [cx0, cy0, cx1, cy1] = M.campus_box, open0 = 492 / 1300, ar = 2360 / 1500;
+    const w = Math.max((cx1 - cx0) * 1.7 / (1 - open0), (cy1 - cy0) * 1.7 * ar), h = w / ar;
+    frames.campus = [(cx0 + cx1) / 2 - w * (open0 + 1) / 2, (cy0 + cy1) / 2 - h / 2, w, h];
+  }
+  const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
+    presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site },
+              { label: "Bonus pasture", box: frames.bonus }, { label: "Campus", box: frames.campus }],
+    uiStyle: "right:auto;top:auto;left:512px;bottom:22px;max-width:none;justify-content:flex-start" });
+
+  const soil = { "somewhat poorly": "#EFE7D4", "poorly": "#D8C69E", "very poorly": "#9FB9C6" };
+  const steps = [
+    { t: "Clark Farm today", p: `The farm sits east of Cowpen Slough, off SR-72. North is to the left on every map, so the campus entry comes from the bottom.`,
+      show: ["aerial"] },
+    { t: "The land", p: `About ${Math.round(all)} acres of potential pasture: ${site} on the site and ${bonus} of bonus land beside it. Pasture is what this community is short on. The site line was drawn somewhat arbitrarily by the County's Solid Waste department, which controls the land and is open to IFAS using more of it: that is the bonus pasture.`,
+      lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span><span><i style="background:var(--bonus-tint);outline:2px solid var(--bonus)"></i>Bonus pasture</span>`,
+      show: ["ground", "property", "land"], muted: true },
+    { t: "Water", p: "Cowpen Slough runs the length of the west side; the property line is the centerline of the waterway. Two ponds sit inside the site, and a FEMA flood zone line crosses it.",
+      lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span><span><i style="background:var(--water);opacity:.16"></i>Historical slough bed</span>`,
+      show: ["ground", "property", "water", "labels"], muted: true },
+    { t: "Soils", p: "Mostly poorly drained flatwoods sands. The wettest units, Delray and Floridana & Gator, call for grazing timed to ground conditions. The soil sheet covers the parcel only, not the bonus pasture.",
+      lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
+      show: ["ground", "property", "soils", "water", "labels"], muted: true },
+    { t: "Woods and trees", p: `Tree canopy covers about ${Math.round(M.canopy_acres)} of the site's ${Math.round(M.site_acres_footprint)} acres, densest in the oak hammock to the east and south. ${M.trees} trees around the campus are surveyed individually. Wooded acres carry far fewer cattle than open pasture.`,
+      lg: `<span><i style="background:var(--woodland);border-radius:50%;width:13px"></i>Surveyed tree</span><span><i style="background:var(--woodland);opacity:.35"></i>Tree canopy</span>`,
+      show: ["ground", "property", "canopy", "water", "trees", "labels"], muted: true },
+    { t: "The campus", p: "The Red House and the existing barns sit near the center of the site. The drive comes in from the west, at the bottom of the map.",
+      lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`, frame: "campus",
+      show: ["ground", "property", "canopy", "water", "trees", "campus", "labels"], muted: true },
+  ];
+  document.getElementById("steps").innerHTML = steps.map((s, i) =>
+    `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
+
+  const layers = [...svg.querySelectorAll("[data-layer]")].filter(g => g.parentNode.closest("[data-layer]") === null || g.parentNode.getAttribute("clip-path"));
+  let lastFrame = null;
+  function apply(n) {
+    const s = steps[Math.min(n, steps.length - 1)];
+    const f = s.frame || "full";
+    if (f !== lastFrame) { viewer.home(frames[f]); viewer.flyTo(frames[f], lastFrame === null || document.documentElement.classList.contains("static") ? 0 : 1200); lastFrame = f; }
+    svg.querySelectorAll("[data-layer]").forEach(g => {
+      if (!["aerial", "veil", "ground", "property", "canopy", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"].includes(g.id)) return;
+      g.classList.toggle("off", !s.show.includes(g.id));
+    });
+    svg.querySelector("#aerial").classList.toggle("muted", !!s.muted);
+    svg.querySelector("#paddocks").classList.toggle("dim", !!s.dim);
+    document.querySelectorAll("#steps li").forEach(li => {
+      const i = +li.dataset.i;
+      li.classList.toggle("now", i === n);
+      li.classList.toggle("done", i < n);
+    });
+  }
+  // key numbers in the right column, each tied to the step that introduces it
+  const facts = [[1, `${all}`, "acres of potential pasture"], [2, "2", "ponds inside the site, beside Cowpen Slough"],
+                 [3, `${Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0))}%`, "of the mapped site is very poorly drained"],
+                 [4, `${Math.round(100 * M.canopy_acres / M.site_acres_footprint)}%`, "of the site under tree canopy"]];
+  document.getElementById("facts").innerHTML = facts.map(([st, b, t]) =>
+    `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(steps.length - 1);
+})();
+</script>
+</body>
+</html>

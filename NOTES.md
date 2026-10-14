@@ -471,3 +471,9 @@ Source: `source/Clark Farm Master Plan - PROGRAM DRAFT_Extension comments 7-9-26
   retention pond 0.4 ac. Bonus retention 3.3 ac in four ponds (1.0, 0.7, 0.6, 1.0 ac), each labelled with its own
   area. Labels now read "Site retention pond" (not "Retention pond" / "New retention").
 - The second site retention pond (0.4 ac) is its own group (`#site-retention`) shown on every plan step of the water slide (steps 4-6), with the site retention pond; only the bonus ponds wait for the compensation step.
+
+## Option A archived (2026-10-14)
+The barnyard layout developed through 2026-10-14 is archived as **Option A**: git tag `option-a-2026-10-14`
+(commit b866f2d, full source and tools) and a viewable copy of the deck in `archive/option-a-2026-10-14/`. The ag
+expert on the design team gave substantial feedback on the barnyard; the next option (Option B) follows
+`source/NEW SITE PLAN OPTION 10-14 SKETCH.jpg`. Work on Option B continues on `main`.

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Water on the Site</title>
+<link rel="stylesheet" href="../design/palette.css">
+<link rel="stylesheet" href="../design/deck.css">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
+  .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
+  .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
+  .map [data-layer] { transition: opacity .8s var(--ease); }
+  .map .off { opacity: 0; }
+  .map #aerial1948.under { opacity: .38; }
+  .map #historic-slough { transition: fill-opacity .8s var(--ease); }
+  .map.strong #historic-slough { fill-opacity: .6; }
+  .map #campus { opacity: .7; }
+  .map.plan #retention-label, .map.plan #site-retention { display: inline; }
+  .map.comp #compensation, .map.comp #wildcard { display: inline; }
+  .map.infra #infrastructure, .map.infra #infrastructure-labels, .map.infra .infra-copy { display: inline; }   /* discussion item, shown on the plan step only */
+  .map:not(.plan) .pond.proposed { display: none; }   /* proposed pond only on the plan step */
+  .steps { position: absolute; left: 22px; bottom: 22px; width: 470px; list-style: none; margin: 0; padding: 10px; display: flex; flex-direction: column; gap: 4px;
+           background: rgba(250,247,240,.94); border-radius: 14px; border: 1.5px solid var(--line); }
+  .steps li { display: grid; grid-template-columns: 40px 1fr; gap: 0 12px; padding: 8px 12px; border-radius: 12px;
+              color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .steps li .n { width: 32px; height: 32px; border-radius: 50%; border: 2px solid currentColor; display: grid; place-items: center;
+                 font: 700 15px/1 var(--sans); margin-top: 2px; }
+  .steps li h3 { font: 600 22px/1.25 var(--serif); margin: 0; }
+  .steps li p { grid-column: 2; font: 400 17px/1.4 var(--sans); margin: 4px 0 0; display: none; }
+  .steps li .lg { grid-column: 2; display: none; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; font: 500 15px/1.2 var(--sans); }
+  .steps li .lg i { display: inline-block; width: 18px; height: 13px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .steps li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .steps li.now .n { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .steps li.now p { display: block; }
+  .steps li.now .lg { display: flex; }
+  .steps li.done { color: var(--ink); }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+  .facts { display: flex; flex-direction: column; gap: 12px; }
+  .fact b { display: block; font: 600 40px/1 var(--serif); color: var(--water); }
+  .fact span { font: 500 16px/1.3 var(--sans); color: var(--muted); }
+  .ask { margin-top: 16px; padding: 12px 18px; border-left: 6px solid var(--water); background: #fff; border-radius: 0 10px 10px 0; font: 500 17px/1.4 var(--sans); }
+  .opts { margin-top: 10px; font: 400 14.5px/1.32 var(--sans); }
+  .opts div { padding: 4px 0; border-top: 1.5px solid #ece6d9; }
+  .opts b { font-weight: 700; }
+  .ask b { display: block; font: 700 13px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--water); margin-bottom: 8px; }
+</style>
+</head>
+<body data-drivers="water">
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <h1 data-step="0">Water on the site</h1>
+  <div class="body">
+    <div class="map card" data-step="0" id="map">
+      <ol class="steps" id="steps"></ol>
+      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span><span data-step="5" hidden></span>
+    </div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <div class="facts" id="facts"></div>
+      <div class="ask" data-step="3"><b>For the tables</b>How sacred is the historical slough bed? It conflicts with some of the program and makes the civil design harder to work around.</div>
+      <div class="opts" data-step="4" id="opts"></div>
+      <p class="src" data-step="0">1948 aerial: Sarasota County Property Appraiser, placed by matching its parcel lines to the current aerial's; its position is approximate.
+        Slough bed: top of bank and toe of slope from the survey. Soil drainage classes follow NRCS series descriptions. North is to the left.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/site-map.js"></script>
+<script src="../design/deck.js"></script>
+<script src="../design/viewer.js"></script>
+<script>
+(function () {
+  const M = window.SITE_MAP, C = M.civil || {}, W = M.wildcard || {}, B = M.slough_bed || {}, bedAc = (B.acres || 0).toFixed(1);
+  const mapEl = document.getElementById("map");
+  mapEl.insertAdjacentHTML("afterbegin", M.svg);
+  const svg = mapEl.querySelector("svg");
+  const ids = ["aerial", "aerial1948", "veil", "ground", "property", "canopy", "land", "soils", "water", "trees", "paddocks", "campus", "barnyard", "labels"];
+  ids.forEach(id => { const g = svg.querySelector("#" + id); if (g) { g.setAttribute("data-layer", id); g.removeAttribute("display"); g.classList.add("off"); } });
+
+  const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
+  // the slough bed and the campus, set in the part of the map the step panel leaves open
+  const frames = { full, bed: [330, 150, 1180, 750], pipes: [840, 330, 700, 445] };
+  const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
+    presets: [{ label: "Full site", box: frames.full }, { label: "Slough bed", box: frames.bed }],
+    uiStyle: "right:auto;top:auto;left:512px;bottom:22px;max-width:none;justify-content:flex-start" });
+
+  const soil = { "somewhat poorly": "#EFE7D4", "poorly": "#D8C69E", "very poorly": "#9FB9C6" };
+  const wet = Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0));
+  const crosses = (B.crosses || []).map(c => `the ${c.name.toLowerCase()} (about ${c.sf.toLocaleString()} sf)`);
+  const steps = [
+    { t: "1948: the slough before the canal", p: "The slough wandered across this land in a wide, shallow bed. The waterway was later channelized into the canal that now runs along the west property line.",
+      show: ["aerial1948", "property"], frame: "full" },
+    { t: "What is left of it", p: `The canal carries the flow today. The old bed is still cut into the ground, about ${bedAc} acres from bank to bank across the middle of the site.`,
+      lg: `<span><i style="background:var(--water)"></i>Cow Pen Slough today</span><span><i style="background:var(--water);opacity:.6"></i>Historical slough bed</span><span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span>`,
+      show: ["aerial1948", "property", "water", "labels"], under: true, strong: true, frame: "bed" },
+    { t: "Wet ground", p: "The wettest soils sit beside the old bed and across the east pastures. Grazing there is timed to ground conditions.",
+      lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
+      show: ["ground", "property", "soils", "water", "labels"], frame: "bed" },
+    { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The whole site is in the floodplain. Civil sets the covered livestock buildings at a finished floor of 21.70', just above the County's 100-year flood level, with little freeboard.`,
+      lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention pond</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
+      show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
+    { t: "Floodplain compensation, all at Level 1", p: `The whole site is in the floodplain. Civil recommends permitting and building all the stormwater and compensation up front, at Level 1: fill for new work is balanced by lowering ground elsewhere, wide and shallow so it stays in grazing.`,
+      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Retention, expanded</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention</span><span><i style="background:none;border:2px dotted var(--water)"></i>Bonus retention</span>`,
+      show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, comp: true, frame: "full" },
+    { t: "The pipes that connect it", p: "Two structures tie the old bed together. The culvert under the entry is undersized and hard to maintain: it is replaced with the new entry apron at Level 1. The outfall from the bed to Cow Pen Slough, two 36-inch pipes under the lane, is in good shape and sized for what the plan needs, so it stays.",
+      lg: `<span><i style="background:var(--education);height:5px;margin-bottom:4px"></i>Replace</span><span><i style="background:var(--woodland);height:5px;margin-bottom:4px"></i>Keep</span>`,
+      show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, infra: true, frame: "pipes" },
+  ];
+  document.getElementById("steps").innerHTML = steps.map((s, i) =>
+    `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
+  document.getElementById("opts").innerHTML = [
+    `<b>Option 1</b>, about ${C.option1_acres} ac north-west of the campus: strip topsoil, reseed. Drainage unchanged.`,
+    `<b>Option 2</b>, about ${C.option2_acres} ac, the north pasture: clear and lower. Costlier; the biggest gain in forage.`,
+    `<b>Retention</b>: undersized as drawn; expanded along the barnyard's edges.`,
+    `<b>Site retention</b>, about ${(M.retention_acres + (W.site_acres || 0)).toFixed(1)} ac in all: the pond by the campus (${M.retention_acres} ac) and a second between the old bed and the lane (${W.site_acres} ac).`,
+    `<b>Bonus retention</b>, about ${W.bonus_acres} ac in all (${(W.bonus_ponds_acres || []).map(a => a.toFixed(1)).join(", ")} ac), on Solid Waste land: both site ponds extend south, plus two ponds past the outfall drive.`,
+    `The soil removed could cover the County landfill next door.`].map(t => `<div>${t}</div>`).join("");
+  const facts = [[1, bedAc, "acres of historical slough bed, bank to bank"], [2, `${wet}%`, "of the mapped site is very poorly drained"], [3, "21.70′", "finished floor for covered livestock buildings, just above the 100-year flood"]];
+  document.getElementById("facts").innerHTML = facts.map(([st, b, t]) => `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
+
+  let last = null;
+  function apply(n) {
+    const s = steps[Math.min(n, steps.length - 1)];
+    if (s.frame !== last) { viewer.home(frames[s.frame]); viewer.flyTo(frames[s.frame], last === null || document.documentElement.classList.contains("static") ? 0 : 1300); last = s.frame; }
+    ids.forEach(id => { const g = svg.querySelector("#" + id); if (g) g.classList.toggle("off", !s.show.includes(id)); });
+    svg.querySelector("#aerial1948").classList.toggle("under", !!s.under);
+    mapEl.classList.toggle("strong", !!s.strong);
+    mapEl.classList.toggle("plan", !!s.plan);
+    mapEl.classList.toggle("comp", !!s.comp);
+    mapEl.classList.toggle("infra", !!s.infra);
+    document.querySelectorAll("#steps li").forEach(li => {
+      const i = +li.dataset.i;
+      li.classList.toggle("now", i === n);
+      li.classList.toggle("done", i < n);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(steps.length - 1);
+})();
+</script>
+</body>
+</html>
