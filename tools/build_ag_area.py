@@ -413,7 +413,7 @@ WALK = [_xy(_ue + 2.5, -45), _xy(_ue + 2.5, BANK_N0 + 5.5), _xy(_ue + STALL_D + 
 from shapely.geometry import LineString as _LS
 _walk = _LS(WALK).buffer(2.5, cap_style=2, join_style=2).simplify(0.2)
 _wx_, _wy_ = [q[0] for q in WALK], [q[1] for q in WALK]
-add("walk", "", min(_wx_), min(_wy_), max(_wx_) - min(_wx_), max(_wy_) - min(_wy_), "circulation", 1, kind="walk", note="5' wide",
+add("walk", "", min(_wx_), min(_wy_), max(_wx_) - min(_wx_), max(_wy_) - min(_wy_), "circulation", 1, kind="walk", note="",
     outline=[[round(x, 1), round(y, 1)] for x, y in _walk.exterior.coords][:-1], context=True)
 by_id["walk"] = E[-1]
 print("accessible walk ft:", round(_LS(WALK).length))
@@ -518,7 +518,7 @@ _xw2 = XA - 2.5                                                   # just west of
 WALK = WALK[:5] + [(_x_wpens, _ep["y"] + 12), (_xw2, _ep["y"] + 12), (_xw2, _ab["y"] + _ab["h"] + 2.5), (_ab["x"] + 20, _ab["y"] + _ab["h"] + 2.5)]
 _walk = _LS(WALK).buffer(2.5, cap_style=2, join_style=2).simplify(0.2)
 _wx_, _wy_ = [q[0] for q in WALK], [q[1] for q in WALK]
-add("walk", "", min(_wx_), min(_wy_), max(_wx_) - min(_wx_), max(_wy_) - min(_wy_), "circulation", 1, kind="walk", note="5' wide",
+add("walk", "", min(_wx_), min(_wy_), max(_wx_) - min(_wx_), max(_wy_) - min(_wy_), "circulation", 1, kind="walk", note="",
     outline=[[round(x, 1), round(y, 1)] for x, y in _walk.exterior.coords][:-1], context=True)
 by_id = {e["id"]: e for e in E}
 E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)
@@ -596,7 +596,7 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _a2.update(id="small-a2", label="", use="swine", level=2, note=f"{2 * (SA_L // SA_PEN_W)} pens")
     _a1.update(label="Small animal barn A", note=f"{4 * (SA_L // SA_PEN_W)} pens, two wings")
     _dog = _a2["y"] - (_a1["y"] + _a1["h"])
-    add("dogtrot", "", _a1["x"], _a1["y"] + _a1["h"], SMALL_W, _dog, "circulation", 2, kind="yard", note="dogtrot")
+    add("dogtrot", "", _a1["x"], _a1["y"] + _a1["h"], SMALL_W, _dog, "circulation", 2, kind="yard", note="")
     U_VB_MAX = 5500
     _used = SMALL_W * (_a1["h"] + _dog + _a2["h"])
     B_L = int((U_VB_MAX - _used) // SMALL_W)
@@ -648,7 +648,8 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _wkp = _Poly(_wk).buffer(0)
     _poly_p = _Poly(_poul)
     _ys0 = by_id["existing-barn"]["y"] - 8                            # the network's strip north of the existing barn
-    _link = _box(by_id["existing-barn"]["x"] + by_id["existing-barn"]["w"] - 2, _ys0, max(_xs_p), _ys0 + 5).difference(_poly_p.buffer(0.5))
+    # 8' wide, the width of the existing aisle between the cattle pens and the barn that it continues
+    _link = _box(by_id["existing-barn"]["x"] + by_id["existing-barn"]["w"] - 2, _ys0, max(_xs_p), _ys0 + EX_AISLE).difference(_poly_p.buffer(0.5))
     _link = max(getattr(_link, "geoms", [_link]), key=lambda g: g.bounds[0] * -1 if False else -g.bounds[0])
     _wkp = _union([_wkp, _link]).buffer(0.01).buffer(-0.01)
     _wk = [[round(x, 1), round(y, 1)] for x, y in _wkp.exterior.coords][:-1]
