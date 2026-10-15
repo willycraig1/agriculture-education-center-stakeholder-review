@@ -252,6 +252,18 @@ def _ext(id_, label, pts, use, kind, note, **extra):
 _edits = json.load(open(os.path.join(_sf.OUT, "data", "site-edits.json")))
 _rh = max(_edits["structures"], key=lambda s_: (max(q[0] for q in s_["pts"]) - min(q[0] for q in s_["pts"])) * (max(q[1] for q in s_["pts"]) - min(q[1] for q in s_["pts"])) if 1180 < s_["pts"][0][0] < 1240 and 340 < s_["pts"][0][1] < 400 else 0)
 _ext("existing-red-house", "Red House", [_to_d(q) for q in _rh["pts"][:-1]], "education", "building", "")
+# The Red House's open canopies, as on the site map (architect, 2026-10-14): the carport and the two porches, from the
+# survey's overhang lines (BUILDING OH). The carport is the overhang rectangle south-west of the house; the porches
+# are closed against the house walls (survey coordinates). Drawn tinted with a dashed outline, like the site map.
+from shapely.geometry import MultiPoint as _MPt
+_sp = lambda x, y: (lambda z: (z.real, z.imag))(_sf.M_SP * complex(x, y) + _sf.T_SP)
+_ohp = [_sp(q.x, q.y) for d_ in _sf.cadpdf.export(_sf.SURVEY, ["BUILDING OH"]).get("BUILDING OH", []) for it_ in d_["items"] if it_[0] == "l" for q in it_[1:3]]
+_cpp = [q for q in _ohp if 1220 < q[0] < 1243 and 376 < q[1] < 399]
+if len(_cpp) >= 4:
+    _ext("existing-carport", "Carport", [_to_d(q) for q in list(_MPt(_cpp).minimum_rotated_rectangle.exterior.coords)[:-1]], "education", "canopy", "")
+for _id, _q in (("existing-porch-nw", [(1341.02, 1135.55), (1352.45, 1126.43), (1354.94, 1129.49), (1343.57, 1138.7)]),
+                ("existing-porch-ne", [(1363.58, 1122.5), (1365.74, 1120.76), (1374.26, 1131.29), (1372.1, 1133.03)])):
+    _ext(_id, "", [_to_d(_sp(x, y)) for x, y in _q], "education", "canopy", "")
 _hl = []
 for _d in _sf.cadpdf.export(_sf.STUDY, ["A-WALL-OTLN"]).get("A-WALL-OTLN", []):
     for _it in _d["items"]:

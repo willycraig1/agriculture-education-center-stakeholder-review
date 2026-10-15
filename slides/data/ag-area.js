@@ -1779,6 +1779,102 @@ window.AG_AREA = {
    "context": true
   },
   {
+   "id": "existing-carport",
+   "label": "Carport",
+   "x": 111.2,
+   "y": 471.5,
+   "w": 45.7,
+   "h": 48.200000000000045,
+   "use": "education",
+   "level": 1,
+   "kind": "canopy",
+   "note": "",
+   "assumed": false,
+   "outline": [
+    [
+     135.7,
+     519.7
+    ],
+    [
+     156.9,
+     487.7
+    ],
+    [
+     132.4,
+     471.5
+    ],
+    [
+     111.2,
+     503.5
+    ]
+   ],
+   "context": true
+  },
+  {
+   "id": "existing-porch-nw",
+   "label": "",
+   "x": 126.1,
+   "y": 403.9,
+   "w": 34.30000000000001,
+   "h": 43.0,
+   "use": "education",
+   "level": 1,
+   "kind": "canopy",
+   "note": "",
+   "assumed": false,
+   "outline": [
+    [
+     126.1,
+     440.1
+    ],
+    [
+     150.6,
+     403.9
+    ],
+    [
+     160.4,
+     410.4
+    ],
+    [
+     136.2,
+     446.9
+    ]
+   ],
+   "context": true
+  },
+  {
+   "id": "existing-porch-ne",
+   "label": "",
+   "x": 178.9,
+   "y": 375.8,
+   "w": 38.400000000000006,
+   "h": 29.399999999999977,
+   "use": "education",
+   "level": 1,
+   "kind": "canopy",
+   "note": "",
+   "assumed": false,
+   "outline": [
+    [
+     178.9,
+     382.7
+    ],
+    [
+     183.5,
+     375.8
+    ],
+    [
+     217.3,
+     398.3
+    ],
+    [
+     212.6,
+     405.2
+    ]
+   ],
+   "context": true
+  },
+  {
    "id": "horticulture",
    "label": "Horticulture area",
    "x": -24.7,
