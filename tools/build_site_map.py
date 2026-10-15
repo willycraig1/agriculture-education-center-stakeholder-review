@@ -369,8 +369,8 @@ if os.path.exists(_fp):
             _ts = _el.get("turnout-small-a", _el["turnout-small-b"]); _hp = _el["holding-3"]
             _xw_ = _ts["x"]; _ye = round(_end_d.imag, 1)
             _new_d = [(_hp["x"] + _hp["w"], _hp["y"]), (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _hp["y"]),
-                      (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _tb["y"]), (_tb["x"], _tb["y"]), (_tb["x"], _ts["y"] - 12),
-                      (_xw_, _ts["y"] - 12), (_xw_, _ye)]
+                      (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _tb["y"]), (_tb["x"], _tb["y"]), (_tb["x"], _ts["y"]),
+                      (_xw_, _ts["y"]), (_xw_, _ye)]           # on the small animal turnout's north and west edges
         elif "holding-3" in _el and "holding-1" in _el:
             # round the outside of the holding pens: along pen 3's north side, down the pens' west fence to the
             # level of the plan's last leg, then along that leg to its gate at the lane
