@@ -565,3 +565,8 @@ Fit checks now skip context elements (walk etc.).
   11 ft clear of new elements, fence lines and top of bank, simplified to a few straight sides, corners rounded.
 - Renamed "Site retention option" (0.2 ac and 0.4 ac, labelled each); water slide legend and notes list updated.
   Not designed or sized.
+
+## 2026-10-14: water slide framing
+- Step 5 (compensation) frames the compensation options west to east through the bonus retention ponds
+  (`frames.comp`) instead of the full site. Step 6 (pipes) zooms out slightly and pans so both pipe notes clear the
+  step panel and the map's right edge.
