@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Bud Box</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142206">
-<link rel="stylesheet" href="../design/deck.css?v=202610142206">
+<link rel="stylesheet" href="../design/palette.css?v=202610142211">
+<link rel="stylesheet" href="../design/deck.css?v=202610142211">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -44,19 +44,19 @@
   <h1 data-step="0">Working cattle: the Bud Box</h1>
   <div class="body">
     <div class="plan card" data-step="0" id="plan">
-      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span><span data-step="5" hidden></span><span data-step="6" hidden></span>
+      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span><span data-step="5" hidden></span><span data-step="6" hidden></span><span data-step="7" hidden></span>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="steps" id="steps"></ol>
-      <div class="why" data-step="6">Cattle want to go back the way they came, and to move around the person working them. The box uses both instincts. Cattle flow through it; they are never held in it.</div>
+      <div class="why" data-step="7">Cattle want to go back the way they came, and to move around the person working them. The box uses both instincts. Cattle flow through it; they are never held in it.</div>
       <p class="src" data-step="0">Option B uses this yard mirrored (the loop on its west side) and sized for four cattle, 36' × 42' with 12' corner panels. Diagram to scale, in feet. Layout from the study plan, after the Priefert Bud Box. No trailer enclosure: trailers unload from the loop straight into the holding pen. Sizes follow extension guidance
         (K-State MF3349, Missouri G2003): box 12' wide for handlers on foot and 20' deep. The 16' single-file alley plus the chute holds four cattle.</p>
     </div>
   </div>
 </div>
 
-<script src="../design/deck.js?v=202610142206"></script>
-<script src="../design/viewer.js?v=202610142206"></script>
+<script src="../design/deck.js?v=202610142211"></script>
+<script src="../design/viewer.js?v=202610142211"></script>
 <script>
 (function () {
   // Geometry in feet: the same yard as in the barnyard diagram (tools/build_ag_area.py, "handling" zones).
@@ -101,7 +101,8 @@
 
   // per step: gate angle (0 = closed), rig [x, y, visible], handler [x, y], cattle [x, y, heading] (0 = east, 90 = south, 180 = west)
   const S = [
-    { gate: -82, rig: [77, 37, 1], h: [86, 32], c: [[76.5, 18.5, 160], [68, 17, 185], [61, 21, 195], [64, 27, 200]] },
+    { gate: -82, rig: [77, -32, 1], h: [86, 32], c: [[77, -24, 90], [77, -31, 90], [77, -38, 90], [77, -45, 90]] },
+    { gate: -82, rig: [77, 37, 1], h: [86, 32], c: [[73.8, 21.2, 183], [68, 17, 185], [61, 21, 195], [64, 27, 200]] },
     { gate: -82, rig: [84, 150, 0], h: [64, 62], c: [[50, 40, 180], [58, 52, 200], [44, 62, 170], [60, 32, 190]] },
     { gate: -82, rig: [84, 150, 0], h: [66, 9], c: [[40, 3.4, 180], [47, 8.4, 180], [54, 3.6, 180], [60, 8.2, 185]] },
     { gate: 0, rig: [84, 150, 0], h: [17.5, 2.6], c: [[5, 3.2, 180], [7, 8.8, 180], [13, 3.4, 180], [14.5, 8.2, 180]] },
@@ -110,6 +111,7 @@
     { gate: 0, rig: [84, 150, 0], h: [5, 10.2], c: [[17.3, 32.5, 90], [17.3, 23, 90], [17.3, 14.5, 90], [14, 7.4, 60]] },
   ];
   const steps = [
+    ["Arrive", "A stock trailer comes in on the loop from the north, along the yard's east fence."],
     ["Pull up and unload", "A stock trailer pulls up on the loop right beside the yard's fence. The receiving gate at the top corner swings out to the back of the trailer, and the cattle walk straight into the holding pen."],
     ["Hold", "Cattle settle in the holding pen, which wraps around the chute. Chamfered corners keep them moving toward the lead-up alley."],
     ["Into the lead-up alley", "A small group, four head at most, walks out of the pen and up the wide alley toward the box."],
@@ -135,7 +137,7 @@
   }
   Deck.onStep(apply);
   Deck.start();
-  if (document.documentElement.classList.contains("static")) apply(6);
+  if (document.documentElement.classList.contains("static")) apply(7);
 })();
 </script>
 </body>
