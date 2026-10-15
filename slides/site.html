@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142310">
-<link rel="stylesheet" href="../design/deck.css?v=202610142310">
+<link rel="stylesheet" href="../design/palette.css?v=202610142314">
+<link rel="stylesheet" href="../design/deck.css?v=202610142314">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -64,10 +64,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610142310"></script>
-<script src="data/pasture-capacity.js?v=202610142310"></script>
-<script src="../design/deck.js?v=202610142310"></script>
-<script src="../design/viewer.js?v=202610142310"></script>
+<script src="data/site-map.js?v=202610142314"></script>
+<script src="data/pasture-capacity.js?v=202610142314"></script>
+<script src="../design/deck.js?v=202610142314"></script>
+<script src="../design/viewer.js?v=202610142314"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -80,22 +80,37 @@
   // entry arrow: on the centreline of the straight entry drive, carried back to the lane. The flared apron and its
   // island are ignored: a new apron is built at Level 1.
   const [rx, ry] = M.red_house, entry = [1140.3, 540], entryDeg = 19.1;
+  // the existing buildings, labelled on the campus step: each name sits on (or beside) its building, map units
+  const cb = id => {      // centre and box of a canopy polygon, read from its points (the layer may be hidden)
+    const q = (svg.querySelector("#" + id)?.getAttribute("points") || "").trim().split(/\s+/).filter(Boolean).map(p => p.split(",").map(Number));
+    if (!q.length) return null;
+    const xs = q.map(p => p[0]), ys = q.map(p => p[1]), b = { x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) };
+    return [b.x + b.width / 2, b.y + b.height / 2, b];
+  };
+  const pens = cb("cattle-pens-canopy"), ub = cb("unfinished-barn"), cp = cb("carport");
+  const lab = (x, y, t, size, anchor = "middle") => `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" class="campus-label"><text data-fixed="1" text-anchor="${anchor}" dy="${size * 0.35}" font-size="${size}" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">${t}</text></g>`;
+  const campusLabels = lab(rx, ry + 4, "Red House", 28)
+    + lab(1162, 324, "Existing barn", 24)                                   // the barn east of the pens' lean-to
+    + (pens ? lab(pens[2].x - 3, pens[1], "Cattle pens", 24, "end") : "")
+    + (ub ? lab(ub[0], ub[2].y - 7, "Unfinished barn", 24) : "")
+    + (cp ? lab(cp[2].x + cp[2].width + 3, cp[1], "Carport", 24, "start") : "");
   svg.querySelector("#campus").insertAdjacentHTML("beforeend",
     `<g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -96" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
      <path d="M-20 -90 L0 -120 L20 -90 Z" fill="var(--education)"/></g>
      <text x="-22" y="-34" text-anchor="end" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g></g>
-     <g transform="translate(${rx + 26} ${ry - 18})"><text data-fixed="1" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">Red House</text></g>`);
+     ${campusLabels}`);
 
   // pan/zoom viewer with preset framings (map units = presentation frame, north left)
   const [vx0, vy0, vx1, vy1] = M.view;
   const full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
   const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440], campus: null };
-  // Campus framing: centre the existing buildings in the part of the map the step panel leaves open
-  // (the panel covers the left 492 of 1300 px), with room around them.
+  // Campus framing: from the entry arrow at the lane up to the unfinished (poultry) barn, set in the part of the map
+  // the step panel leaves open (the panel covers the left 510 of 1300 px; the map is 1300 x 827 px).
   {
-    const [cx0, cy0, cx1, cy1] = M.campus_box, open0 = 492 / 1300, ar = 2360 / 1500;
-    const w = Math.max((cx1 - cx0) * 1.7 / (1 - open0), (cy1 - cy0) * 1.7 * ar), h = w / ar;
-    frames.campus = [(cx0 + cx1) / 2 - w * (open0 + 1) / 2, (cy0 + cy1) / 2 - h / 2, w, h];
+    const [cx0, cy0, cx1, cy1] = M.campus_box;
+    const x0 = Math.min(cx0, entry[0] - 15), x1 = cx1 + 30, y0 = cy0 - 22, y1 = entry[1] + 24;
+    const sc = Math.min(770 / (x1 - x0), 790 / (y1 - y0)), w = 1300 / sc, h = 827 / sc;
+    frames.campus = [(x0 + x1) / 2 - 905 / sc, (y0 + y1) / 2 - 413 / sc, w, h];
   }
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site },
