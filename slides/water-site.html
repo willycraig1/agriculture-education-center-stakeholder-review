@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Water on the Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142242">
-<link rel="stylesheet" href="../design/deck.css?v=202610142242">
+<link rel="stylesheet" href="../design/palette.css?v=202610142251">
+<link rel="stylesheet" href="../design/deck.css?v=202610142251">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -16,7 +16,7 @@
   .map .off { opacity: 0; }
   .map #aerial1948.under { opacity: .38; }
   .map #historic-slough { transition: fill-opacity .8s var(--ease); }
-  .map.strong #historic-slough { fill-opacity: .6; }
+  .map.strong #historic-slough { fill-opacity: .45; }
   .map #campus { opacity: .7; }
   .map.plan #retention-label, .map.plan #site-retention { display: inline; }
   .map.comp #compensation, .map.comp #wildcard { display: inline; }
@@ -67,9 +67,9 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610142242"></script>
-<script src="../design/deck.js?v=202610142242"></script>
-<script src="../design/viewer.js?v=202610142242"></script>
+<script src="data/site-map.js?v=202610142251"></script>
+<script src="../design/deck.js?v=202610142251"></script>
+<script src="../design/viewer.js?v=202610142251"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = M.civil || {}, W = M.wildcard || {}, B = M.slough_bed || {}, bedAc = (B.acres || 0).toFixed(1);
@@ -94,7 +94,7 @@
     { t: "1948: the slough before the canal", p: "The slough wandered across this land in a wide, shallow bed. The waterway was later channelized into the canal that now runs along the west property line.",
       show: ["aerial1948", "property"], frame: "full" },
     { t: "What is left of it", p: `The canal carries the flow today. The old bed is still cut into the ground, about ${bedAc} acres from bank to bank across the middle of the site.`,
-      lg: `<span><i style="background:var(--water)"></i>Cow Pen Slough today</span><span><i style="background:var(--water);opacity:.6"></i>Historical slough bed</span><span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span>`,
+      lg: `<span><i style="background:var(--water)"></i>Cow Pen Slough today</span><span><i style="background:var(--pasture);opacity:.45"></i>Historical slough bed, grassed</span><span><i style="background:var(--water);opacity:.6"></i>Ditch floor</span><span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span>`,
       show: ["aerial1948", "property", "water", "labels"], under: true, strong: true, frame: "bed" },
     { t: "Wet ground", p: "The wettest soils sit beside the old bed and across the east pastures. Grazing there is timed to ground conditions.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
