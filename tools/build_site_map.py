@@ -877,20 +877,22 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + "</g></svg>")
 
 # Civil's expanded retention (2026-10-14) was sketched on Option A and runs under the Option B turnouts. Refitted to
-# the plan as a site retention pond option (architect's markup on the water slide, 2026-10-14): the west lobe of
-# civil's sketch, kept 3 units clear of every new element (which drops its arm along the pens and its strip beside
-# the cattle turnouts), and a south pond on the open ground between the small animal turnout and the old bed's top
-# of bank, from the cattle barns' turnout to short of the access drive. Not designed or sized.
+# the plan as a site retention option (architect's markup on the water slide, 2026-10-14): a west pond in the
+# paddock between fence-19, the campus fence and the old bed, and a south pond between the small animal turnout's
+# fence, the campus's east fence and the old bed. Each is the open ground in its zone, kept 4 units (about 11 ft)
+# clear of every new element, fence line and top of bank, then simplified to a few straight sides with corners
+# rounded to a 4-unit radius: a clean diagrammatic shape, not civil's sketch line. Not designed or sized.
 SRO_ACRES = None
 if CIVIL:
-    _clr = unary_union([polys[k].buffer(0) for k in new_ids if k not in ("parking", "horticulture", "residence")]).buffer(3)
-    _bedu = unary_union([Polygon(p_["outer"]).buffer(0) for p_ in _BJ["parts"]]) if os.path.exists(_bp_bed) else Polygon()
-    _open = lambda g: [h for h in getattr(g, "geoms", [g]) if h.area > 200]
-    _west = max(_open(max(_rx, key=lambda r_: r_.area).buffer(0).difference(_clr).buffer(-2).buffer(2)), key=lambda g: g.area)
-    _south_reg = Polygon([(1048, 400), (1087, 406), (1084, 434), (1160, 438), (1140, 494), (1060, 470), (1040, 450)])
-    _south = max(_open(unary_union([_south_reg, min(_rx, key=lambda r_: r_.area).buffer(0)]).difference(_clr)
-                       .difference(_bedu.buffer(2)).buffer(-1.5).buffer(1.5)), key=lambda g: g.area)
-    _sro = [_west.simplify(0.4), _south.simplify(0.4)]
+    _block = unary_union([unary_union([polys[k].buffer(0) for k in new_ids if k not in ("parking", "horticulture", "residence")]),
+                          unary_union([LineString(r_["map"]) for r_ in FENCES["runs"]]) if os.path.exists(_fp) else Polygon(),
+                          unary_union([Polygon(p_["outer"]).buffer(0) for p_ in _BJ["parts"]]) if os.path.exists(_bp_bed) else Polygon()]).buffer(4)
+    def _pond(region, seed, tol=2.5, r=4):
+        a_ = Polygon(region).difference(_block)
+        g_ = next(h for h in getattr(a_, "geoms", [a_]) if h.contains(Point(seed))).simplify(tol)
+        return g_.buffer(r).buffer(-r).buffer(-r).buffer(r).simplify(0.2)           # round concave, then convex corners
+    _sro = [_pond([(1015, 315), (1075, 315), (1055, 400), (1015, 400)], (1040, 360)),
+            _pond([(1040, 398), (1100, 398), (1170, 440), (1150, 500), (1040, 470)], (1100, 460))]
     SRO_ACRES = [round(g.area * unit_ft ** 2 / 43560, 1) for g in _sro]
     _sro_svg = ("".join(f'<path d="{poly_d(g)}" fill="{P["water"]["base"]}" fill-opacity=".45" stroke="{P["water"]["base"]}" stroke-width="1.5" data-w="2"/>' for g in _sro)
                 + "".join(_lbl(g.representative_point().x, g.representative_point().y, "Site retention option", f"{a_} ac", P["water"]["base"]) for g, a_ in zip(_sro, SRO_ACRES)))
