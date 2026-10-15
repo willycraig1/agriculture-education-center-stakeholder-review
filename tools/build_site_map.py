@@ -200,7 +200,7 @@ if os.path.exists(_ad):
     AD = json.load(open(_ad))          # canopy, drives and Cowpen Slough from the architect's aerial trace (tools/build_canopy.py)
 # The historical slough bed: one transparent field from top of bank to top of bank (tools/build_slough_bed.py),
 # in place of the survey's separate bank lines.
-_bp = os.path.join(OUT, "data", "slough-bed.json")
+_bp = _bp_bed = os.path.join(OUT, "data", "slough-bed.json")
 if os.path.exists(_bp):
     _BJ = json.load(open(_bp))
     _ring_d = lambda parts: " ".join("M" + " L".join(f"{x},{y}" for x, y in ring) + "Z" for p_ in parts for ring in [p_["outer"]] + p_["holes"])
@@ -238,10 +238,9 @@ if CIVIL:
     _cg = P["pasture"]["base"]
     _comp_svg = ('<g id="compensation" display="none">'
                  + "".join(f'<path d="{poly_d(o_)}" fill="{P["pasture"]["base"]}" fill-opacity=".18" stroke="{_cg}" stroke-width="2" data-w="2.5" stroke-dasharray="6 4" data-dash="8 5"/>' for o_ in (_o1, _o2))
-                 + "".join(f'<path d="{poly_d(r_)}" fill="{P["water"]["base"]}" fill-opacity=".45" stroke="{P["water"]["base"]}" stroke-width="1.5" data-w="2"/>' for r_ in _rx)
+                 + "<!--SITE-RET-OPTION-->"            # civil's retention, refitted to the plan once the barnyard is placed
                  + _lbl(_o1.centroid.x, _o1.centroid.y, "Option 1", f'{CIVIL["option1_acres"]} ac, floodplain comp.', _cg)
                  + _lbl(_o2.centroid.x, _o2.centroid.y, "Option 2", f'{CIVIL["option2_acres"]} ac, floodplain comp.', _cg)
-                 + _lbl(max(_rx, key=lambda r_: r_.area).centroid.x, max(_rx, key=lambda r_: r_.area).centroid.y - 22, "Retention, expanded", "civil's sketch", P["water"]["base"])
                  + "</g>")
     COMP_ACRES = None
 else:
@@ -877,6 +876,26 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("labels", "Labels", slough_lbl + _infra_lbl + _wild_svg)
        + "</g></svg>")
 
+# Civil's expanded retention (2026-10-14) was sketched on Option A and runs under the Option B turnouts. Refitted to
+# the plan as a site retention pond option (architect's markup on the water slide, 2026-10-14): the west lobe of
+# civil's sketch, kept 3 units clear of every new element (which drops its arm along the pens and its strip beside
+# the cattle turnouts), and a south pond on the open ground between the small animal turnout and the old bed's top
+# of bank, from the cattle barns' turnout to short of the access drive. Not designed or sized.
+SRO_ACRES = None
+if CIVIL:
+    _clr = unary_union([polys[k].buffer(0) for k in new_ids if k not in ("parking", "horticulture", "residence")]).buffer(3)
+    _bedu = unary_union([Polygon(p_["outer"]).buffer(0) for p_ in _BJ["parts"]]) if os.path.exists(_bp_bed) else Polygon()
+    _open = lambda g: [h for h in getattr(g, "geoms", [g]) if h.area > 200]
+    _west = max(_open(max(_rx, key=lambda r_: r_.area).buffer(0).difference(_clr).buffer(-2).buffer(2)), key=lambda g: g.area)
+    _south_reg = Polygon([(1048, 400), (1087, 406), (1084, 434), (1160, 438), (1140, 494), (1060, 470), (1040, 450)])
+    _south = max(_open(unary_union([_south_reg, min(_rx, key=lambda r_: r_.area).buffer(0)]).difference(_clr)
+                       .difference(_bedu.buffer(2)).buffer(-1.5).buffer(1.5)), key=lambda g: g.area)
+    _sro = [_west.simplify(0.4), _south.simplify(0.4)]
+    SRO_ACRES = [round(g.area * unit_ft ** 2 / 43560, 1) for g in _sro]
+    _sro_svg = ("".join(f'<path d="{poly_d(g)}" fill="{P["water"]["base"]}" fill-opacity=".45" stroke="{P["water"]["base"]}" stroke-width="1.5" data-w="2"/>' for g in _sro)
+                + "".join(_lbl(g.representative_point().x, g.representative_point().y, "Site retention option", f"{a_} ac", P["water"]["base"]) for g, a_ in zip(_sro, SRO_ACRES)))
+    svg = svg.replace("<!--SITE-RET-OPTION-->", _sro_svg)
+    print("site retention option acres (civil's sketch, refitted):", SRO_ACRES)
 open(os.path.join(OUT, "site-layers.svg"), "w").write(svg)
 os.makedirs(os.path.join(SLIDES, "data"), exist_ok=True)
 _cb = [c for st_ in (EDITS["structures"] if EDITS else []) for c in st_["pts"]] + [list(q) for q in UNFINISHED_BARN]
@@ -884,7 +903,7 @@ CAMPUS_BOX = [min(c[0] for c in _cb), min(c[1] for c in _cb), max(c[0] for c in 
 meta = {"canopy_acres": AD["canopy_acres"] if AD else None, "campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
                      "bearing_deg": math.degrees(cmath.phase(M_DP / M_TP))},
         "view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "site_acres_footprint_previous": round(footprint_auto.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
-        "soils": soil_json, "ft_per_unit": FT_PER_PT, "slough_bed": bed_meta, "compensation_acres": COMP_ACRES, "wildcard": WILD, "civil": {k: CIVIL[k] for k in ("option1_acres", "option2_acres", "retention_expansion_acres")} if CIVIL else None, "retention_acres": RET_ACRES, "infrastructure": INFRA}
+        "soils": soil_json, "ft_per_unit": FT_PER_PT, "slough_bed": bed_meta, "compensation_acres": COMP_ACRES, "wildcard": WILD, "civil": {**{k: CIVIL[k] for k in ("option1_acres", "option2_acres", "retention_expansion_acres")}, "site_retention_option_acres": SRO_ACRES} if CIVIL else None, "retention_acres": RET_ACRES, "infrastructure": INFRA}
 with open(os.path.join(SLIDES, "data", "site-map.js"), "w") as fh:
     fh.write("// Generated by tools/build_site_map.py. Do not edit by hand.\n")
     fh.write("window.SITE_MAP = " + json.dumps({"svg": svg, **meta}) + ";\n")
