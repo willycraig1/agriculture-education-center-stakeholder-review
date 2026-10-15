@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Small Animal Pens</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142321">
-<link rel="stylesheet" href="../design/deck.css?v=202610142321">
+<link rel="stylesheet" href="../design/palette.css?v=202610142326">
+<link rel="stylesheet" href="../design/deck.css?v=202610142326">
 <style>
   .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
   .levels { display: flex; flex-direction: column; gap: 18px; }
@@ -35,8 +35,8 @@
 <div class="stage">
   <div class="eyebrow" data-step="0">Act 3 · What the land can carry</div>
   <h1 data-step="0">One barn for swine, sheep and goats</h1>
-  <p class="lede" data-step="0">They share one kind of pen. Level 1 keeps the hog pens in the existing barn; a new barn
-    comes at Level 2 and grows south at Level 3.</p>
+  <p class="lede" data-step="0">One kind of pen for all three. The hogs move into the existing barn at Level 1, swap into
+    a new barn at Level 2, and that barn grows south at Level 3.</p>
 
   <div class="body">
     <div class="levels" id="levels"></div>
@@ -66,15 +66,18 @@
   </div>
 </div>
 
-<script src="data/levels.js?v=202610142321"></script>
-<script src="data/ag-area.js?v=202610142321"></script>
-<script src="../design/deck.js?v=202610142321"></script>
+<script src="data/levels.js?v=202610142326"></script>
+<script src="data/ag-area.js?v=202610142326"></script>
+<script src="../design/deck.js?v=202610142326"></script>
 <script>
 (function () {
   // Barn sizes and pen counts come from the barnyard diagram (tools/build_ag_area.py), so this slide follows the plan.
   const A = window.AG_AREA, L = window.LEVELS.levels, el = id => A.elements.find(e => e.id === id);
   const wa = el("small-a"), dog = el("dogtrot"), wb2 = el("small-a2"), b = el("small-b"), ex = el("existing-barn");
   const sa = A.counts.small_animal_pens, pw = wa.pens.w, rows = wa.pens.rows, depth = wa.w;
+  // Level 1 (architect, 2026-10-14): the 10 existing hog pens sit where the arena goes, so the hogs move into the
+  // existing barn, which fits about 32 pens; barn A at Level 2 matches that, a clean swap that frees the barn for storage.
+  const OLD_PENS = 10, EX_PENS = 32;
   const k = 3.3;                                    // px per foot: every plan on this slide shares one scale
   let delay = 0;
   const pen = (x, y, w, h) => `<rect class="pen" x="${x * k}" y="${y * k}" width="${w * k}" height="${h * k}" style="transition-delay:${(delay++) * 25}ms"
@@ -97,14 +100,14 @@
   const aLen = wa.h + dog.h + wb2.h;
   const plans = {
     1: () => `<rect x="0" y="${(depth - ex.h) / 2 * k}" width="${ex.w * k}" height="${ex.h * k}" rx="2" fill="var(--swine-tint)" stroke="var(--swine)" stroke-width="1.6"/>`
-      + `<text x="${ex.w / 2 * k}" y="${depth / 2 * k + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="var(--swine)" font-family="var(--sans)">HOG PENS INSIDE</text>`
+      + `<text x="${ex.w / 2 * k}" y="${depth / 2 * k + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="var(--swine)" font-family="var(--sans)">ABOUT ${EX_PENS} PENS INSIDE</text>`
       + `<text x="0" y="${(depth - ex.h) / 2 * k - 10}" font-size="14" font-weight="600" fill="var(--muted)" font-family="var(--sans)">EXISTING BARN</text>`,
     2: () => barnA(),
     3: () => barnA() + wing(aLen, b.h, b.pens.n) + label(aLen + 2, `+ BARN B · ${sa[3] - sa[2]} PENS`),
   };
   const totals = {
-    1: `<b class="word">Reuse</b><span>hog pens</span><em>in the existing barn</em>`,
-    2: `<b class="num">${sa[2]}</b><span>pens</span><em>existing barn becomes storage</em>`,
+    1: `<b class="num">≈${EX_PENS}</b><span>pens</span><em>in the existing barn; the ${OLD_PENS} old hog pens give way to the arena</em>`,
+    2: `<b class="num">${sa[2]}</b><span>pens</span><em>a clean swap: the existing barn becomes storage</em>`,
     3: `<b class="num">${sa[3]}</b><span>pens</span><em>${sa[2]} in A + ${sa[3] - sa[2]} in B</em>`,
   };
   const vbW = (aLen + b.h) * k + 12, vbH = Math.max(depth, ex.h) * k + 30;

@@ -71,7 +71,7 @@ window.AG_AREA = {
    "use": "swine",
    "level": 1,
    "kind": "building",
-   "note": "Hog pens inside",
+   "note": "About 32 hog pens",
    "assumed": false,
    "becomes": {
     "2": {
