@@ -113,7 +113,7 @@ window.AG_AREA = {
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "55 spaces",
+   "note": "55 spaces, 37 on grass",
    "assumed": false,
    "rows": [],
    "stall": [
@@ -1657,6 +1657,24 @@ window.AG_AREA = {
       80.5,
       482.0
      ]
+    ]
+   ],
+   "grass": [
+    [
+     36.5,
+     240
+    ],
+    [
+     170.0,
+     240
+    ],
+    [
+     170.0,
+     324.0
+    ],
+    [
+     36.5,
+     324.0
     ]
    ]
   },

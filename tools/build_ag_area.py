@@ -632,7 +632,13 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     if _swl:
         _pk["island_poly"] = _svg_pts(_swl.group(1))
     n_stalls = len(_stl) + len(_ang)
-    _pk["note"] = f"{n_stalls} spaces"
+    # grass parking (architect, 2026-10-14): the north stall row and the two middle rows, from the lot's west stall
+    # edge to its east edge, are grass over a base rather than pavement; the south row and the drive aisles stay paved
+    _g = [36.5, by_id["parking"]["y"], 170.0, 324.0]
+    _pk["grass"] = [[_g[0], _g[1]], [_g[2], _g[1]], [_g[2], _g[3]], [_g[0], _g[3]]]
+    _ng = sum(1 for q in _stl if _g[0] - 0.1 <= min(p_[0] for p_ in q) and max(p_[0] for p_ in q) <= _g[2] + 0.1 and _g[1] - 0.1 <= min(p_[1] for p_ in q) and max(p_[1] for p_ in q) <= _g[3] + 0.1)
+    _pk["note"] = f"{n_stalls} spaces, {_ng} on grass"
+    print("grass parking:", _ng, "stalls")
     # poultry: the unfinished barn (open-sided, on the survey as BUILDING OH), where the poultry stay at every Level;
     # shown so the walkway's connection to it reads. The walk is carried east from the network's strip along the
     # existing barn's north side to the barn's west face, 5' wide.
@@ -745,6 +751,8 @@ def pens_svg(e):
         out.append('<polygon points="' + " ".join(f"{px},{py}" for px, py in q) + '"/>')
     if e.get("island_poly"):
         out.append('<polygon points="' + " ".join(f"{px},{py}" for px, py in e["island_poly"]) + f'" fill="{P["water"]["tint"]}"/>')
+    if e.get("grass"):
+        out.append('<polygon points="' + " ".join(f"{px},{py}" for px, py in e["grass"]) + f'" fill="{P["pasture"]["tint"]}" fill-opacity=".6" stroke="{P["pasture"]["base"]}" stroke-dasharray="3 2"/>')
     for z in e.get("zones", []):
         if "poly" in z:
             out.append('<polygon points="' + " ".join(f'{e["x"] + px},{e["y"] + py}' for px, py in z["poly"]) + '"/>')
