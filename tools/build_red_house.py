@@ -141,6 +141,45 @@ for k in range(1, len(sheets)):
     px, py = offsets[-1]
     offsets.append((px + dx, py + dy))          # sheet k coords = existing coords + offset
 
+# ---------------------------------------------------------------- accessibility edit: no closets in Offices 1 and 2
+# The architect's accessibility comments (2026-10-14), not yet on the sheets: the closets along the south walls of
+# Office 1 and Office 2 are removed on Levels 1, 2, and 3, giving each office its full depth. Defined once on the
+# Level 1 sheet (A1.0-1, points) and carried to the other sheets by the Office 1 label. Every drawn segment with
+# both ends inside a closet box is dropped (closet walls, bifold doors, headers); the office walls are closed along
+# the corridor wall's face.
+import types
+CLOSETS = [(199, 895, 314, 941), (412, 895, 522, 941)]
+CLOSE = [[(200.1, 909.2), (200.1, 940.0), (313.5, 940.0)], [(412.8, 940.0), (520.8, 940.0), (520.8, 909.2)]]
+def _pts(it):
+    if it[0] == "re":
+        return [it[1].tl, it[1].br]
+    if it[0] == "qu":
+        return [it[1].ul, it[1].ur, it[1].ll, it[1].lr]
+    return [q for q in it[1:] if hasattr(q, "x")] or [pymupdf.Point(-1e9, -1e9)]   # unknown items are kept
+_removed_closet = {}
+for k in range(1, len(sheets)):
+    # carried by the "OFFICE 1" label rather than the raster alignment, which is only good to a point or two
+    _o1 = lambda k_: next((l["x"], l["y"]) for l in sheets[k_]["labels"] if l["t"] == "OFFICE 1")
+    dx, dy = _o1(k)[0] - _o1(1)[0], _o1(k)[1] - _o1(1)[1]
+    boxes = [(x0 + dx, y0 + dy, x1 + dx, y1 + dy) for x0, y0, x1, y1 in CLOSETS]
+    inb = lambda q: any(x0 <= q.x <= x1 and y0 <= q.y <= y1 for x0, y0, x1, y1 in boxes)
+    n = 0
+    for part, ds in sheets[k]["groups"].items():
+        keep = []
+        for d in ds:
+            items = [it for it in d["items"] if not all(inb(q) for q in _pts(it))]
+            n += len(d["items"]) - len(items)
+            if items:
+                if len(items) != len(d["items"]):
+                    d = dict(d, items=items, closePath=False)
+                keep.append(d)
+        sheets[k]["groups"][part] = keep
+    for pl in CLOSE:
+        P_ = [pymupdf.Point(x + dx, y + dy) for x, y in pl]
+        sheets[k]["groups"]["walls"].append({"items": [("l", a_, b_) for a_, b_ in zip(P_, P_[1:])], "closePath": False, "layer": "P-WALL",
+                                             "rect": pymupdf.Rect(min(q.x for q in P_), min(q.y for q in P_), max(q.x for q in P_), max(q.y for q in P_))})
+    _removed_closet[NAMES[k]] = n
+
 # ---------------------------------------------------------------- wall diff, Level to Level (in Existing coords)
 def wall_pts(k):
     ox, oy = offsets[k]
@@ -298,7 +337,7 @@ for k, L in enumerate(levels):
     svg.append(f'<g class="labels" inkscape:groupmode="layer" inkscape:label="labels">{L["labels"]}</g></g>')
 svg.append("</svg>")
 open(os.path.join(ROOT, "drawings", "red-house-levels.svg"), "w").write("".join(svg))
-json.dump({"offsets_pt": offsets, "view": view, "counts": [l["counts"] for l in levels], "repairs": repair_note},
+json.dump({"offsets_pt": offsets, "view": view, "closet_segments_removed": _removed_closet, "counts": [l["counts"] for l in levels], "repairs": repair_note},
           open(os.path.join(ROOT, "drawings", "data", "red-house.json"), "w"), indent=2)
 print("north (deg clockwise from up):", north_cw)
 print("repairs:", repair_note)

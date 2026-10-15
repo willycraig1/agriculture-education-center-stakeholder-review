@@ -23,6 +23,11 @@
     2452.0,
     1277.1800537109375
   ],
+  "closet_segments_removed": {
+    "Level 1": 62,
+    "Level 2": 62,
+    "Level 3": 62
+  },
   "counts": [
     {
       "walls": 165,
@@ -30,17 +35,17 @@
       "removed": 0
     },
     {
-      "walls": 244,
+      "walls": 238,
       "new": 46,
-      "removed": 22
+      "removed": 28
     },
     {
-      "walls": 258,
+      "walls": 252,
       "new": 27,
       "removed": 12
     },
     {
-      "walls": 278,
+      "walls": 272,
       "new": 52,
       "removed": 31
     }
