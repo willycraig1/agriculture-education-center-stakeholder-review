@@ -586,12 +586,30 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _fd = _svg_rects(_grp("feed"))                                   # feed storage, then bedding storage
     _set("feed", *_fd[0])
     add("bedding", "Bedding storage", round(_fd[1][0] + _EO[0], 1), round(_fd[1][1] + _EO[1], 1), _fd[1][2], round(_fd[1][3]), "circulation", 2, note="")
-    _sb = _svg_rects(_grp("small-b"))[0]                             # Level 3 extension of the small animal barn, past a dogtrot
+    # Small animal barn A (Level 2) is both wings in the file, either side of a dogtrot. Small animal barn B (Level 3)
+    # extends it south as far as the building code allows (architect, 2026-10-14): a Group U utility building of
+    # Type VB construction is limited to 5,500 sf per story (IBC Table 506.2, no sprinklers or frontage increase).
+    # The dogtrot is taken as roofed, so it counts toward the area.
+    _sb = _svg_rects(_grp("small-b"))[0]
+    _a1, _a2 = by_id["small-a"], by_id["small-b"]
     _set("small-b", *_sb)
-    by_id["small-a"].update(label="Small animal barn", note=f"{2 * (SA_L // SA_PEN_W)} pens")
-    by_id["small-b"].update(label="Extension", note=f"{2 * (SA_L // SA_PEN_W)} pens")
-    _dog = by_id["small-b"]["y"] - (by_id["small-a"]["y"] + by_id["small-a"]["h"])
+    _a2.update(id="small-a2", label="", use="swine", level=2, note=f"{2 * (SA_L // SA_PEN_W)} pens")
+    _a1.update(label="Small animal barn A", note=f"{4 * (SA_L // SA_PEN_W)} pens, two wings")
+    _dog = _a2["y"] - (_a1["y"] + _a1["h"])
+    add("dogtrot", "", _a1["x"], _a1["y"] + _a1["h"], SMALL_W, _dog, "circulation", 2, kind="yard", note="dogtrot")
+    U_VB_MAX = 5500
+    _used = SMALL_W * (_a1["h"] + _dog + _a2["h"])
+    B_L = int((U_VB_MAX - _used) // SMALL_W)
+    _pb = {"n": B_L // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}
+    add("small-b", "Small animal barn B", _a2["x"], _a2["y"] + _a2["h"], SMALL_W, B_L, "small_animal", 3,
+        note=f"{2 * (B_L // SA_PEN_W)} pens; {_used + SMALL_W * B_L:,} sf in all", pens=_pb)
+    _ts_ = by_id["turnout-small-b"]
+    _ts_.update(id="turnout-small-a", level=2)
+    add("turnout-small-b", "", _ts_["x"], _ts_["y"] + _ts_["h"], _ts_["w"], B_L, "arena", 3, kind="yard")
+    SA_PENS = {"2": 4 * (SA_L // SA_PEN_W), "3": 4 * (SA_L // SA_PEN_W) + 2 * (B_L // SA_PEN_W)}
+    print("small animal barn: A", _used, "sf (two wings and a", _dog, "ft dogtrot) | B", SMALL_W, "x", B_L, "| total", _used + SMALL_W * B_L, "sf of", U_VB_MAX)
     # handling yard as drawn (no trailer enclosure)
+    by_id["handling"].update(label="", note="")                      # its zones name its parts; no overall label on the slide
     by_id["handling"]["outline"] = _svg_pts(_re.search(r'<g id="handling">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
     E[:] = [e for e in E if e["id"] != "trailer-stop"]
     # grooming area inside the arena; compost and dumpster by the existing barn
@@ -604,7 +622,9 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     # parking: outline, island and stalls as drawn (the bank of five is gone)
     _pr = _svg_path(_re.search(r'<g id="parking">\s*<path class="[^"]*" d="([^"]+)"', _sv).group(1))
     _pkg = _grp("parking")
-    _stl = [[[round(x + _EO[0], 1), round(y + _EO[1], 1)] for x, y in ((r_[0], r_[1]), (r_[0] + r_[2], r_[1]), (r_[0] + r_[2], r_[1] + r_[3]), (r_[0], r_[1] + r_[3]))] for r_ in _svg_rects(_pkg)]
+    # every 10' x 20' stall in the file, wherever it sits (the added stalls ended up in the circulation layer)
+    _all_st = [r_ for r_ in _svg_rects(_sv) if abs(r_[2] - 10) < 0.2 and abs(r_[3] - 20) < 0.2]
+    _stl = [[[round(x + _EO[0], 1), round(y + _EO[1], 1)] for x, y in ((r_[0], r_[1]), (r_[0] + r_[2], r_[1]), (r_[0] + r_[2], r_[1] + r_[3]), (r_[0], r_[1] + r_[3]))] for r_ in _all_st]
     _ang = [_svg_pts(m) for m in _re.findall(r'<polygon class="st3" points="([^"]+)"', _pkg)]
     _swl = _re.search(r'<polygon class="st2" points="([^"]+)"', _pkg)
     _pk = by_id["parking"]
@@ -674,7 +694,7 @@ view = [min(_dxs) - pad, min(_dys) - pad - 9, max(_dxs) - min(_dxs) + 2 * pad + 
 data = {
     "units": "feet", "view": view, "north_cw_from_up": -17, "elements": E, "drives": DRIVES, "circulation": C, "dims": dims,
     "notes": NOTES_, "shift_ft": [DX, DY], "stalls_box": STALLS_BOX, "cross_drive_box": CROSS_DRIVE_BOX,
-    "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": 2 * (SA_L // SA_PEN_W), "small_animal_pens": {"2": 2 * (SA_L // SA_PEN_W), "3": 4 * (SA_L // SA_PEN_W)}, "option": OPTION, "parking": n_stalls},
+    "counts": {"cattle_pens": {"1": 7, "2": 21, "3": 35}, "small_animal_pens_per_barn": (SA_PENS["2"] if "SA_PENS" in dir() else 2 * (SA_L // SA_PEN_W)), "small_animal_pens": SA_PENS if "SA_PENS" in dir() else {"2": 2 * (SA_L // SA_PEN_W), "3": 4 * (SA_L // SA_PEN_W)}, "option": OPTION, "parking": n_stalls},
     "module_ft": M, "lane_ft": LANE,
 }
 os.makedirs(os.path.join(ROOT, "slides", "data"), exist_ok=True)

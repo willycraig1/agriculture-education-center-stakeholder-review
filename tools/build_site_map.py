@@ -366,7 +366,7 @@ if os.path.exists(_fp):
         if AG.get("counts", {}).get("option") == "B":
             # Option B: round the north side of the cattle turnouts, the west end of the small animal barns' turnout,
             # and back down to the plan's last leg at the lane; east of the turnouts it follows the holding pens' top
-            _ts = _el["turnout-small-b"]; _hp = _el["holding-3"]
+            _ts = _el.get("turnout-small-a", _el["turnout-small-b"]); _hp = _el["holding-3"]
             _xw_ = _ts["x"]; _ye = round(_end_d.imag, 1)
             _new_d = [(_hp["x"] + _hp["w"], _hp["y"]), (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _hp["y"]),
                       (_el["turnout-cattle-a"]["x"] + _el["turnout-cattle-a"]["w"], _tb["y"]), (_tb["x"], _tb["y"]), (_tb["x"], _ts["y"] - 12),
@@ -673,7 +673,7 @@ if _isl_d:
     barnyard += (f'<g id="swale-trees" fill="{P["woodland"]["base"]}" fill-opacity="0.7">'
                  + "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s_ > 20 else 3.8}"/>' for px, py, s_ in _isl_trees) + "</g>")
     print("trees in the swale island, drawn over it:", len(_isl_trees))
-BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn", "small-b": "Extension", "feed": "Feed storage", "bedding": "Bedding", "compost": "Compost", "dumpster": "Dumpsters", "holding-5": "Pen 5",
+BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Small animal barn B", "feed": "Feed storage", "bedding": "Bedding", "compost": "Compost", "dumpster": "Dumpsters", "holding-5": "Pen 5",
              "arena": "Arena", "parking": "Parking", "handling": "Handling", "horticulture": "Horticulture", "residence": "RV / residence", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""
 for e in AG["elements"]:
