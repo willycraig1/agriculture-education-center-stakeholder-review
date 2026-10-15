@@ -113,7 +113,7 @@ window.AG_AREA = {
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "55 spaces, 37 on grass",
+   "note": "57 spaces, 39 on grass",
    "assumed": false,
    "rows": [],
    "stall": [
@@ -1457,6 +1457,42 @@ window.AG_AREA = {
      ],
      [
       146.5,
+      324.0
+     ]
+    ],
+    [
+     [
+      156.5,
+      284.0
+     ],
+     [
+      166.5,
+      284.0
+     ],
+     [
+      166.5,
+      304.0
+     ],
+     [
+      156.5,
+      304.0
+     ]
+    ],
+    [
+     [
+      156.5,
+      304.0
+     ],
+     [
+      166.5,
+      304.0
+     ],
+     [
+      166.5,
+      324.0
+     ],
+     [
+      156.5,
       324.0
      ]
     ],
@@ -3551,7 +3587,7 @@ window.AG_AREA = {
    "3": 44
   },
   "option": "B",
-  "parking": 55
+  "parking": 57
  },
  "module_ft": 12,
  "lane_ft": 24
