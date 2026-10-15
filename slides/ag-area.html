@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Barnyard</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142308">
-<link rel="stylesheet" href="../design/deck.css?v=202610142308">
+<link rel="stylesheet" href="../design/palette.css?v=202610142310">
+<link rel="stylesheet" href="../design/deck.css?v=202610142310">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -57,9 +57,9 @@
   </div>
 </div>
 
-<script src="data/ag-area.js?v=202610142308"></script>
-<script src="../design/deck.js?v=202610142308"></script>
-<script src="../design/viewer.js?v=202610142308"></script>
+<script src="data/ag-area.js?v=202610142310"></script>
+<script src="../design/deck.js?v=202610142310"></script>
+<script src="../design/viewer.js?v=202610142310"></script>
 <script>
 (function () {
   const A = window.AG_AREA, v = A.view;
@@ -192,7 +192,7 @@
       g.classList.toggle("isnew", step < 3 && e.level === n && e.kind !== "container" && !(e.id.startsWith("existing") || e.id === "parking"));
       rect.style.fill = e.kind === "yard" ? "none" : e.kind === "walk" ? "#fff" : `var(--${u.replace("_", "-")}-tint)`;
       rect.style.stroke = css(u);
-      rect.style.strokeDasharray = e.kind === "yard" ? "3 2" : "";
+      rect.style.strokeDasharray = e.kind === "yard" ? "3 2" : e.kind === "canopy" ? "2.4 1.6" : "";   // open canopies: dashed, like the site map
       const nt = lb.querySelector("text.note"); if (nt) nt.textContent = e.level <= n ? (note || "") : `Level ${e.level}`;
     });
     document.querySelectorAll("#levels > li").forEach(li => {

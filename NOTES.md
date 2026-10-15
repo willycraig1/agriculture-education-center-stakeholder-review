@@ -585,3 +585,6 @@ Fit checks now skip context elements (walk etc.).
 - The Red House's two porches are drawn on the site map as open canopies, like the carport (tinted, dashed outline):
   the porch along the north-west wall and the one across the north-east end, from the survey's overhang lines
   (BUILDING OH) closed against the house walls (BUILDING). About 520 sf and 340 sf. On every slide using the site map.
+- Also on the barnyard diagram (`tools/build_ag_area.py`): the carport (from the survey overhang rectangle, as on the
+  site map) and both porches, as context elements of kind `canopy`, drawn tinted with a dashed outline. The site map
+  skips them (it draws its own from the survey).
