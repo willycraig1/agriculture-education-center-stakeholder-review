@@ -21,15 +21,15 @@
    "group": "site",
    "plan_acres": 8.0,
    "acres": 7.9,
-   "change_ac": -0.09,
+   "change_ac": -0.11,
    "measured_acres": 8.0,
    "dense": 1.0
   },
   {
    "group": "site",
    "plan_acres": 3.4,
-   "acres": 3.6,
-   "change_ac": 0.23,
+   "acres": 3.7,
+   "change_ac": 0.27,
    "measured_acres": 3.7,
    "dense": 0.0
   },

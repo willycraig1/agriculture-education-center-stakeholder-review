@@ -513,3 +513,16 @@ use); 24' clear between all buildings; small animal barn A at Level 2, B at Leve
   either side of an 8' alley in line with the yard's east side. The Bud Box slide itself still draws the 72' x 84'
   yard (its note says Option B is sized down).
 - **Cache-busting:** `tools/stamp.py` adds ?v=<time> to every slide's data/design links. Browsers had been showing an old ag-area.js on the barnyard slide after a rebuild. Run it after the build tools, before committing. Run order: build_fences, build_canopy, build_south_roads, build_slough_bed, build_civil, build_ag_area, build_site_map, build_retention_markup, build_site_map, build_capacity_data, stamp.
+
+### Option B, architect's edits imported (2026-10-14): `drawings/ag-area-diagram2.svg`
+The architect edited the generated diagram in Illustrator; `build_ag_area.py` now reads that file (block "OPTION B,
+architect's edits") and takes its geometry element by element (diagram feet = svg + (-118, 13), the view origin the
+file was exported with). What it carries: a **two-way loop** (parking loop and the service drive round the arena
+joined); **no trailer enclosure** (the ag consultant: not needed here; the Bud Box slide to follow); **bedding
+storage** 24' x 12' beside cattle barn A (Level 2), **compost area** ~49' x 19' and a **12' x 24' dumpster enclosure**
+south of the existing barn (taken as Level 1); a **grooming area** at the arena's west end; **one small animal barn**
+(Level 2, 36' x 48') with a 15' **dogtrot** to its Level 3 **extension** south; turnouts widened (cattle turnouts
+-48..194, small animal turnout the barn's full length); pens 4 and 5 narrowed to 36'; the **parking bank removed**
+(45 spaces); a white **walkway network** as drawn. The regenerated `drawings/ag-area-diagram.svg` reflects all this;
+`ag-area-diagram2.svg` is the architect's source and is not overwritten. Slide texts and the Levels matrix updated.
+Fit checks now skip context elements (walk etc.).

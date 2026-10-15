@@ -538,6 +538,97 @@ for c in C:
     if c["id"] == "an-pens":            # existing pens (fixed) up into the shifted turnout A
         xm = (max(x_col, ta["x"]) + min(EAST, ta["x"] + ta["w"])) / 2
         c["pts"] = [[xm, y_pens + 8], [xm, y_pens - 30]]
+# =============================================================================================================
+# OPTION B, architect's edits (2026-10-14): drawings/ag-area-diagram2.svg, edited in Illustrator from this script's
+# own diagram. Its geometry replaces the computed layout element by element. The file was exported with the
+# diagram's view origin at (-118, 13), so diagram feet = svg + (-118, 13). Changes it carries: a two-way loop
+# (service drive round the arena joined to the parking loop); no trailer enclosure; new bedding storage, compost
+# area and dumpster enclosure; a grooming area in the arena; one small animal barn with a dogtrot between it and
+# its Level 3 extension to the south; the parking bank removed; the turnouts widened; a walkway network.
+import re as _re
+AG_EDIT = os.path.join(ROOT, "drawings", "ag-area-diagram2.svg")
+_EO = (-118, 13)
+def _svg_rects(g):
+    return [tuple(float(v) for v in m) for m in _re.findall(r'<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', g)]
+def _svg_pts(txt):
+    v = [float(x) for x in txt.replace(",", " ").split()]
+    return [[round(v[i] + _EO[0], 1), round(v[i + 1] + _EO[1], 1)] for i in range(0, len(v), 2)]
+def _svg_path(d):
+    toks = _re.findall(r"[MmLlHhVvZz]|-?\d*\.?\d+", d); rings, cur, x, y, cmd, i = [], [], 0.0, 0.0, None, 0
+    while i < len(toks):
+        t = toks[i]
+        if t in "MmLlHhVvZz":
+            cmd = t; i += 1
+            if t in "Zz":
+                rings.append(cur); cur = []
+            continue
+        if cmd in "Mm":
+            a, b = float(toks[i]), float(toks[i + 1]); i += 2; x, y = (a, b) if cmd == "M" else (x + a, y + b); cur = [(x, y)]; cmd = "L" if cmd == "M" else "l"
+        elif cmd in "Ll":
+            a, b = float(toks[i]), float(toks[i + 1]); i += 2; x, y = (a, b) if cmd == "L" else (x + a, y + b); cur.append((x, y))
+        elif cmd in "Hh":
+            a = float(toks[i]); i += 1; x = a if cmd == "H" else x + a; cur.append((x, y))
+        elif cmd in "Vv":
+            a = float(toks[i]); i += 1; y = a if cmd == "V" else y + a; cur.append((x, y))
+    return [[[round(px + _EO[0], 1), round(py + _EO[1], 1)] for px, py in r[:-1] if True] for r in rings]
+if OPTION == "B" and os.path.exists(AG_EDIT):
+    _sv = open(AG_EDIT).read()
+    _grp = lambda gid: (_re.search(r'<g id="%s">(.*?)\n    </g>' % gid, _sv, _re.S) or [None, ""])[1] if _re.search(r'<g id="%s">' % gid, _sv) else ""
+    def _set(id_, x, y, w, h, **kw):
+        e = by_id[id_]; e.update(x=round(x + _EO[0], 1), y=round(y + _EO[1], 1), w=w, h=h, **kw)
+        e.pop("outline", None) if "outline" not in kw else None
+    for id_ in ("cattle-a", "cattle-b", "arena", "small-a", "turnout-cattle-a", "holding-1", "holding-2", "holding-3", "holding-4", "holding-5", "turnout-small-b"):
+        r_ = _svg_rects(_grp(id_))
+        if r_:
+            _set(id_, *r_[0])
+    _tb_ = _svg_pts(_re.search(r'<g id="turnout-cattle-b">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
+    _set("turnout-cattle-b", min(q[0] for q in _tb_) - _EO[0], min(q[1] for q in _tb_) - _EO[1], max(q[0] for q in _tb_) - min(q[0] for q in _tb_), 36)
+    _fd = _svg_rects(_grp("feed"))                                   # feed storage, then bedding storage
+    _set("feed", *_fd[0])
+    add("bedding", "Bedding storage", round(_fd[1][0] + _EO[0], 1), round(_fd[1][1] + _EO[1], 1), _fd[1][2], round(_fd[1][3]), "circulation", 2, note="")
+    _sb = _svg_rects(_grp("small-b"))[0]                             # Level 3 extension of the small animal barn, past a dogtrot
+    _set("small-b", *_sb)
+    by_id["small-a"].update(label="Small animal barn", note=f"{2 * (SA_L // SA_PEN_W)} pens")
+    by_id["small-b"].update(label="Extension", note=f"{2 * (SA_L // SA_PEN_W)} pens")
+    _dog = by_id["small-b"]["y"] - (by_id["small-a"]["y"] + by_id["small-a"]["h"])
+    # handling yard as drawn (no trailer enclosure)
+    by_id["handling"]["outline"] = _svg_pts(_re.search(r'<g id="handling">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
+    E[:] = [e for e in E if e["id"] != "trailer-stop"]
+    # grooming area inside the arena; compost and dumpster by the existing barn
+    _gm = _re.search(r'Grooming Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
+    _ar = by_id["arena"]
+    _ar["zones"] = [dict(label="Grooming", x=round(float(_gm[0]) + _EO[0] - _ar["x"], 1), y=round(float(_gm[1]) + _EO[1] - _ar["y"], 1), w=float(_gm[2]), h=float(_gm[3]), rot=True)]
+    _cp = _re.search(r'Compost Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
+    add("compost", "Compost", round(float(_cp[0]) + _EO[0], 1), round(float(_cp[1]) + _EO[1], 1), round(float(_cp[2]), 1), float(_cp[3]), "circulation", 1, kind="yard", note="")
+    add("dumpster", "Dumpsters", 199.6, 324.0, 12.0, 24.0, "circulation", 1, note="enclosure")      # the rotated 12' x 24' rect in the file
+    # parking: outline, island and stalls as drawn (the bank of five is gone)
+    _pr = _svg_path(_re.search(r'<g id="parking">\s*<path class="[^"]*" d="([^"]+)"', _sv).group(1))
+    _pkg = _grp("parking")
+    _stl = [[[round(x + _EO[0], 1), round(y + _EO[1], 1)] for x, y in ((r_[0], r_[1]), (r_[0] + r_[2], r_[1]), (r_[0] + r_[2], r_[1] + r_[3]), (r_[0], r_[1] + r_[3]))] for r_ in _svg_rects(_pkg)]
+    _ang = [_svg_pts(m) for m in _re.findall(r'<polygon class="st3" points="([^"]+)"', _pkg)]
+    _swl = _re.search(r'<polygon class="st2" points="([^"]+)"', _pkg)
+    _pk = by_id["parking"]
+    _pk.update(outline=_pr[0], holes=_pr[1:], rows=[], stalls_extra=_stl + _ang)
+    if _swl:
+        _pk["island_poly"] = _svg_pts(_swl.group(1))
+    n_stalls = len(_stl) + len(_ang)
+    _pk["note"] = f"{n_stalls} spaces"
+    # walkway network as drawn
+    _wk = _svg_pts(_re.search(r'<g id="walk">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
+    by_id["walk"].update(outline=_wk, x=min(q[0] for q in _wk), y=min(q[1] for q in _wk), w=max(q[0] for q in _wk) - min(q[0] for q in _wk), h=max(q[1] for q in _wk) - min(q[1] for q in _wk))
+    # circulation as drawn: the loop is two-way, so its runs carry arrowheads at both ends
+    _circ = []
+    for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="(st\d+)" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _sv):
+        tag, id_, name, cls, pts_, x1, y1, x2, y2 = m.groups()
+        pts = _svg_pts(pts_) if pts_ else _svg_pts(f"{x1} {y1} {x2} {y2}")
+        base = name or id_
+        kind = "animal" if base.startswith("an-") else "service"
+        label = {"loop-parking": "Two-way loop", "aisle-cattle": "Tractor aisle"}.get(id_, "")
+        _circ.append(dict(id=id_, kind=kind, label=label, pts=pts))
+    C[:] = _circ
+    by_id = {e["id"]: e for e in E}
+    E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)
+    print("architect's edits imported:", os.path.basename(AG_EDIT), "| stalls", n_stalls, "| dogtrot ft", _dog, "| circulation runs", len(C))
 def _on(pt_, c2):
     q = c2["pts"]
     for (ax, ay), (bx, by) in zip(q, q[1:]):
