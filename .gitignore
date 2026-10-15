@@ -4,3 +4,4 @@ __pycache__/
 # full-size PNG duplicates of photos that already exist as JPEG
 photos/red-house.png
 photos/hog-enclosures.png
+exports/
