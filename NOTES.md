@@ -603,6 +603,6 @@ Fit checks now skip context elements (walk etc.).
   the existing barn (no count on record); Level 2 small animal barn A, 32 pens (two 16-pen wings and a roofed
   dogtrot); Level 3 adds barn B to the south, 44 pens in all, about 5,472 sf against the 5,500 sf Group U / VB limit.
   Plans drawn lengthwise at one scale, north to the left, read from `data/ag-area.js` so they follow the barnyard plan.
-- Level 1 (architect): the 10 existing hog pens conflict with the new arena, so the hogs move into the existing barn,
+- Level 1 (architect): the 10 existing hog pens give way to the Level 1 site improvements, so the hogs move into the existing barn,
   which fits about 32 pens. Barn A at Level 2 (32 pens) is then a clean swap that frees the existing barn for
   much-needed storage. Updated on the pens slide (Level 1 ≈32), the Levels slide and the barnyard slide's Level text.
