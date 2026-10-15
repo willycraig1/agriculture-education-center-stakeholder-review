@@ -656,7 +656,7 @@ for e in AG["elements"]:
         if e.get("island_poly"):
             # the island is planted ground: it hides the existing drive surveyed under it, then the swale sits inside
             inner += "".join('<polygon points="' + " ".join(f"{px},{py}" for px, py in h_) + '" fill="#F2F5EA" stroke="none"/>' for h_ in e.get("holes", []))
-            inner += '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["island_poly"]) + f'" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
+            inner += '<polygon class="bioswale" points="' + " ".join(f"{px},{py}" for px, py in e["island_poly"]) + f'" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
         elif isl:
             inner += f'<rect x="{isl["x"]}" y="{isl["y"]}" width="{isl["w"]}" height="{isl["h"]}" rx="3" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width=".5"/>'
     for z in e.get("zones", []):
@@ -691,6 +691,13 @@ for e in AG["elements"]:
         by_labels += (f'<text data-level="{e["level"]}" x="{lx:.1f}" y="{ly + 1.4:.1f}" text-anchor="middle" font-size="4.2" font-weight="700" fill="{N["ink"]}" '
                       f'stroke="#fff" stroke-width="1.1" paint-order="stroke">{BY_LABELS[e["id"]]}</text>')
 
+# the parking lot's bioswale, labelled on the water slide's plan steps (architect, 2026-10-14); hidden elsewhere
+_bsw = ""
+for e in AG["elements"]:
+    if e.get("island_poly"):
+        _bc = Polygon([pt(M_DP, T_DP, x, y) for x, y in e["island_poly"]]).representative_point()
+        _bsw = (f'<g id="bioswale-label" display="none" transform="translate({_bc.x:.1f} {_bc.y:.1f})"><g data-fixed="1">'
+                f'<text y="5" text-anchor="middle" font-size="16" font-weight="700" fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Bioswale</text></g></g>')
 # the unfinished barn houses poultry from Level 1 on, at every Level; labelled with the barnyard on the site plan slide
 if UNFINISHED_BARN:
     _ubx, _uby = sum(q[0] for q in UNFINISHED_BARN[:-1]) / 4, sum(q[1] for q in UNFINISHED_BARN[:-1]) / 4
@@ -881,7 +888,7 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inks
        + layer("paddocks", "Proposed paddocks", paddocks)
        + layer("campus", "Campus", campus)
        + layer("barnyard", "Proposed barnyard (Level 3 shown), to scale", barnyard + f'<g id="barnyard-labels">{by_labels}</g>')
-       + layer("labels", "Labels", slough_lbl + _infra_lbl + _wild_svg)
+       + layer("labels", "Labels", slough_lbl + _infra_lbl + _wild_svg + _bsw)
        + "</g></svg>")
 
 # Civil's expanded retention (2026-10-14) was sketched on Option A and runs under the Option B turnouts. Refitted to
