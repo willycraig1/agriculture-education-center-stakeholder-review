@@ -542,3 +542,11 @@ Fit checks now skip context elements (walk etc.).
     12 pens, 5,472 sf in all. Small animal pens: 32 at Level 2, 44 at Level 3.
   - Labels: the handling yard has no overall label on the barnyard slide (its parts are named); the arena's name is
     centred again (it had been placed below the building because it now has a zone).
+- **Grooming area at Level 2** (architect): its own element (`grooming`, 9.7' x 42' at the arena's west end), drawn
+  over the arena; the arena stays Level 3 ("built out from the grooming area"). Levels matrix arena row: Level 2
+  "Grooming area".
+- **Poultry on the barnyard diagram:** the unfinished barn (survey BUILDING OH) as a context element
+  (`existing-poultry`, Level 1, small-animal colour), east of the existing barn; outside the slide's opening frame
+  (pan east). The walkway network is carried 106' east from its strip along the existing barn's north side to the
+  barn's west face, 5' wide. Not redrawn on the site map (already there as a structure).
+- Dogtrot confirmed roofed (barn B 36' x 41' stands).

@@ -48,8 +48,8 @@ window.LEVELS = {
       { text: "Same as Level 1", confirmed: true } ] },
     { key: "arena", label: "Arena / demonstration", cells: [
       { text: "None (use the turnout yards)", confirmed: true },
-      { text: "None", confirmed: true },
-      { text: "Arena", confirmed: true } ] },
+      { text: "Grooming area", confirmed: true },
+      { text: "Arena, built out from the grooming area", confirmed: true } ] },
     { key: "education", label: "Red House", cells: [
       { text: "Renovate: classroom, conference, 4 offices, demo kitchen", confirmed: true },
       { text: "Add Office 5, men's & women's restrooms", confirmed: true },

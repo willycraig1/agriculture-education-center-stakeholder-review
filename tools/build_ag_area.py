@@ -614,8 +614,8 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     E[:] = [e for e in E if e["id"] != "trailer-stop"]
     # grooming area inside the arena; compost and dumpster by the existing barn
     _gm = _re.search(r'Grooming Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
-    _ar = by_id["arena"]
-    _ar["zones"] = [dict(label="Grooming", x=round(float(_gm[0]) + _EO[0] - _ar["x"], 1), y=round(float(_gm[1]) + _EO[1] - _ar["y"], 1), w=float(_gm[2]), h=float(_gm[3]), rot=True)]
+    # the grooming area comes first, at Level 2, under a roof that the arena (Level 3) later grows from
+    add("grooming", "Grooming", round(float(_gm[0]) + _EO[0], 1), round(float(_gm[1]) + _EO[1], 1), round(float(_gm[2]), 1), float(_gm[3]), "arena", 2, note="")
     _cp = _re.search(r'Compost Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
     add("compost", "Compost", round(float(_cp[0]) + _EO[0], 1), round(float(_cp[1]) + _EO[1], 1), round(float(_cp[2]), 1), float(_cp[3]), "circulation", 1, kind="yard", note="")
     add("dumpster", "Dumpsters", 199.6, 324.0, 12.0, 24.0, "circulation", 1, note="enclosure")      # the rotated 12' x 24' rect in the file
@@ -633,8 +633,26 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         _pk["island_poly"] = _svg_pts(_swl.group(1))
     n_stalls = len(_stl) + len(_ang)
     _pk["note"] = f"{n_stalls} spaces"
+    # poultry: the unfinished barn (open-sided, on the survey as BUILDING OH), where the poultry stay at every Level;
+    # shown so the walkway's connection to it reads. The walk is carried east from the network's strip along the
+    # existing barn's north side to the barn's west face, 5' wide.
+    _oh2 = [(_sf.M_SP * complex(q.x, q.y) + _sf.T_SP) for _d in _sf.cadpdf.export(_sf.SURVEY, ["BUILDING OH"]).get("BUILDING OH", [])
+            for _it in _d["items"] if _it[0] == "l" for q in (_it[1], _it[2])]
+    _oh2 = [(z.real, z.imag) for z in _oh2 if abs(z.real - 1177) < 25 and abs(z.imag - 264) < 25]
+    _poul = [_to_d(q) for q in list(_MPt(_oh2).minimum_rotated_rectangle.exterior.coords)[:4]]
+    _xs_p, _ys_p = [q[0] for q in _poul], [q[1] for q in _poul]
+    add("existing-poultry", "Poultry", min(_xs_p), min(_ys_p), max(_xs_p) - min(_xs_p), max(_ys_p) - min(_ys_p), "small_animal", 1, note="unfinished barn",
+        outline=_poul, context=True)
     # walkway network as drawn
     _wk = _svg_pts(_re.search(r'<g id="walk">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
+    _wkp = _Poly(_wk).buffer(0)
+    _poly_p = _Poly(_poul)
+    _ys0 = by_id["existing-barn"]["y"] - 8                            # the network's strip north of the existing barn
+    _link = _box(by_id["existing-barn"]["x"] + by_id["existing-barn"]["w"] - 2, _ys0, max(_xs_p), _ys0 + 5).difference(_poly_p.buffer(0.5))
+    _link = max(getattr(_link, "geoms", [_link]), key=lambda g: g.bounds[0] * -1 if False else -g.bounds[0])
+    _wkp = _union([_wkp, _link]).buffer(0.01).buffer(-0.01)
+    _wk = [[round(x, 1), round(y, 1)] for x, y in _wkp.exterior.coords][:-1]
+    print("walk carried to the poultry barn:", round(_link.bounds[2] - _link.bounds[0]), "ft")
     by_id["walk"].update(outline=_wk, x=min(q[0] for q in _wk), y=min(q[1] for q in _wk), w=max(q[0] for q in _wk) - min(q[0] for q in _wk), h=max(q[1] for q in _wk) - min(q[1] for q in _wk))
     # circulation as drawn: the loop is two-way, so its runs carry arrowheads at both ends
     _circ = []
