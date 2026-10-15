@@ -663,3 +663,7 @@ Fit checks now skip context elements (walk etc.).
   tractor beyond (after the reference project's photos, Seibert Architects MMS Ag Farm, Ryan Gamma Photography), live
   oak with moss and cabbage palms, late-afternoon sky. Deck palette; fades into the slide paper on its left edge.
 - Placed on the cover (`slides/title.html`) at the right of the slide; the text column is held to 900px.
+- Superseded the same night: the cover now uses the architect's own watercolour (`photos/cover-watercolor.webp`,
+  2000 x 1200), set at the right of the slide (1040px wide, cropped from the right so the arena, existing barn,
+  tractor, and student with heifer stay in view) and masked to fade into the paper under the title. The SVG sketch
+  and its script remain in the repo, unused.
