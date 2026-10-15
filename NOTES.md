@@ -606,3 +606,7 @@ Fit checks now skip context elements (walk etc.).
 - Level 1 (architect): the 10 existing hog pens give way to the Level 1 site improvements, so the hogs move into the existing barn,
   which fits about 32 pens. Barn A at Level 2 (32 pens) is then a clean swap that frees the existing barn for
   much-needed storage. Updated on the pens slide (Level 1 ≈32), the Levels slide and the barnyard slide's Level text.
+
+## 2026-10-14: Oxford commas
+- House style is the serial (Oxford) comma in every list of three or more, across the slides, levels.js, and labels.
+  The deck was converted throughout; compound items keep their inner "and" ("feed and tack storage").

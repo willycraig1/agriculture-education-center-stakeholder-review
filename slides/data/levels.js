@@ -18,7 +18,7 @@ window.LEVELS = {
     ],
   },
   rows: [
-    // Civil (2026-10-14): permitting, stormwater and floodplain compensation are done for the whole plan up front;
+    // Civil (2026-10-14): permitting, stormwater, and floodplain compensation are done for the whole plan up front;
     // only the buildings and programs inside the site are phased by Level.
     { key: "water", label: "Site work: stormwater, floodplain compensation", cells: [
       { text: "All of it, permitted and built up front", confirmed: true },
@@ -33,7 +33,7 @@ window.LEVELS = {
       { text: "Add one 14-pen barn", pens: 2, confirmed: true },
       { text: "Add a second 14-pen barn", pens: 3, confirmed: true } ] },
     { key: "cattle", label: "Pasture-stock handling", cells: [
-      { text: "Holding pens 1 to 5, Bud Box, chute and scale", confirmed: true },
+      { text: "Holding pens 1 to 5, Bud Box, chute, and scale", confirmed: true },
       { text: "Same as Level 1", confirmed: true },
       { text: "Same as Level 1", confirmed: true } ] },
     // Swine and small animals share one row: they use the same kinds of pens and barns (architect, 2026-10-13).
