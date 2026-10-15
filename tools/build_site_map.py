@@ -644,6 +644,8 @@ for e in AG["elements"]:
             for r in e["rows"] for k in range(r[2])) + "</g>"
         inner = inner[:-4] + "".join(f'<polygon points="{" ".join(f"{px},{py}" for px, py in q)}"/>' for q in e.get("stalls_extra", [])) + "</g>"
         isl = e.get("island")
+        if e.get("grass"):
+            inner += '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["grass"]) + f'" fill="{P["pasture"]["tint"]}" fill-opacity=".6" stroke="{P["pasture"]["base"]}" stroke-width=".6" stroke-dasharray="3 2"/>'
         if e.get("island_poly"):
             # the island is planted ground: it hides the existing drive surveyed under it, then the swale sits inside
             inner += "".join('<polygon points="' + " ".join(f"{px},{py}" for px, py in h_) + '" fill="#F2F5EA" stroke="none"/>' for h_ in e.get("holes", []))

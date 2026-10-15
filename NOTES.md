@@ -550,3 +550,4 @@ Fit checks now skip context elements (walk etc.).
   (pan east). The walkway network is carried 106' east from its strip along the existing barn's north side to the
   barn's west face, 8' wide (the existing pens' aisle it continues). Not redrawn on the site map (already there as a structure).
 - Dogtrot confirmed roofed (barn B 36' x 41' stands).
+- **Grass parking (architect):** the north stall row and the two middle rows (lot x 36.5..170, y 240..324) are grass over a base, shown with a pale green, dashed overlay and the label "Grass parking" (`grass` on the parking element; all three renderers). 37 of the 55 stalls; the south row, the angled row and the aisles stay paved.
