@@ -4,13 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Over to You</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142342">
-<link rel="stylesheet" href="../design/deck.css?v=202610142342">
+<link rel="stylesheet" href="../design/palette.css?v=202610142349">
+<link rel="stylesheet" href="../design/deck.css?v=202610142349">
 <style>
-  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-top: 34px; flex: 1; min-height: 0; }
-  .t { padding: 26px 30px; border-left: 10px solid; }
-  .t h2 { font: 600 32px/1.15 var(--serif); margin: 0 0 12px; }
-  .t ul { margin: 0; padding-left: 22px; font: 400 21px/1.5 var(--sans); }
+  /* three columns: water, the longest list, runs the full height of the middle column */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 22px; margin-top: 34px; flex: 1; min-height: 0; align-content: start; }
+  .grid .tall { grid-row: span 2; }
+  .t { padding: 24px 28px; border-left: 10px solid; }
+  .t h2 { font: 600 30px/1.15 var(--serif); margin: 0 0 12px; }
+  .t ul { margin: 0; padding-left: 22px; font: 400 20px/1.45 var(--sans); }
   .t li { margin-bottom: 4px; }
 </style>
 </head>
@@ -26,7 +28,7 @@
         <li>Are the stocking rates right for this forage?</li>
         <li>What animal weights should set the head count?</li></ul>
     </article>
-    <article class="card t" data-step="2" style="border-left-color:var(--water)">
+    <article class="card t tall" data-step="2" style="border-left-color:var(--water)">
       <h2>Water and wet ground</h2>
       <ul><li>Where should troughs and water lines go?</li>
         <li>How should grazing be timed on the wettest soils?</li>
@@ -38,17 +40,24 @@
       <h2>Wooded pasture</h2>
       <ul><li>How should the oak hammock paddocks be grazed?</li>
         <li>Is there a case for improving forage under the pines and palms?</li>
-        <li>Which trees matter most to protect?</li></ul>
+        <li>Which trees matter most to protect?</li>
+        <li>The water oaks along the entry drive are poorly suited to this ground and drop limbs on the drive. Is it OK to thin them?</li></ul>
     </article>
     <article class="card t" data-step="4" style="border-left-color:var(--cattle)">
       <h2>Animals and operations</h2>
       <ul><li>What herd size makes the Beginning Rancher program work as a teaching operation?</li>
-        <li>How should manure and washdown water be handled?</li>
+        <li>Our ag consultant recommends a manure spreader over more complex ways of recovering nutrients from waste. Does that suit this site?</li>
+        <li>How should washdown water be handled?</li>
         <li>What have we left out of the barns and handling areas?</li></ul>
+    </article>
+    <article class="card t" data-step="5" style="border-left-color:var(--arena)">
+      <h2>Demonstration</h2>
+      <ul><li>Which areas should be set aside for demonstration programs?</li>
+        <li>What cutting-edge practices need a home on this site?</li></ul>
     </article>
   </div>
 </div>
-<script src="../design/deck.js?v=202610142342"></script>
+<script src="../design/deck.js?v=202610142349"></script>
 <script>Deck.start();</script>
 </body>
 </html>

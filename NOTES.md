@@ -622,3 +622,9 @@ Fit checks now skip context elements (walk etc.).
   barnyard slide the Level 2 walks show as future at Level 1; walks carry no NEW badge or Level tag. Level texts updated.
 - Site plan slide: the walks phase with the barnyard there too (each carries its data-level, so Level 1 shows only the
   east walks); its Level 1 and 2 texts now name the walkways.
+
+## 2026-10-14: table questions from the ag consultant
+- "Over to you" slide: water oaks along the entry drive (poorly suited, drop limbs on the drive; OK to thin?) under
+  Wooded pasture; the consultant's manure spreader recommendation (over more complex nutrient recovery) under Animals
+  and operations; a new Demonstration card (which areas, which cutting-edge practices). Layout now three columns, with
+  Water and wet ground running the full height of the middle one.
