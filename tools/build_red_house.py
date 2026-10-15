@@ -323,8 +323,8 @@ from shapely.geometry import Polygon as _SPoly
 from shapely.ops import unary_union as _sunion
 PROGRAM = {"circulation": ["HALL", "LOBBY", "COMMONS"], "restroom": ["H/C R.R.", "MENS", "WOMENS"],
            "primary": ["CONFERENCE", "INSTRUCTIONAL CLASSROOM", "INSTRUCTIONAL CLASSROOM/", "EVENT SPACE", "DEMO KITCHEN"],
-           "office": ["OFFICE 1", "OFFICE 2", "OFFICE 3", "OFFICE 4", "OFFICE 5", "BREAKROOM"],
-           "kitchen": ["DISHWASH", "COOLER", "PANTRY"], "storage": ["STORAGE"]}
+           "office": ["OFFICE 1", "OFFICE 2", "OFFICE 3", "OFFICE 4", "OFFICE 5"],
+           "kitchen": ["DISHWASH", "COOLER", "PANTRY", "BREAKROOM"], "storage": ["STORAGE"]}   # breakroom with kitchen support (architect, 2026-10-15)
 _cat = {n: c for c, ns in PROGRAM.items() for n in ns}
 _PX = 2.0                                                  # raster px per pt
 FT_PER_PT = (1 / 72) / (3 / 16)
