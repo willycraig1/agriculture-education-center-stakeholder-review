@@ -552,6 +552,11 @@ for st_ in (EDITS["structures"] if EDITS else []):
 _cp = _oh_pts(1220, 376, 1243, 399)
 if len(_cp) >= 4:
     CANOPIES.append({"id": "carport", "label": "Carport", "pts": list(_MP(_cp).minimum_rotated_rectangle.exterior.coords)[:-1]})
+# The Red House porches (architect, 2026-10-14), from the survey's overhang lines (BUILDING OH) against the house
+# walls (BUILDING), in survey coordinates: the porch along the north-west wall, and the one along the north-east end.
+for _id, _q in (("red-house-porch-nw", [(1341.02, 1135.55), (1352.45, 1126.43), (1354.94, 1129.49), (1343.57, 1138.7)]),
+                ("red-house-porch-ne", [(1363.58, 1122.5), (1365.74, 1120.76), (1374.26, 1131.29), (1372.1, 1133.03)])):
+    CANOPIES.append({"id": _id, "label": "", "pts": [pt(M_SP, T_SP, x, y) for x, y in _q]})
 _canopies = ('<g id="canopies" fill="{}" fill-opacity=".9" stroke="{}" stroke-width="1" data-w="1.6" stroke-dasharray="3 2" data-dash="5 3" stroke-linejoin="round">'.format(P["education"]["tint"], P["education"]["base"])
              + "".join(f'<polygon id="{c_["id"]}" points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in c_["pts"])}"/>' for c_ in CANOPIES) + "</g>")
 print("canopies:", [(c_["id"], round(Polygon(c_["pts"]).area * (FT_PER_PT / abs(M_FP)) ** 2)) for c_ in CANOPIES], "sf")
