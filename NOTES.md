@@ -610,3 +610,7 @@ Fit checks now skip context elements (walk etc.).
 ## 2026-10-14: Oxford commas
 - House style is the serial (Oxford) comma in every list of three or more, across the slides, levels.js, and labels.
   The deck was converted throughout; compound items keep their inner "and" ("feed and tack storage").
+
+## 2026-10-14: pinwheel gate weights
+- The four gate leaves added at the main pasture's pinwheel lacked `data-w`, so the viewer did not counter-scale them
+  on zoom and they drew heavy on the close paddock framings. They now carry it, like every other gate and fence.
