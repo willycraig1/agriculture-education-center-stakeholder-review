@@ -597,3 +597,9 @@ Fit checks now skip context elements (walk etc.).
 ## 2026-10-14: program slide animals regrouped
 - Act 2 program slide: "Swine, sheep and goats" is one need (pink swine swatch: shared 6' x 10' small-animal pens,
   hog-proof, interchangeable), and Poultry is its own need (predator-safe housing, apart). Matches the Levels grouping.
+
+## 2026-10-14: Act 3 swine, sheep & goat pens slide
+- New `slides/small-animal-pens.html` after the cattle pens slide, in the same format: Level 1 reuses the hog pens in
+  the existing barn (no count on record); Level 2 small animal barn A, 32 pens (two 16-pen wings and a roofed
+  dogtrot); Level 3 adds barn B to the south, 44 pens in all, about 5,472 sf against the 5,500 sf Group U / VB limit.
+  Plans drawn lengthwise at one scale, north to the left, read from `data/ag-area.js` so they follow the barnyard plan.
