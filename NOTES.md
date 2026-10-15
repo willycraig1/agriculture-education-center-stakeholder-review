@@ -628,3 +628,10 @@ Fit checks now skip context elements (walk etc.).
   Wooded pasture; the consultant's manure spreader recommendation (over more complex nutrient recovery) under Animals
   and operations; a new Demonstration card (which areas, which cutting-edge practices). Layout now three columns, with
   Water and wet ground running the full height of the middle one.
+
+## 2026-10-14: Red House offices without closets
+- Architect's accessibility comments (not yet on the sheets): the closets along the south walls of Office 1 and
+  Office 2 are removed on Levels 1, 2, and 3. Done in `tools/build_red_house.py` as an edit after the sheets load:
+  two closet boxes on the Level 1 sheet, carried to Levels 2 and 3 by the Office 1 label; every drawn item with all
+  its points inside a box is dropped (62 per Level: closet walls, bifold doors, headers), and each office's walls are
+  closed along the corridor wall. The dashed marks left there are the Existing walls shown as removed.
