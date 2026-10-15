@@ -625,6 +625,14 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     # every 10' x 20' stall in the file, wherever it sits (the added stalls ended up in the circulation layer)
     _all_st = [r_ for r_ in _svg_rects(_sv) if abs(r_[2] - 10) < 0.2 and abs(r_[3] - 20) < 0.2]
     _stl = [[[round(x + _EO[0], 1), round(y + _EO[1], 1)] for x, y in ((r_[0], r_[1]), (r_[0] + r_[2], r_[1]), (r_[0] + r_[2], r_[1] + r_[3]), (r_[0], r_[1] + r_[3]))] for r_ in _all_st]
+    # the central double row is carried one stall further east on each side, to match the north row (architect,
+    # 2026-10-14; added here, not in the architect's file): skipped if the file already has them
+    _have = {(q[0][0], q[0][1]) for q in _stl}
+    _ne = max(q[1][0] for q in _stl if abs(q[0][1] - by_id["parking"]["y"]) < 0.5)        # north row's east end
+    for _yr in sorted({q[0][1] for q in _stl if q[0][1] > by_id["parking"]["y"] + 30 and q[0][1] < 330}):
+        _xe = max(q[1][0] for q in _stl if q[0][1] == _yr)
+        while _xe + 10 <= _ne + 0.1 and (_xe, _yr) not in _have:
+            _stl.append([[_xe, _yr], [_xe + 10, _yr], [_xe + 10, _yr + 20], [_xe, _yr + 20]]); _xe += 10
     _ang = [_svg_pts(m) for m in _re.findall(r'<polygon class="st3" points="([^"]+)"', _pkg)]
     _swl = _re.search(r'<polygon class="st2" points="([^"]+)"', _pkg)
     _pk = by_id["parking"]
