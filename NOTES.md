@@ -548,5 +548,5 @@ Fit checks now skip context elements (walk etc.).
 - **Poultry on the barnyard diagram:** the unfinished barn (survey BUILDING OH) as a context element
   (`existing-poultry`, Level 1, small-animal colour), east of the existing barn; outside the slide's opening frame
   (pan east). The walkway network is carried 106' east from its strip along the existing barn's north side to the
-  barn's west face, 5' wide. Not redrawn on the site map (already there as a structure).
+  barn's west face, 8' wide (the existing pens' aisle it continues). Not redrawn on the site map (already there as a structure).
 - Dogtrot confirmed roofed (barn B 36' x 41' stands).
