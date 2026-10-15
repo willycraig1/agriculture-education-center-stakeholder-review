@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Barnyard</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142251">
-<link rel="stylesheet" href="../design/deck.css?v=202610142251">
+<link rel="stylesheet" href="../design/palette.css?v=202610142257">
+<link rel="stylesheet" href="../design/deck.css?v=202610142257">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -57,12 +57,15 @@
   </div>
 </div>
 
-<script src="data/ag-area.js?v=202610142251"></script>
-<script src="../design/deck.js?v=202610142251"></script>
-<script src="../design/viewer.js?v=202610142251"></script>
+<script src="data/ag-area.js?v=202610142257"></script>
+<script src="../design/deck.js?v=202610142257"></script>
+<script src="../design/viewer.js?v=202610142257"></script>
 <script>
 (function () {
   const A = window.AG_AREA, v = A.view;
+  // Levels 1 to 3 are framed close on the barnyard, from the small animal turnout's dimension string to the east
+  // dimension string (architect, 2026-10-14); the Flow step zooms out to the whole diagram.
+  const tight = [-122, 42, 444, 308];
   const css = k => `var(--${k.replace("_", "-")})`;
   const useAt = (e, n) => { let u = e.use, note = e.note; for (let k = 2; k <= n; k++) if (e.becomes && e.becomes[k]) { u = e.becomes[k].use; note = e.becomes[k].note; } return { u, note }; };
   const wrap = s => { const out = []; let line = ""; s.split(" ").forEach(w => { if ((line + " " + w).trim().length > 15 && line) { out.push(line); line = w; } else line = (line + " " + w).trim(); }); out.push(line); return out; };
@@ -159,7 +162,7 @@
   const defs = `<defs>${["service", "animal", "loop"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
     <path d="M0 0L10 5L0 10z" fill="${k === "animal" ? "var(--cattle)" : "var(--ink)"}"/></marker>`).join("")}</defs>`;
   document.getElementById("plan").insertAdjacentHTML("afterbegin",
-    `<svg viewBox="${v.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${drives}${shapes.join("")}${dims}<g id="circ">${circ}</g>${labels.join("")}</svg>`);
+    `<svg viewBox="${tight.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${drives}${shapes.join("")}${dims}<g id="circ">${circ}</g>${labels.join("")}</svg>`);
   const svg = document.querySelector("#plan > svg");
   const viewer = Viewer(svg, { ftPerUnit: 1, north: A.north_cw_from_up, damp: 0 });
 
@@ -175,8 +178,11 @@
   const uses = [["cattle", "Cattle"], ["small_animal", "Small animals"], ["swine", "Swine"], ["arena", "Arena and turnout"], ["circulation", "Storage, parking, service"], ["education", "Red House"], ["horticulture", "Horticulture"]];
   document.getElementById("legend").innerHTML = uses.map(([k, l]) => `<span><i style="background:${css(k)}-tint;background:var(--${k.replace("_", "-")}-tint);border-color:${css(k)}"></i>${l}</span>`).join("");
 
+  let lastBox = tight;
   function apply(step) {
     const n = Math.min(step + 1, 3);
+    const box = step >= 3 ? v : tight;
+    if (box !== lastBox) { viewer.home(box); viewer.flyTo(box, document.documentElement.classList.contains("static") ? 0 : 1300); lastBox = box; }
     svg.querySelector("#circ").classList.toggle("on", step >= 3);
     A.elements.forEach(e => {
       const g = svg.querySelector(`.el[data-id="${e.id}"]:not(.lbl)`), lb = svg.querySelector(`.lbl[data-id="${e.id}"]`), { u, note } = useAt(e, n);

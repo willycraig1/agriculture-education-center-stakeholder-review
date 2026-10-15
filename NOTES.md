@@ -575,3 +575,8 @@ Fit checks now skip context elements (walk etc.).
 - The bed's bank-to-bank field is now a transparent pasture green (most of the time it is grassed pasture); the ditch
   floor between the toe lines stays blue. Water slide strong state .45 (was .6); legends on the water and site slides
   updated ("Historical slough bed, grassed" plus "Ditch floor" on the water slide). Trial, to review.
+
+## 2026-10-14: barnyard slide framing by step
+- Levels 1 to 3 on the barnyard slide open close on the barnyard (`tight` in `slides/ag-area.html`, from the small
+  animal turnout's dimension string to the east dimension string, per the architect's screenshot); the Flow step
+  flies out to the whole diagram (and static mode shows that view). Reset returns to the step's framing.
