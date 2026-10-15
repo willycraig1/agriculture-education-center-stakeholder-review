@@ -637,7 +637,7 @@ for e in AG["elements"]:
     for k in ("2", "3"):
         use3 = e.get("becomes", {}).get(k, {}).get("use", use3)
     inner = ""
-    if e.get("rows"):
+    if e.get("rows") is not None and (e.get("rows") or e.get("stalls_extra")):
         sw, sd = e["stall"]
         inner += '<g fill="#fff" fill-opacity=".55" stroke="{}" stroke-width=".5">'.format(P["circulation"]["base"]) + "".join(
             (f'<rect x="{r[0]}" y="{r[1] + k * sw}" width="{sd}" height="{sw}"/>' if len(r) > 3 else f'<rect x="{r[0] + k * sw}" y="{r[1]}" width="{sw}" height="{sd}"/>')
@@ -673,7 +673,7 @@ if _isl_d:
     barnyard += (f'<g id="swale-trees" fill="{P["woodland"]["base"]}" fill-opacity="0.7">'
                  + "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s_ > 20 else 3.8}"/>' for px, py, s_ in _isl_trees) + "</g>")
     print("trees in the swale island, drawn over it:", len(_isl_trees))
-BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Small animal barn B", "feed": "Feed storage", "holding-5": "Pen 5",
+BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn", "small-b": "Extension", "feed": "Feed storage", "bedding": "Bedding", "compost": "Compost", "dumpster": "Dumpsters", "holding-5": "Pen 5",
              "arena": "Arena", "parking": "Parking", "handling": "Handling", "horticulture": "Horticulture", "residence": "RV / residence", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens"}
 by_labels = ""
 for e in AG["elements"]:
@@ -693,7 +693,7 @@ from shapely.geometry import MultiPoint
 unit_ft = FT_PER_PT / abs(M_FP)
 NAMES = {e["id"]: e["label"] for e in AG["elements"]}
 polys = {e["id"]: Polygon(ag_poly(e)) for e in AG["elements"]}
-new_ids = [e["id"] for e in AG["elements"] if not e["id"].startswith("existing")]
+new_ids = [e["id"] for e in AG["elements"] if not e["id"].startswith("existing") and not e.get("context")]
 tree_pts = [Point(*pt(M_FP, T_FP, x, y)) for _, x, y, _s in trees]
 checks = {"trees_in": {}, "wet_soil_pct": {}, "existing_structures_in": []}
 for k in new_ids:

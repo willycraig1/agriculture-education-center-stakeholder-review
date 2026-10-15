@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1.1" viewBox="0 0 427 468.9">
+  <!-- Generator: Adobe Illustrator 30.8.2, SVG Export Plug-In . SVG Version: 2.1.4 Build 7)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #f1d6d1;
+        stroke: #a63a2b;
+      }
+
+      .st1 {
+        fill: #f6e6c2;
+        stroke: #d19a2e;
+      }
+
+      .st2 {
+        fill: #d3e5ef;
+      }
+
+      .st2, .st3 {
+        stroke-width: .35px;
+      }
+
+      .st2, .st3, .st4 {
+        stroke: #2b2a26;
+      }
+
+      .st5 {
+        fill: #e2dcee;
+        stroke: #6e5c93;
+      }
+
+      .st6 {
+        fill-rule: evenodd;
+      }
+
+      .st6, .st7 {
+        fill: #e3e4e5;
+      }
+
+      .st6, .st7, .st8 {
+        stroke: #6b6f73;
+      }
+
+      .st9, .st3, .st4, .st10, .st11 {
+        fill: none;
+      }
+
+      .st9, .st10 {
+        stroke-dasharray: 3 2;
+      }
+
+      .st9, .st12 {
+        stroke: #c2a878;
+      }
+
+      .st13 {
+        fill: #e9d9c6;
+      }
+
+      .st13, .st10, .st11 {
+        stroke: #8b5a2b;
+      }
+
+      .st4, .st11 {
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2px;
+      }
+
+      .st14 {
+        fill: #faf7f0;
+      }
+
+      .st15 {
+        opacity: .45;
+      }
+
+      .st16 {
+        fill: #2b2a26;
+        font-family: AvenirNext-Bold, 'Avenir Next';
+        font-size: 5px;
+        font-weight: 700;
+        isolation: isolate;
+      }
+
+      .st17 {
+        fill: #f1dae0;
+        stroke: #b8657a;
+      }
+
+      .st8 {
+        fill: #fff;
+      }
+
+      .st12 {
+        fill: #f3ecdd;
+      }
+    </style>
+  </defs>
+  <rect class="st14" width="427" height="468.9"/>
+  <g id="level-1" inkscape:groupmode="layer" inkscape:label="Level 1">
+    <g id="existing-barn">
+      <rect class="st7" x="317.6" y="235" width="80.4" height="50"/>
+      <text class="st16" transform="translate(341.81 260)"><tspan x="0" y="0">Existing barn</tspan></text>
+    </g>
+    <g id="existing-pens">
+      <rect class="st13" x="314" y="203" width="84" height="24"/>
+      <g class="st15">
+        <rect class="st3" x="314" y="203" width="12" height="24"/>
+        <rect class="st3" x="326" y="203" width="12" height="24"/>
+        <rect class="st3" x="338" y="203" width="12" height="24"/>
+        <rect class="st3" x="350" y="203" width="12" height="24"/>
+        <rect class="st3" x="362" y="203" width="12" height="24"/>
+        <rect class="st3" x="374" y="203" width="12" height="24"/>
+        <rect class="st3" x="386" y="203" width="12" height="24"/>
+      </g>
+      <text class="st16" transform="translate(330.28 215)"><tspan x="0" y="0">7 existing cattle pens</tspan></text>
+    </g>
+    <g id="parking">
+      <path class="st6" d="M-169.8,359.3v33.7l10-10,284.4,5.5,2.5,1,2.2,1.6,1.6,2.1,1.1,2.5v30.1l-.5-.4-10.9,16.8,75.4,49,66.34-101.95-.07-19.55,25.73-38.41v-104.29h-133.5v20h-22.5v118.8l-.3,2.7-1,2.5-1.6,2.2-4.6,2.7-2.7.4-281.6-7-10-10ZM244.5,389l.2-.3.1-.4.1-.4.1-.3v-29l-.1-.4-.1-.4-.1-.3-.2-.4-.2-.3-.2-.3-.3-.3-.3-.3-.3-.2-.3-.2-.4-.2-.3-.1-.4-.1-.4-.1h-83.8l-.4.1-.4.1-.3.1-.4.2-.3.2-.3.2-.3.3-.3.3-.2.3-.2.3-.2.4-.1.3-.1.4-.1.4v48.7l.1.4.1.4.1.3.2.4.2.3.2.4.3.3.3.2.3.3,28.4,18.4,7.5,4.9,1.7,1,1.8.8,1.9.6,1.9.5,1.9.3h2l1.9-.1,2-.3,1.9-.5,1.8-.7,1.8-.8,1.7-1.1,1.5-1.2,1.5-1.3,1.3-1.5,1.1-1.6,8.8-13.5,16.2-24.8.1-.4Z"/>
+      <g class="st15">
+        <rect class="st3" x="154.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="164.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="174.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="184.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="194.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="204.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="214.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="224.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="234.5" y="227" width="10" height="20"/>
+        <rect class="st3" x="154.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="164.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="174.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="184.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="194.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="204.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="214.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="224.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="234.5" y="271" width="10" height="20"/>
+        <rect class="st3" x="154.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="164.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="174.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="184.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="194.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="204.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="214.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="224.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="234.5" y="291" width="10" height="20"/>
+        <rect class="st3" x="154.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="164.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="174.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="184.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="194.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="204.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="214.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="224.5" y="335" width="10" height="20"/>
+        <rect class="st3" x="234.5" y="335" width="10" height="20"/>
+        <polygon class="st3" points="131.5 425.4 139.9 430.9 129 447.6 120.6 442.2 131.5 425.4"/>
+        <polygon class="st3" points="139.9 430.9 148.2 436.3 137.3 453.1 129 447.6 139.9 430.9"/>
+        <polygon class="st3" points="148.2 436.3 156.6 441.8 145.7 458.5 137.3 453.1 148.2 436.3"/>
+        <polygon class="st3" points="156.6 441.8 165 447.2 154.1 464 145.7 458.5 156.6 441.8"/>
+        <polygon class="st3" points="165 447.2 173.4 452.7 162.5 469.4 154.1 464 165 447.2"/>
+        <polygon class="st3" points="173.4 452.7 181.8 458.1 170.9 474.9 162.5 469.4 173.4 452.7"/>
+        <polygon class="st3" points="181.8 458.1 190.2 463.6 179.3 480.3 170.9 474.9 181.8 458.1"/>
+        <polygon class="st3" points="190.2 463.6 198.5 469 187.6 485.8 179.3 480.3 190.2 463.6"/>
+        <polygon class="st3" points="198.5 469 206.9 474.5 196 491.2 187.6 485.8 198.5 469"/>
+        <polygon class="st2" points="159 405.3 159.9 406.9 195.6 430.1 201.3 431.8 206.9 431.1 208 430 207.9 428.7 204.3 424.1 202.8 419.3 203 415.5 204.2 411.9 206.5 408.9 208.5 407.3 211.8 405.7 216.2 404.6 219.1 399.4 222.9 396.2 227.7 394.8 233.4 395.4 235 394.6 240 386.7 239.8 368.1 238.5 366.9 234.2 367 229.5 365.6 226.4 363.4 224.2 360.5 223 360 160.2 360.2 159.3 360.9 159 362 159 405.3"/>
+      </g>
+      <text class="st16" transform="translate(181.45 309)"><tspan x="0" y="0">Main parking lot</tspan></text>
+    </g>
+    <g id="existing-red-house">
+      <polygon class="st0" points="285.7 441.3 294.2 447 309.2 424.3 311.5 425.8 314.8 420.8 312.6 419.3 330.6 392.2 296.9 369.7 254.2 433.9 244.1 427.1 231.4 446 266.9 469.5 285.7 441.3"/>
+      <text class="st16" transform="translate(267.92 419.6)"><tspan x="0" y="0">Red House</tspan></text>
+    </g>
+    <g id="horticulture">
+      <polygon class="st5" points="110.1 441.7 193 496.9 176.2 522.2 93.3 466.9 110.1 441.7"/>
+      <text class="st16" transform="translate(122.72 481.95)"><tspan x="0" y="0">Horticulture area</tspan></text>
+    </g>
+    <g id="residence">
+      <polygon class="st0" points="93.4 430.5 110.1 441.7 93.3 466.9 76.5 455.8 93.4 430.5"/>
+      <text class="st16" transform="translate(80.84 448.7)"><tspan x="0" y="0">Residence</tspan></text>
+    </g>
+    <g id="handling">
+      <polygon class="st10" points="348 161 312 161 312 194.5 320.5 203 339.5 203 348 194.5 348 161"/>
+      <g class="st15">
+        <polygon class="st3" points="348 173 332 173 332 189 332.7 189 332.7 198 328.7 198 328.7 189 329.4 189 329.4 173 312 173 312 194.5 320.5 203 339.5 203 348 194.5 348 173"/>
+        <rect class="st3" x="312" y="161" width="16" height="12"/>
+        <rect class="st3" x="328" y="161" width="20" height="12"/>
+        <rect class="st3" x="329.4" y="173" width="2.6" height="16"/>
+        <rect class="st3" x="328.7" y="189" width="4" height="9"/>
+      </g>
+      <text class="st16" transform="translate(318.82 182)"><tspan x="0" y="0">Handling</tspan></text>
+    </g>
+    <g id="holding-5">
+      <rect class="st10" x="312" y="67" width="36" height="47"/>
+      <text class="st16" transform="translate(322.43 90.5)"><tspan x="0" y="0">Pen 5</tspan></text>
+    </g>
+    <g id="holding-4">
+      <rect class="st10" x="312" y="114" width="36" height="47"/>
+      <text class="st16" transform="translate(322.43 137.5)"><tspan x="0" y="0">Pen 4</tspan></text>
+    </g>
+    <g id="holding-3">
+      <rect class="st10" x="356" y="67" width="42" height="47"/>
+      <text class="st16" transform="translate(370.26 90.5)"><tspan x="0" y="0">Pen 3</tspan></text>
+    </g>
+    <g id="holding-2">
+      <rect class="st10" x="356" y="114" width="42" height="47"/>
+      <text class="st16" transform="translate(370.26 137.5)"><tspan x="0" y="0">Pen 2</tspan></text>
+    </g>
+    <g id="holding-1">
+      <rect class="st10" x="356" y="161" width="42" height="42"/>
+      <text class="st16" transform="translate(370.26 182)"><tspan x="0" y="0">Pen 1</tspan></text>
+    </g>
+    <g id="walk">
+      <polygon class="st8" points="270 386.65 270 371.7 294.03 335 317.6 335 317.6 235 398 235 398 227 314 227 314 203 204 203.5 204 91 180 91 180 203 70 203 70 217.5 132 217.5 132 247 154.5 247 154.5 217.5 288 217.5 288 331.29 262.27 369.7 262.34 389.25 196 491.2 120.6 442.2 117.61 446.7 196.71 499.37 270 386.65"/>
+    </g>
+  </g>
+  <g id="level-2" inkscape:groupmode="layer" inkscape:label="Level 2">
+    <g id="turnout-cattle-a">
+      <rect class="st9" x="193" y="31" width="119" height="36"/>
+      <text class="st16" transform="translate(236.66 49)"><tspan x="0" y="0">Turnout</tspan></text>
+    </g>
+    <g id="cattle-a">
+      <rect class="st13" x="204" y="67" width="84" height="62"/>
+      <g class="st15">
+        <rect class="st3" x="204" y="67" width="12" height="24"/>
+        <rect class="st3" x="216" y="67" width="12" height="24"/>
+        <rect class="st3" x="228" y="67" width="12" height="24"/>
+        <rect class="st3" x="240" y="67" width="12" height="24"/>
+        <rect class="st3" x="252" y="67" width="12" height="24"/>
+        <rect class="st3" x="264" y="67" width="12" height="24"/>
+        <rect class="st3" x="276" y="67" width="12" height="24"/>
+        <rect class="st3" x="204" y="105" width="12" height="24"/>
+        <rect class="st3" x="216" y="105" width="12" height="24"/>
+        <rect class="st3" x="228" y="105" width="12" height="24"/>
+        <rect class="st3" x="240" y="105" width="12" height="24"/>
+        <rect class="st3" x="252" y="105" width="12" height="24"/>
+        <rect class="st3" x="264" y="105" width="12" height="24"/>
+        <rect class="st3" x="276" y="105" width="12" height="24"/>
+      </g>
+      <text class="st16" transform="translate(230.26 98)"><tspan x="0" y="0">Cattle barn A</tspan></text>
+    </g>
+    <g id="feed">
+      <rect class="st7" x="164" y="163" width="16" height="40"/>
+      <rect class="st7" x="288" y="66.96" width="24" height="12.04"/>
+      <text class="st16" transform="translate(156.24 183)"><tspan x="0" y="0">Feed storage</tspan></text>
+      <text class="st16" transform="translate(284.98 75)"><tspan x="0" y="0">Bedding storage</tspan></text>
+    </g>
+    <g id="small-a">
+      <rect class="st17" x="70" y="155" width="36" height="48"/>
+      <g class="st15">
+        <rect class="st3" x="70" y="155" width="10" height="6"/>
+        <rect class="st3" x="70" y="161" width="10" height="6"/>
+        <rect class="st3" x="70" y="167" width="10" height="6"/>
+        <rect class="st3" x="70" y="173" width="10" height="6"/>
+        <rect class="st3" x="70" y="179" width="10" height="6"/>
+        <rect class="st3" x="70" y="185" width="10" height="6"/>
+        <rect class="st3" x="70" y="191" width="10" height="6"/>
+        <rect class="st3" x="70" y="197" width="10" height="6"/>
+        <rect class="st3" x="96" y="155" width="10" height="6"/>
+        <rect class="st3" x="96" y="161" width="10" height="6"/>
+        <rect class="st3" x="96" y="167" width="10" height="6"/>
+        <rect class="st3" x="96" y="173" width="10" height="6"/>
+        <rect class="st3" x="96" y="179" width="10" height="6"/>
+        <rect class="st3" x="96" y="185" width="10" height="6"/>
+        <rect class="st3" x="96" y="191" width="10" height="6"/>
+        <rect class="st3" x="96" y="197" width="10" height="6"/>
+      </g>
+      <text class="st16" transform="translate(63.9 212)"><tspan x="0" y="0">Small animal barn A</tspan></text>
+    </g>
+  </g>
+  <g id="level-3" inkscape:groupmode="layer" inkscape:label="Level 3">
+    <g id="turnout-cattle-b">
+      <polygon class="st9" points="70 31.51 193 31 193 67 70 67.51 70 31.51"/>
+      <text class="st16" transform="translate(128.66 49)"><tspan x="0" y="0">Turnout</tspan></text>
+    </g>
+    <g id="turnout-small-b">
+      <rect class="st9" x="34" y="155" width="36" height="111"/>
+      <text class="st16" transform="translate(42.66 212)"><tspan x="0" y="0">Turnout</tspan></text>
+    </g>
+    <g id="cattle-b">
+      <rect class="st13" x="96" y="67" width="84" height="62"/>
+      <g class="st15">
+        <rect class="st3" x="96" y="67" width="12" height="24"/>
+        <rect class="st3" x="108" y="67" width="12" height="24"/>
+        <rect class="st3" x="120" y="67" width="12" height="24"/>
+        <rect class="st3" x="132" y="67" width="12" height="24"/>
+        <rect class="st3" x="144" y="67" width="12" height="24"/>
+        <rect class="st3" x="156" y="67" width="12" height="24"/>
+        <rect class="st3" x="168" y="67" width="12" height="24"/>
+        <rect class="st3" x="96" y="105" width="12" height="24"/>
+        <rect class="st3" x="108" y="105" width="12" height="24"/>
+        <rect class="st3" x="120" y="105" width="12" height="24"/>
+        <rect class="st3" x="132" y="105" width="12" height="24"/>
+        <rect class="st3" x="144" y="105" width="12" height="24"/>
+        <rect class="st3" x="156" y="105" width="12" height="24"/>
+        <rect class="st3" x="168" y="105" width="12" height="24"/>
+      </g>
+      <text class="st16" transform="translate(122.38 98)"><tspan x="0" y="0">Cattle barn B</tspan></text>
+    </g>
+    <g id="arena">
+      <rect class="st12" x="204" y="153" width="84" height="50"/>
+      <text class="st16" transform="translate(238.79 178)"><tspan x="0" y="0">Arena</tspan></text>
+    </g>
+    <g id="small-b">
+      <rect class="st1" x="70" y="218" width="36" height="48"/>
+      <g class="st15">
+        <rect class="st3" x="70" y="218" width="10" height="6"/>
+        <rect class="st3" x="70" y="224" width="10" height="6"/>
+        <rect class="st3" x="70" y="230" width="10" height="6"/>
+        <rect class="st3" x="70" y="236" width="10" height="6"/>
+        <rect class="st3" x="70" y="242" width="10" height="6"/>
+        <rect class="st3" x="70" y="248" width="10" height="6"/>
+        <rect class="st3" x="70" y="254" width="10" height="6"/>
+        <rect class="st3" x="70" y="260" width="10" height="6"/>
+        <rect class="st3" x="96" y="218" width="10" height="6"/>
+        <rect class="st3" x="96" y="224" width="10" height="6"/>
+        <rect class="st3" x="96" y="230" width="10" height="6"/>
+        <rect class="st3" x="96" y="236" width="10" height="6"/>
+        <rect class="st3" x="96" y="242" width="10" height="6"/>
+        <rect class="st3" x="96" y="248" width="10" height="6"/>
+        <rect class="st3" x="96" y="254" width="10" height="6"/>
+        <rect class="st3" x="96" y="260" width="10" height="6"/>
+      </g>
+    </g>
+  </g>
+  <g id="circulation" inkscape:groupmode="layer" inkscape:label="Circulation">
+    <polyline id="loop-parking" class="st4" points="285 259 142 259 142 417.9 208 460.9 252 393.17 251.76 369.7 300 295.45 300 262.32"/>
+    <line id="loop-mid" class="st4" x1="282" y1="323" x2="154" y2="323"/>
+    <line id="aisle-cattle" class="st4" x1="83" y1="98" x2="294" y2="98"/>
+    <polyline id="drive-loop" class="st4" points="300 223 300 141 142 141 142 221"/>
+    <line id="aisle-small-a" class="st4" x1="88" y1="75" x2="88" y2="209"/>
+    <line id="aisle-small-b" class="st4" x1="88" y1="208" x2="88" y2="275"/>
+    <line id="an-cattle-a" class="st11" x1="246" y1="75" x2="246" y2="53"/>
+    <line id="an-cattle-b" class="st11" x1="138" y1="75" x2="138" y2="53"/>
+    <line id="an-small-b" class="st11" x1="78" y1="240" x2="51" y2="240"/>
+    <line id="an-small-b1" data-name="an-small-b" class="st11" x1="78" y1="181" x2="51" y2="181"/>
+    <line id="an-pens" class="st11" x1="352" y1="211" x2="352" y2="173"/>
+  </g>
+  <line id="loop-mid1" data-name="loop-mid" class="st4" x1="132.87" y1="141" x2="100" y2="141"/>
+  <rect class="st7" x="311.62" y="316.98" width="24" height="12.04" transform="translate(646.62 -.62) rotate(90)"/>
+  <text class="st16" transform="translate(301.39 323.92)"><tspan x="0" y="0">Dumpster Enclosure</tspan></text>
+  <text class="st16" transform="translate(327.66 299.45)"><tspan x="0" y="0">Compost Area</tspan></text>
+  <rect class="st10" x="322.08" y="289" width="48.54" height="19"/>
+  <text class="st16" transform="translate(197.67 181)"><tspan x="0" y="0">Grooming Area</tspan></text>
+  <rect class="st10" x="206.29" y="158" width="9.71" height="42"/>
+  <rect class="st3" x="244.5" y="227" width="10" height="20"/>
+  <rect class="st3" x="254.5" y="227" width="10" height="20"/>
+  <rect class="st3" x="264.5" y="227" width="10" height="20"/>
+  <rect class="st3" x="274.5" y="227" width="10" height="20"/>
+  <rect class="st3" x="244.5" y="271" width="10" height="20"/>
+  <rect class="st3" x="244.5" y="291" width="10" height="20"/>
+  <rect class="st3" x="254.5" y="271" width="10" height="20"/>
+  <rect class="st3" x="264.5" y="271" width="10" height="20"/>
+  <rect class="st3" x="254.5" y="291" width="10" height="20"/>
+  <rect class="st3" x="264.5" y="291" width="10" height="20"/>
+  <line id="aisle-small-a1" data-name="aisle-small-a" class="st4" x1="193" y1="81" x2="193" y2="207"/>
+</svg>

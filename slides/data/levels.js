@@ -39,8 +39,8 @@ window.LEVELS = {
     // Swine and small animals share one row: they use the same kinds of pens and barns (architect, 2026-10-13).
     { key: "swine", label: "Swine & small animals", cells: [
       { text: "Reuse hog enclosures; pens in the existing barn", confirmed: true },
-      { text: "Small animal barn A (hogs or small animals); existing barn becomes storage", confirmed: true },
-      { text: "Add small animal barn B", confirmed: true } ] },
+      { text: "Small animal barn (hogs or small animals); existing barn becomes storage", confirmed: true },
+      { text: "Extend the barn south, past a dogtrot", confirmed: true } ] },
     // Poultry is not a "small animal" here: it is housed in the unfinished barn from Level 1 and stays there (architect, 2026-10-13).
     { key: "small_animal", label: "Poultry", cells: [
       { text: "In the unfinished barn", confirmed: true },
