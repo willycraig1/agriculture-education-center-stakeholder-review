@@ -56,9 +56,11 @@ def excluded_boxes(page):
             if t.startswith("FLOOR PLAN"):
                 boxes.append((x0 - 120, y0 - 70, TITLE_BLOCK_X, 9999))
             elif t.startswith("ADDITION FLOOR PLAN"):
-                boxes.append((x0 - 400, 0, TITLE_BLOCK_X, y1 + 70))
+                # the inset reaches ~620 pt left of its title: its patio (label, roof edge, paving lines) runs that far,
+                # and left in it would show as a stray patio beside the house on Level 3 (architect, 2026-10-15)
+                boxes.append((x0 - 620, 0, TITLE_BLOCK_X, y1 + 70))
                 boxes.inset = boxes[-1]
-                boxes.inset_geom = (x0 - 400, 0, TITLE_BLOCK_X, y0 - 8)     # the inset drawing, above its title
+                boxes.inset_geom = (x0 - 620, 0, TITLE_BLOCK_X, y0 - 8)     # the inset drawing, above its title
     return boxes
 
 
@@ -215,6 +217,8 @@ def rigid_fit(a, b):
 
 
 repairs = {k: {} for k in range(len(sheets))}
+repair_walls = {k: [] for k in range(len(sheets))}     # (drawings, point map to Existing coords), for the room fill
+repair_above = {k: [] for k in range(len(sheets))}
 repair_note = {}
 K3 = next((k for k, sh in enumerate(sheets) if sh["boxes"].inset_geom), None)
 if K3 is not None:
@@ -225,7 +229,7 @@ if K3 is not None:
             placed.setdefault(l["t"], []).append(complex(l["x"], l["y"]))
     src, dst = [], []
     for t, x, y in sh["inset_labels"]:
-        if t in placed and len(placed[t]) == 1 and sum(1 for q in sh["inset_labels"] if q[0] == t) == 1:
+        if t in placed and len(placed[t]) == 1 and sum(1 for q in sh["inset_labels"] if q[0] == t) == 1 and t != "PATIO":   # the patio label sits loose, not on the rooms
             src.append(complex(x, y)); dst.append(placed[t][0])
     m, t0 = rigid_fit(np.array(src), np.array(dst))
     A = np.vstack([samples(d, 3) for d in sh["inset"]["walls"]])
@@ -249,6 +253,11 @@ if K3 is not None:
         body = "".join(f'<path d="{cadpdf.path_d(d)}"/>' for d in ds if cadpdf.path_d(d))
         if body:
             repairs[K3].setdefault("new" if part == "walls" else part, []).append(f'<g class="repair" transform="{mat}">{body}</g>')
+            _f3 = lambda x, y, m=m, t0=t0, ox=ox, oy=oy: ((m * complex(x, y) + t0).real - ox, (m * complex(x, y) + t0).imag - oy)
+            if part in ("walls", "openings"):
+                repair_walls[K3].append(([d for d in ds if d.get("layer") != "P-DOOR"], _f3))
+            elif part == "above":
+                repair_above[K3].append((ds, _f3))
     repair_note["addition_from_inset"] = {"rotation_deg": float(np.degrees(np.angle(m))), "label_pairs": len(src),
                                           "walls_within_1pt": float(np.mean(dist < 1.0)), "median_resid_pt": float(np.median(dist[dist < 20]))}
     # (b) bottom strip from the previous Level
@@ -261,6 +270,10 @@ if K3 is not None:
         if body:
             n += len(keep)
             repairs[K3].setdefault(part, []).append(f'<g class="repair" transform="translate({-pox} {-poy})">{body}</g>')
+            if part in ("walls", "openings"):
+                repair_walls[K3].append(([d for d in keep if d.get("layer") != "P-DOOR"], lambda x, y, pox=pox, poy=poy: (x - pox, y - poy)))
+            elif part == "above":
+                repair_above[K3].append((keep, lambda x, y, pox=pox, poy=poy: (x - pox, y - poy)))
     repair_note["bottom_strip_from_previous_level"] = {"crop_line_y": float(clip_y), "paths": n}
 
 # ---------------------------------------------------------------- SVG fragments (Existing-sheet coords)
@@ -296,6 +309,127 @@ for k, s in enumerate(sheets):
     for d in g["walls"]:
         r = d["rect"]
         all_pts += [(r.x0 - ox, r.y0 - oy), (r.x1 - ox, r.y1 - oy)]
+
+# ---------------------------------------------------------------- program key: rooms coloured by use (Levels 1 to 3)
+# Architect's convention (2026-10-14): yellow circulation, blue restrooms, red primary spaces (conference and
+# teaching), grey storage, mechanical, and ancillary; offices green and kitchen support orange (Claude's pick).
+# Rooms come from the walls: the walls are rasterised, the building's inside is found by closing door-width gaps,
+# and a watershed grown from each room label settles room boundaries at the narrowest points, the doorways. Spaces
+# outside the walls (porches, patio, covered walkway, carport) are left uncoloured.
+from scipy import ndimage
+from skimage.segmentation import watershed
+from skimage import measure
+from shapely.geometry import Polygon as _SPoly
+from shapely.ops import unary_union as _sunion
+PROGRAM = {"circulation": ["HALL", "LOBBY", "COMMONS"], "restroom": ["H/C R.R.", "MENS", "WOMENS"],
+           "primary": ["CONFERENCE", "INSTRUCTIONAL CLASSROOM", "INSTRUCTIONAL CLASSROOM/", "EVENT SPACE", "DEMO KITCHEN"],
+           "office": ["OFFICE 1", "OFFICE 2", "OFFICE 3", "OFFICE 4", "OFFICE 5", "BREAKROOM"],
+           "kitchen": ["DISHWASH", "COOLER", "PANTRY"], "storage": ["STORAGE"]}
+_cat = {n: c for c, ns in PROGRAM.items() for n in ns}
+_PX = 2.0                                                  # raster px per pt
+FT_PER_PT = (1 / 72) / (3 / 16)
+def _segs(ds, f):
+    for d in ds:
+        for it in d["items"]:
+            if it[0] == "l":
+                yield f(it[1].x, it[1].y), f(it[2].x, it[2].y)
+            elif it[0] == "re":
+                r = it[1]; q = [f(r.x0, r.y0), f(r.x1, r.y0), f(r.x1, r.y1), f(r.x0, r.y1)]
+                yield from zip(q, q[1:] + q[:1])
+            elif it[0] == "c":
+                yield f(it[1].x, it[1].y), f(it[4].x, it[4].y)
+            elif it[0] == "qu":
+                q_ = it[1]; q = [f(q_.ul.x, q_.ul.y), f(q_.ur.x, q_.ur.y), f(q_.lr.x, q_.lr.y), f(q_.ll.x, q_.ll.y)]
+                yield from zip(q, q[1:] + q[:1])
+program_counts = {}
+for k in range(1, len(sheets)):
+    ox, oy = offsets[k]
+    # barriers: walls and windows (the windows close the wall's gaps). Door leaves and swings are left out. Each room's
+    # core is the part of it more than r from any line, which seals doorways narrower than 2r; r is raised per room
+    # until its core is closed off from the outside and from the rooms around it. The cores are then grown back out to
+    # the walls, meeting at the doorways.
+    _win = [d for d in sheets[k]["groups"]["openings"] if d.get("layer") != "P-DOOR"]
+    src = [(sheets[k]["groups"]["walls"] + _win, lambda x, y, ox=ox, oy=oy: (x - ox, y - oy))] + repair_walls[k]
+    seg = [sg for ds, f in src for sg in _segs(ds, f)]
+    P_ = np.array([q for sg in seg for q in sg]); bx0, by0 = P_.min(0) - 60; bx1, by1 = P_.max(0) + 60
+    W_, H_ = int((bx1 - bx0) * _PX) + 1, int((by1 - by0) * _PX) + 1
+    def _raster(segs, w):
+        im = Image.new("L", (W_, H_), 0); dr = ImageDraw.Draw(im)
+        for (xa, ya), (xb, yb) in segs:
+            dr.line([((xa - bx0) * _PX, (ya - by0) * _PX), ((xb - bx0) * _PX, (yb - by0) * _PX)], fill=255, width=w)
+        return np.asarray(im) > 0
+    wall = _raster(seg, 3)
+    # second barrier for rooms open between posts (the instructional classroom): add the roof edge (P-ABOVE), drawn
+    # heavy so its dashes join
+    _ab = [(sheets[k]["groups"]["above"], lambda x, y, ox=ox, oy=oy: (x - ox, y - oy))] + repair_above[k]
+    wall2 = wall | _raster([sg for ds, f in _ab for sg in _segs(ds, f)], 9)
+    labs = []
+    for l in sheets[k]["labels"]:
+        if not l["dim"] and l["t"] in _cat:
+            labs.append((l["t"], int((l["x"] - ox - bx0) * _PX), int((l["y"] - l["size"] * 0.35 - oy - by0) * _PX),
+                         int(len(l["t"]) * l["size"] * 0.32 * _PX), int(l["size"] * 0.5 * _PX)))
+    def _core(w_, t, px, py):
+        free_ = ~w_; dist_ = ndimage.distance_transform_edt(free_)
+        for r_pt in (14, 18, 22, 27, 33, 41, 50):
+            lab_, _ = ndimage.label(dist_ > r_pt * _PX)
+            y0_, x0_ = max(py - int(r_pt * _PX), 0), max(px - int(r_pt * _PX), 0)
+            win_ = lab_[y0_:py + int(r_pt * _PX), x0_:px + int(r_pt * _PX)]
+            ids = [v for v in np.unique(win_) if v]
+            if not ids:
+                continue
+            c_ = lab_[py, px] or max(ids, key=lambda v: (win_ == v).sum())
+            cm = lab_ == c_
+            ys_, xs_ = np.nonzero(cm)
+            if ys_.min() == 0 or xs_.min() == 0 or ys_.max() == H_ - 1 or xs_.max() == W_ - 1:
+                continue                                    # open to the outside
+            if cm.sum() / _PX ** 2 * FT_PER_PT ** 2 > 1500:
+                continue
+            # a room's core must not run under another use's room name (its text box)
+            _hit = [t2 for t2, x2, y2, hw, hh in labs if _cat[t2] != _cat[t] and cm[max(y2 - hh, 0):y2 + hh, max(x2 - hw, 0):x2 + hw].any()]
+            if _hit:
+                continue                                    # runs into a room of another use: seal it tighter
+            return cm, r_pt, free_
+        return None
+    free = ~wall
+    dist = ndimage.distance_transform_edt(free)
+    cores = {}; names = {}; skipped = []
+    for t, px, py, _hw, _hh in labs:
+        if not (0 <= px < W_ and 0 <= py < H_):
+            skipped.append(t); continue
+        got = _core(wall, t, px, py) or _core(wall2, t, px, py)
+        if got is None and not wall[py, px]:
+            # a small room whose doorway is as wide as the room: seed it at its label and let it grow to its walls
+            disk = np.zeros(wall.shape, bool); disk[py - 3:py + 4, px - 3:px + 4] = True
+            got = (disk & ~wall, 30, ~wall)
+        if got is None:
+            skipped.append(t); continue
+        names[len(names) + 1] = t; cores[len(names)] = got
+    markers = np.zeros(wall.shape, int); grown = np.zeros(wall.shape, bool)
+    sq = np.ones((3, 3), bool)                             # square growth: rectangular rooms keep their corners
+    for i_, (cm, r_pt, free_) in cores.items():
+        markers[cm & (markers == 0)] = i_
+        grown |= ndimage.binary_dilation(cm, structure=sq, iterations=int(r_pt * _PX) + 2) & free_
+    reg = watershed(-dist, markers, mask=grown)
+    if os.environ.get("RH_DEBUG"):
+        _dbg = np.zeros(wall.shape + (3,), np.uint8); _dbg[wall] = (255, 255, 255)
+        _cols = np.random.default_rng(1).integers(60, 230, (len(names) + 1, 3))
+        for i_ in names: _dbg[reg == i_] = _cols[i_]
+        for t2, x2, y2, _hw, _hh in labs:
+            _dbg[max(y2 - 4, 0):y2 + 5, max(x2 - 4, 0):x2 + 5] = (255, 0, 0)
+        Image.fromarray(_dbg).resize((W_ // 2, H_ // 2)).save(os.path.join(os.environ["RH_DEBUG"], f"rooms{k}.png"))
+        print(k, "skipped:", skipped)
+    rooms = []
+    for i, t in names.items():
+        m_ = ndimage.binary_opening(reg == i, iterations=2)
+        polys = [_SPoly([(x / _PX + bx0, y / _PX + by0) for y, x in c]).buffer(0) for c in measure.find_contours(m_.astype(float), 0.5) if len(c) > 8]
+        g = _sunion([p for p in polys if p.area > 30]).buffer(0.8).simplify(0.6)
+        if g.is_empty:
+            continue
+        d_ = " ".join("M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in r.exterior.coords) + "Z" for r in getattr(g, "geoms", [g]))
+        rooms.append(f'<path class="pg-{_cat[t]}" d="{d_}"/>')
+    levels[k]["program"] = "".join(rooms)
+    program_counts[NAMES[k]] = len(rooms)
+print("program rooms per Level:", program_counts)
 
 A = np.array(all_pts)
 pad = 30

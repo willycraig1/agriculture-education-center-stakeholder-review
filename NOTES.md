@@ -640,3 +640,18 @@ Fit checks now skip context elements (walk etc.).
 - The parking lot's bioswale (island_poly, class `bioswale` on the site map) is picked out in a stronger water fill and
   labelled "Bioswale" (`#bioswale-label`, hidden unless a slide shows it) on the water slide's plan steps; added to
   step 4's legend.
+
+## 2026-10-15: Red House program key; Level 3 patio artifact
+- Program toggle on the Red House slide ("Program" button in the key; applies to whichever Level is showing).
+  Architect's colours: yellow circulation (hall, lobby, commons), blue restrooms, red primary spaces (conference,
+  instructional classroom / event space, demo kitchen), grey storage; Claude's picks: green offices and staff
+  (offices, breakroom), orange kitchen support (dishwash, cooler, pantry). Porches, patio, covered walkway, and
+  carport stay uncoloured.
+- Rooms are found in `tools/build_red_house.py` from the walls and windows: each label's core is the area more than r
+  from any line, with r raised per room (14 to 50 pt) until the core is closed off from the outside and doesn't run
+  under another use's room name; rooms open between posts (the classroom) also use the roof edge; a small room whose
+  doorway is as wide as the room is seeded at its label. Cores grow back to the walls by watershed, meeting at the
+  doorways. `RH_DEBUG=<dir>` writes a check image per Level.
+- Level 3: the addition inset's patio (label, roof edge, paving lines) reached past the inset's exclusion box and
+  showed as a stray patio beside the house. The box now runs 620 pt left of the inset title; the patio label is kept
+  out of the addition fit (fit unchanged: 98.6% of walls within 1 pt).
