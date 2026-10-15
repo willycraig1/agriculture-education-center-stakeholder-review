@@ -631,8 +631,8 @@ if _pk and FENCES.get("road_area"):
     print("entry apron: drive half-width ft", round(_w_half * FT_PER_PT / abs(M_FP), 1), "| return radius ft 10")
 by = []
 for e in AG["elements"]:
-    if e["id"] == "existing-red-house":
-        continue                                  # already on the map as a surveyed structure
+    if e["id"] in ("existing-red-house", "existing-poultry"):
+        continue                                  # already on the map as surveyed structures
     use3 = e["use"]
     for k in ("2", "3"):
         use3 = e.get("becomes", {}).get(k, {}).get("use", use3)
