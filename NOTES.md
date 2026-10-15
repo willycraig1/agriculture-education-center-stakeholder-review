@@ -580,3 +580,8 @@ Fit checks now skip context elements (walk etc.).
 - Levels 1 to 3 on the barnyard slide open close on the barnyard (`tight` in `slides/ag-area.html`, from the small
   animal turnout's dimension string to the east dimension string, per the architect's screenshot); the Flow step
   flies out to the whole diagram (and static mode shows that view). Reset returns to the step's framing.
+
+## 2026-10-14: Red House porches
+- The Red House's two porches are drawn on the site map as open canopies, like the carport (tinted, dashed outline):
+  the porch along the north-west wall and the one across the north-east end, from the survey's overhang lines
+  (BUILDING OH) closed against the house walls (BUILDING). About 520 sf and 340 sf. On every slide using the site map.
