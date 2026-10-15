@@ -620,3 +620,5 @@ Fit checks now skip context elements (walk etc.).
   the parking, the existing barn and pens, and the poultry barn are Level 1 (`walk`, about 5,300 sf); west of it,
   along the arena to the new barns and up between the cattle barns, Level 2 (`walk-2`, about 8,100 sf). On the
   barnyard slide the Level 2 walks show as future at Level 1; walks carry no NEW badge or Level tag. Level texts updated.
+- Site plan slide: the walks phase with the barnyard there too (each carries its data-level, so Level 1 shows only the
+  east walks); its Level 1 and 2 texts now name the walkways.
