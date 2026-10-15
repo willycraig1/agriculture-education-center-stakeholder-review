@@ -614,3 +614,9 @@ Fit checks now skip context elements (walk etc.).
 ## 2026-10-14: pinwheel gate weights
 - The four gate leaves added at the main pasture's pinwheel lacked `data-w`, so the viewer did not counter-scale them
   on zoom and they drew heavy on the close paddock framings. They now carry it, like every other gate and fence.
+
+## 2026-10-14: walkways phased
+- The walkway network is split at the arena's east edge (architect's markup): east of it, the walks to the Red House,
+  the parking, the existing barn and pens, and the poultry barn are Level 1 (`walk`, about 5,300 sf); west of it,
+  along the arena to the new barns and up between the cattle barns, Level 2 (`walk-2`, about 8,100 sf). On the
+  barnyard slide the Level 2 walks show as future at Level 1; walks carry no NEW badge or Level tag. Level texts updated.

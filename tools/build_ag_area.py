@@ -681,6 +681,19 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _wk = [[round(x, 1), round(y, 1)] for x, y in _wkp.exterior.coords][:-1]
     print("walk carried to the poultry barn:", round(_link.bounds[2] - _link.bounds[0]), "ft")
     by_id["walk"].update(outline=_wk, x=min(q[0] for q in _wk), y=min(q[1] for q in _wk), w=max(q[0] for q in _wk) - min(q[0] for q in _wk), h=max(q[1] for q in _wk) - min(q[1] for q in _wk))
+    # walkways phased (architect, 2026-10-14): the cut is the arena's east edge carried across the walk. East of it
+    # (the Red House, the parking, the existing barn and pens, and the poultry barn) is Level 1; west of it (along the
+    # arena to the new barns, and the spur between the cattle barns) comes with the Level 2 barns.
+    _xcut = by_id["arena"]["x"] + by_id["arena"]["w"]
+    _wk1 = _wkp.difference(_box(-1e4, -1e4, _xcut, 1e4)); _wk2 = _wkp.intersection(_box(-1e4, -1e4, _xcut, 1e4))
+    _ring = lambda g_: [[round(x, 1), round(y, 1)] for x, y in max(getattr(g_, "geoms", [g_]), key=lambda h: h.area).exterior.coords][:-1]
+    _bb = lambda q: dict(x=min(v[0] for v in q), y=min(v[1] for v in q), w=max(v[0] for v in q) - min(v[0] for v in q), h=max(v[1] for v in q) - min(v[1] for v in q))
+    _o1, _o2 = _ring(_wk1), _ring(_wk2)
+    by_id["walk"].update(outline=_o1, **_bb(_o1))
+    _b2 = _bb(_o2)
+    add("walk-2", "", _b2["x"], _b2["y"], _b2["w"], _b2["h"], "circulation", 2, kind="walk", note="", outline=_o2, context=True)
+    by_id["walk-2"] = E[-1]
+    print("walks by Level: 1 =", round(_wk1.area), "sf, 2 =", round(_wk2.area), "sf | cut at x", _xcut)
     # circulation as drawn: the loop is two-way, so its runs carry arrowheads at both ends
     _circ = []
     for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="(st\d+)" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _sv):
