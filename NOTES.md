@@ -556,3 +556,11 @@ Fit checks now skip context elements (walk etc.).
 - **Bud Box slide, no trailer enclosure (architect):** bay fences, gates and fill removed; the two-way loop lane (24') runs right along the yard's east fence. The receiving gate moves from the south-east chamfer (now solid fence) to the top corner of the holding pen: a 12' opening in the east fence (y 12..24), the gate leaf swinging out to the back of the trailer with a short panel below it forming the unloading funnel. Step 1 ('Pull up and unload'): the rig stands beside the fence, rear at the gate (x 73..81, y 23..56), cattle walk straight into the holding pen.
 - Bud Box slide: new first step 'Arrive' (the rig comes in on the loop from the north, top of the diagram, and drives down to the gate in the next step); the last cow sits in the unloading funnel clear of the gate leaf; the closing note moves to the last step. 8 steps.
 - Bud Box slide: holding pen 12' shorter (bottom pulled up from 84' to 72'; chamfers, gate to pasture and labels moved up with it; cattle in the Hold step repositioned).
+
+## 2026-10-14: civil's retention refitted as a site retention option
+- Civil's expanded retention (sketched on Option A) ran under the Option B cattle turnouts and pens. Refitted in
+  `tools/build_site_map.py` to the architect's markup on the water slide: the west lobe of civil's sketch, kept clear
+  of every new element (its arm along the pens and its strip beside the cattle turnouts drop out), and a south pond on
+  the open ground between the small animal turnout and the old bed's top of bank, short of the access drive.
+- Renamed "Site retention option" (0.2 ac and 0.6 ac, labelled each); water slide legend and notes list updated.
+  Not designed or sized.
