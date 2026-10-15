@@ -588,3 +588,8 @@ Fit checks now skip context elements (walk etc.).
 - Also on the barnyard diagram (`tools/build_ag_area.py`): the carport (from the survey overhang rectangle, as on the
   site map) and both porches, as context elements of kind `canopy`, drawn tinted with a dashed outline. The site map
   skips them (it draws its own from the survey).
+
+## 2026-10-14: Act 1 campus step framing and labels
+- The campus step on the site slide frames from the entry arrow at the lane up to the unfinished (poultry) barn, in
+  the part of the map the step panel leaves open. Labels added on or beside each existing building: Red House (now
+  centred on the house; it sat off to the east), Existing barn, Cattle pens (the lean-to), Unfinished barn, Carport.
