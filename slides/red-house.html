@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Red House</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142358">
-<link rel="stylesheet" href="../design/deck.css?v=202610142358">
+<link rel="stylesheet" href="../design/palette.css?v=202610150027">
+<link rel="stylesheet" href="../design/deck.css?v=202610150027">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -40,6 +40,16 @@
   .levels li.done { color: var(--ink); }
   .static .levels li p { display: block; font-size: 15px; }
   .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+  /* program key (architect's convention): yellow circulation, blue restrooms, red primary spaces, grey storage and
+     ancillary; offices green and kitchen support orange */
+  .program path { stroke: none; fill-opacity: .55; opacity: 0; transition: opacity .6s var(--ease); }
+  .plan.prog .program path { opacity: 1; }
+  .pg-circulation { fill: #F2CF4E; } .pg-restroom { fill: #7FB6E0; } .pg-primary { fill: #E07B6E; }
+  .pg-office { fill: #9CC98A; } .pg-kitchen { fill: #F0A85A; } .pg-storage { fill: #BDB8B0; }
+  .key .pk { display: none; } .plan.prog .key .wk { display: none; } .plan.prog .key .pk { display: inline; }
+  .key .pk i { height: 14px; border-radius: 3px; vertical-align: -2px; width: 18px; opacity: .8; }
+  .key button { font: 600 15px/1 var(--sans); color: var(--ink); background: #fff; border: 1.5px solid var(--line); border-radius: 8px; padding: 6px 10px; margin: -6px 4px -6px 0; cursor: pointer; }
+  .plan.prog .key button { background: var(--ink); color: #fff; border-color: var(--ink); }
 </style>
 </head>
 <body data-drivers="reuse">
@@ -48,8 +58,12 @@
   <h1 data-step="0">One house, three Levels of reuse</h1>
   <div class="body">
     <div class="plan card" data-step="0" id="plan">
-      <div class="key"><span><i style="border-top:2px solid var(--ink)"></i>Kept</span><span><i style="border-top:3px solid var(--education)"></i>New at this Level</span>
-        <span><i style="border-top:2px dashed var(--muted)"></i>Removed</span></div>
+      <div class="key"><button type="button" id="progbtn" aria-pressed="false">Program</button>
+        <span class="wk"><i style="border-top:2px solid var(--ink)"></i>Kept</span><span class="wk"><i style="border-top:3px solid var(--education)"></i>New at this Level</span>
+        <span class="wk"><i style="border-top:2px dashed var(--muted)"></i>Removed</span>
+        <span class="pk"><i class="pg-primary" style="background:#E07B6E"></i>Conference &amp; teaching</span><span class="pk"><i style="background:#9CC98A"></i>Offices &amp; staff</span>
+        <span class="pk"><i style="background:#F0A85A"></i>Kitchen support</span><span class="pk"><i style="background:#7FB6E0"></i>Restrooms</span>
+        <span class="pk"><i style="background:#F2CF4E"></i>Circulation</span><span class="pk"><i style="background:#BDB8B0"></i>Storage</span></div>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="levels" id="levels"></ol>
@@ -59,14 +73,14 @@
   </div>
 </div>
 
-<script src="data/red-house.js?v=202610142358"></script>
-<script src="../design/deck.js?v=202610142358"></script>
-<script src="../design/viewer.js?v=202610142358"></script>
+<script src="data/red-house.js?v=202610150027"></script>
+<script src="../design/deck.js?v=202610150027"></script>
+<script src="../design/viewer.js?v=202610150027"></script>
 <script>
 (function () {
   const R = window.RED_HOUSE;
   const [x0, y0, x1, y1] = R.view;
-  const parts = ["below", "above", "furniture", "fixtures", "openings", "walls", "new", "removed", "labels"];
+  const parts = ["program", "below", "above", "furniture", "fixtures", "openings", "walls", "new", "removed", "labels"];
   const svg = `<svg viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" preserveAspectRatio="xMidYMid meet" aria-label="Red House floor plans">` +
     R.levels.map((l, k) => `<g class="lvl" data-k="${k}">` +
       parts.map(p => l[p] ? `<g class="${p}">${l[p]}</g>` : "").join("") + `</g>`).join("") + `</svg>`;
@@ -108,6 +122,10 @@
       li.classList.toggle("done", +li.dataset.k < n);
     });
   }
+  // program key toggle: applies to whichever Level is showing
+  const planEl = document.getElementById("plan"), btn = document.getElementById("progbtn");
+  btn.addEventListener("click", ev => { ev.stopPropagation(); const on = planEl.classList.toggle("prog"); btn.setAttribute("aria-pressed", on); });
+  btn.addEventListener("keydown", ev => { if (ev.key === " " || ev.key === "Enter") ev.stopPropagation(); });   // arrows still step the deck
   Deck.onStep(apply);
   Deck.start();
   if (document.documentElement.classList.contains("static")) apply(3);
