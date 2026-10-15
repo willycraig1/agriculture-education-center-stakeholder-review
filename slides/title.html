@@ -4,20 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Title</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610150029">
-<link rel="stylesheet" href="../design/deck.css?v=202610150029">
+<link rel="stylesheet" href="../design/palette.css?v=202610150044">
+<link rel="stylesheet" href="../design/deck.css?v=202610150044">
 <style>
   .stage { justify-content: center; padding: 96px 120px; }
   .title { font: 600 104px/1.0 var(--serif); margin: 18px 0 26px; letter-spacing: -.015em; max-width: 14ch; }
   .sub { font: 400 32px/1.35 var(--sans); color: var(--muted); max-width: 46ch; margin: 0; }
-  .strip { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin-top: 64px; width: 900px; }
+  .strip { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin-top: 64px; width: 820px; }
   .strip i { flex: 1; }
   .meta { display: flex; gap: 48px; margin-top: 34px; font: 500 20px/1.4 var(--sans); color: var(--muted); }
   .meta b { display: block; color: var(--ink); font-weight: 600; }
+  /* cover illustration (tools/build_cover_art.py): the right of the slide, fading into the paper on its left edge */
+  .art { position: absolute; right: 0; top: 0; height: 100%; width: 860px; object-fit: cover; object-position: right center; }
+  .stage > :not(.art) { position: relative; max-width: 900px; }
 </style>
 </head>
 <body class="no-firm">
 <div class="stage">
+  <img class="art" data-step="0" src="../drawings/cover-perspective.svg" alt="Sketch: a 4-H student leading a heifer past the existing barn, the arena canopy behind at left, new barns and a tractor beyond">
   <div class="eyebrow" data-step="0">Clark Farm · 9600 SR-72, Sarasota</div>
   <div class="title" data-step="0">Agriculture Education Center</div>
   <p class="sub" data-step="0">Beginning Farmer and 4-H Youth Agriculture Complex. Master plan study for stakeholder review.</p>
@@ -32,7 +36,7 @@
     <div><b>Draft</b>for discussion</div>
   </div>
 </div>
-<script src="../design/deck.js?v=202610150029"></script>
+<script src="../design/deck.js?v=202610150044"></script>
 <script>Deck.start();</script>
 </body>
 </html>
