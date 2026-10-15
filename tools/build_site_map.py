@@ -209,7 +209,9 @@ if os.path.exists(_bp):
     _floor = (f'<g id="historic-slough-floor"><path d="{_ring_d(_BJ.get("floor", []))}" fill="{P["water"]["base"]}" fill-opacity=".38" fill-rule="evenodd"/>'
               f'<g fill="none" stroke="{P["water"]["base"]}" stroke-opacity=".75" stroke-width=".7" data-w="1.1" stroke-linejoin="round">'
               + "".join(f'<polyline points="{" ".join(f"{x},{y}" for x, y in ln)}"/>' for ln in _BJ.get("toe_lines", [])) + "</g></g>") if _BJ.get("toe_lines") else ""
-    _bed_svg = (f'<path id="historic-slough" d="{_bd}" fill="{P["water"]["base"]}" fill-opacity=".32" fill-rule="evenodd"/>' + _floor +
+    # the bed bank to bank in a transparent pasture green: most of the time it is grassed pasture (architect,
+    # 2026-10-14); the ditch floor stays blue
+    _bed_svg = (f'<path id="historic-slough" d="{_bd}" fill="{P["pasture"]["base"]}" fill-opacity=".32" fill-rule="evenodd"/>' + _floor +
                 f'<g id="historic-slough-label" transform="translate(905 437)"><text data-fixed="1" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" '
                 f'fill="{P["water"]["base"]}" stroke="#fff" stroke-width="4" paint-order="stroke">Historical slough bed</text></g>')
 else:

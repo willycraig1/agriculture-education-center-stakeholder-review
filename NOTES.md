@@ -570,3 +570,8 @@ Fit checks now skip context elements (walk etc.).
 - Step 5 (compensation) frames the compensation options west to east through the bonus retention ponds
   (`frames.comp`) instead of the full site. Step 6 (pipes) zooms out slightly and pans so both pipe notes clear the
   step panel and the map's right edge.
+
+## 2026-10-14: historical slough bed in pasture green
+- The bed's bank-to-bank field is now a transparent pasture green (most of the time it is grassed pasture); the ditch
+  floor between the toe lines stays blue. Water slide strong state .45 (was .6); legends on the water and site slides
+  updated ("Historical slough bed, grassed" plus "Ditch floor" on the water slide). Trial, to review.

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142242">
-<link rel="stylesheet" href="../design/deck.css?v=202610142242">
+<link rel="stylesheet" href="../design/palette.css?v=202610142251">
+<link rel="stylesheet" href="../design/deck.css?v=202610142251">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -64,10 +64,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610142242"></script>
-<script src="data/pasture-capacity.js?v=202610142242"></script>
-<script src="../design/deck.js?v=202610142242"></script>
-<script src="../design/viewer.js?v=202610142242"></script>
+<script src="data/site-map.js?v=202610142251"></script>
+<script src="data/pasture-capacity.js?v=202610142251"></script>
+<script src="../design/deck.js?v=202610142251"></script>
+<script src="../design/viewer.js?v=202610142251"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -110,7 +110,7 @@
       lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span><span><i style="background:var(--bonus-tint);outline:2px solid var(--bonus)"></i>Bonus pasture</span>`,
       show: ["ground", "property", "land"], muted: true },
     { t: "Water", p: "Cowpen Slough runs the length of the west side; the property line is the centerline of the waterway. Two ponds sit inside the site, and a FEMA flood zone line crosses it.",
-      lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span><span><i style="background:var(--water);opacity:.16"></i>Historical slough bed</span>`,
+      lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span><span><i style="background:var(--pasture);opacity:.2"></i>Historical slough bed</span>`,
       show: ["ground", "property", "water", "labels"], muted: true },
     { t: "Soils", p: "Mostly poorly drained flatwoods sands. The wettest units, Delray and Floridana & Gator, call for grazing timed to ground conditions. The soil sheet covers the parcel only, not the bonus pasture.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
