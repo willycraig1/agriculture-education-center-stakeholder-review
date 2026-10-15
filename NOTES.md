@@ -593,3 +593,7 @@ Fit checks now skip context elements (walk etc.).
 - The campus step on the site slide frames from the entry arrow at the lane up to the unfinished (poultry) barn, in
   the part of the map the step panel leaves open. Labels added on or beside each existing building: Red House (now
   centred on the house; it sat off to the east), Existing barn, Cattle pens (the lean-to), Unfinished barn, Carport.
+
+## 2026-10-14: program slide animals regrouped
+- Act 2 program slide: "Swine, sheep and goats" is one need (pink swine swatch: shared 6' x 10' small-animal pens,
+  hog-proof, interchangeable), and Poultry is its own need (predator-safe housing, apart). Matches the Levels grouping.
