@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Small Animal Pens</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142326">
-<link rel="stylesheet" href="../design/deck.css?v=202610142326">
+<link rel="stylesheet" href="../design/palette.css?v=202610142332">
+<link rel="stylesheet" href="../design/deck.css?v=202610142332">
 <style>
   .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
   .levels { display: flex; flex-direction: column; gap: 18px; }
@@ -66,16 +66,16 @@
   </div>
 </div>
 
-<script src="data/levels.js?v=202610142326"></script>
-<script src="data/ag-area.js?v=202610142326"></script>
-<script src="../design/deck.js?v=202610142326"></script>
+<script src="data/levels.js?v=202610142332"></script>
+<script src="data/ag-area.js?v=202610142332"></script>
+<script src="../design/deck.js?v=202610142332"></script>
 <script>
 (function () {
   // Barn sizes and pen counts come from the barnyard diagram (tools/build_ag_area.py), so this slide follows the plan.
   const A = window.AG_AREA, L = window.LEVELS.levels, el = id => A.elements.find(e => e.id === id);
   const wa = el("small-a"), dog = el("dogtrot"), wb2 = el("small-a2"), b = el("small-b"), ex = el("existing-barn");
   const sa = A.counts.small_animal_pens, pw = wa.pens.w, rows = wa.pens.rows, depth = wa.w;
-  // Level 1 (architect, 2026-10-14): the 10 existing hog pens sit where the arena goes, so the hogs move into the
+  // Level 1 (architect, 2026-10-14): the 10 existing hog pens give way to the Level 1 site improvements, so the hogs move into the
   // existing barn, which fits about 32 pens; barn A at Level 2 matches that, a clean swap that frees the barn for storage.
   const OLD_PENS = 10, EX_PENS = 32;
   const k = 3.3;                                    // px per foot: every plan on this slide shares one scale
@@ -106,7 +106,7 @@
     3: () => barnA() + wing(aLen, b.h, b.pens.n) + label(aLen + 2, `+ BARN B · ${sa[3] - sa[2]} PENS`),
   };
   const totals = {
-    1: `<b class="num">≈${EX_PENS}</b><span>pens</span><em>in the existing barn; the ${OLD_PENS} old hog pens give way to the arena</em>`,
+    1: `<b class="num">≈${EX_PENS}</b><span>pens</span><em>in the existing barn; the ${OLD_PENS} old hog pens give way to the Level 1 site improvements</em>`,
     2: `<b class="num">${sa[2]}</b><span>pens</span><em>a clean swap: the existing barn becomes storage</em>`,
     3: `<b class="num">${sa[3]}</b><span>pens</span><em>${sa[2]} in A + ${sa[3] - sa[2]} in B</em>`,
   };
