@@ -36,12 +36,25 @@ window.AG_AREA = {
    "assumed": false
   },
   {
-   "id": "turnout-small-b",
+   "id": "turnout-small-a",
    "label": "Turnout",
    "x": -84.0,
    "y": 168.0,
    "w": 36.0,
    "h": 111.0,
+   "use": "arena",
+   "level": 2,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "turnout-small-b",
+   "label": "",
+   "x": -84.0,
+   "y": 279.0,
+   "w": 36.0,
+   "h": 41,
    "use": "arena",
    "level": 3,
    "kind": "yard",
@@ -100,7 +113,7 @@ window.AG_AREA = {
    "use": "circulation",
    "level": 1,
    "kind": "parking",
-   "note": "45 spaces",
+   "note": "55 spaces",
    "assumed": false,
    "rows": [],
    "stall": [
@@ -1269,6 +1282,186 @@ window.AG_AREA = {
     ],
     [
      [
+      126.5,
+      240.0
+     ],
+     [
+      136.5,
+      240.0
+     ],
+     [
+      136.5,
+      260.0
+     ],
+     [
+      126.5,
+      260.0
+     ]
+    ],
+    [
+     [
+      136.5,
+      240.0
+     ],
+     [
+      146.5,
+      240.0
+     ],
+     [
+      146.5,
+      260.0
+     ],
+     [
+      136.5,
+      260.0
+     ]
+    ],
+    [
+     [
+      146.5,
+      240.0
+     ],
+     [
+      156.5,
+      240.0
+     ],
+     [
+      156.5,
+      260.0
+     ],
+     [
+      146.5,
+      260.0
+     ]
+    ],
+    [
+     [
+      156.5,
+      240.0
+     ],
+     [
+      166.5,
+      240.0
+     ],
+     [
+      166.5,
+      260.0
+     ],
+     [
+      156.5,
+      260.0
+     ]
+    ],
+    [
+     [
+      126.5,
+      284.0
+     ],
+     [
+      136.5,
+      284.0
+     ],
+     [
+      136.5,
+      304.0
+     ],
+     [
+      126.5,
+      304.0
+     ]
+    ],
+    [
+     [
+      126.5,
+      304.0
+     ],
+     [
+      136.5,
+      304.0
+     ],
+     [
+      136.5,
+      324.0
+     ],
+     [
+      126.5,
+      324.0
+     ]
+    ],
+    [
+     [
+      136.5,
+      284.0
+     ],
+     [
+      146.5,
+      284.0
+     ],
+     [
+      146.5,
+      304.0
+     ],
+     [
+      136.5,
+      304.0
+     ]
+    ],
+    [
+     [
+      146.5,
+      284.0
+     ],
+     [
+      156.5,
+      284.0
+     ],
+     [
+      156.5,
+      304.0
+     ],
+     [
+      146.5,
+      304.0
+     ]
+    ],
+    [
+     [
+      136.5,
+      304.0
+     ],
+     [
+      146.5,
+      304.0
+     ],
+     [
+      146.5,
+      324.0
+     ],
+     [
+      136.5,
+      324.0
+     ]
+    ],
+    [
+     [
+      146.5,
+      304.0
+     ],
+     [
+      156.5,
+      304.0
+     ],
+     [
+      156.5,
+      324.0
+     ],
+     [
+      146.5,
+      324.0
+     ]
+    ],
+    [
+     [
       13.5,
       438.4
      ],
@@ -1705,9 +1898,37 @@ window.AG_AREA = {
   },
   {
    "id": "small-a",
-   "label": "Small animal barn",
+   "label": "Small animal barn A",
    "x": -48.0,
    "y": 168.0,
+   "w": 36.0,
+   "h": 48.0,
+   "use": "swine",
+   "level": 2,
+   "kind": "building",
+   "note": "32 pens, two wings",
+   "assumed": false,
+   "pens": {
+    "n": 8,
+    "w": 6,
+    "rows": [
+     [
+      0,
+      10
+     ],
+     [
+      26,
+      10
+     ]
+    ],
+    "vertical": true
+   }
+  },
+  {
+   "id": "small-a2",
+   "label": "",
+   "x": -48.0,
+   "y": 231.0,
    "w": 36.0,
    "h": 48.0,
    "use": "swine",
@@ -1732,36 +1953,8 @@ window.AG_AREA = {
    }
   },
   {
-   "id": "small-b",
-   "label": "Extension",
-   "x": -48.0,
-   "y": 231.0,
-   "w": 36.0,
-   "h": 48.0,
-   "use": "small_animal",
-   "level": 3,
-   "kind": "building",
-   "note": "16 pens",
-   "assumed": false,
-   "pens": {
-    "n": 8,
-    "w": 6,
-    "rows": [
-     [
-      0,
-      10
-     ],
-     [
-      26,
-      10
-     ]
-    ],
-    "vertical": true
-   }
-  },
-  {
    "id": "handling",
-   "label": "Handling",
+   "label": "",
    "x": 194,
    "y": 174,
    "w": 36,
@@ -1769,7 +1962,7 @@ window.AG_AREA = {
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "Bud Box, chute, scale",
+   "note": "",
    "assumed": false,
    "outline": [
     [
@@ -2105,6 +2298,47 @@ window.AG_AREA = {
    "kind": "building",
    "note": "",
    "assumed": false
+  },
+  {
+   "id": "dogtrot",
+   "label": "",
+   "x": -48.0,
+   "y": 216.0,
+   "w": 36,
+   "h": 15.0,
+   "use": "circulation",
+   "level": 2,
+   "kind": "yard",
+   "note": "dogtrot",
+   "assumed": false
+  },
+  {
+   "id": "small-b",
+   "label": "Small animal barn B",
+   "x": -48.0,
+   "y": 279.0,
+   "w": 36,
+   "h": 41,
+   "use": "small_animal",
+   "level": 3,
+   "kind": "building",
+   "note": "12 pens; 5,472.0 sf in all",
+   "assumed": false,
+   "pens": {
+    "n": 6,
+    "w": 6,
+    "rows": [
+     [
+      0,
+      10
+     ],
+     [
+      26,
+      10
+     ]
+    ],
+    "vertical": true
+   }
   },
   {
    "id": "compost",
@@ -2518,13 +2752,13 @@ window.AG_AREA = {
    "2": 21,
    "3": 35
   },
-  "small_animal_pens_per_barn": 16,
+  "small_animal_pens_per_barn": 32,
   "small_animal_pens": {
-   "2": 16,
-   "3": 32
+   "2": 32,
+   "3": 44
   },
   "option": "B",
-  "parking": 45
+  "parking": 55
  },
  "module_ft": 12,
  "lane_ft": 24

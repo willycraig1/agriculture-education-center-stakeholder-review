@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Barnyard</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142101">
-<link rel="stylesheet" href="../design/deck.css?v=202610142101">
+<link rel="stylesheet" href="../design/palette.css?v=202610142127">
+<link rel="stylesheet" href="../design/deck.css?v=202610142127">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -57,9 +57,9 @@
   </div>
 </div>
 
-<script src="data/ag-area.js?v=202610142101"></script>
-<script src="../design/deck.js?v=202610142101"></script>
-<script src="../design/viewer.js?v=202610142101"></script>
+<script src="data/ag-area.js?v=202610142127"></script>
+<script src="../design/deck.js?v=202610142127"></script>
+<script src="../design/viewer.js?v=202610142127"></script>
 <script>
 (function () {
   const A = window.AG_AREA, v = A.view;
@@ -111,9 +111,11 @@
   }
   const shapes = [], labels = [];
   A.elements.forEach(e => {
-    const lines = e.kind === "container" || e.kind === "parking" || e.zones ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && e.id.startsWith("turnout") ? 5.5 : 6.6;
+    const lines = e.kind === "container" || e.kind === "parking" || e.zones ? [e.label] : wrap(e.label), fs = e.kind === "container" ? 4.2 : e.kind === "yard" && (e.id.startsWith("turnout") || e.zones) ? 5.5 : 6.6;
     const cx = e.x + e.w / 2;
-    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + 8 : e.zones ? e.y + e.h + 6 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
+    // yards with zones (the handling yard) carry their name just inside the bottom edge; other buildings with zones
+    // (the arena's grooming area) keep a centred name
+    const cy = e.id.startsWith("turnout") ? e.y + e.h * 0.22 : e.kind === "parking" ? e.y + 8 : e.zones && e.kind === "yard" ? e.y + e.h - 9 : e.y + e.h / 2 - (lines.length - 1) * fs * 0.6;
     const narrow = e.w < 45 && e.h > e.w * 1.6;     // tall, narrow buildings read better with a rotated label
     const txt = narrow
       ? `<text transform="translate(${e.x + 5} ${e.y + e.h / 2}) rotate(-90)" text-anchor="middle" font-size="${Math.min(fs, e.h / (e.label.length * 0.56))}" dy="2">${e.label.replace("&", "&amp;")}</text>`
@@ -161,10 +163,10 @@
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "Holding pens 1 to 5 and the handling yard: Bud Box, chute and scale", "Compost area and dumpster enclosure south of the existing barn", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Walkways (white) tie the Red House, the parking and the barns together"] },
-    { b: "Level 2", h: "First new barns", items: [`Cattle barn A, with its turnout to the north: ${c[2]} pens in all`, `The small animal barn, ${sa} pens, for hogs or small animals: the hogs move here`, "Feed storage, and bedding storage beside cattle barn A", "Existing barn, emptied of hogs, becomes storage"] },
-    { b: "Level 3", h: "Best case", items: [`Cattle barn B beside barn A, with its turnout: ${c[3]} pens in all`, `The small animal barn extended south past a dogtrot: ${A.counts.small_animal_pens[3]} small animal pens in all`, "Arena, 84' × 50', with a grooming area at its west end", "24' clear between all buildings"] },
-    { b: "Flow", h: "A two-way loop", items: ["The parking loop and the service drive round the arena join into one two-way loop", "Stock trailers use the loop; no separate trailer enclosure is needed", "Every barn opens onto its own turnout", "The tractor aisle runs east-west through both cattle barns"] },
+    { b: "Level 1", h: "Lightest touch", items: ["Existing barn holds the hog pens", `${c[1]} existing cattle pens reused`, "Holding pens 1 to 5 and the handling yard: Bud Box, chute and scale", "Compost area and dumpster enclosure south of the existing barn (could wait if funding is tight)", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Walkways (white) tie the Red House, the parking and the barns together"] },
+    { b: "Level 2", h: "First new barns", items: [`Cattle barn A, with its turnout to the north: ${c[2]} pens in all`, `Small animal barn A: two wings with a dogtrot, ${sa} pens, for hogs or small animals; the hogs move here`, "Feed storage, and bedding storage beside cattle barn A", "Existing barn, emptied of hogs, becomes storage"] },
+    { b: "Level 3", h: "Best case", items: [`Cattle barn B beside barn A, with its turnout: ${c[3]} pens in all`, `Small animal barn B extends it south to the code limit for a Type VB utility building (5,500 sf): ${A.counts.small_animal_pens[3]} small animal pens in all`, "Arena, 84' × 50', with a grooming area at its west end", "24' clear between all buildings"] },
+    { b: "Flow", h: "A two-way loop", items: ["The parking loop and the service drive round the arena join into one two-way loop", "Stock trailers use the loop; no separate trailer enclosure is needed", "Every barn opens onto its own turnout", "The tractor aisle runs east-west through both cattle barns", "The gap between the cattle barns is the busiest route: animals go to the grooming area daily"] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");

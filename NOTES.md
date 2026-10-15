@@ -526,3 +526,19 @@ south of the existing barn (taken as Level 1); a **grooming area** at the arena'
 (45 spaces); a white **walkway network** as drawn. The regenerated `drawings/ag-area-diagram.svg` reflects all this;
 `ag-area-diagram2.svg` is the architect's source and is not overwritten. Slide texts and the Levels matrix updated.
 Fit checks now skip context elements (walk etc.).
+- **Follow-up (architect, 2026-10-14):**
+  - Loop legs past the Red House and east of the arena are a pervious drivable surface (aggregate or grass over a
+    base), not pavement: left unpaved on the plans.
+  - The ten stalls added to the banks sat in the file's circulation layer; the import now takes every 10' x 20'
+    stall in the file: **55 spaces**.
+  - Small animal turnout comes in at Level 2 beside barn A; Level 3 adds its extension beside barn B.
+  - Compost and dumpsters are Level 1 but could wait if funding is tight (said on the barnyard slide).
+  - The 24' gap between the cattle barns is both walkway and tractor path, likely the busiest route on the campus:
+    participants take animals to the grooming area daily (said in the Flow step).
+  - The walkway network is correct as drawn: ADA and vehicular circulation together.
+  - **Small animal barns:** what was drawn is **barn A** (Level 2): two 36' x 48' wings either side of a 15' dogtrot
+    (3,996 sf with the dogtrot taken as roofed). **Barn B** (Level 3) extends it south to the code limit for a
+    Group U, Type VB building, 5,500 sf per story (IBC Table 506.2, no sprinkler or frontage increase): 36' x 41',
+    12 pens, 5,472 sf in all. Small animal pens: 32 at Level 2, 44 at Level 3.
+  - Labels: the handling yard has no overall label on the barnyard slide (its parts are named); the arena's name is
+    centred again (it had been placed below the building because it now has a zone).
