@@ -559,8 +559,9 @@ Fit checks now skip context elements (walk etc.).
 
 ## 2026-10-14: civil's retention refitted as a site retention option
 - Civil's expanded retention (sketched on Option A) ran under the Option B cattle turnouts and pens. Refitted in
-  `tools/build_site_map.py` to the architect's markup on the water slide: the west lobe of civil's sketch, kept clear
-  of every new element (its arm along the pens and its strip beside the cattle turnouts drop out), and a south pond on
-  the open ground between the small animal turnout and the old bed's top of bank, short of the access drive.
-- Renamed "Site retention option" (0.2 ac and 0.6 ac, labelled each); water slide legend and notes list updated.
+  `tools/build_site_map.py` to the architect's markup on the water slide, as two clean diagrammatic ponds rather
+  than civil's sketch line: a west pond in the paddock between fence-19, the campus fence and the old bed, and a
+  south pond between the small animal turnout's fence, the campus's east fence and the old bed. Each is kept about
+  11 ft clear of new elements, fence lines and top of bank, simplified to a few straight sides, corners rounded.
+- Renamed "Site retention option" (0.2 ac and 0.4 ac, labelled each); water slide legend and notes list updated.
   Not designed or sized.
