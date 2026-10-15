@@ -635,3 +635,8 @@ Fit checks now skip context elements (walk etc.).
   two closet boxes on the Level 1 sheet, carried to Levels 2 and 3 by the Office 1 label; every drawn item with all
   its points inside a box is dropped (62 per Level: closet walls, bifold doors, headers), and each office's walls are
   closed along the corridor wall. The dashed marks left there are the Existing walls shown as removed.
+
+## 2026-10-14: bioswale on the water slide
+- The parking lot's bioswale (island_poly, class `bioswale` on the site map) is picked out in a stronger water fill and
+  labelled "Bioswale" (`#bioswale-label`, hidden unless a slide shows it) on the water slide's plan steps; added to
+  step 4's legend.

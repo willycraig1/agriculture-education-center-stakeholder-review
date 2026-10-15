@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Water on the Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610142356">
-<link rel="stylesheet" href="../design/deck.css?v=202610142356">
+<link rel="stylesheet" href="../design/palette.css?v=202610142358">
+<link rel="stylesheet" href="../design/deck.css?v=202610142358">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -19,6 +19,8 @@
   .map.strong #historic-slough { fill-opacity: .45; }
   .map #campus { opacity: .7; }
   .map.plan #retention-label, .map.plan #site-retention { display: inline; }
+  .map.plan #bioswale-label { display: inline; }
+  .map.plan .bioswale { fill: var(--water); fill-opacity: .55; stroke-width: 1.2; }   /* the parking lot's bioswale, picked out on the plan steps */
   .map.comp #compensation, .map.comp #wildcard { display: inline; }
   .map.infra #infrastructure, .map.infra #infrastructure-labels, .map.infra .infra-copy { display: inline; }   /* discussion item, shown on the plan step only */
   .map:not(.plan) .pond.proposed { display: none; }   /* proposed pond only on the plan step */
@@ -67,9 +69,9 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610142356"></script>
-<script src="../design/deck.js?v=202610142356"></script>
-<script src="../design/viewer.js?v=202610142356"></script>
+<script src="data/site-map.js?v=202610142358"></script>
+<script src="../design/deck.js?v=202610142358"></script>
+<script src="../design/viewer.js?v=202610142358"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = M.civil || {}, W = M.wildcard || {}, B = M.slough_bed || {}, bedAc = (B.acres || 0).toFixed(1);
@@ -100,7 +102,7 @@
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
       show: ["ground", "property", "soils", "water", "labels"], frame: "bed" },
     { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The whole site is in the floodplain. Civil sets the covered livestock buildings at a finished floor of 21.70', just above the County's 100-year flood level, with little freeboard.`,
-      lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention pond</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
+      lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention pond</span><span><i style="background:var(--water);opacity:.55"></i>Bioswale</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
     { t: "Floodplain compensation, all at Level 1", p: `The whole site is in the floodplain. Civil recommends permitting and building all the stormwater and compensation up front, at Level 1: fill for new work is balanced by lowering ground elsewhere, wide and shallow so it stays in grazing.`,
       lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Site retention option (civil)</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention</span><span><i style="background:none;border:2px dotted var(--water)"></i>Bonus retention</span>`,
