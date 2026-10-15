@@ -645,7 +645,7 @@ Fit checks now skip context elements (walk etc.).
 - Program toggle on the Red House slide ("Program" button in the key; applies to whichever Level is showing).
   Architect's colours: yellow circulation (hall, lobby, commons), blue restrooms, red primary spaces (conference,
   instructional classroom / event space, demo kitchen), grey storage; Claude's picks: green offices and staff
-  (offices, breakroom), orange kitchen support (dishwash, cooler, pantry). Porches, patio, covered walkway, and
+  (offices), orange kitchen support (dishwash, cooler, pantry, and the breakroom, moved there by the architect). Porches, patio, covered walkway, and
   carport stay uncoloured.
 - Rooms are found in `tools/build_red_house.py` from the walls and windows: each label's core is the area more than r
   from any line, with r raised per room (14 to 50 pt) until the core is closed off from the outside and doesn't run
