@@ -671,6 +671,6 @@ Fit checks now skip context elements (walk etc.).
 ## 2026-10-15: PDF export for County review
 - The County web filter blocks willycraig1.github.io ("Computers / Internet"). As a stopgap for review before Friday,
   `tools/export_pdf.py` serves the repo locally, drives headless Chrome over the DevTools protocol, and captures
-  every slide at 1920 x 1080 (x1.3): map and plan slides one page per step (site, paddocks, barnyard, barnyard on
-  the site, water, Red House), the Red House program key per Level, the rest at their last step. 42 pages, about
-  11.5 MB, written to exports/stakeholder-review-draft.pdf (git-ignored; rerun after changes).
+  every slide at 1920 x 1080 (x1.3): map and plan slides one page per step (site, paddocks, barnyard, Bud Box, barnyard on
+  the site, water, Red House), the Red House program key per Level, the rest at their last step. 49 pages, about
+  12.8 MB, written to exports/stakeholder-review-draft.pdf (git-ignored; rerun after changes).

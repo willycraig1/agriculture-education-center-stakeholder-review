@@ -16,7 +16,7 @@ import websocket
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 OUT = os.path.join(ROOT, "exports")
-STEPPED = {"site", "paddocks", "ag-area", "site-plan", "water-site", "red-house"}     # one page per step
+STEPPED = {"site", "paddocks", "ag-area", "bud-box", "site-plan", "water-site", "red-house"}     # one page per step
 SCALE = 1.3
 
 
@@ -92,7 +92,7 @@ for f, title in slides:
     last = js("Math.max(0, ...[...document.querySelectorAll('[data-step]')].map(e => +e.dataset.step || 0))") or 0
     steps = range(last + 1) if name in STEPPED else [last]
     for i in steps:
-        js(f"Deck.show({i})"); time.sleep(2.0)              # camera flights and fades settle
+        js(f"Deck.show({i})"); time.sleep(2.6 if name == "bud-box" else 2.0)   # camera flights, fades, the cattle moves settle
         pages.append(shot()); print(f"{len(pages):3d}  {title}  step {i + 1}/{last + 1}")
     if name == "red-house":                                 # the program key, Level by Level
         js("document.getElementById('plan').classList.add('prog')")
