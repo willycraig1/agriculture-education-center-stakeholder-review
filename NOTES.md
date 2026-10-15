@@ -655,3 +655,11 @@ Fit checks now skip context elements (walk etc.).
 - Level 3: the addition inset's patio (label, roof edge, paving lines) reached past the inset's exclusion box and
   showed as a stray patio beside the house. The box now runs 620 pt left of the inset title; the patio label is kept
   out of the addition fit (fit unchanged: 98.6% of walls within 1 pt).
+
+## 2026-10-15: cover illustration
+- `tools/build_cover_art.py` draws `drawings/cover-perspective.svg`: a watercolour-style SVG sketch (not a rendering)
+  of a 4-H student leading a heifer past the existing barn (from photos/barn.jpeg: weathered board-and-batten, four
+  roll-up doors, lean-to with gate), the open-sided arena canopy behind at left and white monitor-roof barns and a
+  tractor beyond (after the reference project's photos, Seibert Architects MMS Ag Farm, Ryan Gamma Photography), live
+  oak with moss and cabbage palms, late-afternoon sky. Deck palette; fades into the slide paper on its left edge.
+- Placed on the cover (`slides/title.html`) at the right of the slide; the text column is held to 900px.
