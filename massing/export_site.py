@@ -1,0 +1,354 @@
+"""Export the campus site around the barnyard massing for the 3D viewer.
+
+Reads the deck's generated site plan (slides/data/site-map.js, from tools/build_site_map.py) and barnyard plan
+(slides/data/ag-area.js, from tools/build_ag_area.py) and writes massing/site-data.js (window.SITE = {...}) plus
+massing/aerial.jpg, all in the massing's frame (scene.py feet: x east, y "plan north" up, z up).
+
+Frames: site map (presentation units) -> barnyard diagram feet via site-map.js `diagram_to_presentation`;
+diagram feet -> scene.py feet by a similarity fitted to ten barnyard footprints traced in both (residual < 0.6 ft).
+Plan north is the diagram's up; true north is `north_cw_from_up` from it (ag-area.js).
+
+Run after the deck's build tools:   .venv/bin/python massing/export_site.py
+"""
+import json, os, re
+import xml.etree.ElementTree as ET
+import numpy as np
+from PIL import Image
+from shapely.geometry import Polygon, MultiPolygon, Point, LineString, box
+from shapely.ops import unary_union
+from svgelements import Path as SvgPath, Move, Close
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+S = 2.95   # scene.py's plan px per ft
+
+
+def load_js(path):
+    s = open(path).read()
+    return json.loads(s[s.index('{'):s.rstrip().rstrip(';').rindex('}') + 1])
+
+
+SM = load_js(os.path.join(ROOT, 'slides', 'data', 'site-map.js'))
+AG = load_js(os.path.join(ROOT, 'slides', 'data', 'ag-area.js'))
+ELEM = {e['id']: e for e in AG['elements']}
+
+# ---------------------------------------------------------------- frames
+M_DP = complex(*SM['barnyard']['diagram_to_presentation']['m'])
+T_DP = complex(*SM['barnyard']['diagram_to_presentation']['t'])
+
+
+def fit_diagram_to_scene():
+    """Similarity (with the y flip) from diagram feet to scene.py feet, fitted on footprints traced in both."""
+    pairs = [('cattle-a', (645, 276, 893, 460)), ('cattle-b', (322, 276, 572, 460)), ('arena', (645, 530, 893, 680)),
+             ('small-a', (245, 537, 353, 680)), ('small-a2', (245, 725, 353, 868)), ('small-b', (245, 868, 353, 990)),
+             ('existing-barn', (983, 775, 1220, 925)), ('feed', (525, 560, 572, 680)),
+             ('holding-1', (1097, 555, 1220, 680)), ('existing-pens', (972, 680, 1220, 750))]
+    A, B = [], []
+    for k, (a, b, c, d) in pairs:
+        e = ELEM[k]
+        x0, y0, x1, y1 = e['x'], e['y'], e['x'] + e['w'], e['y'] + e['h']
+        for (u, v), (p, q) in zip([(x0, y0), (x1, y0), (x0, y1), (x1, y1)], [(a, b), (c, b), (a, d), (c, d)]):
+            A.append(complex(u, -v)); B.append(complex(p / S, -q / S))
+    A, B = np.array(A), np.array(B)
+    X = np.stack([A, np.ones_like(A)], 1)
+    (m, t), *_ = np.linalg.lstsq(X, B, rcond=None)
+    resid = np.abs(X @ np.array([m, t]) - B).max()
+    return m, t, resid
+
+
+M_DS, T_DS, RESID = fit_diagram_to_scene()
+
+
+def d2s(x, y):
+    """diagram feet -> scene feet"""
+    z = M_DS * complex(x, -y) + T_DS
+    return (round(z.real, 2), round(z.imag, 2))
+
+
+def m2s(x, y):
+    """site-map units -> scene feet"""
+    q = (complex(x, y) - T_DP) / M_DP
+    return d2s(q.real, q.imag)
+
+
+# ---------------------------------------------------------------- site-map svg, walked with transforms
+NS = '{http://www.w3.org/2000/svg}'
+
+
+def parse_tf(t):
+    M = np.eye(3)
+    for name, args in re.findall(r'(\w+)\(([^)]*)\)', t or ''):
+        a = [float(v) for v in re.split(r'[ ,]+', args.strip()) if v]
+        if name == 'matrix':
+            T = np.array([[a[0], a[2], a[4]], [a[1], a[3], a[5]], [0, 0, 1]])
+        elif name == 'translate':
+            T = np.array([[1, 0, a[0]], [0, 1, a[1] if len(a) > 1 else 0], [0, 0, 1]])
+        elif name == 'rotate':
+            r = np.radians(a[0]); c, s = np.cos(r), np.sin(r)
+            T = np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+            if len(a) == 3:
+                T = np.array([[1, 0, a[1]], [0, 1, a[2]], [0, 0, 1]]) @ T @ np.array([[1, 0, -a[1]], [0, 1, -a[2]], [0, 0, 1]])
+        elif name == 'scale':
+            T = np.diag([a[0], a[1] if len(a) > 1 else a[0], 1])
+        else:
+            continue
+        M = M @ T
+    return M
+
+
+ITEMS = []
+
+
+def walk(e, M, layers, hidden):
+    tag = e.tag.replace(NS, '')
+    M = M @ parse_tf(e.get('transform'))
+    hidden = hidden or e.get('display') == 'none'
+    if tag in ('g', 'svg'):
+        for c in e:
+            walk(c, M, layers + ([e.get('id')] if e.get('id') else []), hidden)
+    else:
+        ITEMS.append(dict(tag=tag, e=e, M=M, layers=layers, hidden=hidden))
+
+
+walk(ET.fromstring(SM['svg']), np.eye(3), [], False)
+
+
+def items(layer, tag=None, sub=None):
+    for it in ITEMS:
+        ly = it['layers']
+        if len(ly) > 1 and ly[1] == layer and not it['hidden'] and (tag is None or it['tag'] == tag) \
+                and (sub is None or sub in ly[2:]):
+            yield it
+
+
+def apply(M, pts):
+    P = np.c_[np.array(pts, float), np.ones(len(pts))] @ M.T
+    return [m2s(x, y) for x, y in P[:, :2]]
+
+
+def rings(it):
+    """Closed rings (scene feet) of a path / polygon / polyline / rect."""
+    e, M, tag = it['e'], it['M'], it['tag']
+    if tag in ('polygon', 'polyline'):
+        v = [float(a) for a in re.split(r'[ ,]+', e.get('points').strip())]
+        return [apply(M, list(zip(v[::2], v[1::2])))]
+    if tag == 'rect':
+        x, y, w, h = (float(e.get(k, 0)) for k in ('x', 'y', 'width', 'height'))
+        return [apply(M, [(x, y), (x + w, y), (x + w, y + h), (x, y + h)])]
+    if tag == 'path':
+        out, cur = [], []
+        for seg in SvgPath(e.get('d')):
+            if isinstance(seg, Move):
+                if len(cur) > 2: out.append(cur)
+                cur = [(seg.end.x, seg.end.y)]
+            elif isinstance(seg, Close):
+                if len(cur) > 2: out.append(cur)
+                cur = []
+            else:
+                n = 1 if type(seg).__name__ == 'Line' else 8
+                cur += [(seg.point(t / n).x, seg.point(t / n).y) for t in range(1, n + 1)]
+        if len(cur) > 2: out.append(cur)
+        return [apply(M, r) for r in out]
+    return []
+
+
+def to_polys(rs, evenodd=True, simplify=0.0):
+    """Rings -> list of {o: outer, h: [holes]}, treating nested rings as holes (even-odd)."""
+    geoms = [Polygon(r).buffer(0) for r in rs if len(r) > 2]
+    geoms = [g for g in geoms if not g.is_empty]
+    if evenodd and len(geoms) > 1:
+        acc = geoms[0]
+        for g in geoms[1:]:
+            acc = acc.symmetric_difference(g)
+        geoms = [acc]
+    out = []
+    for g in geoms:
+        if simplify: g = g.simplify(simplify)
+        for p in (g.geoms if isinstance(g, MultiPolygon) else [g]):
+            if p.is_empty or p.area < 4: continue
+            out.append(dict(o=rnd(p.exterior.coords), h=[rnd(i.coords) for i in p.interiors if Polygon(i).area > 4]))
+    return out
+
+
+def rnd(cs):
+    cs = list(cs)
+    if len(cs) > 1 and cs[0] == cs[-1]: cs = cs[:-1]
+    return [[round(x, 1), round(y, 1)] for x, y in cs]
+
+
+def line_pts(it):
+    e = it['e']
+    v = [float(a) for a in re.split(r'[ ,]+', e.get('points').strip())]
+    return rnd(apply(it['M'], list(zip(v[::2], v[1::2]))))
+
+
+def text_of(it):
+    e = it['e']
+    return ''.join(e.itertext()).strip()
+
+
+# ---------------------------------------------------------------- layers
+def main():
+    out = dict(about="Generated by massing/export_site.py from slides/data/site-map.js and ag-area.js. Do not edit.",
+               frame_fit_resid_ft=round(float(RESID), 2),
+               north_cw_from_up=AG.get('north_cw_from_up', 0))
+
+    # property boundary (the site ground) and surveyed property lines
+    out['boundary'] = to_polys(rings(next(items('ground', 'path'))))
+    out['property'] = [line_pts(it) for it in items('property', 'polyline')]
+
+    # land areas and paddocks, with their labels
+    out['areas'] = [dict(kind=it['e'].get('class').split()[1], polys=to_polys(rings(it), simplify=0.5))
+                    for it in items('land', 'path', 'pasture-areas')]
+    pads = []
+    for it in items('paddocks', 'path', 'paddock-fills'):
+        cls = it['e'].get('class').split()
+        pads.append(dict(kind=cls[1], polys=to_polys(rings(it))))
+    tags = []
+    for it in items('paddocks', 'text'):
+        p = apply(it['M'], [(float(it['e'].get('x', 0)), float(it['e'].get('y', 0)))])[0]
+        t = text_of(it)
+        if re.search(r'\d+(\.\d+)?\s*AC', t, re.I):
+            tags.append(dict(t=t, p=list(p)))
+    for pd in pads:   # pair each paddock with the acreage label inside it
+        poly = Polygon(pd['polys'][0]['o'])
+        hit = [t for t in tags if poly.buffer(30).contains(Point(t['p']))]
+        pd['label'] = hit[0]['t'] if hit else ''
+    out['paddocks'] = pads
+    # fences: the bonus pasture's come in at Level 3 (levels.js pasture row); the rest at Level 1
+    bonus = unary_union([Polygon(p['o']).buffer(25) for a in out['areas'] if a['kind'] == 'bonus' for p in a['polys']])
+    out['fences'] = []
+    for it in items('paddocks', 'polyline', 'fence-lines'):
+        pts = line_pts(it)
+        ln = LineString(pts)
+        out['fences'].append(dict(id=it['e'].get('id'), p=pts,
+                                  level=3 if ln.intersection(bonus).length > .6 * ln.length else 1))
+    for pd in pads:
+        pd['level'] = 3 if pd['kind'] == 'bonus' else 1
+
+    # water
+    water = []
+    for it in items('water', 'path'):
+        cid = it['e'].get('id') or it['e'].get('class') or ''
+        if it['layers'][2:] and it['layers'][2] == 'historic-slough-floor':
+            cid = 'historic-slough-floor'
+        if cid in ('slough', 'historic-slough', 'pond existing', 'pond proposed', 'historic-slough-floor'):
+            water.append(dict(kind=cid.replace(' ', '-'), polys=to_polys(rings(it), simplify=0.3)))
+    out['water'] = water
+
+    # canopy, and trees scattered through it; surveyed trees as points
+    canopy = to_polys(rings(next(items('canopy', 'path'))), simplify=1.0)
+    out['canopy'] = canopy
+
+    # keep scattered trees off the barnyard, campus, roads, and buildings
+    def el_poly(e):
+        pts = e.get('outline') or [[e['x'], e['y']], [e['x'] + e['w'], e['y']], [e['x'] + e['w'], e['y'] + e['h']], [e['x'], e['y'] + e['h']]]
+        return Polygon([d2s(x, y) for x, y in pts]).buffer(0)
+    plan_all = unary_union([el_poly(e) for e in AG['elements']])
+    plan_new = unary_union([el_poly(e) for e in AG['elements'] if not e['id'].startswith('existing') and e['id'] not in ('residence', 'horticulture')])
+    roads = unary_union([Polygon(p['o'], p['h']).buffer(0) for it in items('campus', 'path') if it['e'].get('id') == 'road-area'
+                         for p in to_polys(rings(it))])
+    keep_out = [plan_all.buffer(10).union(roads.buffer(8)).union(box(60, -380, 440, -40))]
+    rng = np.random.default_rng(5)
+    scatter = []
+    for cp in canopy:
+        poly = Polygon(cp['o'], cp['h']).buffer(-6)
+        if poly.is_empty: continue
+        x0, y0, x1, y1 = poly.bounds
+        step = 30.0
+        for gx in np.arange(x0, x1, step):
+            for gy in np.arange(y0, y1, step):
+                x, y = gx + rng.uniform(0, step), gy + rng.uniform(0, step)
+                pt = Point(x, y)
+                if poly.contains(pt) and not any(k.contains(pt) for k in keep_out):
+                    scatter.append([round(x, 1), round(y, 1), round(float(rng.uniform(.75, 1.35)), 2),
+                                    1 if rng.uniform() < .14 else 0])   # 1 = pine
+    out['canopy_trees'] = scatter
+
+    # surveyed trees; ones under a new plan element are removed at Level 1 (third value 0 = kept until Existing)
+    surveyed = []
+    for it in items('trees', 'circle'):
+        e = it['e']
+        x, y = apply(it['M'], [(float(e.get('cx')), float(e.get('cy')))])[0]
+        surveyed.append([round(x, 1), round(y, 1)] + ([0] if plan_new.buffer(2).contains(Point(x, y)) else []))
+    out['surveyed_trees'] = surveyed
+
+    # campus: the survey's road area and buildings, plus the plan's campus elements
+    road = next(items('campus', 'path'), None)
+    out['roads'] = [p for it in items('campus', 'path') if it['e'].get('id') == 'road-area' for p in to_polys(rings(it))]
+    def outline(eid):
+        e = ELEM[eid]
+        pts = e.get('outline') or [[e['x'], e['y']], [e['x'] + e['w'], e['y']], [e['x'] + e['w'], e['y'] + e['h']], [e['x'], e['y'] + e['h']]]
+        return [list(d2s(x, y)) for x, y in pts]
+
+    # Surveyed structures. Ones the plan already models (Red House, existing barn and pens, unfinished barn,
+    # porches, carport) are dropped; ones under a new plan element are existing structures the plan removes
+    # (shown at Existing only, `until: 0`); the rest stay at every Level.
+    modeled = unary_union([Polygon(outline(k)).buffer(4) for k in
+                           ('existing-red-house', 'existing-barn', 'existing-pens', 'existing-poultry', 'existing-carport',
+                            'existing-porch-nw', 'existing-porch-ne')])
+    new = unary_union([Polygon(outline(e['id'])) for e in AG['elements']
+                       if not e['id'].startswith('existing') and e['id'] not in ('residence', 'horticulture')])
+    sheds = []
+    def classify(o, kind, name):
+        g = Polygon(o)
+        if g.intersection(modeled).area > .5 * g.area: return
+        d = dict(o=o, kind=kind, name=name)
+        if g.intersects(new): d['until'] = 0
+        sheds.append(d)
+    for it in items('campus', 'path'):
+        if it['e'].get('id'): continue
+        for p in to_polys(rings(it), evenodd=False):
+            bonus = 'bonus-buildings' in it['layers']
+            classify(p['o'], 'building', 'Existing building' if bonus else 'Existing structure')
+    for it in items('campus', 'polygon', 'canopies'):
+        classify(to_polys(rings(it), evenodd=False)[0]['o'], 'canopy', 'Existing shed')
+    out['survey_buildings'] = sheds
+
+    pk = ELEM['parking']
+    out['campus'] = dict(
+        red_house=outline('existing-red-house'),
+        porches=[outline('existing-porch-nw'), outline('existing-porch-ne')],
+        carport=outline('existing-carport'),
+        residence=outline('residence'),
+        poultry=outline('existing-poultry'),
+        horticulture=outline('horticulture'),
+        parking=dict(o=outline('parking'), h=[[list(d2s(x, y)) for x, y in h] for h in pk.get('holes', [])],
+                     grass=[list(d2s(x, y)) for x, y in pk['grass']],
+                     island=[list(d2s(x, y)) for x, y in pk['island_poly']]),
+        walks=[dict(level=ELEM[w]['level'], o=outline(w)) for w in ('walk', 'walk-2')],
+    )
+    stalls = []
+    for it in items('barnyard', 'polygon'):
+        e = it['e']
+        if e.get('fill') is None and e.get('class') is None:
+            r = rings(it)[0]
+            if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
+    out['campus']['stalls'] = stalls
+
+    # the aerial, as a parallelogram in scene feet (origin, +u corner, +v corner)
+    img = next(it for it in ITEMS if it['tag'] == 'image' and it['layers'][1] == 'aerial')
+    e = img['e']
+    w, h = float(e.get('width')), float(e.get('height'))
+    M = img['M']
+    corners = [apply(M, [(0, 0)])[0], apply(M, [(w, 0)])[0], apply(M, [(0, h)])[0]]
+    out['aerial'] = dict(src='aerial.jpg', o=list(corners[0]), u=list(corners[1]), v=list(corners[2]))
+    src = os.path.join(ROOT, 'slides', e.get('href').replace('%20', ' '))
+    Image.open(src).convert('RGB').save(os.path.join(HERE, 'aerial.jpg'), quality=84)
+
+    path = os.path.join(HERE, 'site-data.js')
+    with open(path, 'w') as fh:
+        fh.write('// ' + out['about'] + '\nwindow.SITE = ')
+        json.dump(out, fh, separators=(',', ':'))
+        fh.write(';\n')
+    allpts = np.array([q for b in out['boundary'] for q in b['o']])
+    print(f"{path}: {os.path.getsize(path) / 1024:.0f} KB; frame fit {RESID:.2f} ft; "
+          f"paddocks {len(pads)}, fences {len(out['fences'])}, canopy polys {len(canopy)}, canopy trees {len(scatter)}, "
+          f"surveyed trees {len(surveyed)} ({sum(len(t) > 2 for t in surveyed)} removed), stalls {len(stalls)}, survey buildings {len(sheds)} "
+          f"({sum('until' in b for b in sheds)} removed by the plan); "
+          f"boundary x {allpts[:, 0].min():.0f}..{allpts[:, 0].max():.0f} y {allpts[:, 1].min():.0f}..{allpts[:, 1].max():.0f}")
+    for pd in pads: print('  ', pd['kind'], pd['label'], round(Polygon(pd['polys'][0]['o']).area / 43560, 1), 'ac')
+
+
+if __name__ == '__main__':
+    main()
