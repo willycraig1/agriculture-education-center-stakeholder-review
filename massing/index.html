@@ -110,7 +110,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
     <header>
       <div class="eyebrow">MMS Ag Farm · Barnyard Option B</div>
       <h1>Campus massing model</h1>
-      <p>The 3D massing behind the watercolor, set on the campus site and phased by Level. Drag to orbit, right-drag or two fingers to pan, scroll to zoom. Click a building for its size.</p>
+      <p>The 3D massing behind the watercolor, set on the campus site and phased by Level. Drag to orbit, right-drag or two fingers to pan, scroll to zoom. Arrow keys walk forward and strafe; hold Shift to hurry. Click a building for its size.</p>
     </header>
 
     <section>
@@ -190,7 +190,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
       <g id="needle"><path d="M0,-17 L5,0 L0,-3 L-5,0 Z" fill="#2B2A26"/><text y="11" text-anchor="middle" font-size="9" font-weight="700" fill="#2B2A26">N</text></g>
     </svg>
     <div class="scalebar" id="scalebar"><div></div><span></span></div>
-    <div class="help">Drag to orbit · right-drag to pan · scroll to zoom · 0–3 sets the Level</div>
+    <div class="help">Drag to orbit · right-drag to pan · scroll to zoom · arrow keys walk and strafe (Shift to hurry) · 0–3 sets the Level</div>
     <div class="card" id="card" hidden></div>
   </main>
 </div>
@@ -756,16 +756,17 @@ function placeTags() {
 
 // ---------- views ----------
 const C = S.camera;
+// Eye-level views aim a touch below level: the orbit keeps the camera at least 0.02 rad above its target.
 const VIEWS = {
   watercolor: { name: 'Watercolor', sub: 'The painting\'s camera', pos: C.pos, tgt: C.target, hfov: C.hfov_deg },
   aerial:     { name: 'Bird\'s-eye', sub: 'From the south-west', pos: [-40, -600, 300], tgt: [235, -210, 0], fov: 40 },
   plan:       { name: 'Plan', sub: 'North up, from above', pos: [235, -214, 820], tgt: [235, -213, 0], fov: 40 },
-  lane:       { name: 'Eye level', sub: 'From the grass parking', pos: [232, -322, 5.5], tgt: [252, -170, 9], fov: 62 },
+  lane:       { name: 'Eye level', sub: 'From the grass parking', pos: [232, -322, 5.5], tgt: [252, -170, 1.5], fov: 62 },
   northeast:  { name: 'Over the pens', sub: 'From the north-east', pos: [560, 40, 150], tgt: [260, -210, 0], fov: 40 },
-  aisle:      { name: 'Between barns', sub: 'Up the 24\' tractor lane', pos: [206, -250, 5.5], tgt: [206, -60, 7], fov: 62 },
+  aisle:      { name: 'Between barns', sub: 'Up the 24\' tractor lane', pos: [206, -250, 5.5], tgt: [206, -60, 0.5], fov: 62 },
   campus:     { name: 'Campus', sub: 'Barnyard, Red House, parking', pos: [760, -1150, 620], tgt: [200, -330, 0], fov: 40 },
   pasture:    { name: 'Site pasture', sub: 'The paddocks, from the north', pos: [1500, 3300, 1500], tgt: [100, 500, 0], fov: 40 },
-  fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [235, 620, 5.5], tgt: [225, -120, 14], fov: 55 },
+  fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
   site:       { name: 'Whole property', sub: 'Campus, pastures, slough', pos: [2300, -3300, 2300], tgt: [-350, -800, 0], fov: 40 },
 };
 const viewsEl = document.getElementById('views');
@@ -802,10 +803,37 @@ function syncOverlay() {
   wcImg.style.opacity = on && !tween ? state.wc / 100 : 0;
   frameEl.style.display = on && !tween ? 'block' : 'none';
 }
-controls.addEventListener('start', () => {
+function leaveView() {
   tween = null;
   if (state.view) { state.view = null; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', false)); syncOverlay(); }
+}
+controls.addEventListener('start', leaveView);
+
+// ---------- arrow keys: walk forward and back, strafe left and right (Shift to hurry) ----------
+const held = new Set();
+const MOVE_KEYS = { ArrowUp: [1, 0], ArrowDown: [-1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+addEventListener('keydown', e => {
+  if (!MOVE_KEYS[e.key] || e.target.closest?.('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
+  e.preventDefault();
+  if (!held.size) leaveView();
+  held.add(e.key);
 });
+addEventListener('keyup', e => held.delete(e.key));
+addEventListener('blur', () => held.clear());
+const fwd = new THREE.Vector3(), right = new THREE.Vector3(), step = new THREE.Vector3();
+function walk(dt, fast) {
+  let f = 0, r = 0;
+  for (const k of held) { f += MOVE_KEYS[k][0]; r += MOVE_KEYS[k][1]; }
+  if (!f && !r) return;
+  fwd.subVectors(controls.target, camera.position).setZ(0);
+  if (fwd.lengthSq() < 1e-6) fwd.set(0, 1, 0);   // looking straight down: walk plan north
+  fwd.normalize();
+  right.set(fwd.y, -fwd.x, 0);
+  // walking pace at eye level (about 6 ft/s), faster the higher the camera
+  const speed = Math.max(6, camera.position.z * 0.9) * (fast ? 4 : 1);
+  step.set(0, 0, 0).addScaledVector(fwd, f).addScaledVector(right, r).normalize().multiplyScalar(speed * dt);
+  camera.position.add(step); controls.target.add(step);
+}
 
 // ---------- sun ----------
 function setSun(t) {
@@ -910,7 +938,7 @@ document.getElementById('fences').onchange = () => applyLevel();
 document.getElementById('people').onchange = e => { people.visible = e.target.checked; };
 document.getElementById('labels').onchange = e => { state.labels = e.target.checked; buildTags(); };
 addEventListener('keydown', e => {
-  if (e.target.closest('input, textarea')) return;
+  if (e.target.closest?.('input, textarea')) return;
   if ('0123'.includes(e.key) && e.key.length === 1) { state.level = +e.key; save(); applyLevel(); }
 });
 
@@ -925,7 +953,11 @@ function resize() {
 new ResizeObserver(resize).observe(stage);
 
 const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+let lastT = performance.now(), shiftHeld = false;
+addEventListener('keydown', e => { if (e.key === 'Shift') shiftHeld = true; });
+addEventListener('keyup', e => { if (e.key === 'Shift') shiftHeld = false; });
 function frame(now) {
+  walk(Math.min(.1, (now - lastT) / 1000), shiftHeld); lastT = now;
   if (tween) {
     const k = Math.min(1, (now - tween.t0) / 1100), e = ease(k);
     camera.position.lerpVectors(tween.from.pos, tween.to.pos, e);
