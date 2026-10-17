@@ -1,0 +1,687 @@
+<meta charset="utf-8">
+<title>Barnyard Massing Model</title>
+<style>
+/* Layout: one working screen; the 3D model fills the stage, a control rail on the left (stacked below on phones). */
+:root {
+  --paper: #FAF7F0; --panel: #F3EEE3; --ink: #2B2A26; --muted: #77736A; --line: #B9B3A6;
+  --accent: #8B5A2B;          /* cattle brown, the deck's lead program hue */
+  --accent-ink: #FAF7F0;
+  --sky-top: #9DBBD6; --sky-low: #E4ECEF;   /* the scene's sky stays daylight in both themes */
+  --l0: #77736A; --l1: #5F8A3A; --l2: #D19A2E; --l3: #B8657A;
+  --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --rail: 330px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #1F1E1B; --panel: #2A2824; --ink: #F1ECE2; --muted: #A9A398; --line: #4A463F;
+  --accent: #D4A06A; --accent-ink: #1F1E1B; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #1F1E1B; --panel: #2A2824; --ink: #F1ECE2; --muted: #A9A398; --line: #4A463F;
+  --accent: #D4A06A; --accent-ink: #1F1E1B; color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 14px; }
+.app { display: grid; grid-template-columns: var(--rail) 1fr; height: 100%; }
+.rail { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 18px 18px 24px;
+        display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.stage { position: relative; overflow: hidden; background: linear-gradient(var(--sky-top), var(--sky-low)); min-width: 0; }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+header .eyebrow { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+header h1 { margin: 4px 0 6px; font-size: 22px; line-height: 1.15; text-wrap: balance; font-weight: 700; }
+header p { margin: 0; color: var(--muted); line-height: 1.45; font-size: 13px; }
+
+section h2 { margin: 0 0 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg button { all: unset; cursor: pointer; text-align: center; padding: 8px 4px; font-weight: 600; font-size: 13px; color: var(--ink);
+              border-left: 1px solid var(--line); }
+.seg button:first-child { border-left: 0; }
+.seg button:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg button:focus-visible, .views button:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.levels button { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.levels button i { width: 18px; height: 4px; border-radius: 2px; background: var(--c); }
+
+.adds { margin-top: 10px; font-size: 13px; line-height: 1.5; }
+.adds b { font-weight: 600; }
+.adds ul { margin: 4px 0 0; padding-left: 18px; }
+.adds li { color: var(--ink); }
+.adds .none { color: var(--muted); }
+
+.views { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.views button { all: unset; cursor: pointer; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; font-weight: 600; }
+.views button small { display: block; font-weight: 400; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+.views button:hover { border-color: var(--ink); }
+.views button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0; }
+.row label { font-size: 13px; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.checks label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+.hint { color: var(--muted); font-size: 12px; line-height: 1.45; margin: 4px 0 0; }
+.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+.camcode { font-family: var(--mono); font-size: 11.5px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px;
+           padding: 8px 10px; white-space: pre-wrap; word-break: break-all; margin: 0; user-select: all; }
+.btn { all: unset; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 6px 10px; border-radius: 7px; border: 1px solid var(--line); }
+.btn:hover { border-color: var(--ink); }
+
+.legend { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 12.5px; }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; background: var(--c); flex: none; }
+
+/* on-stage overlays */
+.labels { position: absolute; inset: 0; pointer-events: none; }
+.tag { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; font-size: 11.5px; font-weight: 600; color: #2B2A26;
+       background: rgba(250,247,240,.88); border: 1px solid rgba(43,42,38,.25); border-radius: 5px; padding: 2px 6px; }
+.tag.ghost { opacity: .55; font-weight: 500; font-style: italic; }
+#wc { position: absolute; pointer-events: none; opacity: 0; transition: opacity .2s; }
+#frame { position: absolute; pointer-events: none; border: 1.5px dashed rgba(43,42,38,.55); display: none; }
+.card { position: absolute; right: 14px; top: 14px; width: min(290px, calc(100% - 28px)); background: var(--paper); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; box-shadow: 0 8px 26px rgba(0,0,0,.18); }
+.card h3 { margin: 0 0 2px; font-size: 15px; }
+.card dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 8px 0 0; font-size: 12.5px; }
+.card dt { color: var(--muted); }
+.card dd { margin: 0; font-variant-numeric: tabular-nums; }
+.card .x { all: unset; position: absolute; right: 6px; top: 4px; cursor: pointer; font-size: 18px; color: var(--muted); padding: 2px 6px; }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 2px 7px; border-radius: 99px;
+        background: var(--c); color: #fff; }
+.compass { position: absolute; left: 14px; bottom: 14px; width: 46px; height: 46px; pointer-events: none; }
+.scalebar { position: absolute; left: 70px; bottom: 22px; font-size: 11px; color: #2B2A26; font-weight: 600; pointer-events: none; }
+.scalebar div { height: 5px; border: 1.5px solid #2B2A26; border-top: 0; margin-bottom: 2px; }
+.help { position: absolute; right: 14px; bottom: 14px; font-size: 11.5px; color: #2B2A26; background: rgba(250,247,240,.8);
+        border-radius: 6px; padding: 4px 8px; pointer-events: none; }
+.err { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #2B2A26; }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 58vh auto; height: auto; }
+  .stage { order: -1; height: 58vh; }
+  .rail { border-right: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .help { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #wc { transition: none; } }
+</style>
+
+<div class="app">
+  <aside class="rail" aria-label="Model controls">
+    <header>
+      <div class="eyebrow">MMS Ag Farm · Barnyard Option B</div>
+      <h1>Barnyard massing model</h1>
+      <p>The 3D massing behind the watercolor, phased by Level. Drag to orbit, right-drag or two fingers to pan, scroll to zoom. Click a building for its size.</p>
+    </header>
+
+    <section>
+      <h2>Build out</h2>
+      <div class="seg levels" id="levels" role="group" aria-label="Level">
+        <button data-l="0" style="--c:var(--l0)"><i></i>Existing</button>
+        <button data-l="1" style="--c:var(--l1)"><i></i>Level 1</button>
+        <button data-l="2" style="--c:var(--l2)"><i></i>Level 2</button>
+        <button data-l="3" style="--c:var(--l3)"><i></i>Level 3</button>
+      </div>
+      <div class="row" style="margin-top:10px"><label for="ghost">Show later Levels as ghosts</label><input type="checkbox" id="ghost" checked></div>
+      <div class="adds" id="adds"></div>
+    </section>
+
+    <section>
+      <h2>Views</h2>
+      <div class="views" id="views"></div>
+    </section>
+
+    <section id="wcsec">
+      <h2>Watercolor overlay</h2>
+      <input type="range" id="wcop" min="0" max="100" value="0" aria-label="Watercolor opacity">
+      <p class="hint">Lays the watercolor over the model from its own camera, to check they line up.</p>
+    </section>
+
+    <section>
+      <h2>Color</h2>
+      <div class="seg" id="mode" role="group" aria-label="Color mode">
+        <button data-m="mat">Materials</button>
+        <button data-m="prog">Program</button>
+        <button data-m="level">By Level</button>
+      </div>
+      <div class="legend" id="legend" style="margin-top:10px"></div>
+    </section>
+
+    <section>
+      <h2>Sun</h2>
+      <div class="row"><label for="sun">Time of day</label><span class="num" id="sunv"></span></div>
+      <input type="range" id="sun" min="7" max="19" step="0.25" value="10.5">
+      <div class="checks" style="margin-top:10px">
+        <label><input type="checkbox" id="shadows" checked>Shadows</label>
+        <label><input type="checkbox" id="edges" checked>Ink edges</label>
+        <label><input type="checkbox" id="trees" checked>Trees</label>
+        <label><input type="checkbox" id="fences" checked>Fences</label>
+        <label><input type="checkbox" id="people" checked>Scale figures</label>
+        <label><input type="checkbox" id="labels" checked>Labels</label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Camera for render.py</h2>
+      <pre class="camcode" id="camcode"></pre>
+      <div class="row"><span class="hint" id="copied">Paste over the CAM line to paint this view.</span><button class="btn" id="copy">Copy</button></div>
+    </section>
+  </aside>
+
+  <main class="stage" id="stage">
+    <canvas id="gl"></canvas>
+    <img id="wc" src="watercolor.jpg" alt="Watercolor rendering of the barnyard, Option B">
+    <div id="frame"></div>
+    <div class="labels" id="tags"></div>
+    <svg class="compass" id="compass" viewBox="-23 -23 46 46" aria-hidden="true">
+      <circle r="21" fill="rgba(250,247,240,.85)" stroke="#2B2A26" stroke-width="1"/>
+      <g id="needle"><path d="M0,-17 L5,0 L0,-3 L-5,0 Z" fill="#2B2A26"/><text y="11" text-anchor="middle" font-size="9" font-weight="700" fill="#2B2A26">N</text></g>
+    </svg>
+    <div class="scalebar" id="scalebar"><div></div><span></span></div>
+    <div class="help">Drag to orbit · right-drag to pan · scroll to zoom · 0–3 sets the Level</div>
+    <div class="card" id="card" hidden></div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="scene-data.js"></script>
+<script>
+(() => {
+const S = window.SCENE, stage = document.getElementById('stage');
+if (!window.THREE || !S) {
+  stage.insertAdjacentHTML('beforeend', '<div class="err">The model could not load. Check the connection and reload the page.</div>');
+  return;
+}
+THREE.Object3D.DefaultUp.set(0, 0, 1);   // scene.py is z-up, feet
+
+// ---------- palette ----------
+const PROG = {   // design/palette.json
+  cattle: ['#8B5A2B', '#E9D9C6', 'Cattle'], swine: ['#B8657A', '#F1DAE0', 'Swine, sheep, and goats'],
+  arena: ['#C2A878', '#F3ECDD', 'Arena and grooming'], circulation: ['#6B6F73', '#E3E4E5', 'Storage and service'],
+  pasture: ['#5F8A3A', '#DCE8CF', 'Turnouts'], existing: ['#77736A', '#D9D4C9', 'Existing buildings'],
+};
+const LVL = ['#77736A', '#5F8A3A', '#D19A2E', '#B8657A'];
+const LVLNAME = ['Existing', 'Level 1', 'Level 2', 'Level 3'];
+const ROOFY = new Set(['roof', 'roofflat', 'rustroof']);
+const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline']);
+const rgb = a => new THREE.Color(a[0], a[1], a[2]);
+
+function faceColor(m, ob, mode) {
+  if (mode === 'mat' || KEEP.has(m)) return rgb(S.mat[m] || [1, 0, 1]);
+  const hex = mode === 'level' ? LVL[ob.level] : PROG[ob.program][0];
+  const base = new THREE.Color(hex);
+  const tint = mode === 'level' ? base.clone().lerp(new THREE.Color('#ffffff'), .62) : new THREE.Color(PROG[ob.program][1]);
+  return ROOFY.has(m) ? base : tint;
+}
+
+// ---------- renderer ----------
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xdfe6e4, 900, 2600);
+const camera = new THREE.PerspectiveCamera(45, 1, 1, 6000);
+camera.up.set(0, 0, 1);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = .09;
+controls.maxPolarAngle = Math.PI / 2 - 0.02; controls.minDistance = 8; controls.maxDistance = 2200;
+controls.screenSpacePanning = false;
+
+const hemi = new THREE.HemisphereLight(0xdfeaf5, 0x8c8a6a, 0.62);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff4e2, 0.78);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+const sc = sun.shadow.camera; sc.left = -330; sc.right = 330; sc.top = 330; sc.bottom = -330; sc.near = 10; sc.far = 2000;
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.6;
+const CENTER = new THREE.Vector3(245, -215, 0);
+sun.target.position.copy(CENTER);
+scene.add(sun, sun.target);
+
+// ---------- ground ----------
+const grass = new THREE.Mesh(new THREE.CircleGeometry(2400, 64), new THREE.MeshLambertMaterial({ color: rgb(S.mat.grass) }));
+grass.position.set(CENTER.x, CENTER.y, -0.05); grass.receiveShadow = true; scene.add(grass);
+
+function polyGeom(list) {   // list of [pts] -> fan-triangulated, flat-shaded geometry
+  const pos = [];
+  for (const p of list) for (let i = 1; i < p.length - 1; i++) pos.push(...p[0], ...p[i], ...p[i + 1]);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
+const groundItems = [];
+S.ground.forEach((f, k) => {
+  const z = 0.02 + k * 0.006;     // paint order from scene.py, nudged up to avoid z-fighting
+  const g = polyGeom([f.p.map(q => [q[0], q[1], z])]);
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: rgb(S.mat[f.m]), transparent: true }));
+  m.receiveShadow = true; scene.add(m);
+  groundItems.push({ mesh: m, f });
+});
+
+// ---------- objects ----------
+const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 6); unitCyl.rotateX(Math.PI / 2); unitCyl.translate(0, 0, .5);
+const ghostMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide });
+const inkMat = new THREE.LineBasicMaterial({ color: 0x3a342c, transparent: true, opacity: .55 });
+const ghostInk = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .55, depthWrite: false });
+const RAD = { pipe: .16, board: .22, oldboard: .2, timber: .3, oldtimber: .3 };
+
+const objects = [];
+for (const ob of S.objects) {
+  const grp = new THREE.Group(); grp.userData.ob = ob;
+  const byMat = {};
+  for (const f of ob.faces) (byMat[f.m] = byMat[f.m] || []).push(f.p);
+  const meshes = [];
+  for (const m in byMat) {
+    const g = polyGeom(byMat[m]);
+    const mat = new THREE.MeshLambertMaterial({ color: faceColor(m, ob, 'mat'), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(g, mat);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    mesh.userData = { m, solid: mat };
+    grp.add(mesh); meshes.push(mesh);
+    if (m !== 'boardline') {
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 20), inkMat);
+      e.userData.edge = true; grp.add(e);
+    }
+  }
+  // lines: posts and rails as thin cylinders; siding lines as ink
+  const fenceParts = [];
+  const ink = [];
+  for (const l of ob.lines) {
+    if (l.m === 'boardline') { for (let i = 0; i < l.p.length - 1; i++) ink.push(...l.p[i], ...l.p[i + 1]); continue; }
+    for (let i = 0; i < l.p.length - 1; i++) fenceParts.push([l.p[i], l.p[i + 1], l.m]);
+  }
+  if (ink.length) {
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(ink, 3));
+    const e = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: rgb(S.mat.boardline) }));
+    e.userData.siding = true; grp.add(e);
+  }
+  if (fenceParts.length) {
+    const byM = {};
+    for (const fp of fenceParts) (byM[fp[2]] = byM[fp[2]] || []).push(fp);
+    for (const m in byM) {
+      const mat = new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]) });
+      const im = new THREE.InstancedMesh(unitCyl, mat, byM[m].length);
+      const a = new THREE.Vector3(), b = new THREE.Vector3(), M = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3();
+      const zAxis = new THREE.Vector3(0, 0, 1);
+      byM[m].forEach(([p0, p1], i) => {
+        a.set(...p0); b.set(...p1);
+        const d = b.clone().sub(a), L = d.length(), vertical = Math.abs(d.z) > .8 * L;
+        const r = (RAD[m] || .15) * (vertical ? 1.3 : 1);
+        q.setFromUnitVectors(zAxis, d.normalize());
+        s.set(r, r, L);
+        M.compose(a, q, s); im.setMatrixAt(i, M);
+      });
+      im.castShadow = true; im.userData = { m, solid: mat, fence: true };
+      grp.add(im); meshes.push(im);
+    }
+  }
+  scene.add(grp);
+  objects.push({ ob, grp, meshes, isFence: !ob.faces.length });
+}
+
+// footprint, from the base of the walls (z = 0) when there are walls
+function footprint(ob) {
+  let pts = ob.faces.flatMap(f => f.p).filter(p => Math.abs(p[2]) < .05);
+  if (!pts.length) pts = ob.faces.flatMap(f => f.p).concat(ob.lines.flatMap(l => l.p));
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const zs = ob.faces.flatMap(f => f.p).concat(ob.lines.flatMap(l => l.p)).map(p => p[2]);
+  return { w: Math.max(...xs) - Math.min(...xs), d: Math.max(...ys) - Math.min(...ys), h: Math.max(...zs),
+           cx: (Math.max(...xs) + Math.min(...xs)) / 2, cy: (Math.max(...ys) + Math.min(...ys)) / 2 };
+}
+
+// ---------- trees ----------
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const treeGroup = new THREE.Group(); scene.add(treeGroup);
+const blob = new THREE.IcosahedronGeometry(1, 1);
+const trunkMat = new THREE.MeshLambertMaterial({ color: rgb(S.mat.trunk) });
+const leafMats = ['oak_d', 'oak_m', 'oak_l', 'pine_d', 'pine_l', 'palm_d', 'palm_l'].reduce((o, k) => (o[k] = new THREE.MeshLambertMaterial({ color: rgb(S.mat[k]), flatShading: true }), o), {});
+const treeParts = { trunk: [], oak_d: [], oak_m: [], oak_l: [], pine_d: [], pine_l: [], palm_d: [], palm_l: [] };
+const add = (k, x, y, z, sx, sy, sz) => treeParts[k].push([x, y, z, sx, sy, sz]);
+function tree(x, y, kind, s) {
+  if (kind === 'oak') {
+    const h = 26 * s, r = 17 * s;
+    add('trunk', x, y, 0, 1.1 * s, 1.1 * s, h * .55);
+    add('oak_d', x, y, h * .62, r, r, r * .55);
+    add('oak_m', x + r * .3, y - r * .25, h * .78, r * .72, r * .72, r * .45);
+    add('oak_l', x - r * .25, y - r * .3, h * .9, r * .5, r * .5, r * .32);
+  } else if (kind === 'pine') {
+    const h = 62 * s;
+    add('trunk', x, y, 0, .8, .8, h);
+    add('pine_d', x, y, h - 4, 11 * s, 11 * s, 4.5 * s);
+    add('pine_l', x + 3, y - 2, h + .5, 7 * s, 7 * s, 3 * s);
+    add('pine_d', x - 4, y + 2, h - 13, 7 * s, 7 * s, 3.2 * s);
+  } else {
+    const h = 28 * s;
+    add('trunk', x, y, 0, .7, .7, h);
+    add('palm_d', x, y, h, 7 * s, 7 * s, 2.2 * s);
+    add('palm_l', x, y, h + 1.2, 4 * s, 4 * s, 1.6 * s);
+  }
+}
+S.trees.forEach(t => tree(t.x, t.y, t.kind, t.s));
+// the tree line around the site, as in render.py's background rows
+for (let i = 0; i < 420; i++) {
+  const a = rnd() * Math.PI * 2, rr = 390 + rnd() * 520;
+  const x = CENTER.x + Math.cos(a) * rr * 1.1, y = CENTER.y + Math.sin(a) * rr;
+  if (y < -520 && x > 120 && x < 360) continue;   // keep the entry drive open
+  rnd() < .2 ? tree(x, y, 'pine', .9 + rnd() * .35) : tree(x, y, 'oak', .9 + rnd() * .6);
+}
+const trunkGeo = unitCyl;
+for (const k in treeParts) {
+  const list = treeParts[k]; if (!list.length) continue;
+  const im = new THREE.InstancedMesh(k === 'trunk' ? trunkGeo : blob, k === 'trunk' ? trunkMat : leafMats[k], list.length);
+  const M = new THREE.Matrix4(), q = new THREE.Quaternion();
+  list.forEach(([x, y, z, sx, sy, sz], i) => { M.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(sx, sy, sz)); im.setMatrixAt(i, M); });
+  im.castShadow = true; im.receiveShadow = k !== 'trunk';
+  treeGroup.add(im);
+}
+
+// ---------- scale figures: student leading a steer, and the tractor ----------
+const people = new THREE.Group(); scene.add(people);
+function boxAt(x, y, z, w, d, h, color, rotZ = 0, parent = people) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, d, h), new THREE.MeshLambertMaterial({ color }));
+  m.position.set(x, y, z + h / 2); m.rotation.z = rotZ; m.castShadow = true; parent.add(m); return m;
+}
+(function figures() {
+  const [cx, cy] = S.cow;
+  const steer = new THREE.Group(); steer.position.set(cx, cy, 0); people.add(steer);
+  const body = rgb(S.mat.cow_body), white = rgb(S.mat.cow_white), dark = rgb(S.mat.cow_dark);
+  boxAt(3.6, 0, 2.3, 5.6, 2.3, 2.2, body, 0, steer);
+  boxAt(.55, 0, 2.9, 1.2, 1.4, 1.5, white, 0, steer);
+  for (const [lx, ly] of [[1.4, .7], [1.4, -.7], [5.8, .7], [5.8, -.7]]) boxAt(lx, ly, 0, .5, .5, 2.4, dark, 0, steer);
+  const st = new THREE.Group(); st.position.set(cx - 3.2, cy + .4, 0); people.add(st);
+  boxAt(0, 0, 0, .7, .9, 2.9, rgb(S.mat.jeans), 0, st);
+  boxAt(0, 0, 2.9, .75, 1.4, 1.9, rgb(S.mat.shirt), 0, st);
+  boxAt(0, 0, 4.85, .7, .7, .75, rgb(S.mat.skin), 0, st);
+  boxAt(.1, 0, 5.55, .9, .8, .25, rgb(S.mat.cap), 0, st);
+  const [tx, ty] = S.tractor;
+  const tr = new THREE.Group(); tr.position.set(tx, ty, 0); people.add(tr);
+  boxAt(0, 0, 2.2, 7, 3.2, 2.6, rgb(S.mat.tractor), 0, tr);
+  boxAt(-2.2, 0, 4.8, 2.4, 3, 2.6, rgb(S.mat.seat), 0, tr);
+  const tire = new THREE.MeshLambertMaterial({ color: rgb(S.mat.tire) });
+  for (const [wx, wy, r] of [[-2.2, 2.1, 2.6], [-2.2, -2.1, 2.6], [2.6, 1.9, 1.5], [2.6, -1.9, 1.5]]) {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 14), tire);
+    w.position.set(wx, wy, r); w.castShadow = true; tr.add(w);
+  }
+})();
+
+// ---------- state ----------
+const state = { level: 3, ghost: true, mode: 'mat', view: 'watercolor', wc: 0, edges: true, labels: true };
+try { Object.assign(state, JSON.parse(localStorage.getItem('massing-state') || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem('massing-state', JSON.stringify({ level: state.level, ghost: state.ghost, mode: state.mode })); } catch (e) {} };
+
+function applyLevel() {
+  for (const o of objects) {
+    const lv = o.ob.level, shown = lv <= state.level;
+    const fenceOff = o.isFence && !document.getElementById('fences').checked;
+    o.grp.visible = !fenceOff && (shown || (state.ghost && !o.isFence));
+    o.state = shown ? 'solid' : 'ghost';
+    o.grp.traverse(c => {
+      if (c.userData.solid) {
+        c.material = shown ? c.userData.solid : ghostMat;
+        c.castShadow = shown;
+        if (shown && !c.userData.fence) c.material.color.copy(faceColor(c.userData.m, o.ob, state.mode));
+      }
+      if (c.userData.edge) { c.material = shown ? inkMat : ghostInk; c.visible = state.edges || !shown; }
+      if (c.userData.siding) c.visible = shown;
+    });
+  }
+  for (const gi of groundItems) {
+    const lv = gi.f.level, shown = lv <= state.level;
+    gi.mesh.visible = shown || state.ghost;
+    gi.mesh.material.opacity = shown ? 1 : .3;
+    gi.mesh.material.color.copy(rgb(S.mat[gi.f.m]));
+    if (state.mode !== 'mat' && gi.f.label && shown && state.mode === 'level') gi.mesh.material.color.copy(new THREE.Color(LVL[lv]).lerp(new THREE.Color('#fff'), .55));
+    if (!shown) gi.mesh.material.color.lerp(rgb(S.mat.grass), .6);
+  }
+  document.querySelectorAll('#levels button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.l === state.level));
+  document.querySelectorAll('#mode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === state.mode));
+  document.getElementById('ghost').checked = state.ghost;
+  renderAdds(); renderLegend(); buildTags(); refreshCard();
+}
+
+function renderAdds() {
+  const seen = new Map();
+  for (const o of S.objects) if (o.level === state.level && !seen.has(o.label)) seen.set(o.label, o);
+  for (const g of S.ground) if (g.level === state.level && g.label && !seen.has(g.label) && !seen.has(g.label + ' fence')) seen.set(g.label, g);
+  const names = [...seen.keys()].map(n => n.replace(/ fence$/, '')).filter((n, i, a) => a.indexOf(n) === i)
+    .filter(n => !/^Holding pen$|^Handling yard$|^Arena rail$|^Existing lean-to$/.test(n) || n === 'Holding pen');
+  const tidy = names.map(n => n === 'Holding pen' ? 'Holding pens and handling yard' : n).filter(n => n !== 'Arena floor');
+  const head = state.level === 0 ? 'What stands today' : `What ${LVLNAME[state.level]} adds`;
+  document.getElementById('adds').innerHTML = `<b>${head}</b>` +
+    (tidy.length ? `<ul>${tidy.map(n => `<li>${n}</li>`).join('')}</ul>` : '<div class="none">Nothing new in the model at this Level.</div>');
+}
+
+function renderLegend() {
+  const el = document.getElementById('legend');
+  if (state.mode === 'prog') el.innerHTML = Object.values(PROG).map(([b, , n]) => `<span><i style="--c:${b}"></i>${n}</span>`).join('');
+  else if (state.mode === 'level') el.innerHTML = LVL.map((c, i) => `<span><i style="--c:${c}"></i>${LVLNAME[i]}</span>`).join('');
+  else el.innerHTML = '<span style="grid-column:1/-1;color:var(--muted)">Materials as painted in the watercolor.</span>';
+}
+
+// ---------- labels ----------
+const tagsEl = document.getElementById('tags');
+let tags = [];
+function buildTags() {
+  tagsEl.innerHTML = ''; tags = [];
+  if (!state.labels) return;
+  const groups = new Map();
+  for (const o of objects) {
+    if (o.isFence) continue;
+    let key = o.ob.label;
+    if (/Holding pen|Handling yard|chute/i.test(key)) key = 'Holding pens';
+    if (/Small animal barn A/.test(key)) key = 'Small animal barn A';
+    if (/lean-to|Arena rail/.test(key)) continue;
+    if (key === 'Grooming area' && state.level >= 3) continue;
+    const fp = footprint(o.ob);
+    const g = groups.get(key) || { key, pts: [], h: 0, level: o.ob.level };
+    g.pts.push([fp.cx, fp.cy]); g.h = Math.max(g.h, fp.h); g.level = Math.min(g.level, o.ob.level);
+    groups.set(key, g);
+  }
+  for (const g of groups.values()) {
+    const shown = g.level <= state.level;
+    if (!shown && !state.ghost) continue;
+    const x = g.pts.reduce((s, p) => s + p[0], 0) / g.pts.length, y = g.pts.reduce((s, p) => s + p[1], 0) / g.pts.length;
+    const d = document.createElement('div'); d.className = 'tag' + (shown ? '' : ' ghost');
+    d.textContent = g.key + (shown ? '' : ` · ${LVLNAME[g.level]}`);
+    tagsEl.appendChild(d);
+    tags.push({ el: d, p: new THREE.Vector3(x, y, g.h + 3) });
+  }
+}
+const tmpV = new THREE.Vector3();
+function placeTags() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  for (const t of tags) {
+    tmpV.copy(t.p).project(camera);
+    const off = tmpV.z > 1 || tmpV.z < -1;
+    t.el.hidden = off;
+    if (!off) { t.el.style.left = ((tmpV.x + 1) / 2 * w).toFixed(1) + 'px'; t.el.style.top = ((1 - tmpV.y) / 2 * h).toFixed(1) + 'px'; }
+  }
+}
+
+// ---------- views ----------
+const C = S.camera;
+const VIEWS = {
+  watercolor: { name: 'Watercolor', sub: 'The painting\'s camera', pos: C.pos, tgt: C.target, hfov: C.hfov_deg },
+  aerial:     { name: 'Bird\'s-eye', sub: 'From the south-west', pos: [-40, -600, 300], tgt: [235, -210, 0], fov: 40 },
+  plan:       { name: 'Plan', sub: 'North up, from above', pos: [235, -214, 820], tgt: [235, -213, 0], fov: 40 },
+  lane:       { name: 'Eye level', sub: 'From the grass parking', pos: [232, -322, 5.5], tgt: [252, -170, 9], fov: 62 },
+  northeast:  { name: 'Over the pens', sub: 'From the north-east', pos: [560, 40, 150], tgt: [260, -210, 0], fov: 40 },
+  aisle:      { name: 'Between barns', sub: 'Up the 24\' tractor lane', pos: [206, -250, 5.5], tgt: [206, -60, 7], fov: 62 },
+};
+const viewsEl = document.getElementById('views');
+viewsEl.innerHTML = Object.entries(VIEWS).map(([k, v]) => `<button data-v="${k}">${v.name}<small>${v.sub}</small></button>`).join('');
+
+const wcImg = document.getElementById('wc'), frameEl = document.getElementById('frame');
+function wcRect() {   // the watercolor fitted (contain) to the stage; its width spans the render's hfov
+  const W = canvas.clientWidth, H = canvas.clientHeight, ar = 5 / 3;
+  let w = W, h = W / ar; if (h > H) { h = H; w = H * ar; }
+  return { x: (W - w) / 2, y: (H - h) / 2, w, h };
+}
+function fovFor(v) {
+  if (!v.hfov) return v.fov;
+  const r = wcRect(), W = canvas.clientWidth, H = canvas.clientHeight;
+  const th = Math.tan(v.hfov * Math.PI / 360) * W / r.w;    // tan(half hfov) across the whole canvas
+  return 2 * Math.atan(th / (W / H)) * 180 / Math.PI;
+}
+let tween = null;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function setView(k, instant) {
+  state.view = k; const v = VIEWS[k];
+  document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === k));
+  const to = { pos: new THREE.Vector3(...v.pos), tgt: new THREE.Vector3(...v.tgt), fov: fovFor(v) };
+  if (instant || reduced) { camera.position.copy(to.pos); controls.target.copy(to.tgt); camera.fov = to.fov; camera.updateProjectionMatrix(); tween = null; }
+  else tween = { t0: performance.now(), from: { pos: camera.position.clone(), tgt: controls.target.clone(), fov: camera.fov }, to };
+  syncOverlay();
+}
+function syncOverlay() {
+  const on = state.view === 'watercolor';
+  document.getElementById('wcsec').style.opacity = on ? 1 : .5;
+  document.getElementById('wcop').disabled = !on;
+  const r = wcRect();
+  for (const el of [wcImg, frameEl]) Object.assign(el.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
+  wcImg.style.opacity = on && !tween ? state.wc / 100 : 0;
+  frameEl.style.display = on && !tween ? 'block' : 'none';
+}
+controls.addEventListener('start', () => {
+  tween = null;
+  if (state.view) { state.view = null; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', false)); syncOverlay(); }
+});
+
+// ---------- sun ----------
+function setSun(t) {
+  // Simple Central Florida day in mid-October: az sweeps east -> south -> west, peak elevation about 58 degrees
+  const az = (90 + (t - 7.2) / (18.8 - 7.2) * 180) * Math.PI / 180;
+  const el = Math.max(4, 58 * Math.sin(Math.PI * (t - 7.2) / (18.8 - 7.2))) * Math.PI / 180;
+  const dir = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.cos(az) * Math.cos(el), Math.sin(el));
+  sun.position.copy(CENTER).addScaledVector(dir, 900);
+  const hh = Math.floor(t), mm = Math.round((t - hh) * 60);
+  document.getElementById('sunv').textContent = `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'am' : 'pm'}`;
+}
+
+// ---------- selection ----------
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let selected = null, down = null;
+canvas.addEventListener('pointerdown', e => down = [e.clientX, e.clientY]);
+canvas.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+  const r = canvas.getBoundingClientRect();
+  ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const targets = objects.filter(o => o.grp.visible).flatMap(o => o.meshes);
+  const hit = ray.intersectObjects(targets, false)[0];
+  let o = null;
+  if (hit) { let p = hit.object; while (p && !p.userData.ob) p = p.parent; o = objects.find(x => x.grp === p) || null; }
+  select(o);
+});
+const fmt = n => Math.round(n).toLocaleString();
+function select(o) {
+  if (selected) selected.grp.traverse(c => c.userData.solid && c.material.emissive && c.material.emissive.setHex(0));
+  selected = o; refreshCard();
+}
+function refreshCard() {
+  const card = document.getElementById('card');
+  if (!selected) { card.hidden = true; return; }
+  const o = selected, ob = o.ob, fp = footprint(ob), lv = ob.level;
+  if (o.state === 'solid') o.grp.traverse(c => c.userData.solid && c.material.emissive && c.material.emissive.setHex(0x2a1a00));
+  const isBldg = !o.isFence && !/pen|yard|chute|rail/i.test(ob.label);
+  card.innerHTML = `<button class="x" aria-label="Close">×</button>
+    <h3>${ob.label}</h3>
+    <span class="pill" style="--c:${LVL[lv]}">${lv ? LVLNAME[lv] : 'Existing'}</span>
+    ${o.state === 'ghost' ? '<span class="hint" style="margin-left:6px">not built at the Level shown</span>' : ''}
+    <dl>
+      <dt>${isBldg ? 'Footprint' : 'Extent'}</dt><dd>${fmt(fp.w)}' × ${fmt(fp.d)}'</dd>
+      <dt>Area</dt><dd>${fmt(fp.w * fp.d)} sf</dd>
+      <dt>${isBldg ? 'Height to ridge' : 'Height'}</dt><dd>${fp.h.toFixed(1)}'</dd>
+      ${ob.id ? `<dt>Plan element</dt><dd class="num">${ob.id}</dd>` : ''}
+      <dt>scene.py object</dt><dd class="num">${ob.name}</dd>
+    </dl>
+    <p class="hint">Measured from the massing (walls at grade), so it can differ by a foot from the plan.</p>`;
+  card.querySelector('.x').onclick = () => select(null);
+  card.hidden = false;
+}
+
+// ---------- camera readout ----------
+const camcode = document.getElementById('camcode');
+let lastCam = '';
+function updateCamCode() {
+  const p = camera.position, t = controls.target;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  // hfov across a 5:3 frame fitted in the stage, the shape render.py paints
+  const hf = 2 * Math.atan(Math.tan(camera.fov * Math.PI / 360) * Math.min(W / H, 5 / 3)) * 180 / Math.PI;
+  const f = n => Math.round(n);
+  const s = `CAM = Camera(pos=(${f(p.x)}, ${f(p.y)}, ${f(p.z)}), target=(${f(t.x)}, ${f(t.y)}, ${f(t.z)}), W=W, H=H, hfov_deg=${Math.round(hf)})`;
+  if (s !== lastCam) { camcode.textContent = s; lastCam = s; }
+}
+document.getElementById('copy').onclick = () => {
+  const done = m => { document.getElementById('copied').textContent = m; };
+  navigator.clipboard.writeText(camcode.textContent).then(() => done('Copied. Paste over the CAM line in render.py.'),
+    () => { const r = document.createRange(); r.selectNodeContents(camcode); const s = getSelection(); s.removeAllRanges(); s.addRange(r); done('Selected. Press Cmd+C to copy.'); });
+};
+
+// ---------- compass and scale bar ----------
+const needle = document.getElementById('needle'), sb = document.getElementById('scalebar');
+function updateHud() {
+  const a = camera.position.clone().sub(controls.target);
+  const ang = Math.atan2(a.x, -a.y);   // rotation of north on screen
+  needle.setAttribute('transform', `rotate(${(ang * 180 / Math.PI).toFixed(1)})`);
+  // scale bar at the orbit target
+  const dist = a.length(), H = canvas.clientHeight;
+  const ftPerPx = 2 * dist * Math.tan(camera.fov * Math.PI / 360) / H;
+  const nice = [10, 20, 25, 50, 100, 200, 250, 500].find(n => n / ftPerPx > 60) || 500;
+  sb.firstChild.style.width = (nice / ftPerPx).toFixed(0) + 'px';
+  sb.lastChild.textContent = `${nice} ft`;
+}
+
+// ---------- wiring ----------
+document.getElementById('levels').onclick = e => { const b = e.target.closest('button'); if (b) { state.level = +b.dataset.l; save(); applyLevel(); } };
+document.getElementById('mode').onclick = e => { const b = e.target.closest('button'); if (b) { state.mode = b.dataset.m; save(); applyLevel(); } };
+document.getElementById('ghost').onchange = e => { state.ghost = e.target.checked; save(); applyLevel(); };
+viewsEl.onclick = e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); };
+document.getElementById('wcop').oninput = e => { state.wc = +e.target.value; syncOverlay(); };
+document.getElementById('sun').oninput = e => setSun(+e.target.value);
+document.getElementById('shadows').onchange = e => { sun.castShadow = e.target.checked; };
+document.getElementById('edges').onchange = e => { state.edges = e.target.checked; applyLevel(); };
+document.getElementById('trees').onchange = e => { treeGroup.visible = e.target.checked; };
+document.getElementById('fences').onchange = () => applyLevel();
+document.getElementById('people').onchange = e => { people.visible = e.target.checked; };
+document.getElementById('labels').onchange = e => { state.labels = e.target.checked; buildTags(); };
+addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea')) return;
+  if ('0123'.includes(e.key) && e.key.length === 1) { state.level = +e.key; save(); applyLevel(); }
+});
+
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  if (state.view === 'watercolor') camera.fov = fovFor(VIEWS.watercolor);
+  camera.updateProjectionMatrix();
+  syncOverlay();
+}
+new ResizeObserver(resize).observe(stage);
+
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+function frame(now) {
+  if (tween) {
+    const k = Math.min(1, (now - tween.t0) / 1100), e = ease(k);
+    camera.position.lerpVectors(tween.from.pos, tween.to.pos, e);
+    controls.target.lerpVectors(tween.from.tgt, tween.to.tgt, e);
+    camera.fov = tween.from.fov + (tween.to.fov - tween.from.fov) * e; camera.updateProjectionMatrix();
+    if (k === 1) { tween = null; syncOverlay(); }
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  placeTags(); updateCamCode(); updateHud();
+  requestAnimationFrame(frame);
+}
+
+setSun(10.5);
+resize();
+applyLevel();
+setView('watercolor', true);
+requestAnimationFrame(frame);
+})();
+</script>
