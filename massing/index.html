@@ -143,7 +143,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
         <label><input type="checkbox" id="s-paddocks" checked>Paddocks</label>
         <label><input type="checkbox" id="s-woods" checked>Woods</label>
         <label><input type="checkbox" id="s-property" checked>Property line</label>
-        <label><input type="checkbox" id="s-water" checked>Water</label>
+        <label><input type="checkbox" id="s-water" checked>Historic slough</label>
         <label><input type="checkbox" id="s-paint">Painting's trees</label>
       </div>
       <p class="hint">From the deck's site plan: survey, fencing plan, and aerial trace. Paddock fencing is shown at Level 1 on the site pasture and Level 3 on the bonus pasture. Heights of the Red House and other surveyed buildings are assumed.</p>
@@ -431,13 +431,19 @@ function campusBuilding({ name, label, level = 0, until = null, program = 'exist
 if (SITE) {
   const C_SITE = new THREE.Color('#9fb56b'), C_BONUS = new THREE.Color('#b9b779');
   // ground: the property, the aerial (off by default), paddocks, woods floor, water, roads
+  grass.visible = false;   // replaced by the ground outside the property, with the water features cut out
+  reg(flat(SITE.outside, grass.material.color, -0.4));
   reg(flat(SITE.boundary, rgb(S.mat.grass), -0.3));
-  const A = SITE.aerial;
-  const ag = new THREE.BufferGeometry();
-  const o = A.o, u = A.u, v = A.v, w4 = [u[0] + v[0] - o[0], u[1] + v[1] - o[1]];
-  ag.setAttribute('position', new THREE.Float32BufferAttribute([...o, -.25, ...u, -.25, ...w4, -.25, ...v, -.25], 3));
-  ag.setAttribute('uv', new THREE.Float32BufferAttribute([0, 1, 1, 1, 1, 0, 0, 0], 2));
-  ag.setIndex([0, 1, 2, 0, 2, 3]); ag.computeVertexNormals();
+  // the aerial, with the water features cut out; uv from its parallelogram (o, u, v)
+  const A = SITE.aerial, o = A.o, eu = [A.u[0] - o[0], A.u[1] - o[1]], ev = [A.v[0] - o[0], A.v[1] - o[1]];
+  const det = eu[0] * ev[1] - eu[1] * ev[0];
+  const ag = new THREE.ShapeGeometry(A.polys.map(p => shapeOf(p.o, p.h)));
+  const pos = ag.attributes.position, uv = ag.attributes.uv;
+  for (let i = 0; i < pos.count; i++) {
+    const dx = pos.getX(i) - o[0], dy = pos.getY(i) - o[1];
+    uv.setXY(i, (dx * ev[1] - dy * ev[0]) / det, 1 - (eu[0] * dy - eu[1] * dx) / det);
+  }
+  ag.translate(0, 0, -0.25);
   const aerialMat = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide });
   new THREE.TextureLoader().load(A.src, t => { t.anisotropy = renderer.capabilities.getMaxAnisotropy(); aerialMat.map = t; aerialMat.needsUpdate = true; });
   const aerial = new THREE.Mesh(ag, aerialMat); aerial.receiveShadow = true; siteGroup.add(aerial);
@@ -456,9 +462,22 @@ if (SITE) {
 
   reg(flat(SITE.canopy, new THREE.Color('#5c7a45'), -0.15), 0, 'woodsfloor');
   for (const w of SITE.water) {
-    if (w.kind === 'historic-slough') { reg(flat(w.polys, new THREE.Color('#9fb98a'), -0.12, .55), 0, 'water'); continue; }
-    const col = w.kind === 'pond-proposed' ? new THREE.Color('#7fb0cc') : new THREE.Color('#5d93b5');
-    reg(flat(w.polys, col, -0.1, w.kind === 'pond-proposed' ? .75 : null), 0, 'water');
+    if (w.kind === 'historic-slough') reg(flat(w.polys, new THREE.Color('#9fb98a'), -0.12, .55), 0, 'water');
+    if (w.kind === 'historic-slough-floor') reg(flat(w.polys, new THREE.Color('#8fb1a8'), -0.1, .6), 0, 'water');
+  }
+  // slough and ponds as basins: banks from the top of bank down to the water, 3' below
+  const bankMat = new THREE.MeshLambertMaterial({ color: new THREE.Color('#93a96a'), side: THREE.DoubleSide });
+  const waterMat = new THREE.MeshLambertMaterial({ color: new THREE.Color('#5a8fb0') });
+  const waterNew = new THREE.MeshLambertMaterial({ color: new THREE.Color('#79aac6') });
+  const B = SITE.basins;
+  for (const b of B.list) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(b.v, 3)); g.setIndex(b.t); g.computeVertexNormals();
+    const bank = new THREE.Mesh(g, bankMat); bank.receiveShadow = true; siteGroup.add(bank);
+    const wg = new THREE.ShapeGeometry(b.water.map(p => shapeOf(p.o, p.h))); wg.translate(0, 0, B.tob - B.depth);
+    const surf = new THREE.Mesh(wg, b.kind === 'pond-proposed' ? waterNew : waterMat); surf.receiveShadow = true; siteGroup.add(surf);
+    const grp = new THREE.Group(); grp.add(bank, surf); siteGroup.add(grp);
+    reg(grp, 0);   // the basins are the ground itself, so they stay on with the Water toggle off
   }
   reg(flat(SITE.roads, rgb(S.mat.asphalt), -0.05));
   reg(lines(SITE.property, new THREE.Color('#2B2A26'), 0.6, { closed: false, dashed: true, opacity: .8 }), 0, 'property');
@@ -556,11 +575,13 @@ const paintTrees = treeSet(S.trees.map(t => [t.x, t.y, t.kind, t.s]));
 const treeGroup = new THREE.Group(); scene.add(treeGroup);
 let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 if (SITE) {
-  const keep = SITE.surveyed_trees.filter(t => t.length === 2), cut = SITE.surveyed_trees.filter(t => t.length > 2);
+  const keep = SITE.surveyed_trees.filter(t => t[2] !== 0), cut = SITE.surveyed_trees.filter(t => t[2] === 0);
+  const inPaving = SITE.surveyed_trees.filter(t => t[2] === 1).length;
+  if (inPaving) catalog.push({ label: `${inPaving} surveyed trees stand in the parking paving as drawn; kept in the model`, level: 1 });
   treeGroup.add(treeSet(keep.map(([x, y]) => [x, y, 'oak', .95 + rnd() * .4])));
   const cutTrees = treeSet(cut.map(([x, y]) => [x, y, 'oak', .95 + rnd() * .4]));
   treeGroup.add(cutTrees); reg(cutTrees, 0, null, 0);
-  if (cut.length) catalog.push({ label: `Removes ${cut.length} surveyed trees inside the new work`, level: 1 });
+  if (cut.length) catalog.push({ label: `Removes ${cut.length} surveyed trees under new buildings and yards`, level: 1 });
   const woods = treeSet(SITE.canopy_trees.map(([x, y, s, pine]) => [x, y, pine ? 'pine' : 'oak', s]));
   woods.userData.layer = 'woods'; treeGroup.add(woods);
 } else {
@@ -893,6 +914,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
+window.massing = { camera, controls, setView };   // console hook for framing new views
 setSun(10.5);
 resize();
 applyLevel();
