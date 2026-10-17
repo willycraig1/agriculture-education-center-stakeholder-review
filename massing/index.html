@@ -146,7 +146,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
         <label><input type="checkbox" id="s-water" checked>Historic slough</label>
         <label><input type="checkbox" id="s-paint">Painting's trees</label>
       </div>
-      <p class="hint">From the deck's site plan: survey, fencing plan, and aerial trace. Paddock fencing is shown at Level 1 on the site pasture and Level 3 on the bonus pasture. Heights of the Red House and other surveyed buildings are assumed.</p>
+      <p class="hint">From the deck's site plan: survey, fencing plan, and aerial trace. Paddock fencing is shown at Level 1 on the site pasture and Level 3 on the bonus pasture. Heights of the Red House and other surveyed buildings are assumed. State Road 72 sits on fill at its surveyed average, <span id="roadfill"></span> above the grade beside it.</p>
     </section>
 
     <section>
@@ -479,7 +479,15 @@ if (SITE) {
     const grp = new THREE.Group(); grp.add(bank, surf); siteGroup.add(grp);
     reg(grp, 0);   // the basins are the ground itself, so they stay on with the Water toggle off
   }
-  reg(flat(SITE.roads, rgb(S.mat.asphalt), -0.05));
+  // State Road 72 on fill (surveyed average above grade) with 2:1 shoulders; the entry drive ramps down to campus
+  const RF = SITE.road_fill;
+  const meshOf = (m, mat) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(m.v, 3)); g.setIndex(m.t); g.computeVertexNormals();
+    const mesh = new THREE.Mesh(g, mat); mesh.receiveShadow = true; siteGroup.add(mesh); return mesh;
+  };
+  reg(meshOf(RF.top, new THREE.MeshLambertMaterial({ color: rgb(S.mat.asphalt).multiplyScalar(.92), side: THREE.DoubleSide })));
+  reg(meshOf(RF.shoulder, new THREE.MeshLambertMaterial({ color: new THREE.Color('#9db06c'), side: THREE.DoubleSide })));
   reg(lines(SITE.property, new THREE.Color('#2B2A26'), 0.6, { closed: false, dashed: true, opacity: .8 }), 0, 'property');
 
   // fences: posts every 12' and three strands
@@ -533,8 +541,23 @@ if (SITE) {
 
 // ---------- trees ----------
 const blob = new THREE.IcosahedronGeometry(1, 1);
+// sabal palm crown: a round head of stiff fan fronds, unit radius, centred on the trunk top
+const palmCrown = (() => {
+  const pos = [];
+  const N = 30;
+  for (let i = 0; i < N; i++) {
+    const az = i * 2.39996, el = -0.7 + 1.85 * ((i * 0.7548777 + .13) % 1);   // even spread round the head, drooping to upright
+    const d = new THREE.Vector3(Math.cos(az) * Math.cos(el), Math.sin(az) * Math.cos(el), Math.sin(el));
+    const side = new THREE.Vector3(-Math.sin(az), Math.cos(az), 0).multiplyScalar(.42);
+    const stalk = d.clone().multiplyScalar(.35), tip = d.clone().multiplyScalar(1);
+    const l = tip.clone().add(side).addScaledVector(d, -.15), r = tip.clone().sub(side).addScaledVector(d, -.15);
+    pos.push(...stalk.toArray(), ...l.toArray(), ...tip.toArray(), ...stalk.toArray(), ...tip.toArray(), ...r.toArray());
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
+  return g;
+})();
 const trunkMat = new THREE.MeshLambertMaterial({ color: rgb(S.mat.trunk) });
-const leafMats = ['oak_d', 'oak_m', 'oak_l', 'pine_d', 'pine_l', 'palm_d', 'palm_l'].reduce((o, k) => (o[k] = new THREE.MeshLambertMaterial({ color: rgb(S.mat[k]), flatShading: true }), o), {});
+const leafMats = ['oak_d', 'oak_m', 'oak_l', 'pine_d', 'pine_l', 'palm_d', 'palm_l'].reduce((o, k) => (o[k] = new THREE.MeshLambertMaterial({ color: rgb(S.mat[k]), flatShading: true, side: k.startsWith('palm') ? THREE.DoubleSide : THREE.FrontSide }), o), {});
 function treeSet(list) {   // [x, y, kind, s] -> group of instanced trunks and canopy blobs
   const parts = { trunk: [], oak_d: [], oak_m: [], oak_l: [], pine_d: [], pine_l: [], palm_d: [], palm_l: [] };
   const add = (k, x, y, z, sx, sy, sz) => parts[k].push([x, y, z, sx, sy, sz]);
@@ -551,17 +574,18 @@ function treeSet(list) {   // [x, y, kind, s] -> group of instanced trunks and c
       add('pine_d', x, y, h - 4, 11 * s, 11 * s, 4.5 * s);
       add('pine_l', x + 3, y - 2, h + .5, 7 * s, 7 * s, 3 * s);
       add('pine_d', x - 4, y + 2, h - 13, 7 * s, 7 * s, 3.2 * s);
-    } else {
-      const h = 28 * s;
-      add('trunk', x, y, 0, .7, .7, h);
-      add('palm_d', x, y, h, 7 * s, 7 * s, 2.2 * s);
-      add('palm_l', x, y, h + 1.2, 4 * s, 4 * s, 1.6 * s);
+    } else {   // sabal palm: slender trunk, fan-frond head
+      const h = 24 * s + 6;
+      add('trunk', x, y, 0, .55, .55, h);
+      add('palm_d', x, y, h, 6.5 * s, 6.5 * s, 6.5 * s);
+      add('palm_l', x, y, h + .3, 4.6 * s, 4.6 * s, 4.6 * s);
     }
   }
   const g = new THREE.Group();
   for (const k in parts) {
     const L = parts[k]; if (!L.length) continue;
-    const im = new THREE.InstancedMesh(k === 'trunk' ? unitCyl : blob, k === 'trunk' ? trunkMat : leafMats[k], L.length);
+    const geo = k === 'trunk' ? unitCyl : k.startsWith('palm') ? palmCrown : blob;
+    const im = new THREE.InstancedMesh(geo, k === 'trunk' ? trunkMat : leafMats[k], L.length);
     const M = new THREE.Matrix4(), q = new THREE.Quaternion();
     L.forEach(([x, y, z, sx, sy, sz], i) => { M.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(sx, sy, sz)); im.setMatrixAt(i, M); });
     im.castShadow = true; im.receiveShadow = k !== 'trunk';
@@ -582,7 +606,7 @@ if (SITE) {
   const cutTrees = treeSet(cut.map(([x, y]) => [x, y, 'oak', .95 + rnd() * .4]));
   treeGroup.add(cutTrees); reg(cutTrees, 0, null, 0);
   if (cut.length) catalog.push({ label: `Removes ${cut.length} surveyed trees under new buildings and yards`, level: 1 });
-  const woods = treeSet(SITE.canopy_trees.map(([x, y, s, pine]) => [x, y, pine ? 'pine' : 'oak', s]));
+  const woods = treeSet(SITE.canopy_trees.map(([x, y, s, k]) => [x, y, ['oak', 'pine', 'palm'][k], k === 2 ? s * .85 : s]));
   woods.userData.layer = 'woods'; treeGroup.add(woods);
 } else {
   paintTrees.visible = true;
@@ -881,6 +905,7 @@ document.getElementById('edges').onchange = e => { state.edges = e.target.checke
 document.getElementById('trees').onchange = e => { treeGroup.visible = e.target.checked; applyLevel(); };
 for (const id of ['s-aerial', 's-paddocks', 's-woods', 's-property', 's-water', 's-paint']) document.getElementById(id).onchange = () => applyLevel();
 if (!SITE) document.getElementById('sitesec').hidden = true;
+else document.getElementById('roadfill').textContent = `${SITE.road_fill.height_ft}' (${SITE.road_fill.road_elev}' vs ${SITE.road_fill.grade_elev}')`;
 document.getElementById('fences').onchange = () => applyLevel();
 document.getElementById('people').onchange = e => { people.visible = e.target.checked; };
 document.getElementById('labels').onchange = e => { state.labels = e.target.checked; buildTags(); };
