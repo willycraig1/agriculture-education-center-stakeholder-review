@@ -168,12 +168,21 @@ def build():
         x1, y1, x2, y2 = r
         o = Obj(nm)
         gable(o, x1, y1, x2, y2, 9.5, 16.5, 'y', mat, 'roof', ovh=1.5)
+        if nm == 'smallB':   # one roof with barn A: stop short of A's south overhang instead of lapping it
+            o.faces = [f for f in o.faces if f['mat'] != 'roof']
+            gable(o, x1, y1, x2, y2 - 3.0, 9.5, 16.5, 'y', mat, 'roof', ovh=1.5, walls=False)
         # curtain openings on long sides
         o.bias = -30.0
         o.face([(x1 - 0.05, y2 - 3, 3.5), (x1 - 0.05, y1 + 3, 3.5), (x1 - 0.05, y1 + 3, 8.0), (x1 - 0.05, y2 - 3, 8.0)], 'openshade')
         o.face([(x2 + 0.05, y1 + 3, 3.5), (x2 + 0.05, y2 - 3, 3.5), (x2 + 0.05, y2 - 3, 8.0), (x2 + 0.05, y1 + 3, 8.0)], 'openshade')
         o.bias = 0.0
         objs.append(o)
+
+    # ---- Dogtrot: the 15' open breezeway between barn A's wings, under one continuous roof with them
+    # (roof only; the wings' gable ends are its walls). Inset 1.5' each end so it meets the wings' overhangs.
+    o = Obj('dogtrot'); x1, y1, x2, y2 = R(245, 680, 353, 725)
+    gable(o, x1, y1 + 1.5, x2, y2 - 1.5, 9.5, 16.5, 'y', 'whitemetal', 'roof', ovh=1.5, walls=False)
+    objs.append(o)
 
     # ---- Feed storage & bedding storage (small white sheds)
     o = Obj('feed'); x1, y1, x2, y2 = R(525, 560, 572, 680)

@@ -43,6 +43,7 @@ META = {
     'swineA_n':  ("Small animal barn A, north wing", 'swine', 2, 'small-a'),
     'swineA_s':  ("Small animal barn A, south wing", 'swine', 2, 'small-a2'),
     'smallB':    ("Small animal barn B", 'swine', 3, 'small-b'),
+    'dogtrot':   ("Small animal barn A, dogtrot", 'swine', 2, 'dogtrot'),
     'feed':      ("Feed storage", 'circulation', 2, 'feed'),
     'bedding':   ("Bedding storage", 'circulation', 2, 'bedding'),
     'exbarn':    ("Existing barn", 'existing', 0, 'existing-barn'),

@@ -16,6 +16,7 @@ import numpy as np
 from PIL import Image
 from shapely.geometry import Polygon, MultiPolygon, Point, LineString, box
 from shapely.ops import unary_union
+import shapely
 from svgelements import Path as SvgPath, Move, Close
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -236,19 +237,66 @@ def main():
             water.append(dict(kind=cid.replace(' ', '-'), polys=to_polys(rings(it), simplify=0.3)))
     out['water'] = water
 
+    # Water features as banked basins: the drawn outline is the top of bank; the water stands 3' below it
+    # (placeholder until the civil grading is in). The bank runs in about 4:1 (12'), less where a feature is narrow.
+    TOB, DEPTH = -0.2, 3.0
+    basins, wet = [], []
+    for w in water:
+        if w['kind'] not in ('slough', 'pond-existing', 'pond-proposed'): continue
+        for pp in w['polys']:
+            poly = Polygon(pp['o'], pp['h']).buffer(0)
+            if poly.is_empty: continue
+            wet.append(poly)
+            inner = None
+            for inset in (12, 10, 8, 6, 5, 4, 3):
+                inner = poly.buffer(-inset, join_style='mitre').buffer(0)
+                if not inner.is_empty and inner.area > .25 * poly.area: break
+            band = poly.difference(inner)
+            seg = 8.0 if poly.length > 3000 else 4.0
+            verts, tris, index = [], [], {}
+            edge = poly.boundary
+            for part in (band.geoms if hasattr(band, 'geoms') else [band]):
+                if part.geom_type != 'Polygon' or part.area < 1: continue
+                for tri in shapely.constrained_delaunay_triangles(shapely.segmentize(part, seg)).geoms:
+                    ids = []
+                    for x, y in list(tri.exterior.coords)[:3]:
+                        k = (round(x, 2), round(y, 2))
+                        if k not in index:
+                            index[k] = len(verts) // 3
+                            z = TOB if edge.distance(Point(x, y)) < .05 else TOB - DEPTH
+                            verts += [round(x, 2), round(y, 2), round(z, 2)]
+                        ids.append(index[k])
+                    if len(set(ids)) == 3: tris += ids
+            surf = to_polys([list(inner.exterior.coords)] if inner.geom_type == 'Polygon' else [], evenodd=False) \
+                if inner.geom_type == 'Polygon' else [q for g in inner.geoms for q in to_polys([list(g.exterior.coords)], evenodd=False)]
+            basins.append(dict(kind=w['kind'], v=verts, t=tris, water=surf, inset=inset))
+    out['basins'] = dict(tob=TOB, depth=DEPTH, list=basins)
+    WET = unary_union(wet)
+
+    def cut(polys):   # take the water features out of a ground layer
+        g = unary_union([Polygon(p['o'], p['h']).buffer(0) for p in polys]).difference(WET)
+        return [dict(o=rnd(q.exterior.coords), h=[rnd(i.coords) for i in q.interiors])
+                for q in (g.geoms if hasattr(g, 'geoms') else [g]) if q.geom_type == 'Polygon' and q.area > 4]
+    out['boundary'] = cut(out['boundary'])
+    for pd in pads: pd['polys'] = cut(pd['polys']) or pd['polys']
+    cx, cy = 245, -215
+    out['outside'] = cut([dict(o=[[cx - 16000, cy - 16000], [cx + 16000, cy - 16000], [cx + 16000, cy + 16000], [cx - 16000, cy + 16000]], h=[])])
+
     # canopy, and trees scattered through it; surveyed trees as points
-    canopy = to_polys(rings(next(items('canopy', 'path'))), simplify=1.0)
+    canopy = cut(to_polys(rings(next(items('canopy', 'path'))), simplify=1.0))
     out['canopy'] = canopy
 
     # keep scattered trees off the barnyard, campus, roads, and buildings
     def el_poly(e):
         pts = e.get('outline') or [[e['x'], e['y']], [e['x'] + e['w'], e['y']], [e['x'] + e['w'], e['y'] + e['h']], [e['x'], e['y'] + e['h']]]
         return Polygon([d2s(x, y) for x, y in pts]).buffer(0)
-    plan_all = unary_union([el_poly(e) for e in AG['elements']])
-    plan_new = unary_union([el_poly(e) for e in AG['elements'] if not e['id'].startswith('existing') and e['id'] not in ('residence', 'horticulture')])
+    # Woods are cleared only under buildings, yards, and pens (and off the roads). Trees under the parking lot,
+    # its swale island, walks, and turnouts stay: they stand there today, and the lot is being fitted around them.
+    built = unary_union([el_poly(e) for e in AG['elements'] if e.get('kind') in ('building', 'yard', 'canopy')
+                         and not e['id'].startswith('turnout')])
     roads = unary_union([Polygon(p['o'], p['h']).buffer(0) for it in items('campus', 'path') if it['e'].get('id') == 'road-area'
                          for p in to_polys(rings(it))])
-    keep_out = [plan_all.buffer(10).union(roads.buffer(8)).union(box(60, -380, 440, -40))]
+    keep_out = [built.buffer(8).union(roads.buffer(-5))]   # trunks may stand at a drive's edge, as along the existing drive
     rng = np.random.default_rng(5)
     scatter = []
     for cp in canopy:
@@ -265,12 +313,19 @@ def main():
                                     1 if rng.uniform() < .14 else 0])   # 1 = pine
     out['canopy_trees'] = scatter
 
-    # surveyed trees; ones under a new plan element are removed at Level 1 (third value 0 = kept until Existing)
+    # surveyed trees: [x, y, flag]; flag 0 = under a new building or yard (removed after Existing),
+    # 1 = stands in the parking paving (kept, a conflict to resolve), none = clear
+    new_built = unary_union([el_poly(e) for e in AG['elements'] if e.get('kind') in ('building', 'yard')
+                             and not e['id'].startswith(('existing', 'turnout'))])
+    pk = ELEM['parking']
+    paving = Polygon([d2s(x, y) for x, y in pk['outline']], [[d2s(x, y) for x, y in h] for h in pk.get('holes', [])]).buffer(0)
     surveyed = []
     for it in items('trees', 'circle'):
         e = it['e']
         x, y = apply(it['M'], [(float(e.get('cx')), float(e.get('cy')))])[0]
-        surveyed.append([round(x, 1), round(y, 1)] + ([0] if plan_new.buffer(2).contains(Point(x, y)) else []))
+        p = Point(x, y)
+        flag = [0] if new_built.contains(p) else ([1] if paving.contains(p) else [])
+        surveyed.append([round(x, 1), round(y, 1)] + flag)
     out['surveyed_trees'] = surveyed
 
     # campus: the survey's road area and buildings, plus the plan's campus elements
@@ -332,7 +387,9 @@ def main():
     w, h = float(e.get('width')), float(e.get('height'))
     M = img['M']
     corners = [apply(M, [(0, 0)])[0], apply(M, [(w, 0)])[0], apply(M, [(0, h)])[0]]
-    out['aerial'] = dict(src='aerial.jpg', o=list(corners[0]), u=list(corners[1]), v=list(corners[2]))
+    o_, u_, v_ = corners
+    out['aerial'] = dict(src='aerial.jpg', o=list(o_), u=list(u_), v=list(v_),
+                         polys=cut([dict(o=[list(o_), list(u_), [u_[0] + v_[0] - o_[0], u_[1] + v_[1] - o_[1]], list(v_)], h=[])]))
     src = os.path.join(ROOT, 'slides', e.get('href').replace('%20', ' '))
     Image.open(src).convert('RGB').save(os.path.join(HERE, 'aerial.jpg'), quality=84)
 
@@ -344,8 +401,8 @@ def main():
     allpts = np.array([q for b in out['boundary'] for q in b['o']])
     print(f"{path}: {os.path.getsize(path) / 1024:.0f} KB; frame fit {RESID:.2f} ft; "
           f"paddocks {len(pads)}, fences {len(out['fences'])}, canopy polys {len(canopy)}, canopy trees {len(scatter)}, "
-          f"surveyed trees {len(surveyed)} ({sum(len(t) > 2 for t in surveyed)} removed), stalls {len(stalls)}, survey buildings {len(sheds)} "
-          f"({sum('until' in b for b in sheds)} removed by the plan); "
+          f"surveyed trees {len(surveyed)} ({sum(t[2:] == [0] for t in surveyed)} removed, {sum(t[2:] == [1] for t in surveyed)} in paving), stalls {len(stalls)}, survey buildings {len(sheds)} "
+          f"({sum('until' in b for b in sheds)} removed by the plan); basins {[(b['kind'], b['inset'], len(b['v']) // 3) for b in basins]}; "
           f"boundary x {allpts[:, 0].min():.0f}..{allpts[:, 0].max():.0f} y {allpts[:, 1].min():.0f}..{allpts[:, 1].max():.0f}")
     for pd in pads: print('  ', pd['kind'], pd['label'], round(Polygon(pd['polys'][0]['o']).area / 43560, 1), 'ac')
 
