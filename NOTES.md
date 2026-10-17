@@ -674,3 +674,20 @@ Fit checks now skip context elements (walk etc.).
   every slide at 1920 x 1080 (x1.3): map and plan slides one page per step (site, paddocks, barnyard, Bud Box, barnyard on
   the site, water, Red House), the Red House program key per Level, the rest at their last step. 49 pages, about
   12.8 MB, written to exports/stakeholder-review-draft.pdf (git-ignored; rerun after changes).
+
+## 2026-10-16: 3D massing viewer (`massing/`)
+- `massing/index.html`: three.js viewer of the campus, published as a private claude.ai artifact. Geometry comes from
+  the watercolour's `Watercolor_Rendering_Working/scripts/scene.py` (barnyard massing, fitted to the barnyard diagram
+  within 0.6 ft) via `massing/export_scene.py`, and from the deck's site plan via `massing/export_site.py`. Rerun both
+  after changes to scene.py or the deck's build tools.
+- Owner direction: small animal barns A and B and the dogtrot sit under one continuous roof; trees under the parking
+  lot and swale stay (three surveyed trees stand in the paving as drawn: a conflict to resolve); woods are oak
+  hammock with sabal palms, pines mostly in the north triangle pasture (between SR 72 and Cowpen Slough).
+- Water features (slough, ponds) are cut as basins: drawn outline = top of bank, water 3' below (placeholder).
+  SR 72 sits on fill at its surveyed average, 4.3' above the adjacent grade (24.23' vs 19.91'), 2:1 shoulders.
+- `tools/read_survey_spots.py` reads the survey's spot elevations (stroked CAD glyphs, matched to the templates in
+  `tools/survey_glyphs/`) into `drawings/data/survey-spots.json`: 930 of 1,265.
+- **Pinned (owner, 2026-10-16):** no accurate terrain model for now; the ground stays flat apart from the water basins
+  and the road fill. The spot elevations are there if it is picked up later.
+- The civil narrative of 2026-10-16 (`source/civil/0_County4H_Narrative1withExhibits...`) is a draft study: not to be
+  incorporated until the owner's team has discussed it. Not committed.
