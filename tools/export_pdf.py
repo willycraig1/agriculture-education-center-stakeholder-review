@@ -2,7 +2,7 @@
 
 Serves the repo locally, drives headless Google Chrome over the DevTools protocol, and captures each slide at
 1920 x 1080 (x1.3 for sharpness, small enough to email). Slides that tell their story in steps on a map or plan get one page per step;
-the rest get one page at their last step. The Red House also gets a page per Level with the program key on.
+the rest get one page at their last step.
 Pages are JPEGs assembled into one PDF.
 
 Writes exports/stakeholder-review-draft.pdf. Run: python tools/export_pdf.py
@@ -94,11 +94,7 @@ for f, title in slides:
     for i in steps:
         js(f"Deck.show({i})"); time.sleep(2.6 if name == "bud-box" else 2.0)   # camera flights, fades, the cattle moves settle
         pages.append(shot()); print(f"{len(pages):3d}  {title}  step {i + 1}/{last + 1}")
-    if name == "red-house":                                 # the program key, Level by Level
-        js("document.getElementById('plan').classList.add('prog')")
-        for i in range(1, last + 1):
-            js(f"Deck.show({i})"); time.sleep(2.0)
-            pages.append(shot()); print(f"{len(pages):3d}  {title}  program, Level {i}")
+    # the Red House opens with its program colours on (owner, 2026-10-19), so its stepped pages already show them
 
 ws.close(); chrome.terminate(); srv.shutdown()
 os.makedirs(OUT, exist_ok=True)
