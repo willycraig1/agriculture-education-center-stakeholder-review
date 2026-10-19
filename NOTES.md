@@ -786,3 +786,13 @@ Fit checks now skip context elements (walk etc.).
   to one or two questions per topic on usability and desired features.
 - Floodplain compensation is held back from this presentation (owner's concern about pastures as compensation; civil
   has new thoughts in its 2026-10-16 narrative, not to be introduced yet). The fact sheet is a separate task.
+
+## 2026-10-19: project fact sheet (`factsheet/`)
+- Two-page letter fact sheet, front and back, as a companion to the County's own sheet
+  (`source/Clark Farm Project-Fact Sheet-PRINT 10-15-26.pdf`): same green bands (#416D34) and type character
+  (Archivo and Lobster Two stand in for their Acumin Pro and Auto Pro). No County or UF/IFAS logos.
+- Front: the Option B watercolour, the project, the thesis, the four design drivers, and an At a Glance panel.
+  Back: site plan of the main parcel (drawn live from `slides/data/site-map.js`, Level 3 colours) with a barnyard
+  close-up, the three Levels table, and the program. Figures follow `levels.js`, `ag-area.js`, and `pasture-capacity.js`;
+  floodplain compensation and the bonus pasture are left out, as in the deck.
+- Print: `python tools/export_factsheet.py` → `exports/clark-farm-project-fact-sheet.pdf` (git-ignored).
