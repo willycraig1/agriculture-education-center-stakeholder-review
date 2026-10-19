@@ -786,3 +786,14 @@ Fit checks now skip context elements (walk etc.).
   to one or two questions per topic on usability and desired features.
 - Floodplain compensation is held back from this presentation (owner's concern about pastures as compensation; civil
   has new thoughts in its 2026-10-16 narrative, not to be introduced yet). The fact sheet is a separate task.
+
+## 2026-10-19: vision-first restructure, part 1
+- New running order (index.html, 15 slides): cover, The vision (new `slides/vision.html`: the Level 3 picture in four
+  points, the Option B watercolour, McIntosh Ag Center and Siesta Key Chapel comparatives, credited), drivers, the site
+  today (2 steps), existing buildings, the campus at Level 3 (2 steps, fit checks hidden), the barnyard (Level 3 with
+  its flow, then back to Levels 2 and 1, short items, no NEW badges), Bud Box, cow & calf pens and small animal pens
+  (Level 3 row first), Red House, Levels table, paddocks, water quality, over to you. Out of the order, kept for the
+  report: three-levels, program, pasture-capacity, water-site. Eyebrows renamed (no "Act" numbers).
+- Images: photos/reference/ (1400px copies) and photos/vision-watercolor.jpg (from Watercolor_Rendering_Working).
+- Still to do: Red House steps from Level 3 back; Levels table with the Level 3 column first; paddocks with the
+  rotation step first; a full review pass.

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Barnyard</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191715">
-<link rel="stylesheet" href="../design/deck.css?v=202610191715">
+<link rel="stylesheet" href="../design/palette.css?v=202610191730">
+<link rel="stylesheet" href="../design/deck.css?v=202610191730">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -44,10 +44,10 @@
 </head>
 <body data-drivers="module">
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 5 · The plan · Option B</div>
+  <div class="eyebrow" data-step="0">The plan · Level 3 back to Level 1</div>
   <h1 data-step="0">The barnyard, Level by Level</h1>
   <div class="body">
-    <div class="plan card" data-step="0" id="plan"><span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span></div>
+    <div class="plan card" data-step="0" id="plan"><span data-step="1" hidden></span><span data-step="2" hidden></span></div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="levels" id="levels"></ol>
       <div class="legend" data-step="0" id="legend"></div>
@@ -57,9 +57,9 @@
   </div>
 </div>
 
-<script src="data/ag-area.js?v=202610191715"></script>
-<script src="../design/deck.js?v=202610191715"></script>
-<script src="../design/viewer.js?v=202610191715"></script>
+<script src="data/ag-area.js?v=202610191730"></script>
+<script src="../design/deck.js?v=202610191730"></script>
+<script src="../design/viewer.js?v=202610191730"></script>
 <script>
 (function () {
   const A = window.AG_AREA, v = A.view;
@@ -162,34 +162,39 @@
   const defs = `<defs>${["service", "animal", "loop"].map(k => `<marker id="ah-${k}" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto-start-reverse">
     <path d="M0 0L10 5L0 10z" fill="${k === "animal" ? "var(--cattle)" : "var(--ink)"}"/></marker>`).join("")}</defs>`;
   document.getElementById("plan").insertAdjacentHTML("afterbegin",
-    `<svg viewBox="${tight.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${drives}${shapes.join("")}${dims}<g id="circ">${circ}</g>${labels.join("")}</svg>`);
+    `<svg viewBox="${v.join(" ")}" preserveAspectRatio="xMidYMid meet" aria-label="Primary ag area diagram">${defs}${drives}${shapes.join("")}${dims}<g id="circ">${circ}</g>${labels.join("")}</svg>`);
   const svg = document.querySelector("#plan > svg");
   const viewer = Viewer(svg, { ftPerUnit: 1, north: A.north_cw_from_up, damp: 0 });
 
   const c = A.counts.cattle_pens, sa = A.counts.small_animal_pens_per_barn;
+  // vision first (owner, 2026-10-19): the full barnyard and how it flows, then back to Levels 2 and 1; short items,
+  // the detailed list is in the report version (archive/report-reference-2026-10-19)
   const text = [
-    { b: "Level 1", h: "Lightest touch", items: ["Hogs move into the existing barn, about 32 pens (the 10 old hog pens give way to the site improvements)", `${c[1]} existing cattle pens reused`, "Holding pens 1 to 5 and the handling yard: Bud Box, chute, and scale", "Compost area and dumpster enclosure south of the existing barn (could wait if funding is tight)", `Main parking lot, ${A.counts.parking} spaces at 10' × 20'`, "Walkways (white) tie the Red House, the parking, the existing barn and pens, and the poultry barn together (pan east for poultry)"] },
-    { b: "Level 2", h: "First new barns", items: [`Cattle barn A, with its turnout to the north: ${c[2]} pens in all`, `Small animal barn A: two wings with a dogtrot, ${sa} pens, for hogs or small animals; the hogs move here, a clean swap`, "Feed storage, and bedding storage beside cattle barn A", "Grooming area, at what becomes the arena's west end", "Walkways carried west along the arena to the new barns", "Existing barn, emptied of hogs, becomes much-needed storage"] },
-    { b: "Level 3", h: "Best case", items: [`Cattle barn B beside barn A, with its turnout: ${c[3]} pens in all`, `Small animal barn B extends it south four 12' bays: ${A.counts.small_animal_pens[3]} small animal pens in all`, "Arena, 84' × 50', built out from the grooming area", "24' clear between all buildings"] },
-    { b: "Flow", h: "A two-way loop", items: ["The parking loop and the service drive round the arena join into one two-way loop", "Stock trailers use the loop; no separate trailer enclosure is needed", "Every barn opens onto its own turnout", "The tractor aisle runs east-west through both cattle barns", "The gap between the cattle barns is the busiest route: animals go to the grooming area daily"] },
+    { b: "Level 3", h: "The full barnyard", n: 3, items: [`Two cattle barns: ${c[3]} cow &amp; calf pens with the existing seven`, `Small animal barn, extended south: ${A.counts.small_animal_pens[3]} pens`,
+      "Covered arena, 84' × 50', grown from the grooming area", "One two-way loop serves the barns, the arena, the stock trailers, and parking"] },
+    { b: "Level 2", h: "First new barns", n: 2, items: [`Cattle barn A: ${c[2]} pens in all`, `Small animal barn A: ${sa} pens; the hogs move in, and the existing barn becomes storage`,
+      "Feed and bedding storage, a grooming area, and walkways to the new barns"] },
+    { b: "Level 1", h: "Lightest touch", n: 1, items: ["Hogs move into the existing barn, about 32 pens", `${c[1]} existing cattle pens reused`,
+      "Holding pens, Bud Box, chute, and scale", `Parking for ${A.counts.parking}, compost, and walkways to the Red House and poultry barn`] },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><ul>${t.items.map(i => `<li>${i}</li>`).join("")}</ul></li>`).join("");
   const uses = [["cattle", "Cattle"], ["small_animal", "Small animals"], ["swine", "Swine"], ["arena", "Arena and turnout"], ["circulation", "Storage, parking, service"], ["education", "Red House"], ["horticulture", "Horticulture"]];
   document.getElementById("legend").innerHTML = uses.map(([k, l]) => `<span><i style="background:${css(k)}-tint;background:var(--${k.replace("_", "-")}-tint);border-color:${css(k)}"></i>${l}</span>`).join("");
 
-  let lastBox = tight;
+  let lastBox = v;                                         // opens on the whole diagram (Level 3)
   function apply(step) {
-    const n = Math.min(step + 1, 3);
-    const box = step >= 3 ? v : tight;
+    step = Math.min(step, text.length - 1);
+    const n = text[step].n;
+    const box = step === 0 ? v : tight;                    // the whole diagram for Level 3 and its flow; close in after
     if (box !== lastBox) { viewer.home(box); viewer.flyTo(box, document.documentElement.classList.contains("static") ? 0 : 1300); lastBox = box; }
-    svg.querySelector("#circ").classList.toggle("on", step >= 3);
+    svg.querySelector("#circ").classList.toggle("on", step === 0);
     A.elements.forEach(e => {
       const g = svg.querySelector(`.el[data-id="${e.id}"]:not(.lbl)`), lb = svg.querySelector(`.lbl[data-id="${e.id}"]`), { u, note } = useAt(e, n);
       lb.classList.toggle("future", e.level > n);
       const rect = g.querySelector(".shape");
       g.classList.toggle("future", e.level > n);
-      g.classList.toggle("isnew", step < 3 && e.level === n && e.kind !== "container" && e.kind !== "walk" && !(e.id.startsWith("existing") || e.id === "parking"));
+      g.classList.toggle("isnew", false && e.level === n &&   // no NEW badges when walking back from Level 3 e.kind !== "container" && e.kind !== "walk" && !(e.id.startsWith("existing") || e.id === "parking"));
       rect.style.fill = e.kind === "yard" ? "none" : e.kind === "walk" ? "#fff" : `var(--${u.replace("_", "-")}-tint)`;
       rect.style.stroke = css(u);
       rect.style.strokeDasharray = e.kind === "yard" ? "3 2" : e.kind === "canopy" ? "2.4 1.6" : "";   // open canopies: dashed, like the site map
@@ -202,7 +207,7 @@
   }
   Deck.onStep(apply);
   Deck.start();
-  if (document.documentElement.classList.contains("static")) apply(3);
+  if (document.documentElement.classList.contains("static")) apply(0);
 })();
 </script>
 </body>

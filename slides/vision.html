@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Vision</title>
+<link rel="stylesheet" href="../design/palette.css?v=202610191730">
+<link rel="stylesheet" href="../design/deck.css?v=202610191730">
+<style>
+  /* The end vision first (owner, 2026-10-19): what the center is at Level 3, with the watercolour and comparative images */
+  .body { display: grid; grid-template-columns: 600px 1fr; gap: 44px; margin-top: 30px; flex: 1; min-height: 0; }
+  .points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 22px; }
+  .points li { display: grid; grid-template-columns: 16px 1fr; gap: 0 18px; }
+  .points li i { width: 16px; border-radius: 4px; }
+  .points h3 { font: 600 30px/1.15 var(--serif); margin: 0 0 6px; }
+  .points p { font: 400 21px/1.42 var(--sans); margin: 0; color: var(--ink); }
+  .pics { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr auto auto; gap: 14px; min-height: 0; }
+  .hero { grid-column: 1 / -1; position: relative; border-radius: var(--radius); overflow: hidden; min-height: 0; }
+  .hero img { width: 100%; height: 100%; object-fit: cover; object-position: center 62%; display: block; }
+  .hero span { position: absolute; left: 16px; bottom: 12px; font: 600 15px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase;
+               color: var(--ink); background: rgba(250,247,240,.88); padding: 7px 10px; border-radius: 6px; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  figure img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 10px; display: block; }
+  figcaption { font: 600 17px/1.2 var(--sans); color: var(--ink); }
+  figcaption small { display: block; font: 400 14px/1.3 var(--sans); color: var(--muted); margin-top: 2px; }
+  .credit { grid-column: 1 / -1; font: 400 13px/1.4 var(--sans); color: var(--muted); margin: 0; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">The vision · Level 3</div>
+  <h1 data-step="0">A working teaching farm</h1>
+  <p class="lede" data-step="0">At its best, the site becomes a complete agriculture education center: a working barnyard,
+    the historic house renewed, pasture in rotation, and room to teach, gather, and show.</p>
+
+  <div class="body">
+    <ul class="points" id="points"></ul>
+    <div class="pics" data-step="0">
+      <div class="hero"><img src="../photos/vision-watercolor.jpg" alt="Watercolour of the Level 3 barnyard: barns, the covered arena, and the existing barn, with a student leading a steer across the green"><span>The barnyard at Level 3</span></div>
+      <figure><img src="../photos/reference/mcintosh-arena.jpg" alt="Covered arena with a student leading a calf"><figcaption>Covered arena<small>McIntosh Ag Center</small></figcaption></figure>
+      <figure><img src="../photos/reference/mcintosh-cattle-barn.jpg" alt="Cattle barn aisle between pens"><figcaption>Cattle barn<small>McIntosh Ag Center</small></figcaption></figure>
+      <figure><img src="../photos/reference/mcintosh-small-animal-barn.jpg" alt="Small animal barn with a pig in the yard"><figcaption>Small animal barn<small>McIntosh Ag Center</small></figcaption></figure>
+      <figure><img src="../photos/reference/siesta-key-chapel.jpg" alt="Timber-framed hall with tall windows to the trees"><figcaption>Event space<small>Siesta Key Chapel</small></figcaption></figure>
+      <p class="credit">Comparative images. McIntosh Middle School Ag Center, Seibert Architects; photos by Ryan Gamma Photography.
+        Siesta Key Chapel; photo courtesy of Siesta Key Chapel.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/ag-area.js?v=202610191730"></script>
+<script src="data/pasture-capacity.js?v=202610191730"></script>
+<script src="../design/deck.js?v=202610191730"></script>
+<script>
+(function () {
+  // figures from the plan data, so the vision reads the same as the plan slides
+  const A = window.AG_AREA.counts, C = window.PASTURE_CAPACITY.levels[2];
+  const pts = [
+    ["cattle", "A working barnyard", `Two cattle barns (${A.cattle_pens[3]} pens with the existing seven), a small animal barn for swine, sheep, and goats (${A.small_animal_pens[3]} pens), holding pens with a Bud Box, and a covered arena.`],
+    ["education", "The Red House, renewed", "Classroom, conference room, offices, and a demonstration kitchen, with an event space added for the community."],
+    ["pasture", "Pasture in rotation", `About ${Math.round(C.acres)} acres in nine paddocks, grazed in rotation by a Beginning Rancher herd of about ${C.ce_planning}.`],
+    ["horticulture", "Room to grow", `Poultry in the unfinished barn, a horticulture teaching area, a residence on site, parking for ${A.parking}, and water quality built in throughout.`],
+  ];
+  document.getElementById("points").innerHTML = pts.map(([k, h, p], i) =>
+    `<li data-step="${i + 1}"><i style="background:var(--${k})"></i><div><h3>${h}</h3><p>${p}</p></div></li>`).join("");
+  Deck.start();
+})();
+</script>
+</body>
+</html>

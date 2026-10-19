@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Barnyard on the Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191715">
-<link rel="stylesheet" href="../design/deck.css?v=202610191715">
+<link rel="stylesheet" href="../design/palette.css?v=202610191730">
+<link rel="stylesheet" href="../design/deck.css?v=202610191730">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -39,24 +39,24 @@
 </head>
 <body>
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 5 · The plan · Option B</div>
-  <h1 data-step="0">The barnyard, on the site</h1>
+  <div class="eyebrow" data-step="0">The plan · Level 3</div>
+  <h1 data-step="0">The campus at Level 3</h1>
   <div class="body">
     <div class="map card" data-step="0" id="map">
-      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span>
+      <span data-step="1" hidden></span>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="levels" id="levels"></ol>
-      <div class="fit" data-step="3" id="fit"></div>
+      <div class="fit" id="fit" hidden></div>   <!-- the fit checks: report version only -->
       <p class="src" data-step="0">The barnyard diagram placed to scale on the survey, pinned to the existing barn's surveyed pen line.
         North is to the left.</p>
     </div>
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610191715"></script>
-<script src="../design/deck.js?v=202610191715"></script>
-<script src="../design/viewer.js?v=202610191715"></script>
+<script src="data/site-map.js?v=202610191730"></script>
+<script src="../design/deck.js?v=202610191730"></script>
+<script src="../design/viewer.js?v=202610191730"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, K = M.barnyard.checks;
@@ -72,11 +72,11 @@
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Barnyard", box: yard }, { label: "Full site", box: full }] });
 
+  // the campus at its full build-out, first as a whole and then the barnyard (owner, 2026-10-19: the end vision first;
+  // the barnyard slide that follows walks back to Levels 2 and 1)
   const text = [
-    { b: "Level 1", h: "What is there today, put to work", p: "The existing barn and its seven pens, holding pens 1 to 5 and the handling yard north of them, compost and dumpsters, the parking lot on the existing drive, and walkways linking the Red House, the parking, the existing barn, and the poultry barn. The entry gets a new apron off the lane, which the stormwater design requires.", f: yard },
-    { b: "Level 2", h: "First barns", p: "Cattle barn A with its turnout to the north, small animal barn A (two wings with a dogtrot), feed and bedding storage, the grooming area, and the walkways carried west to the new barns.", f: yard },
-    { b: "Level 3", h: "Full barnyard", p: "Cattle barn B beside barn A, the arena around the grooming area, and small animal barn B, extending barn A south to the code limit.", f: yard },
-    { b: "Site", h: "In its pasture", p: "The whole barnyard takes up a small corner of the site. The paddocks wrap around it.", f: full },
+    { b: "Level 3", h: "The whole campus", p: "The new barnyard sits beside the Red House and the existing barns, with the paddocks all around it.", f: full, n: 3 },
+    { b: "Level 3", h: "The barnyard", p: "Two cattle barns, the small animal barn, the covered arena, and the holding pens, set around the existing barn and its pens.", f: yard, n: 3 },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><p>${t.p}</p></li>`).join("");
@@ -94,7 +94,8 @@
 
   let last = null;
   function apply(step) {
-    const n = Math.min(step + 1, 3);
+    step = Math.min(step, text.length - 1);
+    const n = text[step].n;
     svg.querySelectorAll(".by").forEach(g => {
       g.classList.toggle("future", +g.dataset.level > n);
       const use = n >= 2 && g.dataset.use2 ? g.dataset.use2 : g.dataset.use, sh = g.querySelector(".shape"), v = use.replace("_", "-");
@@ -111,7 +112,7 @@
   }
   Deck.onStep(apply);
   Deck.start();
-  if (document.documentElement.classList.contains("static")) apply(3);
+  if (document.documentElement.classList.contains("static")) apply(text.length - 1);
 })();
 </script>
 </body>
