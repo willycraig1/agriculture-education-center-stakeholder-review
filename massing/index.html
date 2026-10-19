@@ -157,6 +157,12 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
         <button data-m="level">By Level</button>
       </div>
       <div class="legend" id="legend" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:12px"><label>Cattle barn walls</label></div>
+      <div class="seg" id="clad" role="group" aria-label="Cattle barn wall cladding">
+        <button data-c="metal">Red metal panel</button>
+        <button data-c="wood">Wood siding</button>
+      </div>
+      <p class="hint">Wood siding to match the existing barn, if the budget allows.</p>
     </section>
 
     <section>
@@ -219,7 +225,7 @@ S.mat.redwall = [0.62, 0.30, 0.25]; S.mat.metalroof = [0.80, 0.81, 0.80]; S.mat.
 const LVL = ['#77736A', '#5F8A3A', '#D19A2E', '#B8657A'];
 const LVLNAME = ['Existing', 'Level 1', 'Level 2', 'Level 3'];
 const ROOFY = new Set(['roof', 'roofflat', 'rustroof', 'metalroof']);
-const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline']);
+const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain']);
 const rgb = a => new THREE.Color(a[0], a[1], a[2]);
 
 function faceColor(m, ob, mode) {
@@ -283,7 +289,7 @@ const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 6); unitCyl.rotateX(Math.PI 
 const ghostMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide });
 const inkMat = new THREE.LineBasicMaterial({ color: 0x3a342c, transparent: true, opacity: .55 });
 const ghostInk = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .55, depthWrite: false });
-const RAD = { pipe: .16, board: .22, oldboard: .2, timber: .3, oldtimber: .3 };
+const RAD = { pipe: .16, board: .22, oldboard: .2, timber: .3, oldtimber: .3, joist: .1 };
 
 const objects = [];
 for (const ob of S.objects) {
@@ -293,7 +299,8 @@ for (const ob of S.objects) {
   const meshes = [];
   for (const m in byMat) {
     const g = polyGeom(byMat[m]);
-    const mat = new THREE.MeshLambertMaterial({ color: faceColor(m, ob, 'mat'), side: THREE.DoubleSide });
+    const mat = new THREE.MeshLambertMaterial({ color: faceColor(m, ob, 'mat'), side: THREE.DoubleSide,
+      ...(m === 'curtain' ? { transparent: true, opacity: .32, depthWrite: false } : {}) });   // clear roll-up curtains
     const mesh = new THREE.Mesh(g, mat);
     mesh.castShadow = true; mesh.receiveShadow = true;
     mesh.userData = { m, solid: mat };
@@ -715,12 +722,15 @@ function boxAt(x, y, z, w, d, h, color, rotZ = 0, parent = people) {
 })();
 
 // ---------- state ----------
-const state = { level: 3, ghost: true, mode: 'mat', view: 'watercolor', wc: 0, edges: true, labels: true };
+const state = { level: 3, ghost: true, mode: 'mat', view: 'watercolor', wc: 0, edges: true, labels: true, clad: 'metal' };
+const CLAD = { metal: S.mat.cladding || [0.62, 0.24, 0.20], wood: S.mat.oldwood };
 try { Object.assign(state, JSON.parse(localStorage.getItem('massing-state') || '{}')); } catch (e) {}
-const save = () => { try { localStorage.setItem('massing-state', JSON.stringify({ level: state.level, ghost: state.ghost, mode: state.mode })); } catch (e) {} };
+const save = () => { try { localStorage.setItem('massing-state', JSON.stringify({ level: state.level, ghost: state.ghost, mode: state.mode, clad: state.clad })); } catch (e) {} };
 
 const chk = id => document.getElementById(id).checked;
 function applyLevel() {
+  S.mat.cladding = CLAD[state.clad] || CLAD.metal;
+  document.querySelectorAll('#clad button').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === state.clad));
   for (const o of objects) {
     const lv = o.ob.level, shown = lv <= state.level;
     const fenceOff = o.isFence && !document.getElementById('fences').checked;
@@ -997,6 +1007,7 @@ function updateHud() {
 // ---------- wiring ----------
 document.getElementById('levels').onclick = e => { const b = e.target.closest('button'); if (b) { state.level = +b.dataset.l; save(); applyLevel(); } };
 document.getElementById('mode').onclick = e => { const b = e.target.closest('button'); if (b) { state.mode = b.dataset.m; save(); applyLevel(); } };
+document.getElementById('clad').onclick = e => { const b = e.target.closest('button'); if (b) { state.clad = b.dataset.c; save(); applyLevel(); } };
 document.getElementById('ghost').onchange = e => { state.ghost = e.target.checked; save(); applyLevel(); };
 viewsEl.onclick = e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); };
 document.getElementById('wcop').oninput = e => { state.wc = +e.target.value; syncOverlay(); };

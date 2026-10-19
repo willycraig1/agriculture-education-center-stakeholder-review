@@ -86,6 +86,69 @@ def fence(o, x1, y1, x2, y2, h, rails, mat='pipe', post=8.0, w=1.0):
 def ground_poly(o, x1, y1, x2, y2, mat, z=0.0):
     o.face([(x1, y1, z), (x2, y1, z), (x2, y2, z), (x1, y2, z)], mat, ink=False)
 
+
+# ---------- barn-kit builders (the pre-engineered system of the McIntosh Ag Center references) ----------
+RT, JD = 0.5, 1.5          # roof: ~6" of 2x6 framing under metal panels and trim; bar joists 18" deep
+
+def slab(o, top, t=RT, top_mat='roof', under='roofunder'):
+    """A roof plane t thick: top polygon (3D), its underside t below, and its edges."""
+    bot = [(x, y, z - t) for x, y, z in top]
+    o.face(top, top_mat)
+    o.face(bot[::-1], under, ink=False)
+    n = len(top)
+    for i in range(n):
+        o.face([top[i], top[(i + 1) % n], bot[(i + 1) % n], bot[i]], top_mat)
+
+def thick_wall(o, pts, normal, t=0.5, mat='cladding'):
+    """A wall t thick, centred on the plane of pts (a vertical polygon); normal = (nx, ny) across it."""
+    nx, ny = normal
+    a = [(x - nx * t / 2, y - ny * t / 2, z) for x, y, z in pts]
+    b = [(x + nx * t / 2, y + ny * t / 2, z) for x, y, z in pts]
+    o.face(a, mat); o.face(b[::-1], mat)
+    n = len(pts)
+    for i in range(n):
+        o.face([a[i], a[(i + 1) % n], b[(i + 1) % n], b[i]], mat)
+
+def bar_joist(o, a, b, depth=JD, panel=2.5, mat='joist', ext=None):
+    """A bar joist following the roof: top chord a->b (just under the roof), bottom chord parallel, depth below,
+    Warren webs at about panel spacing. ext: a point the top chord carries on to (an eave extension)."""
+    a, b = np.array(a, float), np.array(b, float)
+    d = np.array([0, 0, depth])
+    o.line([tuple(a), tuple(b)], mat, 1.0)
+    o.line([tuple(a - d), tuple(b - d)], mat, 1.0)
+    n = max(2, int(round(np.linalg.norm((b - a)[:2]) / panel)))
+    for k in range(n):
+        p, q = a + (b - a) * k / n, a + (b - a) * (k + 1) / n
+        o.line([tuple(p - d if k % 2 else p), tuple(q if k % 2 else q - d)], mat, 0.7)
+    o.line([tuple(a), tuple(a - d)], mat, 0.7); o.line([tuple(b), tuple(b - d)], mat, 0.7)
+    if ext is not None:
+        o.line([tuple(a), tuple(ext)], mat, 1.0)
+
+def kit_gable(o, x1, y1, x2, y2, z_col, axis, ovh_lo=3.0, ovh_hi=3.0, ovh_side=3.0, slope=4 / 12, joist_lines=(), roof=True):
+    """A 4:12 gable on the kit system. z_col: roof top at the column (eave) lines. axis 'x': ridge runs E-W
+    across y; 'y': ridge runs N-S across x. ovh_lo/hi: overhang at the low/high end along the ridge."""
+    if axis == 'x':
+        hs, ym = (y2 - y1) / 2, (y1 + y2) / 2
+        zr = z_col + hs * slope; ze = z_col - ovh_side * slope
+        lo, hi = x1 - ovh_lo, x2 + ovh_hi
+        if roof:
+            slab(o, [(lo, y1 - ovh_side, ze), (hi, y1 - ovh_side, ze), (hi, ym, zr), (lo, ym, zr)])
+            slab(o, [(hi, y2 + ovh_side, ze), (lo, y2 + ovh_side, ze), (lo, ym, zr), (hi, ym, zr)])
+        for x in joist_lines:
+            for ye in (y1, y2):
+                bar_joist(o, (x, ye, z_col - RT), (x, ym, zr - RT), ext=(x, ye + (ye - ym) / hs * ovh_side, ze - RT))
+    else:
+        hs, xm = (x2 - x1) / 2, (x1 + x2) / 2
+        zr = z_col + hs * slope; ze = z_col - ovh_side * slope
+        lo, hi = y1 - ovh_lo, y2 + ovh_hi
+        if roof:
+            slab(o, [(x1 - ovh_side, hi, ze), (x1 - ovh_side, lo, ze), (xm, lo, zr), (xm, hi, zr)])
+            slab(o, [(x2 + ovh_side, lo, ze), (x2 + ovh_side, hi, ze), (xm, hi, zr), (xm, lo, zr)])
+        for y in joist_lines:
+            for xe in (x1, x2):
+                bar_joist(o, (xe, y, z_col - RT), (xm, y, zr - RT), ext=(xe + (xe - xm) / hs * ovh_side, y, ze - RT))
+    return zr
+
 # ---------- scene ----------
 def build():
     objs = []
@@ -101,88 +164,148 @@ def build():
     ground_poly(G, 302.7, -254, 329.5, -93.6, 'concrete')          # service lane east of arena
     ground_poly(G, 329.5, -262.7, 499.6, -254.6, 'concrete')       # 8' walk north of barn, out to the unfinished barn (as the plan's walk)
     ground_poly(G, 333, -340, 420, -313.6, 'asphalt')              # apron in front of barn
-    for r in [R(965, 276, 1072, 415), R(965, 415, 1072, 555), R(1097, 276, 1220, 415),
+    for r in [R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
               R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680)]:
         ground_poly(G, *r, 'dirt')
     ground_poly(G, *R(645, 530, 893, 680), 'arenadirt')            # arena floor
     ground_poly(G, *R(995, 935, 1140, 995), 'dirt')                # compost pad
-    for r in [R(245, 168, 608, 275), R(612, 168, 965, 275), R(138, 537, 245, 868), R(138, 868, 245, 990)]:
+    for r in [R(245, 162, 608, 270), R(612, 162, 965, 270), R(138, 537, 245, 697.85), R(138, 697.85, 245, 858.5), R(138, 858.5, 245, 1001.3)]:
         ground_poly(G, *r, 'turnout')
     # parking stall rows (light lines) handled as ground lines
     objs.append(G)
 
-    # ---- Cattle barns A & B: open pole barns, ridge E-W, white gable ends
-    for nm, (x1, y1, x2, y2) in [('cattleA', R(645, 276, 893, 460)), ('cattleB', R(322, 276, 572, 460))]:
+    # ---- Cattle barns A & B, after the McIntosh Ag Center cattle barn (source/Clark Farm Study Plan-A2.0 Cattle Barn
+    # Reference.pdf, Bldg 19): 24' pen rows either side of a 16' tractor aisle (64' deep; owner, 2026-10-19), 84' long
+    # (7 pens a side at 12'), columns at 12'. 1:12 shed roofs over the pens, about 10.4' at the outer columns and
+    # 12.4' at the aisle; a 4:12 monitor over the aisle, about 16.3' at the eaves and 19' at the ridge (tops of roof).
+    # Kit system: wood columns, black 18" bar joists on every column line following the roof, a 6" roof (2x6 framing,
+    # metal panels and trim), 3' overhangs. Gable ends and monitor walls clad (red metal panel, or vertical wood
+    # siding to match the existing barn), a 16' x 10' opening at each end of the aisle. Long sides open over pipe
+    # gate panels. Sand bedding in the pens, concrete in the aisle. No tack or feed rooms.
+    for nm, (x1, y1, x2, y2) in [('cattleA', R(645, 270, 893, 460)), ('cattleB', R(322, 270, 572, 460))]:
         o = Obj(nm)
-        eave, ridge = 11.0, 20.0
         ym = (y1 + y2) / 2
-        # interior shadow walls (open sides)
-        o.face([(x1, y1, 0), (x2, y1, 0), (x2, y1, eave), (x1, y1, eave)], 'openshade')
-        o.face([(x2, y2, 0), (x1, y2, 0), (x1, y2, eave), (x2, y2, eave)], 'openshade')
-        # gable ends: white metal in the triangle + solid end bays
-        for xe, sgn in [(x1, -1), (x2, 1)]:
-            o.face([(xe, y1, 0), (xe, y1 + 10, 0), (xe, y1 + 10, eave), (xe, y1, eave)], 'whitemetal')
-            o.face([(xe, y2 - 10, 0), (xe, y2, 0), (xe, y2, eave), (xe, y2 - 10, eave)], 'whitemetal')
-            o.face([(xe, y1 + 10, 0), (xe, y2 - 10, 0), (xe, y2 - 10, eave), (xe, y1 + 10, eave)], 'openshade')
-            o.face([(xe, y1, eave), (xe, ym, ridge), (xe, y2, eave)], 'whitemetal')
-        gable(o, x1, y1, x2, y2, eave, ridge, 'x', 'whitemetal', 'roof', walls=False, ovh=2.0)
-        # posts on long sides at 12' module
-        xs = np.arange(x1, x2 + 0.1, 12.0)
-        posts_along(o, [(x, y1 - 0.6) for x in xs] + [(x, y2 + 0.6) for x in xs], 0, eave - 0.3)
-        # pipe gates across open bays
-        for x in xs[:-1]:
-            o.line([(x, y1 - 0.8, 4.2), (x + 12, y1 - 0.8, 4.2)], 'pipe', 1.0)
-            o.line([(x, y1 - 0.8, 2.2), (x + 12, y1 - 0.8, 2.2)], 'pipe', 0.8)
-        # ridge monitor
-        o.face([(x1 + 6, ym - 4, ridge - 1.5), (x2 - 6, ym - 4, ridge - 1.5), (x2 - 6, ym - 4, ridge + 1.6), (x1 + 6, ym - 4, ridge + 1.6)], 'openshade')
-        o.face([(x1 + 4, ym - 6, ridge + 1.2), (x2 - 4, ym - 6, ridge + 1.2), (x2 - 4, ym, ridge + 3.0), (x1 + 4, ym, ridge + 3.0)], 'roof')
-        o.face([(x2 - 4, ym + 6, ridge + 1.2), (x1 + 4, ym + 6, ridge + 1.2), (x1 + 4, ym, ridge + 3.0), (x2 - 4, ym, ridge + 3.0)], 'roof')
+        AI = 8.0 * (y2 - y1) / 64.0                     # half the aisle, in this frame's feet
+        ya, yb = ym - AI, ym + AI                       # aisle edges = inner column lines
+        Z_OUT, Z_IN, M_EAVE, M_RIDGE, OVH = 10.4, 12.4, 16.33, 19.0, 3.0
+        zs = lambda d: Z_OUT + (Z_IN - Z_OUT) * d / (ya - y1)   # shed roof top, d = distance in from the outer line
+        ground_poly(G, x1, y1, x2, ya, 'dirt')          # sand bedding (owner, 2026-10-19)
+        ground_poly(G, x1, yb, x2, y2, 'dirt')
+        ground_poly(G, x1, ya, x2, yb, 'concrete')      # heavy broom finish concrete aisle
+        zo = zs(-OVH)
+        slab(o, [(x1 - OVH, y1 - OVH, zo), (x2 + OVH, y1 - OVH, zo), (x2 + OVH, ya, Z_IN), (x1 - OVH, ya, Z_IN)])
+        slab(o, [(x2 + OVH, y2 + OVH, zo), (x1 - OVH, y2 + OVH, zo), (x1 - OVH, yb, Z_IN), (x2 + OVH, yb, Z_IN)])
+        mz = M_EAVE - (M_RIDGE - M_EAVE) / AI * OVH
+        slab(o, [(x1 - OVH, ya - OVH, mz), (x2 + OVH, ya - OVH, mz), (x2 + OVH, ym, M_RIDGE), (x1 - OVH, ym, M_RIDGE)])
+        slab(o, [(x2 + OVH, yb + OVH, mz), (x1 - OVH, yb + OVH, mz), (x1 - OVH, ym, M_RIDGE), (x2 + OVH, ym, M_RIDGE)])
+        for yy in (ya, yb):                             # monitor walls, from the shed roofs to the monitor roof
+            thick_wall(o, [(x1, yy, Z_IN - RT), (x2, yy, Z_IN - RT), (x2, yy, M_EAVE - RT), (x1, yy, M_EAVE - RT)], (0, 1))
+        for xe in (x1, x2):                             # gable ends: pen bays, and the wall over the aisle opening
+            thick_wall(o, [(xe, y1, 0), (xe, ya, 0), (xe, ya, Z_IN - RT), (xe, y1, Z_OUT - RT)], (1, 0))
+            thick_wall(o, [(xe, yb, 0), (xe, y2, 0), (xe, y2, Z_OUT - RT), (xe, yb, Z_IN - RT)], (1, 0))
+            thick_wall(o, [(xe, ya, 10.0), (xe, yb, 10.0), (xe, yb, M_EAVE - RT), (xe, ym, M_RIDGE - RT), (xe, ya, M_EAVE - RT)], (1, 0))
+        xs = np.linspace(x1, x2, 8)
+        for x in xs:                                    # bar joists on every column line
+            bar_joist(o, (x, y1, Z_OUT - RT), (x, ya, Z_IN - RT), ext=(x, y1 - OVH, zo - RT))
+            bar_joist(o, (x, y2, Z_OUT - RT), (x, yb, Z_IN - RT), ext=(x, y2 + OVH, zo - RT))
+            bar_joist(o, (x, ya, M_EAVE - RT), (x, ym, M_RIDGE - RT), ext=(x, ya - OVH, mz - RT))
+            bar_joist(o, (x, yb, M_EAVE - RT), (x, ym, M_RIDGE - RT), ext=(x, yb + OVH, mz - RT))
+        posts_along(o, [(x, y) for x in xs for y in (y1, y2)], 0, Z_OUT - RT - JD, w=0.7, mat='timber')
+        posts_along(o, [(x, y) for x in xs for y in (ya, yb)], 0, M_EAVE - RT - JD, w=0.7, mat='timber')
         objs.append(o)
+        # pipe gate panels: along both open sides, along the aisle, and between pens (5 rails, 5.5' high)
+        g = Obj(nm + '_gates', cast_shadow=False)
+        RAILS = [5.4, 4.2, 3.0, 1.8, 0.7]
+        for yy in (y1, ya, yb, y2):
+            fence(g, x1, yy, x2, yy, 5.5, RAILS, 'pipe', post=12.0, w=0.9)
+        for x in xs[1:-1]:
+            fence(g, x, y1, x, ya, 5.5, RAILS, 'pipe', post=12.0, w=0.9)
+            fence(g, x, yb, x, y2, 5.5, RAILS, 'pipe', post=12.0, w=0.9)
+        objs.append(g)
 
-    # ---- Arena: covered pavilion, timber posts, ridge E-W
+    # ---- Arena: covered pavilion on the kit system, after the McIntosh Ag Center pavilion (source/Clark Farm Study
+    # Plan-A2.0 Arena and SmAnimal Barn Reference.pdf: 96' x 50' clear span, 8 bays): ours is one bay shorter, 84' x 50',
+    # 8x8 wood columns at 12' on both long sides, a 4:12 gable of bar joists spanning the 50', joists 14' clear at the
+    # columns, a 6" roof, 3' overhangs (owner). Open all round. The grooming area (Level 2) sits inside the west end.
     x1, y1, x2, y2 = R(645, 530, 893, 680)
     o = Obj('arena')
-    eave, ridge = 14.0, 25.0
-    gable(o, x1, y1, x2, y2, eave, ridge, 'x', 'whitemetal', 'roof', walls=False, ovh=2.5)
-    ym = (y1 + y2) / 2
-    for xe in (x1, x2):
-        o.face([(xe, y1, eave), (xe, ym, ridge), (xe, y2, eave)], 'trussend')
     xs = np.linspace(x1, x2, 8)
+    Z_COL = 14.0 + JD + RT                              # roof top at the column lines
+    kit_gable(o, x1, y1, x2, y2, Z_COL, 'x', joist_lines=xs)
+    posts_along(o, [(x, y1) for x in xs] + [(x, y2) for x in xs], 0, 14.0, w=0.75, mat='timber')
     # grooming bay inside (west) – enclosed white box, painted before the roof
     gx1, gy1, gx2, gy2 = R(650, 545, 683, 672)
     o.bias = 200.0
     box(o, gx1, gy1, gx2, gy2, 0, 10, 'whitemetal', 'roofflat')
     o.bias = 0.0
-    posts_along(o, [(x, y1) for x in xs] + [(x, y2) for x in xs], 0, eave, w=1.1)
     objs.append(o)
     o3 = Obj('arenarail', cast_shadow=False)
     fence(o3, gx2 + 2, y1 + 3, x2 - 3, y1 + 3, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
-    fence(o3, gx2 + 2, y2 - 3, x2 - 3, y2 - 3, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
-    fence(o3, x2 - 3, y1 + 3, x2 - 3, y2 - 3, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
+    fence(o3, gx2 + 2, y2 - 10, x2 - 3, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
+    fence(o3, x2 - 3, y1 + 3, x2 - 3, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     objs.append(o3)
+    # two 4-row x 24' fixed aluminium bleachers along the north side, inside the columns (owner, 2026-10-19), 12' in
+    # from each end with 12' between: rows about 1.75' deep stepping up 0.75' toward the columns, from a 1.3' seat
+    ob = Obj('bleachers')
+    for bx in (x1 + 12.0, x1 + 48.0):
+        for r in range(4):
+            ya_ = y2 - 0.5 - 7.0 + r * 1.75
+            box(ob, bx, ya_, bx + 24.0, ya_ + 1.75, 0, 1.3 + 0.75 * r, 'alum', 'alum')
+    objs.append(ob)
 
-    # ---- Small animal barns (swine A two parts, small animal B), ridge N-S, white
-    for nm, r, mat in [('swineA_n', R(245, 537, 353, 680), 'whitemetal'),
-                       ('swineA_s', R(245, 725, 353, 868), 'whitemetal'),
-                       ('smallB', R(245, 868, 353, 990), 'whitemetal')]:
-        x1, y1, x2, y2 = r
+    # ---- Small animal barns on the kit system, after the McIntosh Ag Center Bldg 18 (same reference; 34' wide there,
+    # 36' o.c. here to stay on the 12' module; owner): a 4:12 gable of bar joists on the column lines, joists 12' clear
+    # at the columns, a 6" roof, 3' overhangs. Barn A is two wings either side of a 15' dogtrot under one continuous
+    # roof, the wings' dividing walls on their column lines at the 12' dogtrot; barn B (Level 3) extends it south four
+    # bays. Clad gable and dividing walls (an 8' aisle opening; an exhaust fan in each gable), roll-up clear curtains on
+    # the long sides. 6' x 10' pens either side of an 8' aisle; concrete floor. No tack rooms, no A/C.
+    sx1, sx2 = 245 / S, 353 / S
+    sxm, shw = (sx1 + sx2) / 2, (sx2 - sx1) / 2
+    Z_COL = 12.0 + JD + RT
+    zroof = lambda x: Z_COL + (shw - abs(x - sxm)) * 4 / 12          # roof top across the barn
+    # (name, north line px, south line px, overhang north, overhang south, walls at north / south)
+    # dogtrot one 12' bay, barn B four bays (owner, 2026-10-19); plan feet x 2.974 px in this traced frame
+    segs = [('swineA_n', 537, 680, 3.0, 0.0, 'gable', 'divide'),
+            ('dogtrot', 680, 715.7, 0.0, 0.0, None, None),
+            ('swineA_s', 715.7, 858.5, 0.0, 3.0, 'divide', 'gable'),
+            ('smallB', 858.5, 1001.3, -3.0, 3.0, None, 'gable')]                # B starts at A's south overhang
+    for nm, pn, ps, on, os_, wn, ws in segs:
+        yn, ysth = -pn / S, -ps / S
         o = Obj(nm)
-        gable(o, x1, y1, x2, y2, 9.5, 16.5, 'y', mat, 'roof', ovh=1.5)
-        if nm == 'smallB':   # one roof with barn A: stop short of A's south overhang instead of lapping it
-            o.faces = [f for f in o.faces if f['mat'] != 'roof']
-            gable(o, x1, y1, x2, y2 - 3.0, 9.5, 16.5, 'y', mat, 'roof', ovh=1.5, walls=False)
-        # curtain openings on long sides
-        o.bias = -30.0
-        o.face([(x1 - 0.05, y2 - 3, 3.5), (x1 - 0.05, y1 + 3, 3.5), (x1 - 0.05, y1 + 3, 8.0), (x1 - 0.05, y2 - 3, 8.0)], 'openshade')
-        o.face([(x2 + 0.05, y1 + 3, 3.5), (x2 + 0.05, y2 - 3, 3.5), (x2 + 0.05, y2 - 3, 8.0), (x2 + 0.05, y1 + 3, 8.0)], 'openshade')
-        o.bias = 0.0
+        ground_poly(G, sx1, ysth, sx2, yn, 'concrete')
+        lines = [] if nm == 'dogtrot' else list(np.arange(ysth, yn - 0.5, 12.0)) + [yn]
+        if nm == 'smallB':
+            lines = [y for y in lines if y < yn - 0.5]                    # its north line is barn A's south wall
+        kit_gable(o, sx1, ysth, sx2, yn, Z_COL, 'y', ovh_lo=os_, ovh_hi=on, joist_lines=lines)
+        if lines:
+            posts_along(o, [(x, y) for y in lines for x in (sx1, sx2)], 0, 12.0, w=0.75, mat='timber')
+        for yy, kind in ((yn, wn), (ysth, ws)):
+            if not kind:
+                continue
+            prof = [(sx1, yy, 0), (sx2, yy, 0), (sx2, yy, Z_COL - RT), (sxm, yy, zroof(sxm) - RT), (sx1, yy, Z_COL - RT)]
+            # wall with the aisle opening (8' x 9') cut out: two side panels and the gable above
+            ai = 4.0
+            thick_wall(o, [(sx1, yy, 0), (sxm - ai, yy, 0), (sxm - ai, yy, 9.0), (sx1, yy, 9.0)], (0, 1))
+            thick_wall(o, [(sxm + ai, yy, 0), (sx2, yy, 0), (sx2, yy, 9.0), (sxm + ai, yy, 9.0)], (0, 1))
+            thick_wall(o, [(sx1, yy, 9.0), (sx2, yy, 9.0), (sx2, yy, Z_COL - RT), (sxm, yy, zroof(sxm) - RT), (sx1, yy, Z_COL - RT)], (0, 1))
+            if kind == 'gable':                                             # exhaust fan high in the gable
+                side = 1 if yy == yn else -1
+                o.face([(sxm - 2, yy + side * 0.3, 13.0), (sxm + 2, yy + side * 0.3, 13.0), (sxm + 2, yy + side * 0.3, 16.5), (sxm - 2, yy + side * 0.3, 16.5)], 'darkglass')
+        if nm != 'dogtrot':
+            for xx in (sx1, sx2):                                          # roll-up clear curtains on the column lines
+                o.face([(xx, ysth, 0.5), (xx, yn, 0.5), (xx, yn, 12.0), (xx, ysth, 12.0)], 'curtain', ink=False)
         objs.append(o)
-
-    # ---- Dogtrot: the 15' open breezeway between barn A's wings, under one continuous roof with them
-    # (roof only; the wings' gable ends are its walls). Inset 1.5' each end so it meets the wings' overhangs.
-    o = Obj('dogtrot'); x1, y1, x2, y2 = R(245, 680, 353, 725)
-    gable(o, x1, y1 + 1.5, x2, y2 - 1.5, 9.5, 16.5, 'y', 'whitemetal', 'roof', ovh=1.5, walls=False)
-    objs.append(o)
+        if nm != 'dogtrot':
+            # 6' x 10' pens either side of an 8' aisle (owner, 2026-10-19), a 4' strip between the pens and the
+            # curtain line (the reference barn's drain strip); livestock panels at the pen backs and fronts
+            g = Obj(nm + '_pens', cast_shadow=False)
+            pb1, pf1, pf2, pb2 = sxm - 4.0 - 10.0, sxm - 4.0, sxm + 4.0, sxm + 4.0 + 10.0
+            for xx in (pb1, pf1, pf2, pb2):
+                fence(g, xx, ysth, xx, yn, 4.0, [3.9, 2.6, 1.3, 0.3], 'pipe', post=6.0, w=0.8)
+            for y in np.arange(ysth + 6, yn - 0.5, 6.0):
+                fence(g, pb1, y, pf1, y, 4.0, [3.9, 2.6, 1.3, 0.3], 'pipe', post=10.0, w=0.8)
+                fence(g, pf2, y, pb2, y, 4.0, [3.9, 2.6, 1.3, 0.3], 'pipe', post=10.0, w=0.8)
+            objs.append(g)
 
     # ---- Feed storage & bedding storage (small white sheds)
     o = Obj('feed'); x1, y1, x2, y2 = R(525, 560, 572, 680)
@@ -250,6 +373,7 @@ def build():
 
     o = Obj('expens')
     py0, py1 = y2 + 8.2, y2 + 32.1
+    ground_poly(G, x1, py0, x2, py1, 'dirt')    # sand bedding, as in the holding pens (owner, 2026-10-19)
     RAILS = [5.0, 3.9, 2.8, 1.7, 0.6]     # pipe-rail panels throughout (owner)
     for x in np.linspace(x1, x2, 8):      # partitions
         fence(o, x, py0, x, py1, 5.0, RAILS, 'pipe', post=10.0, w=0.9)
@@ -260,7 +384,7 @@ def build():
     objs.append(o)
 
     # ---- Outdoor pens 1–5 & chute: pipe fences, each segment its own object for sorting
-    pens = [R(965, 276, 1072, 415), R(965, 415, 1072, 555), R(1097, 276, 1220, 415),
+    pens = [R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
             R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680)]
     for i, (x1, y1, x2, y2) in enumerate(pens):
         for j, seg in enumerate([(x1, y1, x2, y1), (x2, y1, x2, y2), (x2, y2, x1, y2), (x1, y2, x1, y1)]):
@@ -275,7 +399,7 @@ def build():
     objs.append(f)
 
     # ---- Turnout board fences (wood, 3 rails), split into short segments
-    tos = [R(245, 168, 608, 275), R(612, 168, 965, 275), R(138, 537, 245, 868), R(138, 868, 245, 990)]
+    tos = [R(245, 162, 608, 270), R(612, 162, 965, 270), R(138, 537, 245, 697.85), R(138, 697.85, 245, 858.5), R(138, 858.5, 245, 1001.3)]
     k = 0
     for (x1, y1, x2, y2) in tos:
         for seg in [(x1, y1, x2, y1), (x2, y1, x2, y2), (x2, y2, x1, y2), (x1, y2, x1, y1)]:

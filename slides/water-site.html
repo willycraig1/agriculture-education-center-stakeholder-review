@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Water on the Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191506">
-<link rel="stylesheet" href="../design/deck.css?v=202610191506">
+<link rel="stylesheet" href="../design/palette.css?v=202610191659">
+<link rel="stylesheet" href="../design/deck.css?v=202610191659">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -69,9 +69,9 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610191506"></script>
-<script src="../design/deck.js?v=202610191506"></script>
-<script src="../design/viewer.js?v=202610191506"></script>
+<script src="data/site-map.js?v=202610191659"></script>
+<script src="../design/deck.js?v=202610191659"></script>
+<script src="../design/viewer.js?v=202610191659"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = M.civil || {}, W = M.wildcard || {}, B = M.slough_bed || {}, bedAc = (B.acres || 0).toFixed(1);
@@ -83,8 +83,8 @@
 
   const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
   // the slough bed and the campus, set in the part of the map the step panel leaves open
-  // comp: compensation options west to east, through the bonus retention ponds; pipes: both pipe notes clear of the panel
-  const frames = { full, bed: [330, 150, 1180, 750], comp: [-20, 140, 1625, 1034], pipes: [640, 290, 950, 604] };
+  // comp: the compensation options across the site (main parcel only: no bonus retention); pipes: the entry culvert
+  const frames = { full, bed: [330, 150, 1180, 750], comp: full, pipes: [640, 290, 950, 604] };
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Full site", box: frames.full }, { label: "Slough bed", box: frames.bed }],
     uiStyle: "right:auto;top:auto;left:512px;bottom:22px;max-width:none;justify-content:flex-start" });
@@ -98,17 +98,17 @@
     { t: "What is left of it", p: `The canal carries the flow today. The old bed is still cut into the ground, about ${bedAc} acres from bank to bank across the middle of the site.`,
       lg: `<span><i style="background:var(--water)"></i>Cow Pen Slough today</span><span><i style="background:var(--pasture);opacity:.45"></i>Historical slough bed, grassed</span><span><i style="background:var(--water);opacity:.6"></i>Ditch floor</span><span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span>`,
       show: ["aerial1948", "property", "water", "labels"], under: true, strong: true, frame: "bed" },
-    { t: "Wet ground", p: "The wettest soils sit beside the old bed and across the east pastures. Grazing there is timed to ground conditions.",
+    { t: "Wet ground", p: "The wettest soils sit beside the old bed and in the low pastures. Grazing there is timed to ground conditions.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
       show: ["ground", "property", "soils", "water", "labels"], frame: "bed" },
     { t: "Where the plan meets it", p: `The old bed wraps the west and south sides of the barnyard and passes under the entry drive.${crosses.length ? ` It runs through ${crosses.join(" and ")}.` : ""} The whole site is in the floodplain. Civil sets the covered livestock buildings at a finished floor of 21.70', just above the County's 100-year flood level, with little freeboard.`,
       lg: `<span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention pond</span><span><i style="background:var(--water);opacity:.55"></i>Bioswale</span><span><i style="background:var(--education)"></i>Existing buildings</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, frame: "bed" },
     { t: "Floodplain compensation, all at Level 1", p: `The whole site is in the floodplain. Civil recommends permitting and building all the stormwater and compensation up front, at Level 1: fill for new work is balanced by lowering ground elsewhere, wide and shallow so it stays in grazing.`,
-      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Site retention option (civil)</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention</span><span><i style="background:none;border:2px dotted var(--water)"></i>Bonus retention</span>`,
+      lg: `<span><i style="background:var(--pasture);opacity:.35;outline:2px dashed var(--pasture)"></i>Compensation options (civil's sketch)</span><span><i style="background:var(--water);opacity:.5"></i>Site retention option (civil)</span><span><i style="background:var(--water-tint);outline:2px dashed var(--water)"></i>Site retention</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, comp: true, frame: "comp" },
-    { t: "The pipes that connect it", p: "Two structures tie the old bed together. The culvert under the entry is undersized and hard to maintain: it is replaced with the new entry apron at Level 1. The outfall from the bed to Cow Pen Slough, two 36-inch pipes under the lane, is in good shape and sized for what the plan needs, so it stays.",
-      lg: `<span><i style="background:var(--education);height:5px;margin-bottom:4px"></i>Replace</span><span><i style="background:var(--woodland);height:5px;margin-bottom:4px"></i>Keep</span>`,
+    { t: "The culvert under the entry", p: "The culvert that carries the old bed under the entry drive is undersized and hard to maintain: it is replaced with the new entry apron at Level 1.",
+      lg: `<span><i style="background:var(--education);height:5px;margin-bottom:4px"></i>Replace</span>`,
       show: ["ground", "property", "water", "campus", "barnyard", "labels"], strong: true, plan: true, infra: true, frame: "pipes" },
   ];
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
@@ -118,8 +118,7 @@
     `<b>Option 2</b>, about ${C.option2_acres} ac, the north pasture: clear and lower. Costlier; the biggest gain in forage.`,
     `<b>Site retention option</b>, about ${(C.site_retention_option_acres || []).reduce((t, a) => t + a, 0).toFixed(1)} ac (${(C.site_retention_option_acres || []).map(a => a.toFixed(1)).join(" and ")} ac): civil's expanded retention, refitted clear of the turnouts.`,
     `<b>Site retention</b>, about ${(M.retention_acres + (W.site_acres || 0)).toFixed(1)} ac in all: the pond by the campus (${M.retention_acres} ac) and a second between the old bed and the lane (${W.site_acres} ac).`,
-    `<b>Bonus retention</b>, about ${W.bonus_acres} ac in all (${(W.bonus_ponds_acres || []).map(a => a.toFixed(1)).join(", ")} ac), on Solid Waste land: both site ponds extend south, plus two ponds past the outfall drive.`,
-    `The soil removed could cover the County landfill next door.`].map(t => `<div>${t}</div>`).join("");
+    ].map(t => `<div>${t}</div>`).join("");
   const facts = [[1, bedAc, "acres of historical slough bed, bank to bank"], [2, `${wet}%`, "of the mapped site is very poorly drained"], [3, "21.70′", "finished floor for covered livestock buildings, just above the 100-year flood"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) => `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
 

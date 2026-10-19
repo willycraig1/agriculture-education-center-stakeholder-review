@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Small Animal Pens</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191506">
-<link rel="stylesheet" href="../design/deck.css?v=202610191506">
+<link rel="stylesheet" href="../design/palette.css?v=202610191659">
+<link rel="stylesheet" href="../design/deck.css?v=202610191659">
 <style>
   .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
   .levels { display: flex; flex-direction: column; gap: 18px; }
@@ -51,7 +51,7 @@
           </svg>
           <div>
             <div class="stat num" id="perwing"></div>
-            <p>pens to a wing: two rows of 6' × 10' pens facing a 16' aisle, in a 36'-wide barn.</p>
+            <p id="perwing-note">pens to a wing: two rows of 6' × 10' pens facing an 8' aisle, in a 36'-wide barn.</p>
             <p>Any pen can take a hog, a sheep, or a goat, so the mix can follow enrollment from year to year.</p>
           </div>
         </div>
@@ -59,16 +59,16 @@
       <div class="card">
         <h3>One barn, two steps</h3>
         <p>Barn A is <b>two wings with a roofed dogtrot</b> between them, opening to its turnout on the west.
-          Barn B extends it south, as far as the fire code allows for one building.</p>
+          Barn B extends it south four 12' bays.</p>
         <p class="footnote" id="code"></p>
       </div>
     </div>
   </div>
 </div>
 
-<script src="data/levels.js?v=202610191506"></script>
-<script src="data/ag-area.js?v=202610191506"></script>
-<script src="../design/deck.js?v=202610191506"></script>
+<script src="data/levels.js?v=202610191659"></script>
+<script src="data/ag-area.js?v=202610191659"></script>
+<script src="../design/deck.js?v=202610191659"></script>
 <script>
 (function () {
   // Barn sizes and pen counts come from the barnyard diagram (tools/build_ag_area.py), so this slide follows the plan.
@@ -123,7 +123,13 @@
     `<div class="legend" data-step="1"><span><i style="background:var(--swine-tint)"></i>Existing</span><span><i></i>New pen, 6' × 10'</span><span>All plans at the same scale</span></div>`;
   document.getElementById("perwing").textContent = 2 * wa.pens.n;
   const sf = Math.round(depth * (aLen + b.h));
-  document.getElementById("code").textContent = `Barns A and B together are about ${sf.toLocaleString()} sf, under the 5,500 sf limit for a one-storey Group U, Type VB building (IBC Table 506.2); to be confirmed with the AHJ.`;
+  const aisle = rows[1][0] - rows[0][0] - rows[0][1];
+  document.getElementById("perwing-note").textContent = `pens to a wing: two rows of 6' × 10' pens facing an ${aisle}' aisle, in a ${depth}'-wide barn.`;
+  // the one-storey base limit for a Group U, Type VB building is 5,500 sf (IBC Table 506.2); with the dogtrot counted,
+  // barns A and B go past it, which the frontage increase (IBC 506.3) covers (owner, 2026-10-19)
+  document.getElementById("code").textContent = sf <= 5500
+    ? `Barns A and B together are about ${sf.toLocaleString()} sf, under the 5,500 sf limit for a one-storey Group U, Type VB building (IBC Table 506.2); to be confirmed with the AHJ.`
+    : `Barns A and B together are about ${sf.toLocaleString()} sf, within the area allowed for a one-storey Group U, Type VB building with the frontage increase (IBC 506.3); to be confirmed with the AHJ.`;
   Deck.start();
 })();
 </script>

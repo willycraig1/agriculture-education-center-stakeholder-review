@@ -40,8 +40,8 @@ T_DP = complex(*SM['barnyard']['diagram_to_presentation']['t'])
 
 def fit_diagram_to_scene():
     """Similarity (with the y flip) from diagram feet to scene.py feet, fitted on footprints traced in both."""
-    pairs = [('cattle-a', (645, 276, 893, 460)), ('cattle-b', (322, 276, 572, 460)), ('arena', (645, 530, 893, 680)),
-             ('small-a', (245, 537, 353, 680)), ('small-a2', (245, 725, 353, 868)), ('small-b', (245, 868, 353, 990)),
+    pairs = [('cattle-a', (645, 270, 893, 460)), ('cattle-b', (322, 270, 572, 460)), ('arena', (645, 530, 893, 680)),
+             ('small-a', (245, 537, 353, 680)), ('small-a2', (245, 715.7, 353, 858.5)), ('small-b', (245, 858.5, 353, 1001.3)),
              ('existing-barn', (983, 775, 1220, 925)), ('feed', (525, 560, 572, 680)),
              ('holding-1', (1097, 555, 1220, 680)), ('existing-pens', (983, 680, 1220, 750))]   # pens flush with the barn's west face
     A, B = [], []

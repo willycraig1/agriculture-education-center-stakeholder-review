@@ -3,9 +3,9 @@ window.AG_AREA = {
  "units": "feet",
  "view": [
   -118,
-  13,
+  11,
   427.0,
-  468.9
+  470.9
  ],
  "north_cw_from_up": -17,
  "elements": [
@@ -13,7 +13,7 @@ window.AG_AREA = {
    "id": "turnout-cattle-a",
    "label": "Turnout",
    "x": 75.0,
-   "y": 44.0,
+   "y": 42.0,
    "w": 119.0,
    "h": 36.0,
    "use": "arena",
@@ -26,7 +26,7 @@ window.AG_AREA = {
    "id": "turnout-cattle-b",
    "label": "Turnout",
    "x": -48.0,
-   "y": 44.0,
+   "y": 42.0,
    "w": 123.0,
    "h": 36,
    "use": "arena",
@@ -41,7 +41,7 @@ window.AG_AREA = {
    "x": -84.0,
    "y": 168.0,
    "w": 36.0,
-   "h": 111.0,
+   "h": 54.0,
    "use": "arena",
    "level": 2,
    "kind": "yard",
@@ -52,11 +52,24 @@ window.AG_AREA = {
    "id": "turnout-small-b",
    "label": "",
    "x": -84.0,
-   "y": 279.0,
+   "y": 276.0,
    "w": 36.0,
-   "h": 41,
+   "h": 48,
    "use": "arena",
    "level": 3,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "turnout-small-a2",
+   "label": "",
+   "x": -84.0,
+   "y": 222.0,
+   "w": 36.0,
+   "h": 54.0,
+   "use": "arena",
+   "level": 2,
    "kind": "yard",
    "note": "",
    "assumed": false
@@ -1958,9 +1971,9 @@ window.AG_AREA = {
    "id": "cattle-a",
    "label": "Cattle barn A",
    "x": 86.0,
-   "y": 80.0,
+   "y": 78.0,
    "w": 84.0,
-   "h": 62.0,
+   "h": 64,
    "use": "cattle",
    "level": 2,
    "kind": "building",
@@ -1975,7 +1988,7 @@ window.AG_AREA = {
       24
      ],
      [
-      38,
+      40,
       24
      ]
     ],
@@ -1986,9 +1999,9 @@ window.AG_AREA = {
    "id": "cattle-b",
    "label": "Cattle barn B",
    "x": -22.0,
-   "y": 80.0,
+   "y": 78.0,
    "w": 84.0,
-   "h": 62.0,
+   "h": 64,
    "use": "cattle",
    "level": 3,
    "kind": "building",
@@ -2003,7 +2016,7 @@ window.AG_AREA = {
       24
      ],
      [
-      38,
+      40,
       24
      ]
     ],
@@ -2021,7 +2034,25 @@ window.AG_AREA = {
    "level": 3,
    "kind": "building",
    "note": "84' x 50'",
-   "assumed": false
+   "assumed": false,
+   "zones": [
+    {
+     "label": "Bleachers",
+     "x": 12,
+     "y": 0.5,
+     "w": 24,
+     "h": 7,
+     "fill": true
+    },
+    {
+     "label": "Bleachers",
+     "x": 48,
+     "y": 0.5,
+     "w": 24,
+     "h": 7,
+     "fill": true
+    }
+   ]
   },
   {
    "id": "feed",
@@ -2053,11 +2084,11 @@ window.AG_AREA = {
     "w": 6,
     "rows": [
      [
-      0,
+      4.0,
       10
      ],
      [
-      26,
+      22.0,
       10
      ]
     ],
@@ -2068,7 +2099,7 @@ window.AG_AREA = {
    "id": "small-a2",
    "label": "",
    "x": -48.0,
-   "y": 231.0,
+   "y": 228.0,
    "w": 36.0,
    "h": 48.0,
    "use": "swine",
@@ -2081,11 +2112,11 @@ window.AG_AREA = {
     "w": 6,
     "rows": [
      [
-      0,
+      4.0,
       10
      ],
      [
-      26,
+      22.0,
       10
      ]
     ],
@@ -2237,13 +2268,13 @@ window.AG_AREA = {
    "id": "holding-5",
    "label": "Pen 5",
    "x": 194.0,
-   "y": 80.0,
+   "y": 78.0,
    "w": 36.0,
-   "h": 47.0,
+   "h": 49.0,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "2,820 sf",
+   "note": "1,764 sf",
    "assumed": false
   },
   {
@@ -2256,20 +2287,20 @@ window.AG_AREA = {
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "2,820 sf",
+   "note": "1,692 sf",
    "assumed": false
   },
   {
    "id": "holding-3",
    "label": "Pen 3",
    "x": 238.0,
-   "y": 80.0,
+   "y": 78.0,
    "w": 42.0,
-   "h": 47.0,
+   "h": 49.0,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "1,974 sf",
+   "note": "2,058 sf",
    "assumed": false
   },
   {
@@ -2317,7 +2348,7 @@ window.AG_AREA = {
    "x": -48.0,
    "y": 216.0,
    "w": 36,
-   "h": 15.0,
+   "h": 12.0,
    "use": "circulation",
    "level": 2,
    "kind": "yard",
@@ -2328,24 +2359,24 @@ window.AG_AREA = {
    "id": "small-b",
    "label": "Small animal barn B",
    "x": -48.0,
-   "y": 279.0,
+   "y": 276.0,
    "w": 36,
-   "h": 41,
+   "h": 48,
    "use": "small_animal",
    "level": 3,
    "kind": "building",
-   "note": "12 pens; 5,472.0 sf in all",
+   "note": "16 pens; 5,616 sf in all",
    "assumed": false,
    "pens": {
-    "n": 6,
+    "n": 8,
     "w": 6,
     "rows": [
      [
-      0,
+      4.0,
       10
      ],
      [
-      26,
+      22.0,
       10
      ]
     ],
@@ -2428,7 +2459,7 @@ window.AG_AREA = {
    "label": "",
    "x": 170.0,
    "y": 216.0,
-   "w": 247.60000000000002,
+   "w": 253.3,
    "h": 141.2,
    "use": "circulation",
    "level": 1,
@@ -2625,28 +2656,28 @@ window.AG_AREA = {
      246.9
     ],
     [
-     407.3,
-     286.6
+     412.9,
+     294.9
     ],
     [
-     407.3,
-     286.6
+     412.9,
+     294.9
     ],
     [
-     407.3,
-     286.6
+     412.9,
+     294.9
     ],
     [
-     417.6,
-     279.6
+     423.3,
+     287.8
     ],
     [
-     417.6,
-     279.6
+     423.3,
+     287.8
     ],
     [
-     417.6,
-     279.6
+     423.3,
+     287.8
     ],
     [
      390.6,
@@ -2773,26 +2804,6 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     -48.0,
-     216.0
-    ],
-    [
-     -48.0,
-     230.5
-    ],
-    [
-     -48.0,
-     230.5
-    ],
-    [
-     -48.0,
-     230.5
-    ],
-    [
-     14.0,
-     230.5
-    ],
-    [
      14.0,
      230.5
     ],
@@ -3181,12 +3192,36 @@ window.AG_AREA = {
      216.0
     ],
     [
+     -12.0,
+     216.0
+    ],
+    [
      -48.0,
      216.0
     ],
     [
      -48.0,
      216.0
+    ],
+    [
+     -48.0,
+     216.0
+    ],
+    [
+     -48.0,
+     228.0
+    ],
+    [
+     -12.0,
+     228.0
+    ],
+    [
+     -12.0,
+     230.5
+    ],
+    [
+     14.0,
+     230.5
     ]
    ],
    "context": true
@@ -3263,11 +3298,11 @@ window.AG_AREA = {
    "pts": [
     [
      -35.0,
-     111.0
+     110.0
     ],
     [
      176.0,
-     111.0
+     110.0
     ]
    ],
    "heads": [
@@ -3458,30 +3493,30 @@ window.AG_AREA = {
   {
    "label": "84'",
    "x1": -22,
-   "y1": 30,
+   "y1": 28,
    "x2": 62,
-   "y2": 30
+   "y2": 28
   },
   {
    "label": "24'",
    "x1": 62,
-   "y1": 30,
+   "y1": 28,
    "x2": 86,
-   "y2": 30
+   "y2": 28
   },
   {
    "label": "84'",
    "x1": 86,
-   "y1": 30,
+   "y1": 28,
    "x2": 170,
-   "y2": 30
+   "y2": 28
   },
   {
    "label": "110'",
    "x1": 170,
-   "y1": 30,
+   "y1": 28,
    "x2": 280.0,
-   "y2": 30
+   "y2": 28
   },
   {
    "label": "36'",
@@ -3507,14 +3542,14 @@ window.AG_AREA = {
   {
    "label": "36'",
    "x1": 292.0,
-   "y1": 44,
+   "y1": 42.0,
    "x2": 292.0,
-   "y2": 80
+   "y2": 78.0
   },
   {
-   "label": "47'",
+   "label": "49'",
    "x1": 292.0,
-   "y1": 80,
+   "y1": 78.0,
    "x2": 292.0,
    "y2": 127.0
   },
@@ -3523,12 +3558,12 @@ window.AG_AREA = {
    "x1": 292.0,
    "y1": 127.0,
    "x2": 292.0,
-   "y2": 174
+   "y2": 174.0
   },
   {
    "label": "42'",
    "x1": 292.0,
-   "y1": 174,
+   "y1": 174.0,
    "x2": 292.0,
    "y2": 216
   },
@@ -3580,7 +3615,7 @@ window.AG_AREA = {
   "small_animal_pens_per_barn": 32,
   "small_animal_pens": {
    "2": 32,
-   "3": 44
+   "3": 48
   },
   "option": "B",
   "parking": 57

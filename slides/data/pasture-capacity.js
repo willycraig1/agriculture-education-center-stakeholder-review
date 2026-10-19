@@ -56,28 +56,23 @@ window.PASTURE_CAPACITY = {
       "subtitle": "Best case",
       "management": "improved",
       "groups": [
-        "site",
-        "bonus"
+        "site"
       ],
       "split": {
         "site": {
           "open": 25.0,
           "wooded": 20.3
-        },
-        "bonus": {
-          "open": 19.07,
-          "wooded": 35.43
         }
       },
-      "acres": 99.8,
-      "open": 44.1,
-      "wooded": 55.7,
+      "acres": 45.3,
+      "open": 25.0,
+      "wooded": 20.3,
       "rate_open": 2,
       "rate_wooded": 10,
-      "ce_open": 22.0,
-      "ce_wooded": 5.6,
-      "ce": 27.6,
-      "ce_planning": 28
+      "ce_open": 12.5,
+      "ce_wooded": 2.0,
+      "ce": 14.5,
+      "ce_planning": 15
     }
   ]
 };

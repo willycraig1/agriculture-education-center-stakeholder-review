@@ -1,0 +1,22 @@
+{
+  "_about": "Program color palette: the one source of truth for slides and drawings. Each hue stands for one program element and is used for nothing else. Phase is shown with tint/hatch (Level 1 = solid, Ultimate/future = light tint + hatch), not with new hues.",
+  "program": {
+    "cattle":       { "label": "Cattle / large animal",          "base": "#8B5A2B", "tint": "#E9D9C6" },
+    "pasture":      { "label": "Site pasture (Level 1)",         "base": "#5F8A3A", "tint": "#DCE8CF" },
+    "bonus":        { "label": "Bonus pasture (Ultimate)",       "base": "#A3A15A", "tint": "#EEEDD6" },
+    "woodland":     { "label": "Existing trees / woodland",      "base": "#2F5D3A", "tint": "#C9D9CC" },
+    "education":    { "label": "Red House: education & outreach", "base": "#A63A2B", "tint": "#F1D6D1" },
+    "small_animal": { "label": "Small animals (goats, sheep, poultry)", "base": "#D19A2E", "tint": "#F6E6C2" },
+    "swine":        { "label": "Swine",                          "base": "#B8657A", "tint": "#F1DAE0" },
+    "arena":        { "label": "Arena / turnout / events",       "base": "#C2A878", "tint": "#F3ECDD" },
+    "horticulture": { "label": "Horticulture",                   "base": "#6E5C93", "tint": "#E2DCEE" },
+    "water":        { "label": "Water / stormwater / wetland",   "base": "#3F7FA6", "tint": "#D3E5EF" },
+    "circulation":  { "label": "Drives, parking, service",       "base": "#6B6F73", "tint": "#E3E4E5" }
+  },
+  "neutral": {
+    "ink":   "#2B2A26",
+    "muted": "#77736A",
+    "line":  "#B9B3A6",
+    "paper": "#FAF7F0"
+  }
+}

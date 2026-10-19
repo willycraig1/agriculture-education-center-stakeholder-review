@@ -41,10 +41,18 @@ P, N = pal["program"], pal["neutral"]
 M = 12                                # planning module
 PEN_W, PEN_D, AISLE = 12, 24, 14
 MOD = 7 * PEN_W                       # 84' barn module
-CATTLE_W = 2 * PEN_D + AISLE          # 62'
+CATTLE_W = 2 * PEN_D + AISLE          # 62' (the original layout's barn; it also sets the survey-fixed east column)
+# Option B cattle barns: a 16' tractor aisle (owner, 2026-10-19), 64' deep, as the McIntosh Ag Center cattle barn
+# (source/Clark Farm Study Plan-A2.0 Cattle Barn Reference.pdf)
+CATTLE_AISLE = 16
+CATTLE_W_B = 2 * PEN_D + CATTLE_AISLE
 SMALL_W = 36
 SA_PEN_W, SA_PEN_D = 6, 10
-SA_AISLE = SMALL_W - 2 * SA_PEN_D     # 16'
+SA_AISLE = 8                          # 8' aisle (owner, 2026-10-19; was the 16' left between the pen rows)
+SA_EDGE = (SMALL_W - 2 * SA_PEN_D - SA_AISLE) / 2   # 4' strip between the pens and the curtain line, as the reference barn
+SA_ROWS = [[SA_EDGE, SA_PEN_D], [SA_EDGE + SA_PEN_D + SA_AISLE, SA_PEN_D]]
+SA_DOG = 12                           # dogtrot, one 12' bay (owner, 2026-10-19; was 15')
+SA_B_L = 48                           # small animal barn B, four 12' bays (owner, 2026-10-19)
 ARENA_W = 50
 LANE = 24                             # every lane and gap: two modules
 EX_W, EX_D = 80.4, 50                 # existing barn (depth approximate, from the survey)
@@ -74,7 +82,7 @@ def add(id_, label, x, y, w, h, use, level, kind="building", note="", assumed=Fa
     E.append(dict(id=id_, label=label, x=x, y=y, w=w, h=h, use=use, level=level, kind=kind, note=note, assumed=assumed, **extra))
 
 cattle_pens = {"n": 7, "w": PEN_W, "rows": [[0, PEN_D], [PEN_D + AISLE, PEN_D]], "vertical": True}
-small_pens = {"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}
+small_pens = {"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": SA_ROWS, "vertical": True}
 
 # Level 1
 add("existing-barn", "Existing barn", EAST - EX_W, y_barn, EX_W, EX_D, "swine", 1, note="About 32 hog pens",
@@ -154,7 +162,7 @@ add("cattle-b", "Cattle barn B", x_cattle, yB, CATTLE_W, MOD, "cattle", 3, note=
 # poorly drained soil, and that many small animal projects are unlikely. Extended, barn A is 126' x 36' = 4,536 sf.
 EXT = MOD // 2
 add("small-b", "Barn A extension", x_small, yA - EXT, SMALL_W, EXT, "small_animal", 3, note="14 pens",
-    pens={"n": EXT // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True})
+    pens={"n": EXT // SA_PEN_W, "w": SA_PEN_W, "rows": SA_ROWS, "vertical": True})
 add("turnout-small-b", "", x_small - TURNOUT_SMALL, yA - EXT, TURNOUT_SMALL, EXT, "arena", 3, kind="yard")   # the extension's turnout, split at the barn joint
 add("arena", "Arena", x_mid, yB, ARENA_W, MOD, "arena", 3, note="50' x 84'")
 add("feed-2", "Feed storage 2", x_mid + 5, y_drive - 2 * BOX_W - 4, BOX_L, BOX_W, "circulation", 3, kind="container", note="second container", doors="e")
@@ -454,20 +462,23 @@ E[:] = [e for e in E if e["id"] not in _drop]
 by_id = {e["id"]: e for e in E}
 GAP, TURN_D = LANE, 36
 _ep = by_id["existing-pens"]                                     # 199.6..280, 216..240 (fixed, on the survey)
-Y_ROW1 = _ep["y"] - ARENA_W - GAP - CATTLE_W                       # = 80
+Y_ROW1 = _ep["y"] - ARENA_W - GAP - CATTLE_W_B                     # = 78
 X_HOLD = 170                                                     # holding block's west edge = cattle barn A's east wall
 XA = X_HOLD - MOD                                                # cattle barn A 86..170
 XB = XA - GAP - MOD                                              # cattle barn B -22..62
-Y_ROW2 = Y_ROW1 + CATTLE_W + GAP                                 # arena row top: 166
-cattle_pens_h = {"n": 7, "w": PEN_W, "rows": [[0, PEN_D], [PEN_D + AISLE, PEN_D]], "vertical": False}
-add("cattle-a", "Cattle barn A", XA, Y_ROW1, MOD, CATTLE_W, "cattle", 2, note="14 pens", pens=cattle_pens_h)
-add("cattle-b", "Cattle barn B", XB, Y_ROW1, MOD, CATTLE_W, "cattle", 3, note="14 pens", pens=cattle_pens_h)
+Y_ROW2 = Y_ROW1 + CATTLE_W_B + GAP                               # arena row top: 166
+cattle_pens_h = {"n": 7, "w": PEN_W, "rows": [[0, PEN_D], [PEN_D + CATTLE_AISLE, PEN_D]], "vertical": False}
+add("cattle-a", "Cattle barn A", XA, Y_ROW1, MOD, CATTLE_W_B, "cattle", 2, note="14 pens", pens=cattle_pens_h)
+add("cattle-b", "Cattle barn B", XB, Y_ROW1, MOD, CATTLE_W_B, "cattle", 3, note="14 pens", pens=cattle_pens_h)
 add("turnout-cattle-a", "Turnout", XA, Y_ROW1 - TURN_D, MOD, TURN_D, "arena", 2, kind="yard")
 add("turnout-cattle-b", "Turnout", XB, Y_ROW1 - TURN_D, MOD, TURN_D, "arena", 3, kind="yard")
-add("arena", "Arena", XA, Y_ROW2, MOD, ARENA_W, "arena", 3, note="84' x 50'")
+# two 4-row x 24' fixed aluminium bleachers along the north side, inside the columns (owner, 2026-10-19; as the
+# McIntosh Ag Center pavilion), 12' in from each end with 12' between them
+add("arena", "Arena", XA, Y_ROW2, MOD, ARENA_W, "arena", 3, note="84' x 50'",
+    zones=[dict(label="Bleachers", x=12, y=0.5, w=24, h=7, fill=True), dict(label="Bleachers", x=48, y=0.5, w=24, h=7, fill=True)])
 SA_L = 48                                                        # small animal barns 36' x 48', bottoms in line with the arena
 y_sa = _ep["y"] - SA_L
-sa_pens = {"n": SA_L // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}
+sa_pens = {"n": SA_L // SA_PEN_W, "w": SA_PEN_W, "rows": SA_ROWS, "vertical": True}
 FS_W, FS_L = 16, 40                                              # feed storage: two 8' x 40' containers side by side
 x_fs = XA - GAP - FS_W
 x_sa_a = x_fs - GAP - SMALL_W
@@ -511,11 +522,11 @@ for n_, (x0_, y0_, x1_, y1_) in {5: (X_HOLD, Y_ROW1, _c1, _rm), 4: (X_HOLD, _rm,
 by_id = {e["id"]: e for e in E}
 # circulation: keep the parking loop; the rest follows the sketch
 C[:] = [c for c in C if c["id"] in ("loop-parking", "loop-mid")]
-_ya = Y_ROW1 + PEN_D + AISLE / 2
+_ya = Y_ROW1 + PEN_D + CATTLE_AISLE / 2
 C += [
     dict(id="aisle-cattle", kind="service", label="Tractor aisle", pts=[[XB - 12, _ya], [X_HOLD + 6, _ya]]),
-    dict(id="drive-loop", kind="loop", label="Service drive", pts=[[X_HOLD + 12, _ep["y"] + 20], [X_HOLD + 12, Y_ROW1 + CATTLE_W + GAP / 2],
-                                                                     [XA - GAP / 2, Y_ROW1 + CATTLE_W + GAP / 2], [XA - GAP / 2, _ep["y"] + 18]]),
+    dict(id="drive-loop", kind="loop", label="Service drive", pts=[[X_HOLD + 12, _ep["y"] + 20], [X_HOLD + 12, Y_ROW1 + CATTLE_W_B + GAP / 2],
+                                                                     [XA - GAP / 2, Y_ROW1 + CATTLE_W_B + GAP / 2], [XA - GAP / 2, _ep["y"] + 18]]),
     dict(id="aisle-small-a", kind="service", label="", pts=[[x_sa_a + SMALL_W / 2, y_sa - 10], [x_sa_a + SMALL_W / 2, _ep["y"] + 10]]),
     dict(id="aisle-small-b", kind="service", label="", pts=[[x_sa_b + SMALL_W / 2, y_sa - 10], [x_sa_b + SMALL_W / 2, _ep["y"] + 10]]),
     dict(id="an-cattle-a", kind="animal", label="", pts=[[XA + MOD / 2, Y_ROW1 + 8], [XA + MOD / 2, Y_ROW1 - 30]]),
@@ -597,6 +608,18 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
             _set(id_, *r_[0])
     _tb_ = _svg_pts(_re.search(r'<g id="turnout-cattle-b">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
     _set("turnout-cattle-b", min(q[0] for q in _tb_) - _EO[0], min(q[1] for q in _tb_) - _EO[1], max(q[0] for q in _tb_) - min(q[0] for q in _tb_), 36)
+    # The cattle barns are 64' deep (24' pen rows either side of a 16' tractor aisle; owner, 2026-10-19), where the
+    # architect's file has 62'. The 2' goes north, keeping 24' clear to the arena row; the turnouts move north with them.
+    for id_ in ("cattle-a", "cattle-b"):
+        _grow = CATTLE_W_B - by_id[id_]["h"]
+        by_id[id_].update(y=round(by_id[id_]["y"] - _grow, 1), h=CATTLE_W_B)
+    for id_ in ("turnout-cattle-a", "turnout-cattle-b"):
+        by_id[id_]["y"] = round(by_id[id_]["y"] - _grow, 1)
+    for id_ in ("holding-5", "holding-3"):                     # their north edge stays flush with the barns' north wall
+        if abs(by_id[id_]["y"] - (by_id["cattle-a"]["y"] + _grow)) < 0.5:
+            by_id[id_].update(y=by_id["cattle-a"]["y"], h=round(by_id[id_]["h"] + _grow, 1))
+    for id_ in ("holding-2", "holding-3", "holding-4", "holding-5"):   # areas as drawn (pens 4 and 5 were narrowed to 36')
+        by_id[id_]["note"] = f'{round(by_id[id_]["w"] * by_id[id_]["h"]):,} sf'
     _fd = _svg_rects(_grp("feed"))                                   # feed storage, then bedding storage
     _set("feed", *_fd[0])
     add("bedding", "Bedding storage", round(_fd[1][0] + _EO[0], 1), round(_fd[1][1] + _EO[1], 1), _fd[1][2], round(_fd[1][3]), "circulation", 2, note="")
@@ -607,19 +630,27 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _sb = _svg_rects(_grp("small-b"))[0]
     _a1, _a2 = by_id["small-a"], by_id["small-b"]
     _set("small-b", *_sb)
+    # the dogtrot is one 12' bay: barn A's north end holds, its south wing moves north (owner, 2026-10-19)
+    _a2["y"] = round(_a1["y"] + _a1["h"] + SA_DOG, 1)
     _a2.update(id="small-a2", label="", use="swine", level=2, note=f"{2 * (SA_L // SA_PEN_W)} pens")
     _a1.update(label="Small animal barn A", note=f"{4 * (SA_L // SA_PEN_W)} pens, two wings")
     _dog = _a2["y"] - (_a1["y"] + _a1["h"])
     add("dogtrot", "", _a1["x"], _a1["y"] + _a1["h"], SMALL_W, _dog, "circulation", 2, kind="yard", note="")
     U_VB_MAX = 5500
     _used = SMALL_W * (_a1["h"] + _dog + _a2["h"])
-    B_L = int((U_VB_MAX - _used) // SMALL_W)
-    _pb = {"n": B_L // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_PEN_D + SA_AISLE, SA_PEN_D]], "vertical": True}
+    # Barn B: four 12' bays (owner, 2026-10-19). Barns A and B together pass the 5,500 sf one-storey base limit for
+    # Group U, Type VB (IBC Table 506.2); the frontage increase (IBC 506.3) covers it (owner, 2026-10-19).
+    B_L = SA_B_L
+    _pb = {"n": B_L // SA_PEN_W, "w": SA_PEN_W, "rows": SA_ROWS, "vertical": True}
     add("small-b", "Small animal barn B", _a2["x"], _a2["y"] + _a2["h"], SMALL_W, B_L, "small_animal", 3,
-        note=f"{2 * (B_L // SA_PEN_W)} pens; {_used + SMALL_W * B_L:,} sf in all", pens=_pb)
+        note=f"{2 * (B_L // SA_PEN_W)} pens; {round(_used + SMALL_W * B_L):,} sf in all", pens=_pb)
     _ts_ = by_id["turnout-small-b"]
-    _ts_.update(id="turnout-small-a", level=2)
+    _ts_.update(id="turnout-small-a", level=2, h=round(_a2["y"] + _a2["h"] - _ts_["y"], 1))   # barn A's length
     add("turnout-small-b", "", _ts_["x"], _ts_["y"] + _ts_["h"], _ts_["w"], B_L, "arena", 3, kind="yard")
+    # barn A's turnout divided in two by a fence on the dogtrot's centre line (owner, 2026-10-19)
+    _yc = round(_a1["y"] + _a1["h"] + _dog / 2, 1)
+    add("turnout-small-a2", "", _ts_["x"], _yc, _ts_["w"], round(_ts_["y"] + _ts_["h"] - _yc, 1), "arena", 2, kind="yard")
+    _ts_["h"] = round(_yc - _ts_["y"], 1)
     SA_PENS = {"2": 4 * (SA_L // SA_PEN_W), "3": 4 * (SA_L // SA_PEN_W) + 2 * (B_L // SA_PEN_W)}
     print("small animal barn: A", _used, "sf (two wings and a", _dog, "ft dogtrot) | B", SMALL_W, "x", B_L, "| total", _used + SMALL_W * B_L, "sf of", U_VB_MAX)
     # handling yard as drawn (no trailer enclosure)
@@ -692,9 +723,13 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         _mx, _my = (_a[0] + _b[0]) / 2, (_a[1] + _b[1]) / 2
         _nx, _ny = _cx - _mx, _cy - _my; _nl = _m.hypot(_nx, _ny); _nx, _ny = _nx / _nl * 2.19, _ny / _nl * 2.19
         _ux, _uy = (_b[0] - _a[0]) / _l, (_b[1] - _a[1]) / _l
-        _aisle_ends.append([(_mx + _nx + s_ * 6.25 * _ux, _my + _ny + s_ * 6.25 * _uy) for s_ in (-1, 1)])
-    _aisle = _Poly(_aisle_ends[0] + _aisle_ends[1][::-1]).convex_hull
-    _near = min(_aisle_ends, key=lambda q: min(c[0] for c in q))  # the gable facing the walk (west)
+        _aisle_ends.append([(_mx + _nx + s_ * 6.25 * _ux, _my + _ny + s_ * 6.25 * _uy) for s_ in (-1, 1)] + [(_nx / 2.19, _ny / 2.19)])
+    _near = min(_aisle_ends, key=lambda q: min(c[0] for c in q[:2]))   # the gable facing the walk (west)
+    # the far (south-east) end runs on 10' past the barn's end wall (owner, 2026-10-19)
+    _far = [q for q in _aisle_ends if q is not _near][0]
+    _far = [(x - 10 * _far[2][0], y - 10 * _far[2][1]) for x, y in _far[:2]]
+    _near = _near[:2]
+    _aisle = _Poly(_near + _far[::-1]).convex_hull
     _x_cut = min(c[0] for c in _near) - 14
     _link = _link.intersection(_box(-1e4, -1e4, _x_cut, 1e4))
     _taper = _Poly([(_x_cut, _ys0), (_x_cut, _ys0 + EX_AISLE)] + sorted(_near, key=lambda c: c[1], reverse=True)).convex_hull
@@ -707,6 +742,9 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     # arena to the new barns, and the spur between the cattle barns) comes with the Level 2 barns.
     _xcut = by_id["arena"]["x"] + by_id["arena"]["w"]
     _wk1 = _wkp.difference(_box(-1e4, -1e4, _xcut, 1e4)); _wk2 = _wkp.intersection(_box(-1e4, -1e4, _xcut, 1e4))
+    # the walk through the small animal barns' dogtrot keeps to the dogtrot (12' now): it stops at the wings
+    _sab = _union([_box(e["x"], e["y"], e["x"] + e["w"], e["y"] + e["h"]) for e in E if e["id"] in ("small-a", "small-a2", "small-b")])
+    _wk2 = _wk2.difference(_sab)
     _ring = lambda g_: [[round(x, 1), round(y, 1)] for x, y in max(getattr(g_, "geoms", [g_]), key=lambda h: h.area).exterior.coords][:-1]
     _bb = lambda q: dict(x=min(v[0] for v in q), y=min(v[1] for v in q), w=max(v[0] for v in q) - min(v[0] for v in q), h=max(v[1] for v in q) - min(v[1] for v in q))
     _o1, _o2 = _ring(_wk1), _ring(_wk2)
@@ -727,6 +765,9 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         _circ.append(dict(id=id_, kind=kind, label=label, pts=pts))
     C[:] = _circ
     by_id = {e["id"]: e for e in E}
+    for c in C:      # the tractor aisle runs down the middle of the cattle barns' 16' aisle
+        if c["id"] == "aisle-cattle":
+            c["pts"] = [[q[0], by_id["cattle-a"]["y"] + PEN_D + CATTLE_AISLE / 2] for q in c["pts"]]
     E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)
     print("architect's edits imported:", os.path.basename(AG_EDIT), "| stalls", n_stalls, "| dogtrot ft", _dog, "| circulation runs", len(C))
 def _on(pt_, c2):
@@ -762,7 +803,8 @@ dims = [dim(f"{MOD}'", XB, yt, XB + MOD, yt), dim(f"{GAP}'", XB + MOD, yt, XA, y
         dim(f"{_ex - X_HOLD:g}'", X_HOLD, yt, _ex, yt),
         dim(f"{TURN_D}'", x_sa_b - TURN_D, y_sa - 10, x_sa_b, y_sa - 10), dim(f"{SMALL_W}'", x_sa_b, y_sa - 10, x_sa_b + SMALL_W, y_sa - 10),
         dim(f"{GAP}'", x_sa_b + SMALL_W, y_sa - 10, x_sa_a, y_sa - 10)]
-string = [Y_ROW1 - TURN_D, Y_ROW1, _rm, _hy0, _ep["y"], _ep["y"] + PEN_D, y_barn, SOUTH]
+by_id = {e["id"]: e for e in E}
+string = [by_id["turnout-cattle-a"]["y"], by_id["holding-3"]["y"], by_id["holding-2"]["y"], by_id["holding-1"]["y"], _ep["y"], _ep["y"] + PEN_D, y_barn, SOUTH]
 for a_, b_ in zip(string, string[1:]):
     if b_ - a_ > 0.5:
         dims.append(dim(f"{b_ - a_:g}'", xe, a_, xe, b_))

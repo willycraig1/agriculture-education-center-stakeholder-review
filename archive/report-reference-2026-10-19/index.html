@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stakeholder Review Deck</title>
+<link rel="stylesheet" href="design/palette.css?v=202610191541">
+<style>
+  html, body { margin: 0; height: 100%; background: #1f1e1b; overflow: hidden; font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--paper); }
+  .bar { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px;
+         background: rgba(31, 30, 27, .88); color: #f3efe6; border-radius: 14px; padding: 6px; box-shadow: 0 8px 30px rgba(0,0,0,.35);
+         transition: opacity .4s; z-index: 5; }
+  .bar.hide { opacity: 0; pointer-events: none; }
+  .bar button { all: unset; cursor: pointer; padding: 10px 14px; border-radius: 10px; font-size: 15px; font-weight: 600; line-height: 1; }
+  .bar button:hover, .bar button:focus-visible { background: rgba(255,255,255,.12); }
+  .bar .big { font-size: 20px; padding: 8px 16px; }
+  .where { padding: 0 10px; min-width: 300px; text-align: center; }
+  .where b { display: block; font-size: 15px; white-space: nowrap; }
+  .dots { display: flex; gap: 5px; justify-content: center; margin-top: 6px; }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.28); }
+  .dots i.on { background: #f3efe6; }
+  .menu { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: rgba(31,30,27,.95); color: #f3efe6;
+          border-radius: 14px; padding: 8px; min-width: 400px; display: none; z-index: 6; }
+  .menu.open { display: block; }
+  .menu a { display: flex; gap: 12px; padding: 10px 14px; border-radius: 9px; color: inherit; text-decoration: none; font-size: 16px; }
+  .menu a span { opacity: .55; width: 26px; text-align: right; }
+  .menu a:hover, .menu a.cur { background: rgba(255,255,255,.12); }
+  .menu p { margin: 8px 14px 4px; font-size: 13px; opacity: .6; line-height: 1.45; }
+  @media (max-width: 640px) { .where { min-width: 0; } .where small { display: none; } .bar .hint { display: none; } }
+</style>
+</head>
+<body>
+<iframe id="frame" title="Slide"></iframe>
+<nav class="menu" id="menu" aria-label="Slides"></nav>
+<div class="bar" id="bar">
+  <button class="big" id="prev" aria-label="Previous">‹</button>
+  <div class="where"><b id="title"></b><div class="dots" id="dots"></div></div>
+  <button class="big" id="next" aria-label="Next">›</button>
+  <button id="list" aria-label="All slides">Slides</button>
+  <button id="replay" aria-label="Replay slide">Replay</button>
+  <button id="full" aria-label="Fullscreen">Fullscreen</button>
+</div>
+<script>
+// Slide order. Add new slides here.
+const BUILD = "202610191541";   // set by tools/stamp.py
+const SLIDES = [
+  { file: "slides/title.html", title: "Title" },
+  { file: "slides/drivers.html", title: "Why we're here · Design drivers" },
+  { file: "slides/three-levels.html", title: "Why we're here · Three Levels" },
+  { file: "slides/site.html", title: "Act 1 · The site, layer by layer" },
+  { file: "slides/existing.html", title: "Act 1 · What is already built" },
+  { file: "slides/program.html", title: "Act 2 · What the program needs" },
+  { file: "slides/pasture-capacity.html", title: "Act 3 · Pasture capacity" },
+  { file: "slides/cattle-pens.html", title: "Act 3 · 4-H cow & calf pens" },
+  { file: "slides/small-animal-pens.html", title: "Act 3 · Swine, sheep & goat pens" },
+  { file: "slides/levels.html", title: "Act 4 · What each Level buys" },
+  { file: "slides/paddocks.html", title: "Act 5 · Paddocks and rotation" },
+  { file: "slides/ag-area.html", title: "Act 5 · The barnyard" },
+  { file: "slides/bud-box.html", title: "Act 5 · The Bud Box" },
+  { file: "slides/site-plan.html", title: "Act 5 · The barnyard on the site" },
+  { file: "slides/water-site.html", title: "Act 5 · Water on the site" },
+  { file: "slides/water-quality.html", title: "Act 5 · Water quality" },
+  { file: "slides/red-house.html", title: "Act 5 · The Red House" },
+  { file: "slides/input.html", title: "Over to you" },
+];
+const frame = document.getElementById("frame"), bar = document.getElementById("bar"), menu = document.getElementById("menu");
+let i = Math.max(0, Math.min(SLIDES.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+
+function load(n, atEnd) {
+  i = (n + SLIDES.length) % SLIDES.length;
+  frame.src = SLIDES[i].file + "?v=" + BUILD + (atEnd ? "&end" : "");     // versioned, so a new build is never served from cache
+  history.replaceState(null, "", "#" + (i + 1));
+  document.getElementById("title").textContent = `${SLIDES[i].title}   ${i + 1} / ${SLIDES.length}`;
+  document.getElementById("dots").innerHTML = "";
+  [...menu.querySelectorAll("a")].forEach((a, k) => a.classList.toggle("cur", k === i));
+  frame.onload = () => frame.focus();
+}
+const send = cmd => frame.contentWindow && frame.contentWindow.postMessage({ cmd }, "*");
+const nextStep = () => send("next"), prevStep = () => send("prev");
+
+addEventListener("message", e => {
+  const d = e.data || {};
+  if (!d.deck) return;
+  if (d.type === "next-slide") load(i + 1);
+  else if (d.type === "prev-slide") load(i - 1, true);
+  else if (d.type === "step") document.getElementById("dots").innerHTML =
+    Array.from({ length: d.count }, (_, k) => `<i class="${k <= d.index ? "on" : ""}"></i>`).join("");
+  else if (d.type === "key") key(d.key);
+});
+function key(k) {
+  if (k.toLowerCase() === "f") toggleFull();
+  else if (k === "Home") load(0);
+  else if (k === "End") load(SLIDES.length - 1);
+  else if (k === "Escape") menu.classList.remove("open");
+}
+addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); nextStep(); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); prevStep(); }
+  else key(e.key);
+});
+function toggleFull() {
+  if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {});
+}
+document.getElementById("next").onclick = nextStep;
+document.getElementById("prev").onclick = prevStep;
+document.getElementById("replay").onclick = () => send("replay");
+document.getElementById("full").onclick = toggleFull;
+document.getElementById("list").onclick = () => menu.classList.toggle("open");
+menu.innerHTML = SLIDES.map((s, k) => `<a href="#${k + 1}" data-k="${k}"><span>${k + 1}</span>${s.title}</a>`).join("") +
+  `<p>→ / space / click: next build step, then next slide · ← back · F fullscreen · Home / End</p>`;
+menu.addEventListener("click", e => { const a = e.target.closest("a"); if (a) { e.preventDefault(); load(+a.dataset.k); menu.classList.remove("open"); } });
+
+// controls fade out after a few seconds without mouse movement
+let t;
+const wake = () => { bar.classList.remove("hide"); clearTimeout(t); t = setTimeout(() => { if (!menu.classList.contains("open")) bar.classList.add("hide"); }, 3000); };
+addEventListener("mousemove", wake); addEventListener("touchstart", wake); wake();
+frame.addEventListener("load", () => { try { frame.contentWindow.addEventListener("mousemove", wake); } catch (_) {} });
+load(i);
+</script>
+</body>
+</html>

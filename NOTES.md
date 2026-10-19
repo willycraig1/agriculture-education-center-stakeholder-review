@@ -709,3 +709,67 @@ Fit checks now skip context elements (walk etc.).
   generated `drawings/ag-area-diagram.svg` now carries element names on their own top layer ("Names").
 - Massing: `export_site.py` takes the fence route and walk from the deck (its model-only overrides are removed);
   `export_scene.py` fits the pens at the barn's width.
+
+## 2026-10-19: cattle barns after the McIntosh Ag Center barn; 16' aisle
+- Reference: `source/Clark Farm Study Plan-A2.0 Cattle Barn Reference.pdf` (Seibert, McIntosh MS Ag Center Bldg 19:
+  108' x 64', 24' pen rows either side of a 16' aisle, 1:12 shed roofs over the pens, a 4:12 monitor over the aisle,
+  ~19' ridge, sand bedding over gravel, broom-finish concrete aisle, galvalume, gate panels on the open sides).
+  Owner's differences for ours: overhangs about 3'; our pen count (7 a side, 14 per barn, 84' long); no tack or feed
+  rooms; the aisle 16' (was 14') for tractor access; walls red metal panel, or vertical wood siding to match the
+  existing barn if the budget allows.
+- Plan (`build_ag_area.py`): Option B cattle barns 64' deep (`CATTLE_W_B`; the original layout's 62' constant is left
+  alone because it also sets the survey-fixed east column). The 2' goes north, keeping 24' clear to the arena row;
+  the cattle turnouts move north 2' and holding pens 5 and 3 grow 2' north so their north edge stays flush with the
+  barns'. Tractor-aisle arrow re-centred; the east dimension string now reads the holding pens as drawn; holding pen
+  areas now from their drawn sizes (pens 4 and 5 had carried their pre-narrowing 60'-wide figures). Paddock acres
+  and capacity unchanged; cattle turnout B 48% on wet soil (was 45%).
+- Slides: `levels.js` aisle_ft 16; cattle pens slide footnote.
+- Massing (`scene.py`): barns rebuilt to the reference section (heights scaled off it: shed roof ~10.4' to 12.4',
+  monitor ~16.3' / 19'); sand in the pen rows, concrete in the aisle; gable ends clad with a 16' x 10' aisle opening;
+  viewer toggle for the cladding (red metal panel / wood siding).
+
+## 2026-10-19: barn-kit system for the new barns (massing)
+- Reference: `source/Clark Farm Study Plan-A2.0 Arena and SmAnimal Barn Reference.pdf` (McIntosh Ag Center covered
+  pavilion, 96' x 50' clear span, 8 bays, 4:12, ~14' to the joists; Bldg 18 small animal barn, 34' wide, 12 bays,
+  4:12, ~12' to the joists, clad gable ends with exhaust fans, roll-up clear curtains over livestock panels). Same
+  pre-engineered system as the cattle barn reference: 8x8 wood columns, steel bar joists, 2x roof framing, metal panels.
+- Owner direction for ours: 3' overhangs on every new barn; bar joists 18" deep following the roof, painted black;
+  a ~6" roof plane (2x6 framing, metal panels, trim) on the joists; exterior walls thick enough not to see through.
+  Arena one bay shorter than the reference (84' x 50', unchanged in the plans). Small animal barns 36' o.c. (on the
+  12' module), no tack rooms, the wings' dividing walls on their column lines at the dogtrot, curtains and
+  ventilation, no A/C.
+- `scene.py`: kit helpers (`slab`, `thick_wall`, `bar_joist`, `kit_gable`); cattle barns, arena, and small animal
+  barns rebuilt on them. Small animal barns: 6' x 10' pens either side of the 16' aisle, concrete floor, exhaust fan
+  in each gable, clear curtains (drawn translucent in the viewer).
+
+## 2026-10-19: small animal barns on the 12' module; arena bleachers
+- Owner: dogtrot one 12' bay (was 15'), barn A's north end held and its south wing moved north 3'; barn B four 12'
+  bays, 48' (was 41', the code-limit length); an 8' aisle with 6' x 10' pens either side and a 4' strip to the curtain
+  line, as the reference barn. Arena keeps its dirt floor for now; two 4-row x 24' aluminium bleachers along its north
+  side (plan zones on the arena; massing, with the arena rail moved in to clear them).
+- **Code:** barns A and B together are now 5,616 sf with the dogtrot counted, past the 5,500 sf one-storey base limit
+  for a Group U, Type VB building (IBC Table 506.2). Owner: the frontage increase (IBC 506.3) will cover it; the small
+  animal pens slide says so. Small animal pens: 32 at Level 2, 48 at Level 3 (was 44).
+- Plan: small animal turnouts follow (A 108', B 48'); the Level 2 walk stops at the wings, so it crosses through the
+  12' dogtrot (it stays 15' wide east of the barn, as the architect drew it). Slide text for barn B updated
+  (barnyard Level 3, Levels matrix).
+- Rebuilt with the main-parcel-only flag (`siteframe.MAIN_PARCEL_ONLY`) on, as it stands in the working tree.
+
+## 2026-10-19: owner's review; report reference archived; main parcel only
+- Owner (Lee Hayes Byron) reviewed the draft (`source/Architect stakeholder-mtg presentation- review-draft_LHB.pdf`,
+  kept local, not in the public repo): the audience is internal (her and her staff); shorter, less detail on the
+  slides (details to speaker notes), lead with the Level 3 vision and walk back to Level 1, more renderings and
+  comparative images (McIntosh, Siesta Key Chapel for the event space), and communicate only about the main property:
+  no bonus pasture, nothing that commits Solid Waste beyond what it has provided.
+- Archived the full detailed deck as the reference for the final report: `archive/report-reference-2026-10-19/`
+  (self-contained copy of the working tree, including the uncommitted 16' aisle / McIntosh barn changes).
+- Main parcel only (`tools/siteframe.py` MAIN_PARCEL_ONLY = True; set False for the report): the site maps show the
+  side of parcel line pl-04 the campus is on (65.1 ac of the 154.9 ac property). Soils, canopy, trees, pasture
+  areas, paddocks, fences, property lines, campus drives, the historical bed, ponds, and the flood line are clipped
+  to it (Cowpen Slough is kept whole); the veil washes out the rest. Bonus retention and the outfall (on Solid Waste
+  land) are dropped. Every map slide's full frame is the parcel. The site's figures count the parcel only (65 ac,
+  canopy 28 ac / 43%, very poorly drained 13%, slough bed 2.4 ac, one pond).
+- Pasture: Level 3 grazes the site pasture as Level 2 does (about 15 CE); `build_capacity_data.py` reads the switch.
+  The capacity slide shows two cards (Level 1; Levels 2 and 3); the Levels table's Level 3 pasture reads "Same as
+  Level 2"; the paddocks slide loses its bonus step; the site, three Levels, and water slides drop the bonus land,
+  the bonus retention, the outfall, and the landfill line.

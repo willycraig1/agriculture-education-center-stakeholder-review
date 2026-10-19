@@ -12,7 +12,7 @@
       0.87,
       0.97
     ],
-    "acres_in_map": 16.9
+    "acres_in_map": 7.9
   },
   {
     "codes": [
@@ -27,7 +27,7 @@
       0.93,
       0.6
     ],
-    "acres_in_map": 32.0
+    "acres_in_map": 20.8
   },
   {
     "codes": [
@@ -42,7 +42,7 @@
       0.92,
       0.82
     ],
-    "acres_in_map": 17.7
+    "acres_in_map": 11.8
   },
   {
     "codes": [
@@ -72,7 +72,7 @@
       0.67,
       0.68
     ],
-    "acres_in_map": 19.5
+    "acres_in_map": 14.5
   },
   {
     "codes": [
@@ -89,7 +89,7 @@
       0.8,
       0.9
     ],
-    "acres_in_map": 14.8
+    "acres_in_map": 3.5
   },
   {
     "codes": [
@@ -104,6 +104,6 @@
       0.92,
       0.73
     ],
-    "acres_in_map": 11.8
+    "acres_in_map": 0.7
   }
 ]

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pasture Capacity</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191506">
-<link rel="stylesheet" href="../design/deck.css?v=202610191506">
+<link rel="stylesheet" href="../design/palette.css?v=202610191659">
+<link rel="stylesheet" href="../design/deck.css?v=202610191659">
 <style>
   .row { display: grid; grid-template-columns: 1fr 124px 1fr 124px 1fr; align-items: stretch; margin-top: 34px; }
   .lvl { padding: 24px 30px 22px; display: flex; flex-direction: column; gap: 14px; }
@@ -75,8 +75,8 @@
 
   <div class="eyebrow" data-step="0">Act 3 · What the land can carry</div>
   <h1 data-step="0">Pasture-based cattle capacity</h1>
-  <p class="lede" data-step="0">Mature-cow equivalents (CE) the fenced pasture can carry at each investment Level.
-    Level 3 is the best case. Level 1 is the minimum needed to operate.</p>
+  <p class="lede" data-step="0">Mature-cow equivalents (CE) the fenced pasture on the site can carry. Level 1 is the
+    minimum needed to operate; better management roughly doubles it.</p>
 
   <div class="row" id="row"></div>
 
@@ -90,8 +90,8 @@
   </footer>
 </div>
 
-<script src="data/pasture-capacity.js?v=202610191506"></script>
-<script src="../design/deck.js?v=202610191506"></script>
+<script src="data/pasture-capacity.js?v=202610191659"></script>
+<script src="../design/deck.js?v=202610191659"></script>
 <script>
 (function () {
   const D = window.PASTURE_CAPACITY;
@@ -126,8 +126,16 @@
   }
 
   const [l1, l2, l3] = D.levels;
-  document.getElementById("row").innerHTML =
-    card(l1, 1) + lever(2, "+ better<br>management") + card(l2, 2) + lever(3, "+ bonus<br>pasture") + card(l3, 3);
+  // main parcel only (no bonus pasture): Level 3 grazes the same site pasture as Level 2, so the two share a card
+  const sameLand = !l3.split.bonus;
+  if (sameLand) {
+    document.querySelector(".row").style.gridTemplateColumns = "1fr 124px 1fr";
+    l2.name = "Levels 2 and 3"; l2.subtitle = "Better management";
+    document.querySelector("footer").dataset.step = "3";
+  }
+  document.getElementById("row").innerHTML = sameLand
+    ? card(l1, 1) + lever(2, "+ better<br>management") + card(l2, 2)
+    : card(l1, 1) + lever(2, "+ better<br>management") + card(l2, 2) + lever(3, "+ bonus<br>pasture") + card(l3, 3);
 
   // When a card appears: grow its bar, count up its CE, then bring in the herd one animal at a time.
   const done = new Set();

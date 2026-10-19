@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program Needs</title>
+<link rel="stylesheet" href="../design/palette.css?v=202610191541">
+<link rel="stylesheet" href="../design/deck.css?v=202610191541">
+<style>
+  .cols { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 24px; margin-top: 34px; flex: 1; min-height: 0; }
+  .col { padding: 26px 30px; display: flex; flex-direction: column; gap: 6px; }
+  .col > h2 { font: 600 20px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  .need { display: grid; grid-template-columns: 14px 1fr; gap: 0 16px; padding: 18px 0; border-top: 1.5px solid #ece6d9; }
+  .need:first-of-type { border-top: 0; }
+  .need i { border-radius: 4px; }
+  .need h3 { font: 600 28px/1.2 var(--serif); margin: 0; }
+  .need p { font: 400 20px/1.4 var(--sans); margin: 4px 0 0; color: var(--muted); }
+  .need b { color: var(--ink); font-weight: 600; }
+  .rule { font: 400 21px/1.45 var(--sans); padding: 20px 0; border-top: 1.5px solid #ece6d9; }
+  .rule:first-of-type { border-top: 0; }
+  .rule b { display: block; font: 600 27px/1.2 var(--serif); margin-bottom: 5px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 2 · What the program needs</div>
+  <h1 data-step="0">Two cattle programs, more animals, and people</h1>
+  <p class="lede" data-step="0">Each user of the farm needs something different from it.</p>
+
+  <div class="cols">
+    <section class="card col" data-step="1">
+      <h2>Animals</h2>
+      <div class="need"><i style="background:var(--pasture)"></i><div><h3>Beginning Rancher herd</h3><p>Lives on <b>pasture</b>. No pens. Needs fencing, water, and a corral with chute and scale for working the herd.</p></div></div>
+      <div class="need"><i style="background:var(--cattle)"></i><div><h3>4-H cow &amp; calf projects</h3><p>Housed in <b>12' × 24' pens</b>, one project per pen, with turnout, washdown, and feed and tack storage.</p></div></div>
+      <div class="need"><i style="background:var(--swine)"></i><div><h3>Swine, sheep, and goats</h3><p>Shaded, well-ventilated small-animal pens on a <b>6' × 10'</b> module, sturdy enough for hogs and easy to clean out. Any pen can take any of the three.</p></div></div>
+      <div class="need"><i style="background:var(--small-animal)"></i><div><h3>Poultry</h3><p>Predator-safe poultry housing, apart from the other animals.</p></div></div>
+    </section>
+
+    <section class="card col" data-step="2">
+      <h2>People</h2>
+      <div class="need"><i style="background:var(--education)"></i><div><h3>Teaching</h3><p>A classroom and workshop for <b>about 50</b>, and a demonstration kitchen.</p></div></div>
+      <div class="need"><i style="background:var(--education)"></i><div><h3>Meeting</h3><p>A conference room for <b>20 to 25</b>, near the lobby and restrooms.</p></div></div>
+      <div class="need"><i style="background:var(--education)"></i><div><h3>Staff</h3><p>Offices for <b>5 staff</b>, with sight of the entry.</p></div></div>
+      <div class="need"><i style="background:var(--horticulture)"></i><div><h3>Growing</h3><p>A small horticulture teaching area.</p></div></div>
+      <div class="need"><i style="background:var(--arena)"></i><div><h3>Showing</h3><p>Space for demonstrations, turnout, and community events.</p></div></div>
+    </section>
+
+    <section class="card col" data-step="3">
+      <h2>Ground rules</h2>
+      <div class="rule"><b>Animal care standard</b>The Ag Guide (4th ed.) sets the bar for space, water, shade, ventilation, and handling.</div>
+      <div class="rule"><b>Modular and flexible</b>Pens, panels, and gates that can be rearranged as demand changes.</div>
+      <div class="rule"><b>Safe separation</b>Public, staff, animal-care, and service areas kept distinct, with supervised access for youth.</div>
+      <div class="rule"><b>Water quality first</b>Stormwater, washdown, and manure handled so nothing runs unmanaged to the slough.</div>
+    </section>
+  </div>
+</div>
+<script src="../design/deck.js?v=202610191541"></script>
+<script>Deck.start();</script>
+</body>
+</html>

@@ -9,13 +9,15 @@ Output is a plain JS file (window.PASTURE_CAPACITY = {...}) so the slide also wo
 
 Run:  python tools/build_capacity_data.py   (needs openpyxl)
 """
-import json, os
+import json, os, re
 import openpyxl
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 XLSX = os.path.join(ROOT, "source", "Clark_Farm_Pasture_Calculations.xlsx")
 OUT = os.path.join(ROOT, "slides", "data", "pasture-capacity.js")
 
+# the switch lives in tools/siteframe.py; read it without importing that module (it parses the CAD sheets)
+MAIN_PARCEL_ONLY = re.search(r"^MAIN_PARCEL_ONLY = (True|False)", open(os.path.join(ROOT, "tools", "siteframe.py")).read(), re.M).group(1) == "True"
 RATES = {"conservative": {"open": 4, "wooded": 25}, "improved": {"open": 2, "wooded": 10}}
 
 # Paddock acres: drawings/data/paddocks.json when it exists (tools/build_site_map.py: the fencing plan's figure for
@@ -59,7 +61,9 @@ data = {
     "levels": [
         level(1, "Level 1", "Minimum to operate", ["site"], "conservative"),
         level(2, "Level 2", "Better management", ["site"], "improved"),
-        level(3, "Level 3", "Best case", ["site", "bonus"], "improved"),
+        # main parcel only (siteframe.MAIN_PARCEL_ONLY, owner 2026-10-19): no bonus pasture, so Level 3 grazes the site
+        # pasture as Level 2 does; with it, Level 3 adds the bonus pasture (the report)
+        level(3, "Level 3", "Best case", ["site"] if MAIN_PARCEL_ONLY else ["site", "bonus"], "improved"),
     ],
 }
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
