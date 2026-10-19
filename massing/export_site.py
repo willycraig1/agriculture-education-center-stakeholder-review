@@ -10,7 +10,7 @@ Plan north is the diagram's up; true north is `north_cw_from_up` from it (ag-are
 
 Run after the deck's build tools:   .venv/bin/python massing/export_site.py
 """
-import json, os, re
+import json, math, os, re
 import xml.etree.ElementTree as ET
 import numpy as np
 from PIL import Image
@@ -186,6 +186,21 @@ def line_pts(it):
 def text_of(it):
     e = it['e']
     return ''.join(e.itertext()).strip()
+
+
+# ---------------------------------------------------------------- unfinished barn
+def frame_of(o):
+    """The unfinished (poultry) barn's frame from its surveyed roof outline: centre, long-axis angle, and the
+    architect's post-to-post size (sheet "A2.0 Unfinished Barn": 46'-8" x 35'-6", 2'-5 5/8" overhangs at the sides,
+    2'-2 1/4" at the ends), in scene feet."""
+    r = Polygon(o).minimum_rotated_rectangle
+    cs = list(r.exterior.coords)[:4]
+    edges = sorted(((math.dist(cs[i], cs[(i + 1) % 4]), cs[i], cs[(i + 1) % 4]) for i in range(4)), reverse=True)
+    _, a, b = edges[0]
+    k = abs(M_DS)
+    return dict(c=[round(r.centroid.x, 2), round(r.centroid.y, 2)], ang=round(math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])), 2),
+                L=round(46.667 * k, 2), W=round(35.5 * k, 2), ovs=round(2.47 * k, 2), ove=round(2.19 * k, 2),
+                outline_ft=[round(edges[0][0], 1), round(edges[2][0], 1)])
 
 
 # ---------------------------------------------------------------- road embankment
@@ -438,6 +453,7 @@ def main():
         carport=outline('existing-carport'),
         residence=outline('residence'),
         poultry=outline('existing-poultry'),
+        poultry_frame=frame_of(outline('existing-poultry')),
         horticulture=outline('horticulture'),
         parking=dict(o=outline('parking'), h=[[list(d2s(x, y)) for x, y in h] for h in pk.get('holes', [])],
                      grass=[list(d2s(x, y)) for x, y in pk['grass']],
@@ -451,6 +467,73 @@ def main():
             r = rings(it)[0]
             if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
     out['campus']['stalls'] = stalls
+
+    # the walk to the unfinished barn: square its end into the barn's 12'-6" aisle (owner, 2026-10-19). The plan runs
+    # the walk east to the barn's diagonal west gable; here its edges run on to the aisle's corners at the gable line.
+    F = out['campus']['poultry_frame']
+    a = math.radians(F['ang']); ux, uy = math.cos(a), math.sin(a); vx, vy = -uy, ux
+    ends = [(F['c'][0] + sg * F['L'] / 2 * ux, F['c'][1] + sg * F['L'] / 2 * uy) for sg in (-1, 1)]
+    for w in out['campus']['walks']:
+        wp = Polygon(w['o']).buffer(0)
+        e = min(ends, key=lambda q: wp.distance(Point(q)))
+        if wp.distance(Point(e)) > 15: continue
+        ai = 6.25 * abs(M_DS)
+        corners = [(e[0] + s_ * ai * vx, e[1] + s_ * ai * vy) for s_ in (-1, 1)]
+        x_cut = min(c[0] for c in corners) - 14
+        near = wp.intersection(box(x_cut - 30, -1e4, 1e4, 1e4))
+        ys = [y for x, y in near.exterior.coords] if near.geom_type == 'Polygon' else []
+        if not ys: continue
+        y_lo, y_hi = min(ys), max(ys)
+        taper = Polygon([(x_cut, y_lo), (x_cut, y_hi)] + sorted(corners, key=lambda c: -c[1]))
+        clean = wp.intersection(box(-1e4, -1e4, x_cut, 1e4)).union(taper.convex_hull).buffer(0)
+        if clean.geom_type == 'Polygon':
+            w['o'] = rnd(clean.exterior.coords)
+    walks_u = unary_union([Polygon(w['o']).buffer(0) for w in out['campus']['walks']])
+
+    # fences stop at the pavement edge, with a pipe gate across the walk (owner, 2026-10-19)
+    gates, fences = [], []
+    for f in out['fences']:
+        ln = LineString(f['p'])
+        if not ln.intersects(walks_u):
+            fences.append(f); continue
+        cross = ln.intersection(walks_u.boundary)
+        pts = sorted([(p.x, p.y) for p in getattr(cross, 'geoms', [cross]) if p.geom_type == 'Point'], key=lambda q: ln.project(Point(q)))
+        rest = ln.difference(walks_u)
+        for k, g in enumerate(getattr(rest, 'geoms', [rest])):
+            if g.length > 1: fences.append(dict(id=f"{f['id']}-{k}", p=rnd(g.coords), level=f['level']))
+    # run fence ends that stop just short of a walk on to its edge
+    edge = walks_u.boundary
+    for f in fences:
+        for i in (0, -1):
+            q = Point(f['p'][i])
+            if 0.05 < walks_u.distance(q) < 12:
+                e = edge.interpolate(edge.project(q))
+                if i == 0: f['p'].insert(0, [round(e.x, 2), round(e.y, 2)])
+                else: f['p'].append([round(e.x, 2), round(e.y, 2)])
+    # a gate between each pair of fence ends facing each other across a walk
+    ends = [(tuple(f['p'][i]), f['level']) for f in fences for i in (0, -1) if edge.distance(Point(f['p'][i])) < .05]
+    used = set()
+    for i, (p, lv) in enumerate(ends):
+        if i in used: continue
+        best = min(((math.dist(p, q), j) for j, (q, _) in enumerate(ends) if j != i and j not in used), default=None)
+        if not best or not 3 < best[0] < 16: continue
+        q = ends[best[1]][0]
+        if LineString([p, q]).within(walks_u.buffer(.1)):
+            used |= {i, best[1]}
+            gates.append(dict(p=[list(p), list(q)], level=lv))
+    # The campus fence (fence-07) east of the existing barn runs on the barn lean-to's column line, the pen-front
+    # line 8.2' off the barn, which is also the walk's north edge (owner, 2026-10-19): from the gate west to the
+    # lean-to's north-east corner column, north up that column line to the pens' back fence, then on north from
+    # the pens' east side as before. Lean-to geometry as in scene.py (barn x1 = 983 / 2.95, north wall -775 / 2.95).
+    bx1, by2 = 983 / S, -775 / S
+    col_x, back_y = bx1 + 93.4 - 0.4, by2 + 32.1
+    for k, f in enumerate(fences):
+        if f['id'] != 'fence-07' or len(f['p']) < 4: continue
+        gate_end = f['p'][0]
+        fences[k] = dict(id='fence-07a', level=f['level'], p=[gate_end, [round(col_x, 2), gate_end[1]], [round(col_x, 2), round(back_y, 2)]])
+        fences.append(dict(id='fence-07b', level=f['level'], p=[[f['p'][3][0], round(back_y, 2)]] + f['p'][3:]))
+        break
+    out['fences'], out['gates'] = fences, gates
 
     # the aerial, as a parallelogram in scene feet (origin, +u corner, +v corner)
     img = next(it for it in ITEMS if it['tag'] == 'image' and it['layers'][1] == 'aerial')
