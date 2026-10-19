@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191715">
-<link rel="stylesheet" href="../design/deck.css?v=202610191715">
+<link rel="stylesheet" href="../design/palette.css?v=202610191730">
+<link rel="stylesheet" href="../design/deck.css?v=202610191730">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -49,12 +49,12 @@
 </head>
 <body>
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 1 · What we have</div>
-  <h1 data-step="0">Clark Farm, layer by layer</h1>
+  <div class="eyebrow" data-step="0">The site today</div>
+  <h1 data-step="0">The site today</h1>
   <div class="body">
     <div class="map card" data-step="0" id="map">
       <ol class="steps" id="steps"></ol>
-      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span><span data-step="4" hidden></span><span data-step="5" hidden></span>
+      <span data-step="1" hidden></span>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
@@ -64,10 +64,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610191715"></script>
-<script src="data/pasture-capacity.js?v=202610191715"></script>
-<script src="../design/deck.js?v=202610191715"></script>
-<script src="../design/viewer.js?v=202610191715"></script>
+<script src="data/site-map.js?v=202610191730"></script>
+<script src="data/pasture-capacity.js?v=202610191730"></script>
+<script src="../design/deck.js?v=202610191730"></script>
+<script src="../design/viewer.js?v=202610191730"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -119,7 +119,7 @@
 
   const soil = { "somewhat poorly": "#EFE7D4", "poorly": "#D8C69E", "very poorly": "#9FB9C6" };
   const steps = [
-    { t: "Clark Farm today", p: `The farm sits east of Cowpen Slough, off SR-72. North is to the left on every map, so the campus entry comes from the bottom.`,
+    { t: "From the air", p: `The farm sits east of Cowpen Slough, off SR-72. North is to the left on every map, so the campus entry comes from the bottom.`,
       show: ["aerial", "veil"] },                     // the veil washes out the land beyond the site
     { t: "The land", p: `About ${Math.round(M.site_acres_footprint)} acres, with about ${Math.round(site)} acres of fenced pasture around the campus. Pasture is what this community is short on.`,
       lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span>`,
@@ -137,6 +137,9 @@
       lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`, frame: "campus",
       show: ["ground", "property", "canopy", "water", "trees", "campus", "labels"], muted: true },
   ];
+  // the short version (owner, 2026-10-19): the site from the air, then the campus. Land, water, soils, and woods are in
+  // the report version (archive/report-reference-2026-10-19).
+  steps.splice(1, 4);
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
 
@@ -159,9 +162,7 @@
     });
   }
   // key numbers in the right column, each tied to the step that introduces it
-  const facts = [[1, `${Math.round(all)}`, "acres of fenced pasture"], [2, "1", "pond inside the site, beside Cowpen Slough"],
-                 [3, `${Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0))}%`, "of the mapped site is very poorly drained"],
-                 [4, `${Math.round(100 * M.canopy_acres / M.site_acres_footprint)}%`, "of the site under tree canopy"]];
+  const facts = [[0, `${Math.round(M.site_acres_footprint)}`, "acres, off SR-72"], [0, `${Math.round(all)}`, "acres of fenced pasture"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) =>
     `<div class="fact" data-step="${st}"><b class="num">${b}</b><span>${t}</span></div>`).join("");
   Deck.onStep(apply);
