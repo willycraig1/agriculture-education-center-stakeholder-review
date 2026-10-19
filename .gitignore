@@ -5,3 +5,5 @@ __pycache__/
 photos/red-house.png
 photos/hog-enclosures.png
 exports/
+# owner's annotated review draft: internal County comments, kept local
+source/*_LHB.pdf
