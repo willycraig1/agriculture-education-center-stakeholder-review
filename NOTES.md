@@ -691,3 +691,21 @@ Fit checks now skip context elements (walk etc.).
   and the road fill. The spot elevations are there if it is picked up later.
 - The civil narrative of 2026-10-16 (`source/civil/0_County4H_Narrative1withExhibits...`) is a draft study: not to be
   incorporated until the owner's team has discussed it. Not committed.
+
+## 2026-10-19: existing barn and pens to the survey; campus fence on the lean-to column line
+- **Existing pens flush with the barn (owner):** the 7 existing pens now run the barn's 80.4' length, flush with its
+  west face (about 11.5' a pen), per the survey and the architect's sheet A2.0 Existing Barn. Project drawings had
+  them on the 84' module, 3.6' proud of the barn's west face. The barnyard diagram stays pinned to the survey at the
+  middle of the pens' north edge (`diagram_transform`, now at x 239.8), so the barn and pens sit on the surveyed barn
+  (196.7..278.0 in diagram feet before, 1.8' closer now) and the new barnyard moves 1.8' west with them; survey-drawn
+  context (Red House, carport, horticulture, residence, poultry barn) is recomputed and stays put. East edge, holding
+  pens, and turnouts unchanged. Fit checks and paddock acres unchanged (cattle turnout B 45% on wet soil, was 44%).
+- **Campus fence (owner):** east of the barnyard it now runs on the existing barn's lean-to column line (the pens'
+  front, which is the walk's north edge) from the walk gate west to the lean-to's corner column 13' past the barn,
+  north to the pens' back fence and along it to their north-east corner (`build_site_map.py`). The fence south of the
+  walk (fence-10) stops at the walk's south edge, and a gate leaf spans the walk (8').
+- **Walk to the unfinished barn:** its edges now run on to the corners of the barn's 12'-6" centre aisle, and the
+  aisle is concrete end to end (part of the Level 1 walk). The walk is drawn after the barn so the aisle shows; the
+  generated `drawings/ag-area-diagram.svg` now carries element names on their own top layer ("Names").
+- Massing: `export_site.py` takes the fence route and walk from the deck (its model-only overrides are removed);
+  `export_scene.py` fits the pens at the barn's width.
