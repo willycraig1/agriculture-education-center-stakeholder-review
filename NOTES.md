@@ -773,3 +773,16 @@ Fit checks now skip context elements (walk etc.).
   The capacity slide shows two cards (Level 1; Levels 2 and 3); the Levels table's Level 3 pasture reads "Same as
   Level 2"; the paddocks slide loses its bonus step; the site, three Levels, and water slides drop the bonus land,
   the bonus retention, the outfall, and the landfill line.
+
+## 2026-10-19: owner's slide comments, first pass
+- Red House: program colours on by default (the owner found the coloured plans easier); the Program button still
+  turns them off. The PDF export no longer adds separate program pages.
+- Wording per her notes: design drivers (pasture sentence clarified; reuse "and limiting costs"; "first come, first
+  served" dropped; water generalized to design and operations); three Levels (Level 2 "more program capacity", not
+  "managed harder"); cattle pens (title "Pens grow with demand", the herd "lives primarily on pasture", second barn
+  "if funds and demand are present", Cow Pen Slough sticky note removed, Level 1 "existing pens at the barn");
+  "What each Level provides"; program ground rule adds "or wetlands"; water quality pared to seven short points with no
+  Playbook citations or compensation (detailed version in the archive); closing slide reworded positively and cut
+  to one or two questions per topic on usability and desired features.
+- Floodplain compensation is held back from this presentation (owner's concern about pastures as compensation; civil
+  has new thoughts in its 2026-10-16 narrative, not to be introduced yet). The fact sheet is a separate task.

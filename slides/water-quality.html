@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Water Quality</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191659">
-<link rel="stylesheet" href="../design/deck.css?v=202610191659">
+<link rel="stylesheet" href="../design/palette.css?v=202610191715">
+<link rel="stylesheet" href="../design/deck.css?v=202610191715">
 <style>
   .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 26px; margin-bottom: 14px; }
   .g { padding: 24px 28px 22px; border-top: 8px solid var(--water); display: flex; flex-direction: column; }
@@ -27,40 +27,37 @@
 <div class="stage">
   <div class="eyebrow" data-step="0">Act 5 · The plan</div>
   <h1 data-step="0">Water quality, built into the plan</h1>
-  <p class="lede" data-step="0">The site drains to Cowpen Slough. The plan follows the region's Water Quality Playbook: reduce nutrients at the source, remove what does run off, and sustain the practice by teaching it.</p>
-
+  <p class="lede" data-step="0">The site drains to Cowpen Slough. Following the region's Water Quality Playbook, the plan
+    reduces nutrients at the source, catches what runs off, and teaches the practices that sustain it.</p>
+  <!-- simplified for the owner's internal audience (2026-10-19); the detailed version, with Playbook references, is in
+       archive/report-reference-2026-10-19/slides/water-quality.html -->
   <div class="cols">
     <article class="card g" data-step="1">
       <span class="goal">Reduce</span>
       <h2>Keep nutrients on the land</h2>
       <ul>
-        <li><i style="background:var(--pasture)"></i><div><b>Stock to what the pasture carries.</b> 7, 15, then 28 cow equivalents, never more than the grass supports.<small>Playbook 4.6: adaptive grazing</small></div></li>
-        <li><i style="background:var(--pasture)"></i><div><b>Rotate, and rest the wet ground.</b> Paddocks on the wettest soils are grazed only when conditions allow.<small>Playbook 4.6: rotational grazing</small></div></li>
-        <li><i style="background:var(--cattle)"></i><div><b>Manage manure and bedding.</b> Collected from pens and barns and composted, not left to wash away.<small>Playbook 4.6 and 4.7: manure management, composting</small></div></li>
-        <li><i style="background:var(--education)"></i><div><b>Check the Red House septic</b> against its new use before it reopens.<small>Playbook chapter 2: septic systems</small></div></li>
+        <li><i style="background:var(--pasture)"></i><div><b>Stock only what the pasture carries,</b> and rotate the herd so wet ground can rest.</div></li>
+        <li><i style="background:var(--cattle)"></i><div><b>Collect and compost</b> manure and bedding from the pens and barns.</div></li>
       </ul>
     </article>
     <article class="card g" data-step="2">
       <span class="goal">Remove</span>
       <h2>Catch and treat what runs off</h2>
       <ul>
-        <li><i style="background:var(--water)"></i><div><b>Retention area and bioswale</b> take runoff from the parking, drives, and roofs before it reaches the slough. The stormwater design also calls for a new entry apron, built at Level 1. All stormwater and floodplain compensation is permitted and built at Level 1; civil's strategy is wide, shallow compensation areas that stay in grazing, an expanded retention area, and the historical flows left largely as they are.<small>Playbook chapters 6 and 7: stormwater</small></div></li>
-        <li><i style="background:var(--water)"></i><div><b>Washdown water is collected,</b> never discharged to pasture, wetland, or ditch.</div></li>
-        <li><i style="background:var(--cattle)"></i><div><b>Deep overhangs and gutters on every barn</b> keep roof water out of the bedding and the pens.</div></li>
-        <li><i style="background:var(--woodland)"></i><div><b>Wooded and wet edges stay vegetated</b> between the pastures and the slough.<small>Playbook 8.1: wetland and shoreline habitat</small></div></li>
+        <li><i style="background:var(--water)"></i><div><b>A retention area and bioswale</b> treat runoff from the parking, drives, and roofs.</div></li>
+        <li><i style="background:var(--water)"></i><div><b>Washdown water is collected,</b> never discharged to pasture, wetlands, or ditches.</div></li>
+        <li><i style="background:var(--woodland)"></i><div><b>Wooded and wet edges stay planted</b> between the pastures and the slough.</div></li>
       </ul>
     </article>
     <article class="card g" data-step="3">
       <span class="goal">Sustain</span>
       <h2>Teach it, and show it working</h2>
       <ul>
-        <li><i style="background:var(--education)"></i><div><b>Best practices are the curriculum.</b> Beginning ranchers and 4-H youth learn grazing, manure, and soil management by doing them here.<small>Playbook 4.6: education for farmers and ranchers</small></div></li>
-        <li><i style="background:var(--water)"></i><div><b>A working demonstration,</b> open to the public, of stormwater features on a farm.<small>Playbook 7.4: demonstration projects</small></div></li>
-        <li><i style="background:var(--horticulture)"></i><div><b>Soil health in the horticulture area:</b> compost in, synthetic fertilizer down.<small>Playbook 4.7: rebuilding soils</small></div></li>
+        <li><i style="background:var(--education)"></i><div><b>Learning by doing:</b> beginning ranchers and 4-H youth learn water quality best management practices, including grazing, manure, and soil management.</div></li>
+        <li><i style="background:var(--water)"></i><div><b>A working demonstration</b> of stormwater features and water quality practices, open to the public.</div></li>
       </ul>
     </article>
   </div>
-
   <div class="why" data-step="4">
     <div class="n num">1 in 3</div>
     <p>Only about a third of Sarasota County's farms under 10 acres follow agricultural best management practices, and small animal farms and hobbyists are the hardest group to reach. They are exactly who this center teaches.</p>
@@ -68,7 +65,7 @@
   <p class="src" data-step="0">2025 Water Quality Playbook, Gulf Coast Community Foundation (waterqualityplaybook.org); farm figures from its action 4.6, citing USDA 2022.
     Site measures are from the draft program criteria and the study plan.</p>
 </div>
-<script src="../design/deck.js?v=202610191659"></script>
+<script src="../design/deck.js?v=202610191715"></script>
 <script>Deck.start();</script>
 </body>
 </html>
