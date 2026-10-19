@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paddocks and Rotation</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191506">
-<link rel="stylesheet" href="../design/deck.css?v=202610191506">
+<link rel="stylesheet" href="../design/palette.css?v=202610191659">
+<link rel="stylesheet" href="../design/deck.css?v=202610191659">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -40,7 +40,7 @@
   <h1 data-step="0">Paddocks sized for rotation</h1>
   <div class="body">
     <div class="map card" data-step="0" id="map">
-      <span data-step="1" hidden></span><span data-step="2" hidden></span>
+      <span data-step="1" hidden></span>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <ol class="levels" id="levels"></ol>
@@ -50,10 +50,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610191506"></script>
-<script src="data/pasture-capacity.js?v=202610191506"></script>
-<script src="../design/deck.js?v=202610191506"></script>
-<script src="../design/viewer.js?v=202610191506"></script>
+<script src="data/site-map.js?v=202610191659"></script>
+<script src="data/pasture-capacity.js?v=202610191659"></script>
+<script src="../design/deck.js?v=202610191659"></script>
+<script src="../design/viewer.js?v=202610191659"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY.levels;
@@ -68,18 +68,16 @@
   siteTags.sort((a, b) => xOf(a) - xOf(b));
 
   const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
-  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440] };
+  const frames = { full, site: [50, 110, 1520, 540] };
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
-    presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site }, { label: "Bonus pasture", box: frames.bonus }] });
+    presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site }] });
 
-  const bonusAc = (C[2].acres - C[0].acres).toFixed(1);
   const text = [
     { h: "Nine site paddocks", p: `${C[0].acres} acres of site pasture, fenced into ${siteTags.length} paddocks around the campus. Managed conservatively, they carry the starting herd.`, f: "site" },
     { h: "Rotate through them", p: `The same ${siteTags.length} paddocks, grazed in rotation so each one rests and regrows. Capacity roughly doubles without adding land.`, f: "site" },
-    { h: "Add the bonus pasture", p: `${bonusTags.length} more paddocks on ${bonusAc} acres of bonus land, rotated the same way.`, f: "full" },
-  ];
+  ];                                   // no bonus pasture step in this presentation (owner, 2026-10-19)
   document.getElementById("levels").innerHTML = text.map((t, k) =>
-    `<li data-step="0" data-k="${k}"><header><span class="badge">${C[k].name}</span><h3>${t.h}</h3></header><p>${t.p}</p>
+    `<li data-step="0" data-k="${k}"><header><span class="badge">${k ? "Levels 2 and 3" : C[k].name}</span><h3>${t.h}</h3></header><p>${t.p}</p>
      <div class="ce num">≈ ${C[k].ce_planning} <small>CE</small></div></li>`).join("");
 
   // rotation: step the highlight from paddock to paddock while Level 2 or 3 is showing
@@ -97,11 +95,12 @@
   }
   let last = null;
   function apply(n) {
-    bonusTags.forEach(t => t.classList.toggle("off", n < 2));
-    svg.querySelectorAll(".pad.bonus").forEach(p => p.classList.toggle("off", n < 2));
+    bonusTags.forEach(t => t.classList.add("off"));
+    svg.querySelectorAll(".pad.bonus").forEach(p => p.classList.add("off"));
+    n = Math.min(n, text.length - 1);
     const f = text[n].f;
     if (f !== last) { viewer.home(frames[f]); viewer.flyTo(frames[f], last === null || document.documentElement.classList.contains("static") ? 0 : 1300); last = f; }
-    rotate(n === 1 ? siteTags : n === 2 ? [...siteTags, ...bonusTags] : null);
+    rotate(n === 1 ? siteTags : null);
     document.querySelectorAll("#levels li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === n);
       li.classList.toggle("done", +li.dataset.k < n);

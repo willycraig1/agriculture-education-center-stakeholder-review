@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Red House</title>
+<link rel="stylesheet" href="../design/palette.css?v=202610191541">
+<link rel="stylesheet" href="../design/deck.css?v=202610191541">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1250px 1fr; gap: 36px; margin-top: 22px; flex: 1; min-height: 0; }
+  .plan { position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; align-self: start; }
+  .plan > svg { display: block; width: 100%; height: 816px; }
+  .lvl { opacity: 0; transition: opacity .9s var(--ease); }
+  .lvl.on { opacity: 1; }
+  .walls { fill: none; stroke: var(--ink); stroke-width: calc(1.3px * var(--inv, 1)); stroke-linejoin: round; }
+  .new { fill: none; stroke: var(--education); stroke-width: calc(3px * var(--inv, 1)); stroke-linejoin: round; }
+  .removed { fill: none; stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 5 4; opacity: 0; }
+  .lvl.on .removed { animation: gone 3.2s var(--ease) forwards; }
+  @keyframes gone { 0% { opacity: .95; } 55% { opacity: .95; } 100% { opacity: 0; } }
+  .static .lvl.on .removed { animation: none; opacity: 0; }
+  .openings, .fixtures { fill: none; stroke: var(--ink); stroke-width: .6; }
+  .furniture, .above { fill: none; stroke: var(--line); stroke-width: .5; }
+  .below { fill: none; stroke: #cfc8b8; stroke-width: .5; }
+  .labels text { font-family: var(--sans); font-weight: 700; fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 3px; letter-spacing: .02em; }
+  .labels text.dim { display: none; }
+  .key { position: absolute; left: 20px; bottom: 16px; display: flex; gap: 20px; background: rgba(255,255,255,.92); padding: 10px 14px; border-radius: 10px;
+         font: 500 15px/1 var(--sans); color: var(--muted); }
+  .key i { display: inline-block; width: 26px; height: 0; margin-right: 8px; vertical-align: 4px; }
+  .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .levels li { padding: 14px 18px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .levels li header { display: flex; align-items: center; gap: 12px; }
+  .levels li h3 { font: 600 24px/1.2 var(--serif); margin: 0; }
+  .levels li .badge { background: var(--muted); }
+  .levels li p { font: 400 17px/1.45 var(--sans); margin: 8px 0 0; display: none; }
+  .levels li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .levels li.now .badge { background: var(--education); }
+  .levels li.now p { display: block; }
+  .levels li.done { color: var(--ink); }
+  .static .levels li p { display: block; font-size: 15px; }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+  /* program key (architect's convention): yellow circulation, blue restrooms, red primary spaces, grey storage and
+     ancillary; offices green and kitchen support orange */
+  .program path { stroke: none; fill-opacity: .55; opacity: 0; transition: opacity .6s var(--ease); }
+  .plan.prog .program path { opacity: 1; }
+  .pg-circulation { fill: #F2CF4E; } .pg-restroom { fill: #7FB6E0; } .pg-primary { fill: #E07B6E; }
+  .pg-office { fill: #9CC98A; } .pg-kitchen { fill: #F0A85A; } .pg-storage { fill: #BDB8B0; }
+  .key .pk { display: none; } .plan.prog .key .wk { display: none; } .plan.prog .key .pk { display: inline; }
+  .key .pk i { height: 14px; border-radius: 3px; vertical-align: -2px; width: 18px; opacity: .8; }
+  .key button { font: 600 15px/1 var(--sans); color: var(--ink); background: #fff; border: 1.5px solid var(--line); border-radius: 8px; padding: 6px 10px; margin: -6px 4px -6px 0; cursor: pointer; }
+  .plan.prog .key button { background: var(--ink); color: #fff; border-color: var(--ink); }
+</style>
+</head>
+<body data-drivers="reuse">
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan</div>
+  <h1 data-step="0">One house, three Levels of reuse</h1>
+  <div class="body">
+    <div class="plan card" data-step="0" id="plan">
+      <div class="key"><button type="button" id="progbtn" aria-pressed="false">Program</button>
+        <span class="wk"><i style="border-top:2px solid var(--ink)"></i>Kept</span><span class="wk"><i style="border-top:3px solid var(--education)"></i>New at this Level</span>
+        <span class="wk"><i style="border-top:2px dashed var(--muted)"></i>Removed</span>
+        <span class="pk"><i class="pg-primary" style="background:#E07B6E"></i>Conference &amp; teaching</span><span class="pk"><i style="background:#9CC98A"></i>Offices</span>
+        <span class="pk"><i style="background:#F0A85A"></i>Kitchen support &amp; breakroom</span><span class="pk"><i style="background:#7FB6E0"></i>Restrooms</span>
+        <span class="pk"><i style="background:#F2CF4E"></i>Circulation</span><span class="pk"><i style="background:#BDB8B0"></i>Storage</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="levels" id="levels"></ol>
+      <p class="src" data-step="0">Seibert Architects Red House study sheets A1.0 to A1.0-3 (3/16" = 1'-0"), aligned and compared wall by wall.
+        Room sizes are from the sheets.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/red-house.js?v=202610191541"></script>
+<script src="../design/deck.js?v=202610191541"></script>
+<script src="../design/viewer.js?v=202610191541"></script>
+<script>
+(function () {
+  const R = window.RED_HOUSE;
+  const [x0, y0, x1, y1] = R.view;
+  const parts = ["program", "below", "above", "furniture", "fixtures", "openings", "walls", "new", "removed", "labels"];
+  const svg = `<svg viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" preserveAspectRatio="xMidYMid meet" aria-label="Red House floor plans">` +
+    R.levels.map((l, k) => `<g class="lvl" data-k="${k}">` +
+      parts.map(p => l[p] ? `<g class="${p}">${l[p]}</g>` : "").join("") + `</g>`).join("") + `</svg>`;
+  document.getElementById("plan").insertAdjacentHTML("afterbegin", svg);
+  // room names: scale up from sheet text size so they read at slide size
+  document.querySelectorAll(".labels text").forEach(t => t.setAttribute("font-size", (+t.getAttribute("font-size") * 1.45).toFixed(1)));
+
+  const text = [
+    { b: "Existing", h: "The house today", p: "A former residence with several floor levels, small rooms, and wraparound porches. The study keeps the shell and its Old Florida character." },
+    { b: "Level 1", h: "Lightest touch", p: "Opens up the plan: lobby, a 25' × 21' conference room for 20–25, a demo kitchen (dishwash, cooler, and pantry), four offices, commons, a breakroom, and two accessible restrooms. A 28' × 40' instructional classroom for about 50 goes under a new roof to the east, linked by a covered walkway." },
+    { b: "Level 2", h: "Better management", p: "Adds Office 5 and separate men's and women's restrooms beside the classroom." },
+    { b: "Level 3", h: "Best case", p: "The classroom moves to a new 51' × 31' classroom and event building with its own restrooms and storage, set across a patio. The old classroom bay becomes a 28' × 36' equipment carport, and the breakroom moves beside the commons." },
+  ];
+  document.getElementById("levels").innerHTML = text.map((t, k) =>
+    `<li data-step="${k === 0 ? 0 : k}" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><p>${t.p}</p></li>`).join("");
+  document.querySelectorAll("#levels li").forEach(li => li.setAttribute("data-step", "0"));
+  [1, 2, 3].forEach(k => document.getElementById("plan").insertAdjacentHTML("beforeend", `<span data-step="${k}" hidden></span>`));
+
+  // camera: frame each Level on its walls, and glide between framings
+  const svgEl = document.querySelector("#plan svg");
+  const frames = [...document.querySelectorAll(".lvl")].map(g => {
+    let b = null;
+    g.querySelectorAll(".walls, .new, .above").forEach(w => {
+      const r = w.getBBox();
+      b = b ? { x0: Math.min(b.x0, r.x), y0: Math.min(b.y0, r.y), x1: Math.max(b.x1, r.x + r.width), y1: Math.max(b.y1, r.y + r.height) }
+            : { x0: r.x, y0: r.y, x1: r.x + r.width, y1: r.y + r.height };
+    });
+    const pad = 85;
+    return [b.x0 - pad, b.y0 - pad, b.x1 - b.x0 + 2 * pad, b.y1 - b.y0 + 2 * pad + 60];   // extra room for the key
+  });
+  const viewer = Viewer(svgEl, { ftPerUnit: R.ft_per_pt, north: R.north_cw_from_up,
+    presets: [{ label: "House", box: frames[1] }, { label: "House + addition", box: frames[3] }], base: frames[1], damp: 0.6 });
+  function apply(n) {
+    viewer.home(frames[n]);
+    viewer.flyTo(frames[n], document.documentElement.classList.contains("static") ? 0 : 1100);
+    document.querySelectorAll(".lvl").forEach(g => g.classList.toggle("on", +g.dataset.k === n));
+    document.querySelectorAll("#levels li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.k === n);
+      li.classList.toggle("done", +li.dataset.k < n);
+    });
+  }
+  // program key toggle: applies to whichever Level is showing
+  const planEl = document.getElementById("plan"), btn = document.getElementById("progbtn");
+  btn.addEventListener("click", ev => { ev.stopPropagation(); const on = planEl.classList.toggle("prog"); btn.setAttribute("aria-pressed", on); });
+  btn.addEventListener("keydown", ev => { if (ev.key === " " || ev.key === "Enter") ev.stopPropagation(); });   // arrows still step the deck
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(3);
+})();
+</script>
+</body>
+</html>

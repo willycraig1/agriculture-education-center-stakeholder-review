@@ -304,11 +304,15 @@ if os.path.exists(_bp) and AD:
                 f'<text x="{dx}" y="{dy + 20}" text-anchor="{anchor}" font-size="15" font-weight="600" fill="{col}" stroke="#fff" stroke-width="4" paint-order="stroke">{l2}</text></g></g>')
     _p1 = _pipe(_c0, _c1, P["education"]["base"], "entry-culvert", "Culvert under the entry", "replace: undersized, hard to maintain", -14, 34, "end")
     _p2 = _pipe(_o0, _o1, P["woodland"]["base"], "outfall", "Outfall: two 36&#8243; pipes, inv. 16.47&#8242; to 16.00&#8242;", "keep: sound and sized for the plan", 16, -22, "start")
+    if MAIN_PARCEL_ONLY:                                   # the outfall is on the Solid Waste land, past pl-04
+        _p2 = ("", "")
     _infra = '<g id="infrastructure" display="none">' + _p1[0] + _p2[0] + "</g>"
     _infra_lbl = '<g id="infrastructure-labels" display="none">' + _p1[1] + _p2[1] + "</g>"
     print("infrastructure lines ft:", INFRA)
+_fj_ = os.path.join(OUT, "data", "fences.json")
+_mclip = MAIN_PARCEL_ONLY and os.path.exists(_fj_) and any(r_["id"] == "pl-04" for r_ in json.load(open(_fj_)).get("property_lines", []))
 water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fill-opacity=".85"/>' if AD else "")
-         + _bed_svg + _comp_svg
+         + ('<g clip-path="url(#main-side)">' if _mclip else "") + _bed_svg + _comp_svg
          + (g_paths(water_ds, M_FP, T_FP, f'fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="3"') if not EDITS else
             "".join((f'<path class="pond proposed" d="{poly_d(_RET_MERGED)}" ' if pd_["kind"] != "existing" and _RET_MERGED is not None else
                      f'<path class="pond {"proposed" if pd_["kind"] != "existing" else "existing"}" transform="translate({EDITS["origin"][0]} {EDITS["origin"][1]})" d="{pd_["d"]}Z" ')
@@ -317,7 +321,7 @@ water = ((f'<path id="slough" d="{AD["slough"]}" fill="{P["water"]["base"]}" fil
          + g_paths(sv.get("FEMA FLOOD ZONE", []), M_SP, T_SP,
                    f'fill="none" stroke="{P["water"]["base"]}" stroke-width="{5/abs(M_SP):.3f}" '
                    f'stroke-dasharray="{18/abs(M_SP):.2f} {10/abs(M_SP):.2f}"')
-         + _ret_lbl + _infra)
+         + ("</g>" if _mclip else "") + _ret_lbl + _infra)
 
 # ---------------------------------------------------------------- trees
 tree_svg = "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{5.2 if s > 20 else 3.8}"/>'
@@ -878,12 +882,30 @@ if _RM:
     _wild_svg = ('<g id="site-retention" display="none">'
                  + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["tint"]}" stroke="{P["water"]["base"]}" stroke-width="2" data-w="2.5" stroke-dasharray="8 5" data-dash="8 5"/>' for g_ in _sp)
                  + "".join(_small(g_, "Site retention pond", f"{a_} ac") for g_, a_ in zip(_sp, _RM["site_ponds_acres"][1:]))
-                 + '</g><g id="wildcard" display="none">'
-                 + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["base"]}" fill-opacity=".14" stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>' for g_ in _bp)
-                 + "".join(_small(g_, "Bonus retention", f"{a_} ac") for g_, a_ in zip(_bp, _RM["bonus_ponds_acres"]))
-                 + "</g>")
+                 + "</g>"
+                 + ("" if MAIN_PARCEL_ONLY else '<g id="wildcard" display="none">'      # bonus retention: Solid Waste land
+                    + "".join(f'<path d="{poly_d(g_)}" fill="{P["water"]["base"]}" fill-opacity=".14" stroke="{P["water"]["base"]}" stroke-width="2.5" data-w="3" stroke-dasharray="2 6" data-dash="2 7" stroke-linecap="round"/>' for g_ in _bp)
+                    + "".join(_small(g_, "Bonus retention", f"{a_} ac") for g_, a_ in zip(_bp, _RM["bonus_ponds_acres"]))
+                    + "</g>"))
     print("retention markup: site ponds ac", _RM["site_ponds_acres"], "| bonus ponds ac", _RM["bonus_ponds_acres"])
 
+# ---- main parcel only (siteframe.MAIN_PARCEL_ONLY): the side of parcel line pl-04 the campus is on
+MAIN, MAIN_SIDE = None, None
+_pl04 = [r_["map"] for r_ in (FENCES.get("property_lines", []) if os.path.exists(_fp) else []) if r_["id"] == "pl-04"]
+if MAIN_PARCEL_ONLY and _pl04:
+    (_ax, _ay), (_bx, _by) = _pl04[0][0], _pl04[0][-1]
+    _L = math.hypot(_bx - _ax, _by - _ay); _ux, _uy = (_bx - _ax) / _L, (_by - _ay) / _L
+    _pa, _pb = (_ax - _ux * 6000, _ay - _uy * 6000), (_bx + _ux * 6000, _by + _uy * 6000)
+    _nx, _ny = -_uy, _ux                                   # a normal; flip it to the campus side
+    if (rh[0] - _ax) * _nx + (rh[1] - _ay) * _ny < 0:
+        _nx, _ny = -_nx, -_ny
+    MAIN_SIDE = Polygon([_pa, _pb, (_pb[0] + _nx * 9000, _pb[1] + _ny * 9000), (_pa[0] + _nx * 9000, _pa[1] + _ny * 9000)])
+    MAIN = footprint.intersection(MAIN_SIDE).buffer(0)
+    MAIN = max(getattr(MAIN, "geoms", [MAIN]), key=lambda g: g.area)
+    print("main parcel only: acres", round(MAIN.area * (FT_PER_PT / abs(M_FP)) ** 2 / 43560, 1), "of", round(footprint.area * (FT_PER_PT / abs(M_FP)) ** 2 / 43560, 1))
+_shown = MAIN if MAIN is not None else footprint           # the site as drawn (ground, veil)
+_clip = ' clip-path="url(#main-side)"' if MAIN is not None else ""
+_ckw = {"clip_path": "url(#main-side)"} if MAIN is not None else {}
 W, H = x1 - x0, y1 - y0
 font = "font-family=\"'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif\""
 if AD:
@@ -902,24 +924,26 @@ if AD:
 svg = (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
        f'viewBox="{x0} {y0} {W} {H}" {font}>'
        f'<title>Clark Farm site layers (north to the left)</title>'
-       f'<defs><clipPath id="frame"><rect x="{x0}" y="{y0}" width="{W}" height="{H}"/></clipPath></defs>'
+       f'<defs><clipPath id="frame"><rect x="{x0}" y="{y0}" width="{W}" height="{H}"/></clipPath>'
+       + (f'<clipPath id="main-side"><path d="{poly_d(MAIN_SIDE.intersection(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000)))}"/></clipPath>' if MAIN is not None else "")
+       + '</defs>'
        f'<rect x="{x0 - 4000}" y="{y0 - 4000}" width="{W + 8000}" height="{H + 8000}" fill="{N["paper"]}"/>'
        f'<g id="map-content">'
        + layer("aerial", "Aerial (Sarasota County PA)", aerial)
        + (layer("aerial1948", "1948 aerial (Sarasota County PA)", aerial48, display="none") if aerial48 else "")
-       + layer("ground", "Site ground (used when the aerial is off)", f'<path d="{poly_d(footprint)}" fill="#F2F5EA" stroke="{N["ink"]}" stroke-width="2.5" data-w="2.5"/>')
-       + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000).difference(footprint))}" fill="{N["paper"]}" fill-opacity="0.72"/>'
-               f'<path d="{poly_d(footprint)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
-       + (layer("canopy", "Tree canopy (from the aerial trace)", f'<path d="{AD["canopy"]}" fill="{P["woodland"]["base"]}" fill-opacity=".3" fill-rule="evenodd"/>') if AD else "")
+       + layer("ground", "Site ground (used when the aerial is off)", f'<path d="{poly_d(_shown)}" fill="#F2F5EA" stroke="{N["ink"]}" stroke-width="2.5" data-w="2.5"/>')
+       + layer("veil", "Outside the site (veil)", f'<path d="{poly_d(box(x0 - 4000, y0 - 4000, x1 + 4000, y1 + 4000).difference(_shown))}" fill="{N["paper"]}" fill-opacity="{0.8 if MAIN is not None else 0.72}"/>'
+               f'<path d="{poly_d(_shown)}" fill="none" stroke="{N["paper"]}" stroke-width="3"/>')
+       + (layer("canopy", "Tree canopy (from the aerial trace)", f'<path d="{AD["canopy"]}" fill="{P["woodland"]["base"]}" fill-opacity=".3" fill-rule="evenodd"/>', **_ckw) if AD else "")
        # the trace's drives are not drawn: they are fragmentary and fall inside pasture enclosures (architect, 2026-10-13)
        + (layer("property", "Surveyed property lines (fencing plan)", f'<g fill="none" stroke="{N["ink"]}" stroke-width="1.6" data-w="1.6" stroke-dasharray="10 4 2 4" data-dash="10 4 2 4" stroke-opacity=".75">'
-                + "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES.get("property_lines", [])) + "</g>") if os.path.exists(_fp) else "")
-       + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82")
+                + "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES.get("property_lines", [])) + "</g>", **_ckw) if os.path.exists(_fp) else "")
+       + layer("soils", "Soils by drainage class", "".join(soil_layer), opacity="0.82", **_ckw)
        + layer("water", "Water: slough, ponds, flood zone line", water)
-       + layer("trees", "Existing trees and woodland edge", trees_layer)
-       + layer("land", "The land: site and bonus pasture areas", land)
-       + layer("paddocks", "Proposed paddocks", paddocks)
-       + layer("campus", "Campus", campus)
+       + layer("trees", "Existing trees and woodland edge", trees_layer, **_ckw)
+       + layer("land", "The land: site and bonus pasture areas", land, **_ckw)
+       + layer("paddocks", "Proposed paddocks", paddocks, **_ckw)
+       + layer("campus", "Campus", campus, **_ckw)
        + layer("barnyard", "Proposed barnyard (Level 3 shown), to scale", barnyard + f'<g id="barnyard-labels">{by_labels}</g>')
        + layer("labels", "Labels", slough_lbl + _infra_lbl + _wild_svg + _bsw)
        + "</g></svg>")
@@ -950,9 +974,27 @@ open(os.path.join(OUT, "site-layers.svg"), "w").write(svg)
 os.makedirs(os.path.join(SLIDES, "data"), exist_ok=True)
 _cb = [c for st_ in (EDITS["structures"] if EDITS else []) for c in st_["pts"]] + [list(q) for q in UNFINISHED_BARN]
 CAMPUS_BOX = [min(c[0] for c in _cb), min(c[1] for c in _cb), max(c[0] for c in _cb), max(c[1] for c in _cb)] if _cb else [rh[0] - 80, rh[1] - 80, rh[0] + 80, rh[1] + 80]
-meta = {"canopy_acres": AD["canopy_acres"] if AD else None, "campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
+# main parcel only: the site's figures (acres, soils, canopy) are counted on the front parcel
+_main_view, _site_ac, _canopy_ac = VIEW, footprint.area * ft2_per_pt2 / 43560, (AD["canopy_acres"] if AD else None)
+if MAIN is not None:
+    _bx0, _by0, _bx1, _by1 = MAIN.buffer(60).bounds
+    _main_view = [round(_bx0, 1), round(_by0, 1), round(_bx1, 1), round(_by1, 1)]
+    _site_ac = MAIN.area * ft2_per_pt2 / 43560
+    for k_, sj_ in zip(units.keys(), soil_json):
+        sj_["acres_in_map"] = round(sp_shape(soil_polys[k_], M_SP, T_SP).intersection(MAIN).area * ft2_per_pt2 / 43560, 1)
+    if AD:
+        _rings = [[(float(a_), float(b_)) for a_, b_ in re.findall(r"(-?[\d.]+)[ ,](-?[\d.]+)", seg)] for seg in re.split(r"(?=M)", AD["canopy"]) if seg.strip()]
+        _can = Polygon()
+        for r_ in _rings:
+            if len(r_) >= 3:
+                _can = _can.symmetric_difference(Polygon(r_).buffer(0))         # evenodd, as drawn
+        _canopy_ac = round(_can.intersection(MAIN).area * ft2_per_pt2 / 43560, 1)
+    if bed_meta:
+        bed_meta["acres"] = round(_bedg.intersection(MAIN).area * ft2_per_pt2 / 43560, 1)
+    print("main parcel figures: acres", round(_site_ac, 1), "| canopy ac", _canopy_ac, "| view", _main_view)
+meta = {"canopy_acres": _canopy_ac, "main_parcel_only": MAIN is not None, "campus_box": [round(v, 1) for v in CAMPUS_BOX], "barnyard": {"checks": checks, "diagram_to_presentation": {"m": [M_DP.real, M_DP.imag], "t": [T_DP.real, T_DP.imag]},
                      "bearing_deg": math.degrees(cmath.phase(M_DP / M_TP))},
-        "view": VIEW, "site_acres_footprint": round(footprint.area * ft2_per_pt2 / 43560, 1), "site_acres_footprint_previous": round(footprint_auto.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
+        "view": _main_view, "site_acres_footprint": round(_site_ac, 1), "site_acres_footprint_previous": round(footprint_auto.area * ft2_per_pt2 / 43560, 1), "red_house": [round(rh[0], 1), round(rh[1], 1)], "trees": len(trees),
         "soils": soil_json, "ft_per_unit": FT_PER_PT, "slough_bed": bed_meta, "compensation_acres": COMP_ACRES, "wildcard": WILD, "civil": {**{k: CIVIL[k] for k in ("option1_acres", "option2_acres", "retention_expansion_acres")}, "site_retention_option_acres": SRO_ACRES} if CIVIL else None, "retention_acres": RET_ACRES, "infrastructure": INFRA}
 with open(os.path.join(SLIDES, "data", "site-map.js"), "w") as fh:
     fh.write("// Generated by tools/build_site_map.py. Do not edit by hand.\n")

@@ -37,6 +37,11 @@ T_TF = T_SF - M_SF * T_SS / M_SS
 FT_PER_PT = reg["fence_ft_per_pt"]
 
 VIEW = (40, 110, 2400, 1610)            # crop of the fencing sheet (PDF points)
+# The stakeholder presentation shows the main (front) parcel only (owner, 2026-10-19: communicate only about the
+# main property; leave the bonus pasture and the Solid Waste land out). Everything east of parcel line pl-04 is
+# clipped or dropped from the maps, the map slides open on the parcel, and Level 3 pasture stays on the site.
+# Set False to draw the whole property again (the final report; see archive/report-reference-2026-10-19).
+MAIN_PARCEL_ONLY = True
 ARROW_BOXES = [(700, 300, 1400, 700), (1000, 560, 1300, 1070)]  # SITE/BONUS arrow graphic (replaced by legend)
 WATER_BOXES = [(225, 215, 350, 335),    # 13.0 AC pond
                (1150, 1150, 1275, 1290),  # retention area beside campus (in the 2.1 AC paddock)

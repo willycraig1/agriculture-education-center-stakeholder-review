@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Barnyard on the Site</title>
+<link rel="stylesheet" href="../design/palette.css?v=202610191541">
+<link rel="stylesheet" href="../design/deck.css?v=202610191541">
+<style>
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
+  .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
+  .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
+  .map [data-layer], .map .by, .map #barnyard-labels text { transition: opacity .8s var(--ease); }
+  .map .off { opacity: 0; }
+  .map #aerial { filter: saturate(.45) brightness(1.06); }
+  .map .by.future { opacity: 0; }
+  .map .by .shape { transition: fill .8s var(--ease), stroke .8s var(--ease); }
+  .map #barnyard-labels text.future { opacity: 0; }
+  .map #campus { opacity: .55; }
+  .map #paddock-fills { display: none; }   /* the barnyard is the subject here; paddock colour fields stay on the paddocks slide */
+  .levels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .levels > li { padding: 11px 16px; border-radius: 12px; color: var(--muted); transition: background .5s var(--ease), color .5s var(--ease); }
+  .levels > li header { display: flex; align-items: center; gap: 12px; }
+  .levels > li h3 { font: 600 22px/1.2 var(--serif); margin: 0; }
+  .levels > li .badge { background: var(--muted); }
+  .levels > li p { font: 400 16px/1.45 var(--sans); margin: 7px 0 0; display: none; }
+  .levels > li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .levels > li.now .badge { background: var(--ink); }
+  .levels > li.now p { display: block; }
+  .levels > li.done { color: var(--ink); }
+  .fit { margin-top: 14px; padding: 14px 18px; border-left: 6px solid var(--education); background: #fff; border-radius: 0 10px 10px 0; }
+  .fit h3 { font: 600 20px/1.2 var(--serif); margin: 0 0 6px; }
+  .fit ul { margin: 0; padding-left: 18px; font: 400 15px/1.45 var(--sans); }
+  .fit li { margin-bottom: 3px; }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 5 · The plan · Option B</div>
+  <h1 data-step="0">The barnyard, on the site</h1>
+  <div class="body">
+    <div class="map card" data-step="0" id="map">
+      <span data-step="1" hidden></span><span data-step="2" hidden></span><span data-step="3" hidden></span>
+    </div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="levels" id="levels"></ol>
+      <div class="fit" data-step="3" id="fit"></div>
+      <p class="src" data-step="0">The barnyard diagram placed to scale on the survey, pinned to the existing barn's surveyed pen line.
+        North is to the left.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/site-map.js?v=202610191541"></script>
+<script src="../design/deck.js?v=202610191541"></script>
+<script src="../design/viewer.js?v=202610191541"></script>
+<script>
+(function () {
+  const M = window.SITE_MAP, K = M.barnyard.checks;
+  const mapEl = document.getElementById("map");
+  mapEl.insertAdjacentHTML("afterbegin", M.svg);
+  const svg = mapEl.querySelector(":scope > svg");
+  ["land", "soils", "labels", "aerial", "veil"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
+  svg.querySelectorAll("#aerial, #veil, #water, #trees, #paddocks, #campus, #barnyard").forEach(g => g.setAttribute("data-layer", g.id));
+
+  const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
+  const [bx0, by0, bx1, by1] = K.barnyard_box, pad = 26;
+  const yard = [bx0 - pad, by0 - pad, bx1 - bx0 + 2 * pad, by1 - by0 + 2 * pad];
+  const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
+    presets: [{ label: "Barnyard", box: yard }, { label: "Full site", box: full }] });
+
+  const text = [
+    { b: "Level 1", h: "What is there today, put to work", p: "The existing barn and its seven pens, holding pens 1 to 5 and the handling yard north of them, compost and dumpsters, the parking lot on the existing drive, and walkways linking the Red House, the parking, the existing barn, and the poultry barn. The entry gets a new apron off the lane, which the stormwater design requires.", f: yard },
+    { b: "Level 2", h: "First barns", p: "Cattle barn A with its turnout to the north, small animal barn A (two wings with a dogtrot), feed and bedding storage, the grooming area, and the walkways carried west to the new barns.", f: yard },
+    { b: "Level 3", h: "Full barnyard", p: "Cattle barn B beside barn A, the arena around the grooming area, and small animal barn B, extending barn A south to the code limit.", f: yard },
+    { b: "Site", h: "In its pasture", p: "The whole barnyard takes up a small corner of the site. The paddocks wrap around it.", f: full },
+  ];
+  document.getElementById("levels").innerHTML = text.map((t, k) =>
+    `<li data-step="0" data-k="${k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><p>${t.p}</p></li>`).join("");
+
+  // what the overlay shows, from the checks computed in tools/build_site_map.py
+  const items = [];
+  const trees = Object.entries(K.trees_in);
+  if (trees.length) items.push(`Surveyed trees inside new footprints: ${trees.map(([k, n]) => `${n} in the ${k.toLowerCase()}`).join(", ")}. They include the row along the existing drive.`);
+  if (K.existing_structures_in.length) items.push(`${K.existing_structures_in.length === 2 ? "Two" : K.existing_structures_in.length} existing structures (${K.existing_structures_in.map(x => `${x.size_ft[0]}' × ${x.size_ft[1]}'`).join(", ")}) sit under ${K.existing_structures_in[0].in[0].replace(/^C/, "c")}.`);
+  const wet = Object.entries(K.wet_soil_pct).sort((a, b) => b[1] - a[1]);
+  if (wet.length) items.push(`On the wettest soil: ${wet.map(([k, v]) => `${k.toLowerCase()} ${v}%`).join(", ")}.`);
+  else items.push("No building sits on the wettest soil.");
+  if (K.stalls_to_red_house_ft !== undefined) items.push(`The south stall row is about ${K.stalls_to_red_house_ft}' from the nearest Red House wall, so the loop's east leg has to bend around it.`);
+  document.getElementById("fit").innerHTML = `<h3>What the overlay shows</h3><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+
+  let last = null;
+  function apply(step) {
+    const n = Math.min(step + 1, 3);
+    svg.querySelectorAll(".by").forEach(g => {
+      g.classList.toggle("future", +g.dataset.level > n);
+      const use = n >= 2 && g.dataset.use2 ? g.dataset.use2 : g.dataset.use, sh = g.querySelector(".shape"), v = use.replace("_", "-");
+      sh.style.stroke = `var(--${v})`;
+      if (g.dataset.kind !== "yard") sh.style.fill = g.dataset.kind === "walk" ? "#fff" : `var(--${v}-tint)`;
+    });
+    svg.querySelectorAll("#barnyard-labels text").forEach(t => t.classList.toggle("future", +t.dataset.level > n));
+    const f = text[step].f;
+    if (f !== last) { viewer.home(f); viewer.flyTo(f, last === null || document.documentElement.classList.contains("static") ? 0 : 1400); last = f; }
+    document.querySelectorAll("#levels > li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.k === step);
+      li.classList.toggle("done", +li.dataset.k < step);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (document.documentElement.classList.contains("static")) apply(3);
+})();
+</script>
+</body>
+</html>

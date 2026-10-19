@@ -9,7 +9,7 @@ window.LEVELS = {
   ],
   // pen module: 7 pens; a new barn is 14 pens (2 modules). Existing 7 pens stay in use at every Level.
   pens: {
-    module: 7, barn: 14, pen_ft: [12, 24], aisle_ft: 14, aisle_confirmed: true,
+    module: 7, barn: 14, pen_ft: [12, 24], aisle_ft: 16, aisle_confirmed: true,   // 16' aisle for tractor access (owner, 2026-10-19)
     existing: 7,
     byLevel: [
       { level: 1, newBarns: 0, confirmed: true },
@@ -27,7 +27,7 @@ window.LEVELS = {
     { key: "pasture", label: "Pasture (Beginning Rancher herd)", cells: [
       { text: "Site pasture, conservative management", ce: 1, confirmed: true },
       { text: "Rotational grazing on site pasture", ce: 2, confirmed: true },
-      { text: "Add the bonus pasture", ce: 3, confirmed: true } ] },
+      { text: "Same as Level 2", ce: 2, confirmed: true } ] },   // no bonus pasture in this presentation (owner, 2026-10-19)
     { key: "cattle", label: "4-H cow & calf pens", cells: [
       { text: "Reuse the 7 existing pens", pens: 1, confirmed: true },
       { text: "Add one 14-pen barn", pens: 2, confirmed: true },
@@ -40,7 +40,7 @@ window.LEVELS = {
     { key: "swine", label: "Swine & small animals", cells: [
       { text: "Hogs move into the existing barn, about 32 pens; the 10 old hog pens give way to the site improvements", confirmed: true },
       { text: "Small animal barn A, 32 pens: a clean swap that frees the existing barn for storage", confirmed: true },
-      { text: "Small animal barn B: extend south to the code limit, 5,500 sf", confirmed: true } ] },
+      { text: "Small animal barn B: extend south four 12' bays (48')", confirmed: true } ] },
     // Poultry is not a "small animal" here: it is housed in the unfinished barn from Level 1 and stays there (architect, 2026-10-13).
     { key: "small_animal", label: "Poultry", cells: [
       { text: "In the unfinished barn", confirmed: true },

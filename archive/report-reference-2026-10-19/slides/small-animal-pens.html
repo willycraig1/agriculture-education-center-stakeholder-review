@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Small Animal Pens</title>
+<link rel="stylesheet" href="../design/palette.css?v=202610191541">
+<link rel="stylesheet" href="../design/deck.css?v=202610191541">
+<style>
+  .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
+  .levels { display: flex; flex-direction: column; gap: 18px; }
+  .lv { display: grid; grid-template-columns: 190px 1fr 170px; align-items: center; padding: 14px 26px; flex: 1; }
+  .lv .who { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .lv .who span { font: 600 22px/1.2 var(--serif); }
+  .lv svg.plan { width: 100%; height: 178px; overflow: visible; }
+  .lv .total { text-align: right; }
+  .lv .total b { display: block; font: 600 72px/0.9 var(--serif); color: var(--swine); }
+  .lv .total b.word { font-size: 40px; line-height: 1.1; }
+  .lv .total span { font: 600 18px/1.3 var(--sans); color: var(--swine); }
+  .lv .total em { display: block; font: 500 15px/1.3 var(--sans); font-style: normal; color: var(--muted); margin-top: 4px; }
+  .pen { opacity: 0; transition: opacity .3s var(--ease); }
+  .in .pen, .static .pen { opacity: 1; }
+  .side { display: flex; flex-direction: column; gap: 18px; }
+  .side .card { padding: 24px 28px; }
+  .side h3 { font: 600 28px/1.15 var(--serif); margin: 0 0 12px; }
+  .side p { font: 400 19px/1.45 var(--sans); margin: 0 0 10px; }
+  .side p.footnote { font-size: 15px; margin: 0; }
+  .why { display: grid; grid-template-columns: 150px 1fr; gap: 22px; align-items: center; }
+  .stat { font: 600 52px/1 var(--serif); color: var(--swine); }
+  .legend { display: flex; gap: 22px; font: 500 15px/1 var(--sans); color: var(--muted); margin-top: 18px; }
+  .legend i { display: inline-block; width: 16px; height: 12px; margin-right: 7px; vertical-align: -1px; border: 1.5px solid var(--swine); border-radius: 2px; }
+</style>
+</head>
+<body data-drivers="module">
+<div class="stage">
+  <div class="eyebrow" data-step="0">Act 3 · What the land can carry</div>
+  <h1 data-step="0">One barn for swine, sheep, and goats</h1>
+  <p class="lede" data-step="0">One kind of pen for all three. The hogs move into the existing barn at Level 1, swap into
+    a new barn at Level 2, and that barn grows south at Level 3.</p>
+
+  <div class="body">
+    <div class="levels" id="levels"></div>
+    <div class="side" data-step="4">
+      <div class="card">
+        <h3>The 6' × 10' pen</h3>
+        <div class="why">
+          <svg viewBox="-4 -4 98 158" width="120" aria-label="6 by 10 foot pen">
+            <rect x="0" y="0" width="90" height="150" rx="2" fill="var(--swine-tint)" stroke="var(--swine)" stroke-width="2.5"/>
+            <text x="45" y="70" text-anchor="middle" font-size="17" font-weight="700" fill="var(--swine)" font-family="var(--sans)">60 sf</text>
+            <text x="45" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="var(--muted)" font-family="var(--sans)">6' × 10'</text>
+          </svg>
+          <div>
+            <div class="stat num" id="perwing"></div>
+            <p>pens to a wing: two rows of 6' × 10' pens facing a 16' aisle, in a 36'-wide barn.</p>
+            <p>Any pen can take a hog, a sheep, or a goat, so the mix can follow enrollment from year to year.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>One barn, two steps</h3>
+        <p>Barn A is <b>two wings with a roofed dogtrot</b> between them, opening to its turnout on the west.
+          Barn B extends it south, as far as the fire code allows for one building.</p>
+        <p class="footnote" id="code"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data/levels.js?v=202610191541"></script>
+<script src="data/ag-area.js?v=202610191541"></script>
+<script src="../design/deck.js?v=202610191541"></script>
+<script>
+(function () {
+  // Barn sizes and pen counts come from the barnyard diagram (tools/build_ag_area.py), so this slide follows the plan.
+  const A = window.AG_AREA, L = window.LEVELS.levels, el = id => A.elements.find(e => e.id === id);
+  const wa = el("small-a"), dog = el("dogtrot"), wb2 = el("small-a2"), b = el("small-b"), ex = el("existing-barn");
+  const sa = A.counts.small_animal_pens, pw = wa.pens.w, rows = wa.pens.rows, depth = wa.w;
+  // Level 1 (architect, 2026-10-14): the 10 existing hog pens give way to the Level 1 site improvements, so the hogs move into the
+  // existing barn, which fits about 32 pens; barn A at Level 2 matches that, a clean swap that frees the barn for storage.
+  const OLD_PENS = 10, EX_PENS = 32;
+  const k = 3.3;                                    // px per foot: every plan on this slide shares one scale
+  let delay = 0;
+  const pen = (x, y, w, h) => `<rect class="pen" x="${x * k}" y="${y * k}" width="${w * k}" height="${h * k}" style="transition-delay:${(delay++) * 25}ms"
+      fill="#fff" stroke="var(--swine)" stroke-width="1.3"/>`;
+  // one run of the barn drawn lengthwise (north to the left, as on the plans): pens both sides of the aisle
+  function wing(x, len, n) {
+    let s = `<rect x="${x * k}" y="0" width="${len * k}" height="${depth * k}" fill="none" stroke="var(--swine)" stroke-width="1.6"/>`;
+    for (const [y0, d] of rows) for (let i = 0; i < n; i++) s += pen(x + i * pw, y0, pw, d);
+    s += `<line x1="${x * k}" x2="${(x + len) * k}" y1="${depth / 2 * k}" y2="${depth / 2 * k}" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="8 6"/>`;
+    return s;
+  }
+  const label = (x, t) => `<text x="${x * k}" y="-10" font-size="14" font-weight="600" fill="var(--muted)" font-family="var(--sans)">${t}</text>`;
+  function barnA() {
+    const d0 = wa.h, d1 = d0 + dog.h;
+    return wing(0, wa.h, wa.pens.n) + wing(d1, wb2.h, wb2.pens.n)
+      + `<rect x="${d0 * k}" y="0" width="${dog.h * k}" height="${depth * k}" fill="var(--circulation-tint)" stroke="var(--swine)" stroke-width="1" stroke-dasharray="5 3"/>`
+      + `<text transform="translate(${(d0 + dog.h / 2) * k} ${depth / 2 * k}) rotate(-90)" text-anchor="middle" dy="4" font-size="12" font-weight="600" fill="var(--muted)" font-family="var(--sans)">DOGTROT</text>`
+      + label(0, `NEW BARN A · ${sa[2]} PENS`);
+  }
+  const aLen = wa.h + dog.h + wb2.h;
+  const plans = {
+    1: () => `<rect x="0" y="${(depth - ex.h) / 2 * k}" width="${ex.w * k}" height="${ex.h * k}" rx="2" fill="var(--swine-tint)" stroke="var(--swine)" stroke-width="1.6"/>`
+      + `<text x="${ex.w / 2 * k}" y="${depth / 2 * k + 5}" text-anchor="middle" font-size="15" font-weight="600" fill="var(--swine)" font-family="var(--sans)">ABOUT ${EX_PENS} PENS INSIDE</text>`
+      + `<text x="0" y="${(depth - ex.h) / 2 * k - 10}" font-size="14" font-weight="600" fill="var(--muted)" font-family="var(--sans)">EXISTING BARN</text>`,
+    2: () => barnA(),
+    3: () => barnA() + wing(aLen, b.h, b.pens.n) + label(aLen + 2, `+ BARN B · ${sa[3] - sa[2]} PENS`),
+  };
+  const totals = {
+    1: `<b class="num">≈${EX_PENS}</b><span>pens</span><em>in the existing barn; the ${OLD_PENS} old hog pens give way to the Level 1 site improvements</em>`,
+    2: `<b class="num">${sa[2]}</b><span>pens</span><em>a clean swap: the existing barn becomes storage</em>`,
+    3: `<b class="num">${sa[3]}</b><span>pens</span><em>${sa[2]} in A + ${sa[3] - sa[2]} in B</em>`,
+  };
+  const vbW = (aLen + b.h) * k + 12, vbH = Math.max(depth, ex.h) * k + 30;
+  document.getElementById("levels").innerHTML = [1, 2, 3].map(n => {
+    delay = 0;
+    const lv = L.find(l => l.n === n);
+    return `<article class="card lv" data-step="${n}">
+      <div class="who"><span class="badge">${lv.name}</span><span>${lv.title}</span></div>
+      <svg class="plan" viewBox="-6 ${-24 - (ex.h - depth) / 2 * k} ${vbW} ${vbH}" preserveAspectRatio="xMinYMid meet">${plans[n]()}</svg>
+      <div class="total">${totals[n]}</div>
+    </article>`;
+  }).join("") +
+    `<div class="legend" data-step="1"><span><i style="background:var(--swine-tint)"></i>Existing</span><span><i></i>New pen, 6' × 10'</span><span>All plans at the same scale</span></div>`;
+  document.getElementById("perwing").textContent = 2 * wa.pens.n;
+  const sf = Math.round(depth * (aLen + b.h));
+  document.getElementById("code").textContent = `Barns A and B together are about ${sf.toLocaleString()} sf, under the 5,500 sf limit for a one-storey Group U, Type VB building (IBC Table 506.2); to be confirmed with the AHJ.`;
+  Deck.start();
+})();
+</script>
+</body>
+</html>

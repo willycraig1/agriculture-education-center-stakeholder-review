@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610191506">
-<link rel="stylesheet" href="../design/deck.css?v=202610191506">
+<link rel="stylesheet" href="../design/palette.css?v=202610191659">
+<link rel="stylesheet" href="../design/deck.css?v=202610191659">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -64,14 +64,14 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610191506"></script>
-<script src="data/pasture-capacity.js?v=202610191506"></script>
-<script src="../design/deck.js?v=202610191506"></script>
-<script src="../design/viewer.js?v=202610191506"></script>
+<script src="data/site-map.js?v=202610191659"></script>
+<script src="data/pasture-capacity.js?v=202610191659"></script>
+<script src="../design/deck.js?v=202610191659"></script>
+<script src="../design/viewer.js?v=202610191659"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
-  const site = C.levels[0].acres, all = C.levels[2].acres, bonus = Math.round((all - site) * 10) / 10;
+  const site = C.levels[0].acres, all = C.levels[2].acres;      // main parcel only: Level 3 pasture is the site pasture
   const mapEl = document.getElementById("map");
   mapEl.insertAdjacentHTML("afterbegin", M.svg);
   const svg = mapEl.querySelector("svg");
@@ -103,7 +103,7 @@
   // pan/zoom viewer with preset framings (map units = presentation frame, north left)
   const [vx0, vy0, vx1, vy1] = M.view;
   const full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
-  const frames = { full, site: [50, 110, 1520, 540], bonus: [1230, 150, 1200, 1440], campus: null };
+  const frames = { full, site: [50, 110, 1520, 540], campus: null };
   // Campus framing: from the entry arrow at the lane up to the unfinished (poultry) barn, set in the part of the map
   // the step panel leaves open (the panel covers the left 510 of 1300 px; the map is 1300 x 827 px).
   {
@@ -114,23 +114,23 @@
   }
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site },
-              { label: "Bonus pasture", box: frames.bonus }, { label: "Campus", box: frames.campus }],
+              { label: "Campus", box: frames.campus }],
     uiStyle: "right:auto;top:auto;left:512px;bottom:22px;max-width:none;justify-content:flex-start" });
 
   const soil = { "somewhat poorly": "#EFE7D4", "poorly": "#D8C69E", "very poorly": "#9FB9C6" };
   const steps = [
     { t: "Clark Farm today", p: `The farm sits east of Cowpen Slough, off SR-72. North is to the left on every map, so the campus entry comes from the bottom.`,
-      show: ["aerial"] },
-    { t: "The land", p: `About ${Math.round(all)} acres of potential pasture: ${site} on the site and ${bonus} of bonus land beside it. Pasture is what this community is short on. The site line was drawn somewhat arbitrarily by the County's Solid Waste department, which controls the land and is open to IFAS using more of it: that is the bonus pasture.`,
-      lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span><span><i style="background:var(--bonus-tint);outline:2px solid var(--bonus)"></i>Bonus pasture</span>`,
+      show: ["aerial", "veil"] },                     // the veil washes out the land beyond the site
+    { t: "The land", p: `About ${Math.round(M.site_acres_footprint)} acres, with about ${Math.round(site)} acres of fenced pasture around the campus. Pasture is what this community is short on.`,
+      lg: `<span><i style="background:var(--pasture-tint);outline:2px solid var(--pasture)"></i>Site pasture</span>`,
       show: ["ground", "property", "land"], muted: true },
-    { t: "Water", p: "Cowpen Slough runs the length of the west side; the property line is the centerline of the waterway. Two ponds sit inside the site, and a FEMA flood zone line crosses it.",
+    { t: "Water", p: "Cowpen Slough runs the length of the west side; the property line is the centerline of the waterway. A pond sits inside the site, and a FEMA flood zone line crosses it.",
       lg: `<span><i style="background:var(--water-tint);outline:2px solid var(--water)"></i>Pond</span><span><i style="background:none;border-top:3px dashed var(--water);height:0;margin-bottom:4px"></i>Flood zone line</span><span><i style="background:var(--pasture);opacity:.2"></i>Historical slough bed</span>`,
       show: ["ground", "property", "water", "labels"], muted: true },
-    { t: "Soils", p: "Mostly poorly drained flatwoods sands. The wettest units, Delray and Floridana & Gator, call for grazing timed to ground conditions. The soil sheet covers the parcel only, not the bonus pasture.",
+    { t: "Soils", p: "Mostly poorly drained flatwoods sands. The wettest units, Delray and Floridana & Gator, call for grazing timed to ground conditions.",
       lg: Object.entries(soil).map(([k, c]) => `<span><i style="background:${c}"></i>${k[0].toUpperCase() + k.slice(1)} drained</span>`).join(""),
       show: ["ground", "property", "soils", "water", "labels"], muted: true },
-    { t: "Woods and trees", p: `Tree canopy covers about ${Math.round(M.canopy_acres)} of the site's ${Math.round(M.site_acres_footprint)} acres, densest in the oak hammock to the east and south. ${M.trees} trees around the campus are surveyed individually. Wooded acres carry far fewer cattle than open pasture.`,
+    { t: "Woods and trees", p: `Tree canopy covers about ${Math.round(M.canopy_acres)} of the site's ${Math.round(M.site_acres_footprint)} acres, much of it oak hammock. ${M.trees} trees around the campus are surveyed individually. Wooded acres carry far fewer cattle than open pasture.`,
       lg: `<span><i style="background:var(--woodland);border-radius:50%;width:13px"></i>Surveyed tree</span><span><i style="background:var(--woodland);opacity:.35"></i>Tree canopy</span>`,
       show: ["ground", "property", "canopy", "water", "trees", "labels"], muted: true },
     { t: "The campus", p: "The Red House and the existing barns sit near the center of the site. The drive comes in from the west, at the bottom of the map.",
@@ -159,7 +159,7 @@
     });
   }
   // key numbers in the right column, each tied to the step that introduces it
-  const facts = [[1, `${all}`, "acres of potential pasture"], [2, "2", "ponds inside the site, beside Cowpen Slough"],
+  const facts = [[1, `${Math.round(all)}`, "acres of fenced pasture"], [2, "1", "pond inside the site, beside Cowpen Slough"],
                  [3, `${Math.round(100 * M.soils.filter(s => s.drainage === "very poorly").reduce((a, s) => a + s.acres_in_map, 0) / M.soils.reduce((a, s) => a + s.acres_in_map, 0))}%`, "of the mapped site is very poorly drained"],
                  [4, `${Math.round(100 * M.canopy_acres / M.site_acres_footprint)}%`, "of the site under tree canopy"]];
   document.getElementById("facts").innerHTML = facts.map(([st, b, t]) =>
