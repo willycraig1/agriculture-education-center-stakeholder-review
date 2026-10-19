@@ -99,7 +99,7 @@ def build():
     ground_poly(G, 168.5, -339, 300, -254, 'grasspark')            # grass parking
     ground_poly(G, 194, -230.5, 218.6, -93.6, 'concrete')          # lane between cattle barns
     ground_poly(G, 302.7, -254, 329.5, -93.6, 'concrete')          # service lane east of arena
-    ground_poly(G, 329.5, -262.7, 460, -254.2, 'concrete')         # 8' lane north of barn
+    ground_poly(G, 329.5, -262.7, 499.6, -254.6, 'concrete')       # 8' walk north of barn, out to the unfinished barn (as the plan's walk)
     ground_poly(G, 333, -340, 420, -313.6, 'asphalt')              # apron in front of barn
     for r in [R(965, 276, 1072, 415), R(965, 415, 1072, 555), R(1097, 276, 1220, 415),
               R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680)]:
@@ -190,49 +190,73 @@ def build():
     o = Obj('bedding'); x1, y1, x2, y2 = R(893, 276, 965, 310)
     gable(o, x1, y1, x2, y2, 9, 12, 'x', 'whitemetal', 'roof', ovh=1.0); objs.append(o)
 
-    # ---- Existing barn (weathered wood, rusty galv roof), asymmetric gable E-W
+    # ---- Existing barn, from the architect's sheet "A2.0 Existing Barn" (Study Plan A2.1, 2025-08-20):
+    # one-story wood-frame garage 80.4' x 50.4', symmetric gable E-W, eaves about 10.9', ridge about 19.6'
+    # (about 4:12; heights scaled off the elevations). West gable end: four 10' roll-up doors, the outer two
+    # 9' high, the centre two 14'. South side: three windows, a roll-up door, and a man door.
     x1, y1, x2, y2 = R(983, 775, 1220, 925)
+    EAVE, RIDGE = 10.9, 19.6
     o = Obj('exbarn')
-    gable(o, x1, y1, x2, y2, 13.5, 21.0, 'x', 'oldwood', 'rustroof', ridge_off=8.0, eave2=10.0, ovh=1.0)
-    ym = (y1 + y2) / 2 + 8.0
-    # roll-up doors on west gable end (x = x1), facing the drive
-    def door(y_a, y_b, h):
-        o.face([(x1 - 0.1, y_b, 0.2), (x1 - 0.1, y_a, 0.2), (x1 - 0.1, y_a, h), (x1 - 0.1, y_b, h)], 'doorwhite')
+    gable(o, x1, y1, x2, y2, EAVE, RIDGE, 'x', 'oldwood', 'rustroof', ovh=1.0)
+    ym, half = (y1 + y2) / 2, (y2 - y1) / 2
+    k = (y2 - y1) / 51.6          # elevation drawn 51.6' wide for the 50.4' wall
     o.bias = -40.0
-    door(y2 - 4, y2 - 14, 12.0)
-    door(y2 - 17, y2 - 27, 12.0)
-    door(y1 + 16, y1 + 6, 8.5)
-    # small windows + man door on south side
-    for xw in (x1 + 44, x1 + 58):
-        o.face([(xw, y1 - 0.1, 5), (xw + 3, y1 - 0.1, 5), (xw + 3, y1 - 0.1, 8.5), (xw, y1 - 0.1, 8.5)], 'darkglass')
-    o.face([(x2 - 12, y1 - 0.1, 0.2), (x2 - 6, y1 - 0.1, 0.2), (x2 - 6, y1 - 0.1, 8), (x2 - 12, y1 - 0.1, 8)], 'doorwhite')
+    def door(ya, yb, h):         # on the west gable, ya > yb (measured from the north wall)
+        o.face([(x1 - 0.1, yb, 0.2), (x1 - 0.1, ya, 0.2), (x1 - 0.1, ya, h), (x1 - 0.1, yb, h)], 'doorwhite')
+    for (a, b), h in zip([(2.0, 12.1), (14.5, 24.6), (26.9, 37.0), (39.2, 49.3)], (9.0, 14.0, 14.0, 9.0)):
+        door(y2 - a * k, y2 - b * k, h)
+    for dy in (-1.3, 1.3):       # gable vents
+        o.face([(x1 - 0.1, ym + dy - .6, 16.3), (x1 - 0.1, ym + dy + .6, 16.3), (x1 - 0.1, ym + dy + .6, 17.9), (x1 - 0.1, ym + dy - .6, 17.9)], 'darkglass')
+    kx = (x2 - x1) / 81.1        # south elevation drawn 81.1' long for the 80.4' wall
+    def south(xa, xb, z0, z1, m):
+        o.face([(x1 + xa * kx, y1 - 0.1, z0), (x1 + xb * kx, y1 - 0.1, z0), (x1 + xb * kx, y1 - 0.1, z1), (x1 + xa * kx, y1 - 0.1, z1)], m)
+    for xa in (20.7, 40.5, 60.0):
+        south(xa, xa + 3.5, 3.5, 8.0, 'darkglass')
+    south(46.9, 57.0, 0.2, 9.2, 'doorwhite')
+    south(69.0, 72.2, 0.2, 7.2, 'doorwhite')
     # vertical board lines (weathered siding)
     for xx in np.arange(x1 + 2.5, x2, 2.6):
-        o.line([(xx, y1 - 0.15, 0.3), (xx, y1 - 0.15, 9.7)], 'boardline', 0.6)
+        o.line([(xx, y1 - 0.15, 0.3), (xx, y1 - 0.15, EAVE - 0.4)], 'boardline', 0.6)
     for yy in np.arange(y1 + 2.5, y2, 2.6):
-        ztop = 10 + (13.5 - 10) * 0 if yy < ym else 13.5
-        o.line([(x1 - 0.15, yy, 0.3), (x1 - 0.15, yy, min(10 + (21 - 10) * (yy - y1) / (ym - y1) if yy < ym else 21 - (21 - 13.5) * (yy - ym) / (y2 - ym), 21) - 0.4)], 'boardline', 0.6)
+        ztop = EAVE + (RIDGE - EAVE) * (1 - abs(yy - ym) / half)
+        o.line([(x1 - 0.15, yy, 0.3), (x1 - 0.15, yy, ztop - 0.4)], 'boardline', 0.6)
     o.bias = 0.0
     objs.append(o)
-    # lean-to on north side of existing barn (open, gates)
-    o = Obj('leanto')
-    lx1, ly1, lx2, ly2 = x1, y2, x1 + 30, y2 + 9
-    o.face([(lx1, ly1, 0), (lx1, ly2, 0), (lx1, ly2, 8.5), (lx1, ly1, 11.5)], 'openshade')
-    o.face([(lx1 - 1, ly1, 11.6), (lx2, ly1, 11.6), (lx2, ly2 + 0.8, 8.2), (lx1 - 1, ly2 + 0.8, 8.2)], 'rustroof')
-    o.face([(lx2, ly2, 0), (lx1, ly2, 0), (lx1, ly2, 8.3), (lx2, ly2, 8.3)], 'openshade')
-    posts_along(o, [(lx1, ly2), (lx1 + 10, ly2), (lx1 + 20, ly2), (lx2, ly2)], 0, 8.3, w=0.7, mat='oldtimber')
-    fence(o, lx1 - 0.3, ly1 + 0.5, lx1 - 0.3, ly2, 4.5, [4.3, 2.8, 1.3], 'oldboard', post=4.5)
+    # concrete pad along the west end (10.5' wide)
+    ground_poly(G, x1 - 10.5, y1, x1, y2, 'concrete')
+
+    # covered concrete off the east end, north corner: 14.3' x 17.5', shed roof falling east to 7.75' (owner)
+    o = Obj('excover')
+    cx1, cx2, cy1, cy2 = x2, x2 + 14.3, y2 - 17.5, y2
+    ground_poly(G, cx1, cy1, cx2, cy2, 'concrete')
+    o.face([(cx1, cy1 - .8, 9.6), (cx2 + .8, cy1 - .8, 7.75), (cx2 + .8, cy2 + .5, 7.75), (cx1, cy2 + .5, 9.6)], 'rustroof')
+    posts_along(o, [(cx2, cy1), (cx2, (cy1 + cy2) / 2), (cx2, cy2)], 0, 7.75, w=0.6, mat='oldtimber')
     objs.append(o)
 
-    # ---- 7 existing cattle pens: low open shed, shed roof
-    x1, y1, x2, y2 = R(972, 680, 1220, 750)
+    # ---- North of the barn: an 8' aisle, then 7 covered dirt-floor pens (11.5' bays) to the back fence 32' off
+    # the barn. One shed roof runs from the barn's north eave out 20.5' (the aisle and the pens' front 12.5'),
+    # falling from about 10.6' to 7.6'. Over the pens it runs on 13' past the barn's east end (93.4' in all); over
+    # the aisle it stops flush with the barn's east face, leaving the walkway there open (the sheet's dashed line).
+    o = Obj('leanto')
+    yr0, yr1, zr0, zr1 = y2 + 1.0, y2 + 20.5, EAVE - (RIDGE - EAVE) / half * 1.0, 7.6
+    lx2 = x1 + 93.4
+    zr = lambda y: zr0 + (zr1 - zr0) * (y - yr0) / (yr1 - yr0)
+    o.face([(x1 - 0.5, yr0, zr0), (x2, yr0, zr0), (x2, yr1, zr1), (x1 - 0.5, yr1, zr1)], 'rustroof')
+    o.face([(x2, y2 + 8.0, zr(y2 + 8.0)), (lx2, y2 + 8.0, zr(y2 + 8.0)), (lx2, yr1, zr1), (x2, yr1, zr1)], 'rustroof')
+    bays = list(np.linspace(x1, x2, 8)) + [lx2 - 0.4]
+    posts_along(o, [(x, y2 + 8.2) for x in bays], 0, zr(y2 + 8.2) - 0.2, w=0.6, mat='oldtimber')
+    posts_along(o, [(x, y2 + 20.0) for x in bays], 0, zr(y2 + 20.0) - 0.2, w=0.6, mat='oldtimber')
+    objs.append(o)
+
     o = Obj('expens')
-    o.face([(x1, y1, 0), (x2, y1, 0), (x2, y1, 8.0), (x1, y1, 8.0)], 'openshade')
-    o.face([(x1, y2, 0), (x1, y1, 0), (x1, y1, 8.0), (x1, y2, 10.5)], 'openshade')
-    o.face([(x1 - 1, y1 - 1.5, 7.6), (x2 + 1, y1 - 1.5, 7.6), (x2 + 1, y2 + 1, 10.8), (x1 - 1, y2 + 1, 10.8)], 'rustroof')
-    posts_along(o, [(x, y1 - 0.4) for x in np.linspace(x1, x2, 8)], 0, 7.8, w=0.7, mat='oldtimber')
-    for x in np.linspace(x1, x2, 8)[:-1]:
-        o.line([(x, y1 - 0.6, 4.0), (x + (x2 - x1) / 7, y1 - 0.6, 4.0)], 'pipe', 0.8)
+    py0, py1 = y2 + 8.2, y2 + 32.1
+    RAILS = [5.0, 3.9, 2.8, 1.7, 0.6]     # pipe-rail panels throughout (owner)
+    for x in np.linspace(x1, x2, 8):      # partitions
+        fence(o, x, py0, x, py1, 5.0, RAILS, 'pipe', post=10.0, w=0.9)
+    for xa, xb in zip(np.linspace(x1, x2, 8)[:-1], np.linspace(x1, x2, 8)[1:]):   # feeders and gates along the aisle
+        o.line([(xa, py0, 4.2), (xb, py0, 4.2)], 'pipe', 0.8)
+        o.line([(xa, py0, 2.4), (xb, py0, 2.4)], 'pipe', 0.8)
+    fence(o, x1, py1, lx2, py1, 5.0, RAILS, 'pipe', post=10.0, w=0.9)   # back fence (the sheet's 6' wooden fence)
     objs.append(o)
 
     # ---- Outdoor pens 1–5 & chute: pipe fences, each segment its own object for sorting

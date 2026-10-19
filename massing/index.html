@@ -428,6 +428,61 @@ function campusBuilding({ name, label, level = 0, until = null, program = 'exist
   return ob;
 }
 
+// The unfinished (poultry) barn, from the architect's sheet "A2.0 Unfinished Barn": an open post frame 46'-8" x 35'-6"
+// (posts at 5'-10" along, 5'-9" / 5'-9" / 12'-6" aisle / 5'-9" / 5'-9" across), a 3:12 gable along its length
+// (about 8.7' at the eaves, 13.1' at the ridge), board wainscot to 3.3' and screen above, eight pens off a 12'-6" aisle.
+function framedBarn(F, { name, label, level = 0, program, id }) {
+  const grp = new THREE.Group(), meshes = [];
+  const ob = { name, label, level, program, id, faces: [], lines: [] };
+  grp.position.set(F.c[0], F.c[1], 0); grp.rotation.z = F.ang * Math.PI / 180;
+  const L = F.L, W = F.W, hw = W / 2, hl = L / 2, EAVE = 8.7, RIDGE = 13.1, sl = (RIDGE - EAVE) / hw;
+  const roofZ = y => RIDGE - sl * Math.abs(y);
+  const screenMat = new THREE.MeshLambertMaterial({ color: 0x6d6f6c, transparent: true, opacity: .32, depthWrite: false, side: THREE.DoubleSide });
+  const add = (geo, m, edges = true) => {
+    const mat = m === 'screen' ? screenMat : new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat); mesh.castShadow = m !== 'screen'; mesh.receiveShadow = true;
+    mesh.userData = { m: m === 'screen' ? 'pipe' : m, solid: mat }; grp.add(mesh); meshes.push(mesh);
+    if (edges) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), inkMat); e.userData.edge = true; grp.add(e); }
+  };
+  const quad = (pts, m, edges) => add(polyGeom([pts]), m, edges);
+  // roof: two slopes with the overhangs
+  const xe = hl + F.ove, ye = hw + F.ovs, ze = roofZ(ye);
+  for (const sg of [-1, 1]) quad([[-xe, sg * ye, ze], [xe, sg * ye, ze], [xe, 0, RIDGE], [-xe, 0, RIDGE]], 'metalroof');
+  // posts
+  const ys = [-hw, -hw + 5.75, -hw + 11.5, hw - 11.5, hw - 5.75, hw];
+  for (let i = 0; i <= 8; i++) for (const y of ys) {
+    const x = -hl + i * L / 8, h = roofZ(y) - .25, g = new THREE.BoxGeometry(.5, .5, h); g.translate(x, y, h / 2); add(g, 'timber', false);
+  }
+  // long sides: wainscot and screen
+  for (const y of [-hw, hw]) {
+    quad([[-hl, y, 0], [hl, y, 0], [hl, y, 3.3], [-hl, y, 3.3]], 'oldwood');
+    quad([[-hl, y, 3.3], [hl, y, 3.3], [hl, y, EAVE], [-hl, y, EAVE]], 'screen', false);
+  }
+  // gable ends: wainscot and screen beside the 12'-6" aisle opening; screened gable above a header at 10.2'
+  const ai = 6.25;
+  for (const x of [-hl, hl]) {
+    const HDR = 10.2;   // header over the aisle opening
+    for (const [o, i] of [[-hw, -ai], [hw, ai]]) {   // outer wall line, aisle edge
+      quad([[x, o, 0], [x, i, 0], [x, i, 3.3], [x, o, 3.3]], 'oldwood');
+      quad([[x, o, 3.3], [x, i, 3.3], [x, i, HDR], [x, o, EAVE]], 'screen', false);
+      quad([[x, o, EAVE], [x, i, HDR], [x, i, roofZ(ai)]], 'screen', false);
+    }
+    quad([[x, -ai, HDR], [x, ai, HDR], [x, ai, roofZ(ai)], [x, 0, RIDGE], [x, -ai, roofZ(ai)]], 'screen', false);
+    const hdr = new THREE.BoxGeometry(.5, 2 * ai, .6); hdr.translate(x, 0, HDR); add(hdr, 'timber', false);
+  }
+  // concrete down the 12'-6" aisle, end to end (owner, 2026-10-19)
+  const slab = new THREE.BoxGeometry(L, 2 * ai, .35); slab.translate(0, 0, .175); add(slab, 'concrete', false);
+  // pens: four a side, 11'-8" long, wire partitions and fronts on the aisle
+  for (const sg of [-1, 1]) {
+    for (let k = 1; k < 4; k++) { const x = -hl + k * L / 4; quad([[x, sg * hw, 0], [x, sg * ai, 0], [x, sg * ai, 7], [x, sg * hw, 7]], 'screen', false); }
+    quad([[-hl, sg * ai, 0], [hl, sg * ai, 0], [hl, sg * ai, 7], [-hl, sg * ai, 7]], 'screen', false);
+  }
+  ob.fp = { w: L, d: W, h: RIDGE, area: L * W, cx: F.c[0], cy: F.c[1], assumed: false };
+  scene.add(grp);
+  objects.push({ ob, grp, meshes, isFence: false });
+  return ob;
+}
+
 if (SITE) {
   const C_SITE = new THREE.Color('#9fb56b'), C_BONUS = new THREE.Color('#b9b779');
   // ground: the property, the aerial (off by default), paddocks, woods floor, water, roads
@@ -509,6 +564,23 @@ if (SITE) {
     g.add(new THREE.LineSegments(wg, wireMat));
     siteGroup.add(g); reg(g, lv, 'fences');
   }
+  // pipe gates where a fence meets a walk: heavier posts at the pavement edges, a closed five-rail gate between
+  const gateMat = new THREE.MeshLambertMaterial({ color: rgb(S.mat.pipe) });
+  for (const gt of SITE.gates || []) {
+    const [a, b] = gt.p, g = new THREE.Group(), M = new THREE.Matrix4(), q = new THREE.Quaternion();
+    const rod = (p0, p1, r) => {
+      const v0 = new THREE.Vector3(...p0), d = new THREE.Vector3(...p1).sub(v0), Lr = d.length();
+      const m = new THREE.Mesh(unitCyl, gateMat); q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.normalize());
+      m.applyMatrix4(M.compose(v0, q, new THREE.Vector3(r, r, Lr))); m.castShadow = true; g.add(m);
+    };
+    for (const p of [a, b]) rod([p[0], p[1], 0], [p[0], p[1], 5.6], .3);
+    const span = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / span, uy = (b[1] - a[1]) / span;
+    const g0 = [a[0] + ux * .5, a[1] + uy * .5], g1 = [b[0] - ux * .5, b[1] - uy * .5];
+    for (const z of [0.8, 1.7, 2.6, 3.5, 4.4]) rod([...g0, z], [...g1, z], .12);
+    rod([...g0, 0.8], [...g0, 4.4], .14); rod([...g1, 0.8], [...g1, 4.4], .14);
+    rod([...g0, 0.8], [...g1, 4.4], .1);   // brace
+    siteGroup.add(g); reg(g, gt.level, 'fences');
+  }
 
   // campus surfaces from the barnyard plan
   const C = SITE.campus;
@@ -527,7 +599,8 @@ if (SITE) {
   campusBuilding({ name: 'redhouse', label: 'Red House', program: 'education', o: C.red_house, h: 11, wall: 'redwall', id: 'existing-red-house' });
   C.porches.forEach((o, i) => campusBuilding({ name: 'porch' + i, label: 'Red House porch', program: 'education', o, h: 9, canopy: true, notag: true }));
   campusBuilding({ name: 'carport', label: 'Carport', program: 'education', o: C.carport, h: 10, canopy: true, id: 'existing-carport' });
-  campusBuilding({ name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', o: C.poultry, h: 12, wall: 'oldwood', roof: 'rustroof', id: 'existing-poultry' });
+  if (C.poultry_frame) framedBarn(C.poultry_frame, { name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', id: 'existing-poultry' });
+  else campusBuilding({ name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', o: C.poultry, h: 12, wall: 'oldwood', roof: 'rustroof', id: 'existing-poultry' });
   campusBuilding({ name: 'residence', label: 'Residence', level: 3, program: 'education', o: C.residence, h: 11, wall: 'whitemetal', id: 'residence' });
   catalog.push({ label: 'Residence (camper hookups until then)', level: 3 });
   let removed = 0;
@@ -693,7 +766,7 @@ function renderAdds() {
   for (const o of S.objects) if (o.level === state.level && !seen.has(o.label)) seen.set(o.label, o);
   for (const g of S.ground) if (g.level === state.level && g.label && !seen.has(g.label) && !seen.has(g.label + ' fence')) seen.set(g.label, g);
   const names = [...seen.keys()].map(n => n.replace(/ fence$/, '')).filter((n, i, a) => a.indexOf(n) === i)
-    .filter(n => !/^Holding pen$|^Handling yard$|^Arena rail$|^Existing lean-to$/.test(n) || n === 'Holding pen');
+    .filter(n => !/^Holding pen$|^Handling yard$|^Arena rail$|^Existing pens shed roof$|^Existing barn, covered concrete$/.test(n) || n === 'Holding pen');
   const tidy = names.map(n => n === 'Holding pen' ? 'Holding pens and handling yard' : n).filter(n => n !== 'Arena floor')
     .concat(catalog.filter(c => c.level === state.level && state.level > 0).map(c => c.label));
   const head = state.level === 0 ? 'What stands today' : `What ${LVLNAME[state.level]} adds`;
@@ -720,7 +793,7 @@ function buildTags() {
     let key = o.ob.label;
     if (/Holding pen|Handling yard|chute/i.test(key)) key = 'Holding pens';
     if (/Small animal barn A/.test(key)) key = 'Small animal barn A';
-    if (/lean-to|Arena rail/.test(key)) continue;
+    if (/lean-to|Arena rail|shed roof|covered concrete/.test(key)) continue;
     if (key === 'Grooming area' && state.level >= 3) continue;
     const fp = footprint(o.ob);
     const g = groups.get(key) || { key, pts: [], h: 0, level: o.ob.level };
