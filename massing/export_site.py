@@ -43,7 +43,7 @@ def fit_diagram_to_scene():
     pairs = [('cattle-a', (645, 276, 893, 460)), ('cattle-b', (322, 276, 572, 460)), ('arena', (645, 530, 893, 680)),
              ('small-a', (245, 537, 353, 680)), ('small-a2', (245, 725, 353, 868)), ('small-b', (245, 868, 353, 990)),
              ('existing-barn', (983, 775, 1220, 925)), ('feed', (525, 560, 572, 680)),
-             ('holding-1', (1097, 555, 1220, 680)), ('existing-pens', (972, 680, 1220, 750))]
+             ('holding-1', (1097, 555, 1220, 680)), ('existing-pens', (983, 680, 1220, 750))]   # pens flush with the barn's west face
     A, B = [], []
     for k, (a, b, c, d) in pairs:
         e = ELEM[k]
@@ -468,35 +468,17 @@ def main():
             if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
     out['campus']['stalls'] = stalls
 
-    # the walk to the unfinished barn: square its end into the barn's 12'-6" aisle (owner, 2026-10-19). The plan runs
-    # the walk east to the barn's diagonal west gable; here its edges run on to the aisle's corners at the gable line.
-    F = out['campus']['poultry_frame']
-    a = math.radians(F['ang']); ux, uy = math.cos(a), math.sin(a); vx, vy = -uy, ux
-    ends = [(F['c'][0] + sg * F['L'] / 2 * ux, F['c'][1] + sg * F['L'] / 2 * uy) for sg in (-1, 1)]
-    for w in out['campus']['walks']:
-        wp = Polygon(w['o']).buffer(0)
-        e = min(ends, key=lambda q: wp.distance(Point(q)))
-        if wp.distance(Point(e)) > 15: continue
-        ai = 6.25 * abs(M_DS)
-        corners = [(e[0] + s_ * ai * vx, e[1] + s_ * ai * vy) for s_ in (-1, 1)]
-        x_cut = min(c[0] for c in corners) - 14
-        near = wp.intersection(box(x_cut - 30, -1e4, 1e4, 1e4))
-        ys = [y for x, y in near.exterior.coords] if near.geom_type == 'Polygon' else []
-        if not ys: continue
-        y_lo, y_hi = min(ys), max(ys)
-        taper = Polygon([(x_cut, y_lo), (x_cut, y_hi)] + sorted(corners, key=lambda c: -c[1]))
-        clean = wp.intersection(box(-1e4, -1e4, x_cut, 1e4)).union(taper.convex_hull).buffer(0)
-        if clean.geom_type == 'Polygon':
-            w['o'] = rnd(clean.exterior.coords)
+    # the walk to the unfinished barn squares into its aisle in the deck's plan (tools/build_ag_area.py)
     walks_u = unary_union([Polygon(w['o']).buffer(0) for w in out['campus']['walks']])
 
     # fences stop at the pavement edge, with a pipe gate across the walk (owner, 2026-10-19)
     gates, fences = [], []
+    inner = walks_u.buffer(-0.3)        # cut only where a fence passes through a walk, not where it runs along an edge
     for f in out['fences']:
         ln = LineString(f['p'])
-        if not ln.intersects(walks_u):
+        if not ln.intersects(inner):
             fences.append(f); continue
-        cross = ln.intersection(walks_u.boundary)
+        cross = ln.intersection(walks_u.boundary)   # where it enters and leaves the walk
         pts = sorted([(p.x, p.y) for p in getattr(cross, 'geoms', [cross]) if p.geom_type == 'Point'], key=lambda q: ln.project(Point(q)))
         rest = ln.difference(walks_u)
         for k, g in enumerate(getattr(rest, 'geoms', [rest])):
@@ -511,7 +493,7 @@ def main():
                 if i == 0: f['p'].insert(0, [round(e.x, 2), round(e.y, 2)])
                 else: f['p'].append([round(e.x, 2), round(e.y, 2)])
     # a gate between each pair of fence ends facing each other across a walk
-    ends = [(tuple(f['p'][i]), f['level']) for f in fences for i in (0, -1) if edge.distance(Point(f['p'][i])) < .05]
+    ends = [(tuple(f['p'][i]), f['level']) for f in fences for i in (0, -1) if edge.distance(Point(f['p'][i])) < .3]
     used = set()
     for i, (p, lv) in enumerate(ends):
         if i in used: continue
@@ -521,18 +503,6 @@ def main():
         if LineString([p, q]).within(walks_u.buffer(.1)):
             used |= {i, best[1]}
             gates.append(dict(p=[list(p), list(q)], level=lv))
-    # The campus fence (fence-07) east of the existing barn runs on the barn lean-to's column line, the pen-front
-    # line 8.2' off the barn, which is also the walk's north edge (owner, 2026-10-19): from the gate west to the
-    # lean-to's north-east corner column, north up that column line to the pens' back fence, then on north from
-    # the pens' east side as before. Lean-to geometry as in scene.py (barn x1 = 983 / 2.95, north wall -775 / 2.95).
-    bx1, by2 = 983 / S, -775 / S
-    col_x, back_y = bx1 + 93.4 - 0.4, by2 + 32.1
-    for k, f in enumerate(fences):
-        if f['id'] != 'fence-07' or len(f['p']) < 4: continue
-        gate_end = f['p'][0]
-        fences[k] = dict(id='fence-07a', level=f['level'], p=[gate_end, [round(col_x, 2), gate_end[1]], [round(col_x, 2), round(back_y, 2)]])
-        fences.append(dict(id='fence-07b', level=f['level'], p=[[f['p'][3][0], round(back_y, 2)]] + f['p'][3:]))
-        break
     out['fences'], out['gates'] = fences, gates
 
     # the aerial, as a parallelogram in scene feet (origin, +u corner, +v corner)

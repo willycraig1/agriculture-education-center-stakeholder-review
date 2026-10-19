@@ -79,7 +79,9 @@ small_pens = {"n": MOD // SA_PEN_W, "w": SA_PEN_W, "rows": [[0, SA_PEN_D], [SA_P
 # Level 1
 add("existing-barn", "Existing barn", EAST - EX_W, y_barn, EX_W, EX_D, "swine", 1, note="About 32 hog pens",
     becomes={"2": {"use": "circulation", "note": "Storage"}})
-add("existing-pens", "7 existing cattle pens", x_col, y_pens, MOD, PEN_D, "cattle", 1, pens={"n": 7, "w": PEN_W, "rows": [[0, PEN_D]]})
+# The 7 existing pens run the barn's length, flush with its west face (survey; architect's sheet A2.0 Existing Barn,
+# 2026-10-19): 80.4' in all, about 11.5' a pen. Earlier drawings had them on the 84' module, 3.6' proud of the barn.
+add("existing-pens", "7 existing cattle pens", EAST - EX_W, y_pens, EX_W, PEN_D, "cattle", 1, pens={"n": 7, "w": round(EX_W / 7, 3), "rows": [[0, PEN_D]]})
 # ---- parking and handling, after the architect's simplified plan of 2026-10-12 ----
 # One-way loop, counter-clockwise: traffic comes up from the Red House side into the east end of the lot,
 # runs west along the north aisle, turns south down the west leg and leaves toward the entry drive.
@@ -179,7 +181,7 @@ C = [
     dict(id="an-cattle-a", kind="animal", label="", pts=[[x_col - 8, yA + MOD / 2], [x_col + 30, yA + MOD / 2]]),
     dict(id="an-cattle-b", kind="animal", label="", pts=[[x_col - 8, yB + MOD / 2], [x_col + 30, yB + MOD / 2]]),
     dict(id="an-small-a", kind="animal", label="", pts=[[x_small + 8, yA + MOD / 2], [x_small - 30, yA + MOD / 2]]),
-    dict(id="an-pens", kind="animal", label="", pts=[[x_col + MOD / 2, y_pens + 8], [x_col + MOD / 2, y_pens - 30]]),
+    dict(id="an-pens", kind="animal", label="", pts=[[EAST - EX_W / 2, y_pens + 8], [EAST - EX_W / 2, y_pens - 30]]),
 ]
 
 # ---------------------------------------------------------------- shift relative to the existing barn and pens
@@ -243,7 +245,7 @@ print("holding pens:", [(e["id"], e["note"]) for e in E if e.get("holding")])
 import sys as _sys
 _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import siteframe as _sf
-_M, _T = _sf.diagram_transform(x_col + MOD / 2, y_pens)
+_M, _T = _sf.diagram_transform(EAST - EX_W / 2, y_pens)      # pinned at the middle of the existing pens' north edge
 _to_d = lambda q: [round(v, 1) for v in (lambda z: (z.real, z.imag))((complex(*q) - _T) / _M)]
 def _ext(id_, label, pts, use, kind, note, **extra):
     xs_, ys_ = [q[0] for q in pts], [q[1] for q in pts]
@@ -451,7 +453,7 @@ _drop = {"cattle-a", "cattle-b", "small-a", "small-b", "arena", "feed-1", "feed-
 E[:] = [e for e in E if e["id"] not in _drop]
 by_id = {e["id"]: e for e in E}
 GAP, TURN_D = LANE, 36
-_ep = by_id["existing-pens"]                                     # 196..280, 216..240 (fixed, on the survey)
+_ep = by_id["existing-pens"]                                     # 199.6..280, 216..240 (fixed, on the survey)
 Y_ROW1 = _ep["y"] - ARENA_W - GAP - CATTLE_W                       # = 80
 X_HOLD = 170                                                     # holding block's west edge = cattle barn A's east wall
 XA = X_HOLD - MOD                                                # cattle barn A 86..170
@@ -677,7 +679,26 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     # 8' wide, the width of the existing aisle between the cattle pens and the barn that it continues
     _link = _box(by_id["existing-barn"]["x"] + by_id["existing-barn"]["w"] - 2, _ys0, max(_xs_p), _ys0 + EX_AISLE).difference(_poly_p.buffer(0.5))
     _link = max(getattr(_link, "geoms", [_link]), key=lambda g: g.bounds[0] * -1 if False else -g.bounds[0])
-    _wkp = _union([_wkp, _link]).buffer(0.01).buffer(-0.01)
+    # The barn's west gable is diagonal to the walk: rather than end on it at a slant, the walk's edges run on to
+    # the corners of the barn's 12'-6" centre aisle, and the aisle is concrete end to end (owner, 2026-10-19;
+    # frame from the architect's sheet A2.0 Unfinished Barn: posts 46'-8" x 35'-6", 2'-2 1/4" end overhangs).
+    import math as _m
+    _pp = _poly_p.exterior.coords[:4]
+    _ed = sorted(((_m.dist(_pp[i], _pp[(i + 1) % 4]), i) for i in range(4)))
+    _cx, _cy = _poly_p.centroid.x, _poly_p.centroid.y
+    _aisle_ends = []
+    for _l, _i in _ed[:2]:                                       # the two short sides: the gable ends
+        _a, _b = _pp[_i], _pp[(_i + 1) % 4]
+        _mx, _my = (_a[0] + _b[0]) / 2, (_a[1] + _b[1]) / 2
+        _nx, _ny = _cx - _mx, _cy - _my; _nl = _m.hypot(_nx, _ny); _nx, _ny = _nx / _nl * 2.19, _ny / _nl * 2.19
+        _ux, _uy = (_b[0] - _a[0]) / _l, (_b[1] - _a[1]) / _l
+        _aisle_ends.append([(_mx + _nx + s_ * 6.25 * _ux, _my + _ny + s_ * 6.25 * _uy) for s_ in (-1, 1)])
+    _aisle = _Poly(_aisle_ends[0] + _aisle_ends[1][::-1]).convex_hull
+    _near = min(_aisle_ends, key=lambda q: min(c[0] for c in q))  # the gable facing the walk (west)
+    _x_cut = min(c[0] for c in _near) - 14
+    _link = _link.intersection(_box(-1e4, -1e4, _x_cut, 1e4))
+    _taper = _Poly([(_x_cut, _ys0), (_x_cut, _ys0 + EX_AISLE)] + sorted(_near, key=lambda c: c[1], reverse=True)).convex_hull
+    _wkp = _union([_wkp, _link, _taper, _aisle]).buffer(0.01).buffer(-0.01)
     _wk = [[round(x, 1), round(y, 1)] for x, y in _wkp.exterior.coords][:-1]
     print("walk carried to the poultry barn:", round(_link.bounds[2] - _link.bounds[0]), "ft")
     by_id["walk"].update(outline=_wk, x=min(q[0] for q in _wk), y=min(q[1] for q in _wk), w=max(q[0] for q in _wk) - min(q[0] for q in _wk), h=max(q[1] for q in _wk) - min(q[1] for q in _wk))
@@ -690,6 +711,7 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _bb = lambda q: dict(x=min(v[0] for v in q), y=min(v[1] for v in q), w=max(v[0] for v in q) - min(v[0] for v in q), h=max(v[1] for v in q) - min(v[1] for v in q))
     _o1, _o2 = _ring(_wk1), _ring(_wk2)
     by_id["walk"].update(outline=_o1, **_bb(_o1))
+    E.append(E.pop(E.index(by_id["walk"])))                     # drawn after the (open-sided) poultry barn, so its aisle shows
     _b2 = _bb(_o2)
     add("walk-2", "", _b2["x"], _b2["y"], _b2["w"], _b2["h"], "circulation", 2, kind="walk", note="", outline=_o2, context=True)
     by_id["walk-2"] = E[-1]
@@ -797,6 +819,7 @@ def pens_svg(e):
 svg = [f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
        f'viewBox="{view[0]} {view[1]} {view[2]} {view[3]}" font-family="Avenir Next,Helvetica,Arial,sans-serif">'
        f'<title>Primary ag area, Level 3 (feet)</title><rect x="{view[0]}" y="{view[1]}" width="{view[2]}" height="{view[3]}" fill="{N["paper"]}"/>']
+_names = []          # element names go on their own layer above the shapes, so a later shape (the walk) never hides one
 for lv in (1, 2, 3):
     svg.append(f'<g id="level-{lv}" inkscape:groupmode="layer" inkscape:label="Level {lv}">')
     for e in [e for e in E if e["level"] == lv]:
@@ -810,8 +833,9 @@ for lv in (1, 2, 3):
             shape = '<polygon points="' + " ".join(f"{px},{py}" for px, py in e["outline"]) + f'" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
         else:
             shape = f'<rect x="{e["x"]}" y="{e["y"]}" width="{e["w"]}" height="{e["h"]}" fill="{fill}" stroke="{c["base"]}" stroke-width="1"{dash}/>'
-        svg.append(f'<g id="{e["id"]}">{shape}'
-                   f'{pens_svg(e)}<text x="{e["x"] + e["w"] / 2}" y="{e["y"] + e["h"] / 2}" text-anchor="middle" font-size="5" font-weight="700" fill="{N["ink"]}">{e["label"].replace("&", "&amp;")}</text></g>')
+        svg.append(f'<g id="{e["id"]}">{shape}{pens_svg(e)}</g>')
+        if e["label"]:
+            _names.append(f'<text data-id="{e["id"]}" x="{e["x"] + e["w"] / 2}" y="{e["y"] + e["h"] / 2}" text-anchor="middle" font-size="5" font-weight="700" fill="{N["ink"]}">{e["label"].replace("&", "&amp;")}</text>')
     svg.append("</g>")
 svg.append('<g id="drives" inkscape:groupmode="layer" inkscape:label="Driveways">' + "".join(
     f'<rect id="{d["id"]}" x="{d["x"]}" y="{d["y"]}" width="{d["w"]}" height="{d["h"]}" fill="{P["circulation"]["tint"]}" opacity=".6"/>' for d in DRIVES) + "</g>")
@@ -820,6 +844,7 @@ for c in C:
     col = P["cattle"]["base"] if c["kind"] == "animal" else N["ink"]
     pts = " ".join(f"{x},{y}" for x, y in c["pts"])
     svg.append(f'<polyline id="{c["id"]}" points="{pts}" fill="none" stroke="{col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>')
-svg.append("</g></svg>")
+svg.append("</g>")
+svg.append('<g id="names" inkscape:groupmode="layer" inkscape:label="Names">' + "".join(_names) + "</g></svg>")
 open(os.path.join(ROOT, "drawings", "ag-area-diagram.svg"), "w").write("".join(svg))
 print("extent (ft):", round(view[2]), "x", round(view[3]), "| elements:", len(E), "| circulation runs:", len(C), "| parking:", n_stalls)

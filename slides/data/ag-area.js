@@ -4,7 +4,7 @@ window.AG_AREA = {
  "view": [
   -118,
   13,
-  427,
+  427.0,
   468.9
  ],
  "north_cw_from_up": -17,
@@ -83,9 +83,9 @@ window.AG_AREA = {
   {
    "id": "existing-pens",
    "label": "7 existing cattle pens",
-   "x": 196,
+   "x": 199.6,
    "y": 216,
-   "w": 84,
+   "w": 80.4,
    "h": 24,
    "use": "cattle",
    "level": 1,
@@ -94,7 +94,7 @@ window.AG_AREA = {
    "assumed": false,
    "pens": {
     "n": 7,
-    "w": 12,
+    "w": 11.486,
     "rows": [
      [
       0,
@@ -233,8 +233,8 @@ window.AG_AREA = {
     "w": 91.0,
     "h": 36,
     "label_at": [
-     80.1,
-     402.6
+     80.7,
+     402.7
     ]
    },
    "holes": [
@@ -1717,9 +1717,9 @@ window.AG_AREA = {
   {
    "id": "existing-red-house",
    "label": "Red House",
-   "x": 113.4,
+   "x": 115.2,
    "y": 382.7,
-   "w": 99.19999999999999,
+   "w": 99.2,
    "h": 99.80000000000001,
    "use": "education",
    "level": 1,
@@ -1728,51 +1728,51 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     167.7,
+     169.5,
      454.3
     ],
     [
-     176.2,
+     178.0,
      460.0
     ],
     [
-     191.2,
+     193.0,
      437.3
     ],
     [
-     193.5,
+     195.3,
      438.8
     ],
     [
-     196.8,
+     198.6,
      433.8
     ],
     [
-     194.6,
+     196.4,
      432.3
     ],
     [
-     212.6,
+     214.4,
      405.2
     ],
     [
-     178.9,
+     180.7,
      382.7
     ],
     [
-     136.2,
+     138.0,
      446.9
     ],
     [
-     126.1,
+     127.9,
      440.1
     ],
     [
-     113.4,
+     115.2,
      459.0
     ],
     [
-     148.9,
+     150.7,
      482.5
     ]
    ],
@@ -1781,9 +1781,9 @@ window.AG_AREA = {
   {
    "id": "existing-carport",
    "label": "Carport",
-   "x": 111.2,
+   "x": 113.0,
    "y": 471.5,
-   "w": 45.7,
+   "w": 45.69999999999999,
    "h": 48.200000000000045,
    "use": "education",
    "level": 1,
@@ -1792,19 +1792,19 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     135.7,
+     137.5,
      519.7
     ],
     [
-     156.9,
+     158.7,
      487.7
     ],
     [
-     132.4,
+     134.2,
      471.5
     ],
     [
-     111.2,
+     113.0,
      503.5
     ]
    ],
@@ -1813,9 +1813,9 @@ window.AG_AREA = {
   {
    "id": "existing-porch-nw",
    "label": "",
-   "x": 126.1,
+   "x": 127.9,
    "y": 403.9,
-   "w": 34.30000000000001,
+   "w": 34.29999999999998,
    "h": 43.0,
    "use": "education",
    "level": 1,
@@ -1824,19 +1824,19 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     126.1,
+     127.9,
      440.1
     ],
     [
-     150.6,
+     152.4,
      403.9
     ],
     [
-     160.4,
+     162.2,
      410.4
     ],
     [
-     136.2,
+     138.0,
      446.9
     ]
    ],
@@ -1845,7 +1845,7 @@ window.AG_AREA = {
   {
    "id": "existing-porch-ne",
    "label": "",
-   "x": 178.9,
+   "x": 180.7,
    "y": 375.8,
    "w": 38.400000000000006,
    "h": 29.399999999999977,
@@ -1856,19 +1856,19 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     178.9,
+     180.7,
      382.7
     ],
     [
-     183.5,
+     185.3,
      375.8
     ],
     [
-     217.3,
+     219.1,
      398.3
     ],
     [
-     212.6,
+     214.4,
      405.2
     ]
    ],
@@ -1877,9 +1877,9 @@ window.AG_AREA = {
   {
    "id": "horticulture",
    "label": "Horticulture area",
-   "x": -24.7,
+   "x": -22.9,
    "y": 454.7,
-   "w": 99.7,
+   "w": 99.69999999999999,
    "h": 80.50000000000006,
    "use": "horticulture",
    "level": 1,
@@ -1888,19 +1888,19 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     -7.9,
+     -6.1,
      454.7
     ],
     [
-     75.0,
+     76.8,
      509.9
     ],
     [
-     58.2,
+     60.0,
      535.2
     ],
     [
-     -24.7,
+     -22.9,
      479.9
     ]
    ],
@@ -1919,7 +1919,7 @@ window.AG_AREA = {
   {
    "id": "residence",
    "label": "Residence",
-   "x": -41.5,
+   "x": -39.7,
    "y": 443.5,
    "w": 33.6,
    "h": 36.39999999999998,
@@ -1930,19 +1930,19 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     -24.6,
+     -22.8,
      443.5
     ],
     [
-     -7.9,
+     -6.1,
      454.7
     ],
     [
-     -24.7,
+     -22.9,
      479.9
     ],
     [
-     -41.5,
+     -39.7,
      468.8
     ]
    ],
@@ -2299,11 +2299,136 @@ window.AG_AREA = {
    "assumed": false
   },
   {
+   "id": "bedding",
+   "label": "Bedding storage",
+   "x": 170.0,
+   "y": 80.0,
+   "w": 24.0,
+   "h": 12,
+   "use": "circulation",
+   "level": 2,
+   "kind": "building",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "dogtrot",
+   "label": "",
+   "x": -48.0,
+   "y": 216.0,
+   "w": 36,
+   "h": 15.0,
+   "use": "circulation",
+   "level": 2,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "small-b",
+   "label": "Small animal barn B",
+   "x": -48.0,
+   "y": 279.0,
+   "w": 36,
+   "h": 41,
+   "use": "small_animal",
+   "level": 3,
+   "kind": "building",
+   "note": "12 pens; 5,472.0 sf in all",
+   "assumed": false,
+   "pens": {
+    "n": 6,
+    "w": 6,
+    "rows": [
+     [
+      0,
+      10
+     ],
+     [
+      26,
+      10
+     ]
+    ],
+    "vertical": true
+   }
+  },
+  {
+   "id": "grooming",
+   "label": "Grooming",
+   "x": 88.3,
+   "y": 171.0,
+   "w": 9.7,
+   "h": 42.0,
+   "use": "arena",
+   "level": 2,
+   "kind": "building",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "compost",
+   "label": "Compost",
+   "x": 204.1,
+   "y": 302.0,
+   "w": 48.5,
+   "h": 19.0,
+   "use": "circulation",
+   "level": 1,
+   "kind": "yard",
+   "note": "",
+   "assumed": false
+  },
+  {
+   "id": "dumpster",
+   "label": "Dumpsters",
+   "x": 199.6,
+   "y": 324.0,
+   "w": 12.0,
+   "h": 24.0,
+   "use": "circulation",
+   "level": 1,
+   "kind": "building",
+   "note": "enclosure",
+   "assumed": false
+  },
+  {
+   "id": "existing-poultry",
+   "label": "Poultry",
+   "x": 367.2,
+   "y": 230.0,
+   "w": 63.5,
+   "h": 66.5,
+   "use": "small_animal",
+   "level": 1,
+   "kind": "building",
+   "note": "unfinished barn",
+   "assumed": false,
+   "outline": [
+    [
+     430.7,
+     273.3
+    ],
+    [
+     401.2,
+     230.0
+    ],
+    [
+     367.2,
+     253.2
+    ],
+    [
+     396.7,
+     296.5
+    ]
+   ],
+   "context": true
+  },
+  {
    "id": "walk",
    "label": "",
    "x": 170.0,
    "y": 216.0,
-   "w": 213.89999999999998,
+   "w": 247.60000000000002,
    "h": 141.2,
    "use": "circulation",
    "level": 1,
@@ -2444,27 +2569,103 @@ window.AG_AREA = {
      248.0
     ],
     [
-     372.1,
+     366.3,
      248.0
     ],
     [
-     372.1,
+     366.3,
      248.0
     ],
     [
-     372.1,
-     248.0
+     380.3,
+     246.9
     ],
     [
-     383.9,
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     380.3,
+     246.9
+    ],
+    [
+     407.3,
+     286.6
+    ],
+    [
+     407.3,
+     286.6
+    ],
+    [
+     407.3,
+     286.6
+    ],
+    [
+     417.6,
+     279.6
+    ],
+    [
+     417.6,
+     279.6
+    ],
+    [
+     417.6,
+     279.6
+    ],
+    [
+     390.6,
+     239.9
+    ],
+    [
+     390.6,
+     239.9
+    ],
+    [
+     390.6,
+     239.9
+    ],
+    [
+     366.3,
      240.0
     ],
     [
-     383.9,
-     240.0
-    ],
-    [
-     383.9,
+     366.3,
      240.0
     ],
     [
@@ -2554,131 +2755,6 @@ window.AG_AREA = {
     [
      170.0,
      230.5
-    ]
-   ],
-   "context": true
-  },
-  {
-   "id": "bedding",
-   "label": "Bedding storage",
-   "x": 170.0,
-   "y": 80.0,
-   "w": 24.0,
-   "h": 12,
-   "use": "circulation",
-   "level": 2,
-   "kind": "building",
-   "note": "",
-   "assumed": false
-  },
-  {
-   "id": "dogtrot",
-   "label": "",
-   "x": -48.0,
-   "y": 216.0,
-   "w": 36,
-   "h": 15.0,
-   "use": "circulation",
-   "level": 2,
-   "kind": "yard",
-   "note": "",
-   "assumed": false
-  },
-  {
-   "id": "small-b",
-   "label": "Small animal barn B",
-   "x": -48.0,
-   "y": 279.0,
-   "w": 36,
-   "h": 41,
-   "use": "small_animal",
-   "level": 3,
-   "kind": "building",
-   "note": "12 pens; 5,472.0 sf in all",
-   "assumed": false,
-   "pens": {
-    "n": 6,
-    "w": 6,
-    "rows": [
-     [
-      0,
-      10
-     ],
-     [
-      26,
-      10
-     ]
-    ],
-    "vertical": true
-   }
-  },
-  {
-   "id": "grooming",
-   "label": "Grooming",
-   "x": 88.3,
-   "y": 171.0,
-   "w": 9.7,
-   "h": 42.0,
-   "use": "arena",
-   "level": 2,
-   "kind": "building",
-   "note": "",
-   "assumed": false
-  },
-  {
-   "id": "compost",
-   "label": "Compost",
-   "x": 204.1,
-   "y": 302.0,
-   "w": 48.5,
-   "h": 19.0,
-   "use": "circulation",
-   "level": 1,
-   "kind": "yard",
-   "note": "",
-   "assumed": false
-  },
-  {
-   "id": "dumpster",
-   "label": "Dumpsters",
-   "x": 199.6,
-   "y": 324.0,
-   "w": 12.0,
-   "h": 24.0,
-   "use": "circulation",
-   "level": 1,
-   "kind": "building",
-   "note": "enclosure",
-   "assumed": false
-  },
-  {
-   "id": "existing-poultry",
-   "label": "Poultry",
-   "x": 365.4,
-   "y": 230.0,
-   "w": 63.5,
-   "h": 66.5,
-   "use": "small_animal",
-   "level": 1,
-   "kind": "building",
-   "note": "unfinished barn",
-   "assumed": false,
-   "outline": [
-    [
-     428.9,
-     273.3
-    ],
-    [
-     399.4,
-     230.0
-    ],
-    [
-     365.4,
-     253.2
-    ],
-    [
-     394.9,
-     296.5
     ]
    ],
    "context": true
@@ -3404,7 +3480,7 @@ window.AG_AREA = {
    "label": "110'",
    "x1": 170,
    "y1": 30,
-   "x2": 280,
+   "x2": 280.0,
    "y2": 30
   },
   {
@@ -3430,51 +3506,51 @@ window.AG_AREA = {
   },
   {
    "label": "36'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 44,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 80
   },
   {
    "label": "47'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 80,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 127.0
   },
   {
    "label": "47'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 127.0,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 174
   },
   {
    "label": "42'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 174,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 216
   },
   {
    "label": "24'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 216,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 240
   },
   {
    "label": "8'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 240,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 248
   },
   {
    "label": "50'",
-   "x1": 292,
+   "x1": 292.0,
    "y1": 248,
-   "x2": 292,
+   "x2": 292.0,
    "y2": 298
   }
  ],

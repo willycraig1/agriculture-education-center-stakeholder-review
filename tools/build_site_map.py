@@ -347,6 +347,7 @@ M_DP, T_DP = diagram_transform(_pens["x"] + _pens["w"] / 2, _pens["y"])      # d
 
 
 _fp = os.path.join(OUT, "data", "fences.json")
+_walk_gates = []          # gate leaves across the walk, added below with the plan's own gates
 if os.path.exists(_fp):
     FENCES = json.load(open(_fp))
     _PLAN_RUNS = [LineString(r_["map"]) for r_ in FENCES["runs"]]            # the fencing plan as drawn, before the campus redraw
@@ -383,7 +384,18 @@ if os.path.exists(_fp):
             _new_d = [(_east, _north), (_ar["x"], _north), (_ar["x"], _ts["y"]), (_ts["x"], _ts["y"]), (_ts["x"], _hd["y"]),
                       (_hd["x"], _hd["y"]), (_hd["x"], round(_end_d.imag, 1))]
         _old_ft = _cf["length_ft"]
-        _cf["map"] = _cf["map"][:2] + [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
+        if AG.get("counts", {}).get("option") == "B" and "existing-barn" in _el:
+            # East of the barnyard the fence runs on the existing barn's lean-to column line, the pens' front 8' off
+            # the barn, which is also the walk's north edge (owner, 2026-10-19; sheet A2.0 Existing Barn): from the
+            # walk gate west to the lean-to's corner column 13' past the barn, north up that line to the pens' back
+            # fence, and along it to the pens' north-east corner, where it meets the line round the holding pens.
+            # This replaces the plan's first two vertices (its start was 8' short of the walk).
+            _eb, _epn = _el["existing-barn"], _el["existing-pens"]
+            _yw, _xc = _epn["y"] + _epn["h"], _eb["x"] + _eb["w"] + 13.0
+            _new_d = [(round(_to_d(_cf["map"][0]).real, 1), _yw), (_xc, _yw), (_xc, _epn["y"]), (_epn["x"] + _epn["w"], _epn["y"])] + _new_d
+            _cf["map"] = [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
+        else:
+            _cf["map"] = _cf["map"][:2] + [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
         _cf["length_ft"] = round(LineString(_cf["map"]).length * FT_PER_PT / abs(M_FP))
         _cf["redrawn"] = "campus fence aligned to the turnout yards, 2026-10-13"
         _cf.pop("sheet", None)
@@ -408,6 +420,24 @@ if os.path.exists(_fp):
                         if _k == 0: _r["map"].insert(0, [round(_hp_.x, 2), round(_hp_.y, 2)])
                         else: _r["map"].append([round(_hp_.x, 2), round(_hp_.y, 2)])
                         print("  fence", _r["id"], "carried", round(_dd), "ft to the campus fence")
+        # where a fence meets the walk east of the existing barn it stops at the pavement edge, and a gate spans the
+        # walk between it and the campus fence (owner, 2026-10-19)
+        if "walk" in _el:
+            from shapely.geometry import Polygon as _Pg
+            _wkd = _Pg(_el["walk"]["outline"]).buffer(0)
+            _gs = _to_d(_cf["map"][0])
+            for _r in FENCES["runs"]:
+                if _r is _cf:
+                    continue
+                for _k, _n in ((0, 1), (-1, -2)):
+                    _e = _to_d(_r["map"][_k])
+                    if _wkd.contains(Point(_e.real, _e.imag)) and abs(_e - _gs) < 20:
+                        _q = _to_d(_r["map"][_n])
+                        _x = LineString([(_e.real, _e.imag), (_q.real, _q.imag)]).intersection(_wkd.boundary)
+                        _x = min(getattr(_x, "geoms", [_x]), key=lambda g: g.distance(Point(_e.real, _e.imag)))
+                        _r["map"][_k] = _to_m(_x.x, _x.y)
+                        _walk_gates.append([_cf["map"][0], _r["map"][_k]])
+                        print("  fence", _r["id"], "stops at the walk; gate across it,", round(abs(complex(_x.x, _x.y) - _gs), 1), "ft")
         print("campus fence redrawn:", _cf["id"], _old_ft, "ft ->", _cf["length_ft"], "ft")
     _pl = "".join(f'<polyline id="{r_["id"]}" points="{" ".join(f"{x},{y}" for x, y in r_["map"])}"/>' for r_ in FENCES["runs"])
     _fence_art = (f'<g fill="none" stroke="#fff" stroke-width="5" data-w="5" stroke-linejoin="round" stroke-linecap="round">{_pl.replace(" id=", " data-id=")}</g>'
@@ -426,6 +456,9 @@ if os.path.exists(_fp) and FENCES.get("gates_added"):
     # data-w so the viewer counter-scales them on zoom like the other gates (g_paths adds it for those)
     gates += (f'<g id="gates-added" fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" data-w="3" stroke-linecap="round">'
               + "".join(f'<line x1="{g_["map"][0][0]}" y1="{g_["map"][0][1]}" x2="{g_["map"][1][0]}" y2="{g_["map"][1][1]}"/>' for g_ in FENCES["gates_added"]) + "</g>")
+if _walk_gates:
+    gates += (f'<g id="gates-walk" fill="none" stroke="{P["cattle"]["base"]}" stroke-width="3" data-w="3" stroke-linecap="round">'
+              + "".join(f'<line x1="{a[0]}" y1="{a[1]}" x2="{b[0]}" y2="{b[1]}"/>' for a, b in _walk_gates) + "</g>")
 # ---- paddocks as closed shapes, filled by area (site pasture / bonus pasture)
 # The fence lines are thickened until the gate openings close, which cuts the site into faces; each face is grown
 # back to the fence line. Two fence ends that stop short of each other (the 3.8 ac paddock, open toward the lane)
