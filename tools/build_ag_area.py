@@ -796,6 +796,24 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     add("walk-2", "", _b2["x"], _b2["y"], _b2["w"], _b2["h"], "circulation", 2, kind="walk", note="", outline=_o2, context=True)
     by_id["walk-2"] = E[-1]
     print("walks by Level: 1 =", round(_wk1.area), "sf, 2 =", round(_wk2.area), "sf | cut at x", _xcut)
+    # the south sidewalk (owner, 2026-10-20), 5' wide, Level 1: from the walk network's stub by the dumpster down the 5'
+    # strip between the one-way drive and the Red House, past its front porch, then turning 90 degrees to run along the
+    # heads of the stall row in front of the horticulture area, to the row's west end. On the Red House grid. The
+    # horticulture area and the residence move 5' south to make room for it behind the stalls.
+    _stub = [q for q in by_id["walk"]["outline"] if q[0] >= _xcut - 0.1 and q[1] > 340]
+    _s0 = (sum(q[0] for q in _stub) / len(_stub), sum(q[1] for q in _stub) / len(_stub)) if _stub else _xy(_ue + 2.5, BANK_N0 + 5.5)
+    _sw_pts = [_s0, _xy(_ue + 2.5, _uv(*_s0)[1]), _xy(_ue + 2.5, STALL_D + 2.5), _xy(_u0, STALL_D + 2.5)]
+    _sw = _LS(_sw_pts).buffer(2.5, cap_style=2, join_style=2)
+    _wk1u = _union([_Poly(by_id["walk"]["outline"]).buffer(0), _sw]).buffer(0.01).buffer(-0.01)
+    _o1 = _ring(_wk1u)
+    by_id["walk"].update(outline=_o1, **_bb(_o1))
+    _dn = (lambda a_, b_: (b_[0] - a_[0], b_[1] - a_[1]))(_xy(0, 0), _xy(0, 5))
+    for id_ in ("horticulture", "residence"):
+        e_ = by_id.get(id_)
+        if e_ and e_.get("outline"):
+            e_["outline"] = [[round(x + _dn[0], 1), round(y + _dn[1], 1)] for x, y in e_["outline"]]
+            e_.update(x=round(e_["x"] + _dn[0], 1), y=round(e_["y"] + _dn[1], 1))
+    print("south sidewalk ft:", round(_LS(_sw_pts).length), "| horticulture and residence moved 5' south")
     # circulation as drawn: the loop is two-way, so its runs carry arrowheads at both ends
     _circ = []
     for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="(st\d+)" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _sv):
