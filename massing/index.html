@@ -738,12 +738,12 @@ function teachingSpace(A) {
   box(BU1 - BT, BU1, -BV, BV, SK, FL - .3, 'oldtimber');
   for (const s of [-1, 1]) box(BU0, BU1, s > 0 ? BV - BT : -BV, s > 0 ? BV : -BV + BT, SK, FL - .3, 'oldtimber');
   for (const v of [-HW, -6, 6, HW]) box(BU1 - .7, BU1 - .03, v - C8, v + C8, 0, SK, 'oldtimber');
-  const BS = BU1 - BT / 2;
-  face([W(BS, -BV, 0), W(BS, BV, 0), W(BS, BV, SK), W(BS, -BV, SK)], 'oldwood');
-  for (const s of [-1, 1]) face([W(BU0, s * BV, 0), W(BS, s * BV, 0), W(BS, s * BV, SK), W(BU0, s * BV, SK)], 'oldwood');
+  const BS = BU1 - .365;                                              // the louvers on the posts' line, in the main skirt's planes
+  face([W(BS, -HW, 0), W(BS, HW, 0), W(BS, HW, SK), W(BS, -HW, SK)], 'oldwood');
+  for (const s of [-1, 1]) face([W(HL, s * HW, 0), W(BS, s * HW, 0), W(BS, s * HW, SK), W(HL, s * HW, SK)], 'oldwood');
   for (let z = .4; z < SK; z += .4) {
-    seg(W(BS + .05, -BV, z), W(BS + .05, BV, z));
-    for (const s of [-1, 1]) seg(W(BU0, s * (BV + .05), z), W(BS, s * (BV + .05), z));
+    seg(W(BS + .05, -HW, z), W(BS + .05, HW, z));
+    for (const s of [-1, 1]) seg(W(HL, s * (HW + .05), z), W(BS, s * (HW + .05), z));
   }
   const wire = [];
   const rail = [[BU0, -BV + .2], [BU1 - .2, -BV + .2], [BU1 - .2, BV - .2], [BU0, BV - .2]];
