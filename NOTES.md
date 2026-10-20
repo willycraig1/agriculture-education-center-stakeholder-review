@@ -997,5 +997,5 @@ Fit checks now skip context elements (walk etc.).
   "Teaching space" and "Inside the classroom". Level 3, education colour.
 - Owner's revisions (same day): the whole building moved 5' east (about 12.9' clear from its floor band to the corner
   of the Red House's north-east porch; the walk's link to the landing lengthens with it); the crawlspace louvers carried
-  round under the balcony; the balcony railing is posts and rails with square welded wire mesh (about 4") that all but
+  round under the balcony, in the same planes as the main skirt (the column lines) and on the balcony posts; the balcony railing is posts and rails with square welded wire mesh (about 4") that all but
   disappears, no pickets; siding horizontal on the side walls (solid bays and the frieze), vertical on the endwalls.
