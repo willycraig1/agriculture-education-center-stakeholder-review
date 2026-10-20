@@ -795,8 +795,7 @@ Fit checks now skip context elements (walk etc.).
   (Level 3 row first), Red House, Levels table, paddocks, water quality, over to you. Out of the order, kept for the
   report: three-levels, program, pasture-capacity, water-site. Eyebrows renamed (no "Act" numbers).
 - Images: photos/reference/ (1400px copies) and photos/vision-watercolor.jpg (from Watercolor_Rendering_Working).
-- Still to do: Red House steps from Level 3 back; Levels table with the Level 3 column first; paddocks with the
-  rotation step first; a full review pass.
+- Still to do: a full review pass (the rest of part 1's list is done in part 2, 2026-10-20, below).
 
 ## 2026-10-19: barnyard slide fix; slide script check
 - The barnyard slide came up blank: in the restructure, a comment inserted mid-line commented out the rest of the
@@ -887,7 +886,7 @@ Fit checks now skip context elements (walk etc.).
   the house lines up across the sheet; Level 3's addition runs past the shared edge.
 - The architect cleans up unfilled program-colour corners in Illustrator; those edits do not flow back into the data.
 
-## 2026-10-20: the 3D model closes the deck
+## 2026-10-20: vision-first restructure, part 2; the 3D model closes the deck
 - `index.html`: the massing viewer (`massing/index.html`) is slide 16, "The campus in 3D", after Over to you. It runs
   live in the deck's iframe; it has no build steps, so the deck's ‹ › buttons (and a clicker's PageDown / PageUp) change
   slides, while the arrow keys stay with the viewer for walking. F, Escape, Home, and End go to the deck. The PDF export
@@ -900,3 +899,6 @@ Fit checks now skip context elements (walk etc.).
   swine & small animals, Red House): drafted wording, for the owner to check.
 - Paddocks, rotation first: step 1 is the nine paddocks in rotation (Levels 2 and 3, about 15 CE, the highlight
   stepping through them), step 2 back to Level 1's conservative grazing (about 7 CE).
+- Red House from Level 3 back: the steps run Level 3, 2, 1, then the house today, with the list in that order and the
+  plan's framing following; the static page (PDF) shows Level 3. Level 2 and 1 text reworded to read walking back
+  (figures unchanged). The viewer's first preset is now "House + addition".
