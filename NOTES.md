@@ -845,3 +845,127 @@ Fit checks now skip context elements (walk etc.).
   with its badge allowed over the drive. Its labels are placed by the fact sheet itself at the centre of each
   building's shape (or group: "Small animal barns" for barns A and B, "Holding pens" for pens 1 to 5), with
   "Classroom / event" on two lines on its building.
+## 2026-10-19: vision-first restructure, part 1
+- New running order (index.html, 15 slides): cover, The vision (new `slides/vision.html`: the Level 3 picture in four
+  points, the Option B watercolour, McIntosh Ag Center and Siesta Key Chapel comparatives, credited), drivers, the site
+  today (2 steps), existing buildings, the campus at Level 3 (2 steps, fit checks hidden), the barnyard (Level 3 with
+  its flow, then back to Levels 2 and 1, short items, no NEW badges), Bud Box, cow & calf pens and small animal pens
+  (Level 3 row first), Red House, Levels table, paddocks, water quality, over to you. Out of the order, kept for the
+  report: three-levels, program, pasture-capacity, water-site. Eyebrows renamed (no "Act" numbers).
+- Images: photos/reference/ (1400px copies) and photos/vision-watercolor.jpg (from Watercolor_Rendering_Working).
+- Still to do: a full review pass (the rest of part 1's list is done in part 2, 2026-10-20, below).
+
+## 2026-10-19: barnyard slide fix; slide script check
+- The barnyard slide came up blank: in the restructure, a comment inserted mid-line commented out the rest of the
+  line, a syntax error that stopped the slide's script (not the 3D model work). Fixed.
+- `tools/check_slides.py` syntax-checks the inline scripts of every slide and index.html with Node; run it after
+  editing slides or rebuilding data.
+
+## 2026-10-19: Red House massing (from photos)
+- `massing/index.html` `redHouse()`: built on the surveyed outline from `photos/Red House` (24 site photos and a roof
+  aerial). Main block ~41' x 66' on a crawlspace (floor ~2.5' up, 8' walls), red-stained board siding, a 3.5:12
+  galvanized metal gable along its length (ridge ~16.5'); the north-west porch (44' x 12', wood railing, steps) under a
+  1.5:12 extension of the main roof; a screened porch across the north-east end (8.4', solid kneewall); the
+  south-west wing (~43' x 34') under its own 3:12 gable (ridge ~16'); a stone chimney on the south-east side; windows in
+  white frames. The carport: an open wood-post shed with a 4:12 gable and exposed trusses. Heights and pitches
+  estimated from the photos; the Level 3 event space addition is not modelled yet.
+
+## 2026-10-20: holding pens to the dog-ear
+- Holding block: west edge on the existing barn's front (as before); the east column (pens 1 to 3) now runs out to
+  the end of the existing pens' lean-to roof, the dog-ear that carries on 13' past the barn's east wall (93.4' from
+  the barn front, sheet A2.0 Existing Barn), instead of stopping at the barn's east wall. Pens 1 to 3 are 49.4' wide
+  (2,075 / 2,322 / 2,421 sf). The dog-ear is drawn as an open canopy (`existing-dogear`, over the pens' front 12.5').
+  North dimension string: 29.6' lane, then the 93.4' holding block; the east string moves out with it.
+- The massing model (`Watercolor_Rendering_Working/scripts/scene.py`, `massing/export_scene.py`) has its own pen
+  coordinates and still shows pens 1 to 3 at the barn's east wall.
+- Same day: the 8' alley is centred in the 93.4' holding block, two 42.7' columns either side (pens 5/4: 2,092 /
+  2,007 sf; pens 3/2/1: 2,092 / 2,007 / 1,793 sf). The handling yard's holding pen widens to the alley (its south-east
+  chamfer moves with the wall; the Bud Box, lead-up, and chute keep their size). The walk's apron west of the existing
+  pens now ends on the barn front line (the architect's file had it 3.6' short).
+- South sidewalk restored (owner): 5' wide, Level 1, part of `walk`: the band 5' outside the parking loop's pavement,
+  flush with its edge, from the walk network's stub by the dumpster down the one-way drive's east edge past the Red
+  House's front porch and round the corner along the heads of the stall row in front of the horticulture area to the
+  row's west end (about 277 ft). The horticulture area and the residence stay where they were and butt up to it (the
+  walk draws over their edge).
+- South loop squared to the Red House (owner): the architect's south lot ran about 0.4 to 0.6 degrees off the house.
+  The Red House grid (`_U`) now comes from the house's own walls (length-weighted, 33.65 deg) instead of the parking
+  sketch (33.03). In Option B the imported lot is corrected: the stall row turns about its north-west front corner
+  (the joint with the west leg) and the one-way drive's outer edge about its north end (the joint with the east leg),
+  so both meet the rest of the lot unchanged; their corner is recomputed, the nine angled stalls are redrawn on the
+  row, and the swale island's diagonal sides turn with the side they face. The south sidewalk follows.
+- Dumpster apron corner cleaned: the walk network's stub there is trimmed to the sidewalk's outer line, so the walk
+  runs straight from the apron's south edge down the sidewalk.
+- The south sidewalk carries on round the loop's turn at the stall row's west end, along the pavement edge up past the
+  row's end and round the curve to where it straightens onto the entry drive (about 339 ft in all). The apron-corner
+  trim is limited to the corner (it had cut the new stretch off).
+- South loop on the Red House front (owner): the loop now takes its angle from the house's front (its westernmost
+  wall and the front porch's outer edge, one line, about 0.4 deg off the walls' average) and the one-way drive's outer
+  edge sits 5' off it, so the 5' sidewalk is flush with the house and porch. The drive edge's north end slides along
+  the edge it meets; the stall row still turns about its joint with the west leg. The sidewalk no longer goes round
+  the turn: along the stall heads it stops at the residence. The horticulture area and the residence (sizes kept) are
+  set flush to the sidewalk's south corner, the residence alongside horticulture as before.
+- Red House Level 3 addition on the plan (owner): `red-house-addition` (Level 3, education), the instructional
+  classroom / event space with its restroom and storage core, as placed on the study plan A0.1 (east of the house,
+  square to true north; about 71' x 33'), plus its entry canopy toward the house (`red-house-addition-canopy`, open
+  canopy). The patio and walkway between them are not drawn. It shows on the site plans too.
+- Dumpster enclosure centred on the drive aisle it opens onto (between the back of the double stall row, y 324, and
+  the front of the row along the swale, y 348): now y 330 to 342.
+- Architect's edits of 2026-10-20, made in Illustrator on the generated `drawings/ag-area-diagram.svg` (which every
+  build rewrites): saved as `drawings/ag-area-diagram3.svg` and read by `build_ag_area.py` like ag-area-diagram2.
+  Illustrator's export restarts the frame at 0,0, so its coordinates read as this diagram's feet less (-118, 11);
+  nothing in the drawing moved. Taken from it: the circulation arrows as redrawn (the loop's north leg as its own
+  aisle arrow, the middle aisle arrow redrawn, an arrow on the entry drive, a third animal arrow at small animal barn
+  B's turnout, the pens' arrow centred in the alley), the compost area as moved (x 203.6, y 299, 44.5' x 19'), and
+  the walk from the Red House to the addition's entry canopy (`walk-3`, Level 3; it was drawn in the names layer).
+  The south sidewalk now runs on along the residence's north side to its far corner. The rebuilt diagram matches the
+  edited file group for group. For further edits, save the Illustrator file under a new name (ag-area-diagram4.svg).
+
+## 2026-10-20: Arch D site plan sheets
+- `tools/export_sheets.py` prints `tools/sheet.html` with headless Chrome to 36" x 24" vector PDFs in `exports/`:
+  AS-0, the existing site on the full-colour aerial at 1" = 100'; AS-1, the main property at Level 3, 1" = 100';
+  AS-2, the campus at Level 3, 1" = 40'. `--date` sets the sheet date; name sheets (existing, site, campus) to print
+  only those. Title strip: north arrow, scale and graphic scale, legend, notes, project, sheet title, firm.
+- AS-0 follows the site slide's campus step: property lines, water and the FEMA line, surveyed trees, existing
+  buildings and drive, Cowpen Slough; nothing proposed. The County aerial is about 30 px per inch at this scale, so it
+  prints soft; a higher-resolution aerial would drop straight in.
+- The architect's Illustrator edits to the first AS-1 / AS-2 (main project `exports/`) are folded into the template:
+  project name "Agriculture Education Center", AS numbering, "Site plan: overall", the firm name in the title block,
+  labels Red House, Addition, and Entry Gate (read back to plan units), and the slough-bed label moved off the fence on AS-1.
+- The slide's screen-sized labels (`data-fixed`) and line weights (`data-w`) keep one printed size on every sheet
+  (labels at 0.4 of their slide size at 1" = 100'). The frame is kept on the parcel, so AS-2 runs to the parcel line.
+- Scale checked in the PDFs: existing barn 80.4', cattle barns 84' x 64'. Rerun after `build_site_map.py`.
+
+## 2026-10-20: sheet A-1, Red House Levels
+- `tools/export_red_house_sheet.py` prints `tools/red-house-sheet.html` to `exports/red-house-A-1.pdf` (Arch D,
+  vector) and saves its SVG (`red-house-A-1.svg`), whose top-level groups open in Illustrator as layers: Program
+  colors (one group per Level, under the plans), Plans, Room names, Plan titles, Titleblock.
+- 1/16" = 1'-0". Plans turned 90 deg counter-clockwise (read with the sheet's right edge as the bottom), Level 3 on
+  the left, Level 1 on the right, equal gaps. All three placed on Level 1's box (the Levels share one plan frame), so
+  the house lines up across the sheet; Level 3's addition runs past the shared edge.
+- The architect cleans up unfilled program-colour corners in Illustrator; those edits do not flow back into the data.
+
+## 2026-10-20: vision-first restructure, part 2; the 3D model closes the deck
+- `index.html`: the massing viewer (`massing/index.html`) is slide 16, "The campus in 3D", after Over to you. It runs
+  live in the deck's iframe; it has no build steps, so the deck's ‹ › buttons (and a clicker's PageDown / PageUp) change
+  slides, while the arrow keys stay with the viewer for walking. F, Escape, Home, and End go to the deck. The PDF export
+  skips it (it only takes `slides/` entries).
+- Owner: the bonus pasture stays in the model as context (its paddocks and fencing at Level 3), though the slides show
+  the main parcel only.
+- Levels table, Level 3 first: `levels.html` shows the columns 3, 2, 1 and builds them in that order. `levels.js` stays
+  written up from Level 1; the slide resolves each "Same as Level n", then a cell matching the one to its left reads
+  "Same as Level 3 / 2". Where a Level 3 cell is only an add-on, its new `whole` text leads instead (cow & calf pens,
+  swine & small animals, Red House): drafted wording, for the owner to check.
+- Paddocks, rotation first: step 1 is the nine paddocks in rotation (Levels 2 and 3, about 15 CE, the highlight
+  stepping through them), step 2 back to Level 1's conservative grazing (about 7 CE).
+- Red House from Level 3 back: the steps run the house today (owner, 2026-10-20: existing first), then Level 3, 2, 1, with the list in that order and the
+  plan's framing following; the static page (PDF) shows Level 3. Level 2 and 1 text reworded to read walking back
+  (figures unchanged). The viewer's first preset is now "House + addition".
+
+## 2026-10-20: fact sheet branch merged with main
+- Main had added the same Level 3 building independently as `red-house-addition`, placed from study plan A0.1
+  (owner, 2026-10-20). Main's placement is kept; this branch's fitted `red-house-classroom` (fit to the Red House
+  sheet) is dropped. The site map's "Classroom / event" label and the fact sheet close-up now point at
+  `red-house-addition`.
+- Generated files taken from main and rebuilt with the parcel fix (build_canopy, build_ag_area, build_site_map,
+  build_retention_markup, build_site_map, massing/export_site, stamp). ag-area.js rebuilds identical to main's.
+  The Arch D site plan sheets (exports/, not tracked) predate the parcel fix; re-export them for 61.3 ac.

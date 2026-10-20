@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>4-H Cattle Pens</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610192121">
-<link rel="stylesheet" href="../design/deck.css?v=202610192121">
+<link rel="stylesheet" href="../design/palette.css?v=202610201636">
+<link rel="stylesheet" href="../design/deck.css?v=202610201636">
 <style>
   .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
   .levels { display: flex; flex-direction: column; gap: 18px; }
@@ -33,7 +33,7 @@
 </head>
 <body data-drivers="module">
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 3 · What the land can carry</div>
+  <div class="eyebrow" data-step="0">The plan</div>
   <h1 data-step="0">Pens grow with demand</h1>
   <p class="lede" data-step="0">The Beginning Rancher herd lives primarily on pasture. Cow &amp; calf projects get pens,
     added in 7-pen modules as enrollment grows.</p>
@@ -67,8 +67,8 @@
   </div>
 </div>
 
-<script src="data/levels.js?v=202610192121"></script>
-<script src="../design/deck.js?v=202610192121"></script>
+<script src="data/levels.js?v=202610201636"></script>
+<script src="../design/deck.js?v=202610201636"></script>
 <script>
 (function () {
   const P = window.LEVELS.pens, L = window.LEVELS.levels;
@@ -94,7 +94,7 @@
     for (let i = 0; i < perRow; i++) s += pen(x + i * pw * k, y + (pd + aisle) * k, false);
     return s;
   }
-  const rows = P.byLevel.map(b => {
+  const rows = [...P.byLevel].reverse().map((b, pos) => {   // Level 3 first (owner, 2026-10-19)
     delay = 0;
     const lv = L.find(l => l.n === b.level);
     const total = P.existing + b.newBarns * P.barn;
@@ -102,7 +102,7 @@
     let svg = existingRow(0, top);
     for (let i = 0; i < b.newBarns; i++) svg += barn(barnW + gap + i * (barnW + gap), 0, `NEW BARN ${"AB"[i]} · 14 PENS`);
     const sub = b.newBarns ? `7 existing + ${b.newBarns * P.barn} new` : "existing pens at the barn";
-    return `<article class="card lv${b.confirmed ? "" : " tbc"}" data-step="${b.level}">
+    return `<article class="card lv${b.confirmed ? "" : " tbc"}" data-step="${pos + 1}">
       <div class="who"><span class="badge">${lv.name}</span><span>${lv.title}</span>${b.confirmed ? "" : '<small class="tbc-tag">Proposed, to confirm</small>'}</div>
       <svg class="plan" viewBox="-6 -24 ${3 * barnW + 2 * gap + 12} ${barnD + 30}" preserveAspectRatio="xMinYMid meet">${svg}</svg>
       <div class="total"><b class="num">${total}</b><span>pens</span><em>${sub}</em></div>

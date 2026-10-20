@@ -1,5 +1,6 @@
 // Investment Levels by program element. Hand-maintained: Owner/architect direction recorded in NOTES.md.
 // confirmed: false marks a placement proposed by Claude, shown on the slide with a dashed "to confirm" outline.
+// whole: the cell's wording when it leads the table (the slide shows Level 3 first), where text is only what that Level adds.
 // Pasture CE values come from pasture-capacity.js (generated from the worksheet), not from here.
 window.LEVELS = {
   levels: [
@@ -31,7 +32,7 @@ window.LEVELS = {
     { key: "cattle", label: "4-H cow & calf pens", cells: [
       { text: "Reuse the 7 existing pens", pens: 1, confirmed: true },
       { text: "Add one 14-pen barn", pens: 2, confirmed: true },
-      { text: "Add a second 14-pen barn", pens: 3, confirmed: true } ] },
+      { text: "Add a second 14-pen barn", whole: "Two new 14-pen barns and the 7 existing pens", pens: 3, confirmed: true } ] },
     { key: "cattle", label: "Pasture-stock handling", cells: [
       { text: "Holding pens 1 to 5, Bud Box, chute, and scale", confirmed: true },
       { text: "Same as Level 1", confirmed: true },
@@ -40,7 +41,7 @@ window.LEVELS = {
     { key: "swine", label: "Swine & small animals", cells: [
       { text: "Hogs move into the existing barn, about 32 pens; the 10 old hog pens give way to the site improvements", confirmed: true },
       { text: "Small animal barn A, 32 pens: a clean swap that frees the existing barn for storage", confirmed: true },
-      { text: "Small animal barn B: extend south four 12' bays (48')", confirmed: true } ] },
+      { text: "Small animal barn B: extend south four 12' bays (48')", whole: "Small animal barns A and B under one roof, 48 pens", confirmed: true } ] },
     // Poultry is not a "small animal" here: it is housed in the unfinished barn from Level 1 and stays there (architect, 2026-10-13).
     { key: "small_animal", label: "Poultry", cells: [
       { text: "In the unfinished barn", confirmed: true },
@@ -53,7 +54,7 @@ window.LEVELS = {
     { key: "education", label: "Red House", cells: [
       { text: "Renovate: classroom, conference, 4 offices, demo kitchen", confirmed: true },
       { text: "Add Office 5, men's & women's restrooms", confirmed: true },
-      { text: "Add event space / classroom addition + equipment carport", confirmed: true } ] },
+      { text: "Add event space / classroom addition + equipment carport", whole: "Renovated, with Office 5 and restrooms, an event space / classroom addition, and an equipment carport", confirmed: true } ] },
     // The residence beside the horticulture area is a Level 3 element; before that the spot has camper / RV hookups (architect, 2026-10-13).
     { key: "education", label: "Residence", cells: [
       { text: "Hookups for a camper or RV", confirmed: true },

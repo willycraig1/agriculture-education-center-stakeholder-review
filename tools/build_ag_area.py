@@ -294,42 +294,19 @@ _r = [_near(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1] - _div
       _near(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1])]
 _ext("residence", "Residence", [_to_d((z.real, z.imag)) for z in _r], "education", "building", "Camper / RV hookups",
      becomes={"3": {"use": "education", "note": "Residence"}})
-# Red House Level 3: the instructional classroom / event building (51' x 31' with restrooms and storage), from the
-# Red House study sheet (slides/data/red-house.js, Level 3 program). The sheet is placed on the site by fitting the
-# house's footprint on the sheet (Level 3 rooms, porches left out) to the architect's outline of the house: scale
-# fixed by the two drawings, rotation and offset fitted. The fit lands at 51.2 deg, which puts the sheet's north
-# (141 deg counter-clockwise from up) exactly at the plans' north-left, a check on the result.
-import re as _re
-from shapely.geometry import Point as _Pt, Polygon as _Poly
-from shapely.ops import unary_union as _uu
-from shapely import affinity as _aff
-from scipy.optimize import minimize as _min
-_rsrc = open(os.path.join(_sf.ROOT, "slides", "data", "red-house.js")).read()
-_RH = json.loads(_rsrc[_rsrc.index("{"):_rsrc.rindex("}") + 1])
-_L3 = next(l for l in _RH["levels"] if l["name"] == "Level 3")
-_rooms = [_Poly(list(zip(n[0::2], n[1::2]))).buffer(0) for n in
-          ([float(v) for v in _re.findall(r"-?[\d.]+", d)] for _c, d in _re.findall(r'<path class="([^"]+)" d="([^"]+)"', _L3["program"]))]
-_porch = [_Pt(1213.7, 1180.5), _Pt(265.7, 803.6)]                                 # the PORCH labels on the sheet
-_house_s = _uu([p for p in _rooms if p.centroid.y >= 400 and p.centroid.x < 1700 and not any(p.contains(q) for q in _porch)]).buffer(3).buffer(-3)
-_wall = 0.5 / _RH["ft_per_pt"]                                                       # half an exterior wall, in sheet units
-_class_s = _uu([p for p in _rooms if p.centroid.x < 600 and p.centroid.y < 400]).buffer(10, join_style=2).buffer(-10, join_style=2).buffer(_wall, join_style=2)
-_kk = _RH["ft_per_pt"] / (_sf.FT_PER_PT / abs(_sf.M_FP))                             # sheet units -> site map units
-_site_rh = _Poly(_rh["pts"]).buffer(0)
-_place = lambda g, v: _aff.translate(_aff.rotate(_aff.scale(g, _kk, _kk, origin=(0, 0)), v[0], origin=(0, 0)), v[1], v[2])
-_fit = None
-for _th in range(-180, 180, 15):
-    _g = _place(_house_s, (_th, 0, 0))
-    _r0 = _min(lambda v: _place(_house_s, v).symmetric_difference(_site_rh).area,
-               [_th, _site_rh.centroid.x - _g.centroid.x, _site_rh.centroid.y - _g.centroid.y], method="Nelder-Mead",
-               options={"xatol": .01, "fatol": .01, "maxiter": 3000})
-    if _fit is None or _r0.fun < _fit.fun:
-        _fit = _r0
-_class_m = _place(_class_s, _fit.x).simplify(0.15)
-add("red-house-classroom", "Classroom / event", *(lambda b: (b[0], b[1], b[2] - b[0], b[3] - b[1]))(_Poly([_to_d(q) for q in _class_m.exterior.coords[:-1]]).bounds),
-    "education", 3, note="Red House Level 3",
-    outline=[_to_d(q) for q in _class_m.exterior.coords[:-1]])
-print("red house sheet on the site: rotation", round(_fit.x[0], 2), "| footprint mismatch sf", round(_fit.fun * (_sf.FT_PER_PT / abs(_sf.M_FP)) ** 2),
-      "| classroom building sf", round(_class_m.area * (_sf.FT_PER_PT / abs(_sf.M_FP)) ** 2))
+# The Red House's Level 3 addition (owner, 2026-10-20): the instructional classroom / event space with its restroom and
+# storage core, east of the house, square to true north, as placed on the study plan (sheet A0.1: the core's walls,
+# P-WALL, and the classroom's open-sided outline, P-BELOW-LIGHT; study-plan points), with the entry canopy on its west
+# side facing the house (P-ABOVE). The patio and walkway between them are not drawn.
+_stp = lambda x, y: _to_d((lambda z: (z.real, z.imag))(_sf.M_TP * complex(x, y) + _sf.T_TP))
+_add_o = [_stp(x, y) for x, y in ((1521.2, 1185.6), (1679.3, 1185.6), (1679.3, 1259.2), (1521.2, 1259.2))]
+_xs_a, _ys_a = [q[0] for q in _add_o], [q[1] for q in _add_o]
+add("red-house-addition", "Red House addition", min(_xs_a), min(_ys_a), max(_xs_a) - min(_xs_a), max(_ys_a) - min(_ys_a), "education", 3,
+    note="Classroom / event space", outline=_add_o)
+by_id["red-house-addition"] = E[-1]
+_cn_o = [_stp(x, y) for x, y in ((1503.5, 1212.8), (1521.2, 1212.8), (1521.2, 1233.1), (1503.5, 1233.1))]
+add("red-house-addition-canopy", "", min(q[0] for q in _cn_o), min(q[1] for q in _cn_o), max(q[0] for q in _cn_o) - min(q[0] for q in _cn_o),
+    max(q[1] for q in _cn_o) - min(q[1] for q in _cn_o), "education", 3, kind="canopy", note="", outline=_cn_o, context=True)
 # ---- the parking lot's south loop, from the architect's CAD sketch of the lot (2026-10-12)
 # The sketch (pixel coordinates read off the screenshot) is placed by the Red House carport drawn on it: its four
 # corners are matched to the carport on the survey (BUILDING OH, 29' x 38'). That places the sketch to within about
@@ -366,7 +343,18 @@ _row_back = y_s_row + STALL_D + DY                                              
 # degrees off this diagram's grid. u runs along the stall row (south-east), n across it (south-west); the origin is
 # on the stall fronts. The sketch only sets where the stall fronts lie.
 _f0, _f1 = complex(*_sk(530, 962)), complex(*_sk(862, 1183))
-_U = (_f1 - _f0) / abs(_f1 - _f0); _N = _U * 1j                          # n points south-west, away from the island
+_U = (_f1 - _f0) / abs(_f1 - _f0)
+# The grid's angle comes from the Red House itself, not the sketch (owner, 2026-10-20: the south loop parallel and
+# perpendicular to the front of the house): the length-weighted mean direction of its walls, folded onto one quarter
+# turn. The sketch read about 0.7 degrees off. The origin stays on the sketch's stall fronts.
+import cmath as _cm, math as _mt
+_rh_o = by_id["existing-red-house"]["outline"]
+_vec = sum(_mt.hypot(b_[0] - a_[0], b_[1] - a_[1]) * _cm.exp(4j * _cm.phase(complex(b_[0] - a_[0], b_[1] - a_[1])))
+           for a_, b_ in zip(_rh_o, _rh_o[1:] + _rh_o[:1]))
+_Uh = _cm.exp(1j * _cm.phase(_vec) / 4)                                   # one of the four wall directions
+_Uh = max((_Uh * 1j ** k for k in range(4)), key=lambda z: (z * _U.conjugate()).real)   # the one nearest the sketch's u
+print("south loop grid: sketch", round(_mt.degrees(_cm.phase(_U)), 2), "deg -> Red House walls", round(_mt.degrees(_cm.phase(_Uh)), 2), "deg")
+_U = _Uh; _N = _U * 1j                                                    # n points south-west, away from the island
 _xy = lambda u, n: (lambda z: (round(z.real, 1), round(z.imag, 1)))(_f0 + _U * u + _N * n)
 _uv = lambda x, y: (lambda d: ((d * _U.conjugate()).real, (d * _N.conjugate()).real))(complex(x, y) - _f0)
 # The drive past the Red House is the one stretch of the loop that is one-way: 13' wide, 5' off the building to
@@ -654,8 +642,6 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     for id_ in ("holding-5", "holding-3"):                     # their north edge stays flush with the barns' north wall
         if abs(by_id[id_]["y"] - (by_id["cattle-a"]["y"] + _grow)) < 0.5:
             by_id[id_].update(y=by_id["cattle-a"]["y"], h=round(by_id[id_]["h"] + _grow, 1))
-    for id_ in ("holding-2", "holding-3", "holding-4", "holding-5"):   # areas as drawn (pens 4 and 5 were narrowed to 36')
-        by_id[id_]["note"] = f'{round(by_id[id_]["w"] * by_id[id_]["h"]):,} sf'
     _fd = _svg_rects(_grp("feed"))                                   # feed storage, then bedding storage
     _set("feed", *_fd[0])
     add("bedding", "Bedding storage", round(_fd[1][0] + _EO[0], 1), round(_fd[1][1] + _EO[1], 1), _fd[1][2], round(_fd[1][3]), "circulation", 2, note="")
@@ -693,13 +679,53 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     by_id["handling"].update(label="", note="")                      # its zones name its parts; no overall label on the slide
     by_id["handling"]["outline"] = _svg_pts(_re.search(r'<g id="handling">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
     E[:] = [e for e in E if e["id"] != "trailer-stop"]
+    # The holding block's west edge lines up with the existing barn's front (west face) (owner, 2026-10-19): the west
+    # column (handling yard and Bud Box, pens 4 and 5) and the 8' alley move east. The east column (pens 1 to 3) runs
+    # out to the end of the existing pens' lean-to roof, the "dog-ear" that carries on 13' past the barn's east wall
+    # (93.4' from the barn front in all; architect's sheet A2.0 Existing Barn) (owner, 2026-10-20).
+    _front = by_id["existing-barn"]["x"]
+    _dx = round(_front - by_id["handling"]["x"], 1)
+    HOLD_E = round(_front + 93.4, 1)                                  # the dog-ear's east end
+    for id_ in ("handling", "holding-4", "holding-5"):
+        e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1)
+        if e.get("outline"): e["outline"] = [[round(px + _dx, 1), py] for px, py in e["outline"]]
+    # the 8' alley sits centred in the block (owner, 2026-10-20): two equal columns either side of it. The west column
+    # (pens 4 and 5, the handling yard) widens to the alley; the Bud Box, lead-up, and chute keep their size and place.
+    _col = round((HOLD_E - _front - 8) / 2, 1)
+    _aw, _ae = round(_front + _col, 1), round(_front + _col + 8, 1)
+    _hx_e = by_id["handling"]["x"] + by_id["handling"]["w"]            # handling yard's east edge, after the move
+    for id_ in ("holding-4", "holding-5"):
+        by_id[id_]["w"] = _col
+    _hd = by_id["handling"]
+    if _hd.get("outline"):
+        _ymax = max(py for _, py in _hd["outline"]); _xmid = _hd["x"] + 18
+        _hd["outline"] = [[_aw if abs(px - _hx_e) < 0.6 else (round(px + _aw - _hx_e, 1) if abs(py - _ymax) < 0.1 and px > _xmid else px), py]
+                          for px, py in _hd["outline"]]      # the east wall and the south-east chamfer's corner move together
+    _hd["w"] = _col
+    for id_ in ("holding-1", "holding-2", "holding-3"):
+        e = by_id[id_]; e["x"] = _ae; e["w"] = round(HOLD_E - _ae, 1)
+        if e.get("outline"): e["outline"] = [[min(max(px, _ae), HOLD_E), py] for px, py in e["outline"]]
+    # the dog-ear itself, drawn as an open canopy so the line reads: the lean-to's roof over the pens' front 12.5'
+    # (it covers the 8' aisle and 12.5' of the pens, 20.5' off the barn's north wall), past the barn's east wall
+    _eb = by_id["existing-barn"]; _yd0, _yd1 = _eb["y"] - 20.5, _eb["y"] - 8.0
+    add("existing-dogear", "", _eb["x"] + _eb["w"], _yd0, round(HOLD_E - (_eb["x"] + _eb["w"]), 1), 12.5, "cattle", 1, kind="canopy", note="",
+        outline=[[_eb["x"] + _eb["w"], _yd0], [HOLD_E, _yd0], [HOLD_E, _yd1], [_eb["x"] + _eb["w"], _yd1]], context=True)
+    # cattle turnout A's east edge and the bedding storage follow the holding block to the barn front line: the bedding
+    # fills the north end of the lane between cattle barn A and the holding pens, flush with the barns' north wall
+    by_id["turnout-cattle-a"]["w"] = round(_front - by_id["turnout-cattle-a"]["x"], 1)
+    _ca = by_id["cattle-a"]
+    next(e for e in E if e["id"] == "bedding").update(x=round(_ca["x"] + _ca["w"], 1), y=_ca["y"], w=round(_front - (_ca["x"] + _ca["w"]), 1), h=12.0)
+    for id_ in ("holding-1", "holding-2", "holding-3", "holding-4", "holding-5"):   # areas as drawn
+        by_id[id_]["note"] = f'{round(by_id[id_]["w"] * by_id[id_]["h"]):,} sf'
     # grooming area inside the arena; compost and dumpster by the existing barn
     _gm = _re.search(r'Grooming Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
     # the grooming area comes first, at Level 2, under a roof that the arena (Level 3) later grows from
     add("grooming", "Grooming", round(float(_gm[0]) + _EO[0], 1), round(float(_gm[1]) + _EO[1], 1), round(float(_gm[2]), 1), float(_gm[3]), "arena", 2, note="")
     _cp = _re.search(r'Compost Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
-    add("compost", "Compost", round(float(_cp[0]) + _EO[0], 1), round(float(_cp[1]) + _EO[1], 1), round(float(_cp[2]), 1), float(_cp[3]), "circulation", 1, kind="yard", note="")
-    add("dumpster", "Dumpsters", 199.6, 324.0, 12.0, 24.0, "circulation", 1, note="enclosure")      # the rotated 12' x 24' rect in the file
+    # compost and the dumpster enclosure line up on the existing barn's front (owner, 2026-10-19); one dumpster in a
+    # 12' x 12' C-shaped enclosure open to the west, toward the drive
+    add("compost", "Compost", by_id["existing-barn"]["x"], round(float(_cp[1]) + _EO[1], 1), round(float(_cp[2]), 1), float(_cp[3]), "circulation", 1, kind="yard", note="")
+    add("dumpster", "Dumpster", by_id["existing-barn"]["x"], 324.0, 12.0, 12.0, "circulation", 1, note="enclosure")
     # parking: outline, island and stalls as drawn (the bank of five is gone)
     _pr = _svg_path(_re.search(r'<g id="parking">\s*<path class="[^"]*" d="([^"]+)"', _sv).group(1))
     _pkg = _grp("parking")
@@ -721,6 +747,76 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     if _swl:
         _pk["island_poly"] = _svg_pts(_swl.group(1))
     n_stalls = len(_stl) + len(_ang)
+    # the dumpster enclosure is centred on the drive aisle it opens onto (owner, 2026-10-20): the aisle between the back of
+    # the double stall row and the front of the row along the swale
+    _dm = next(e for e in E if e["id"] == "dumpster")
+    _backs = sorted({q[2][1] for q in _stl}); _fronts = sorted({q[0][1] for q in _stl})
+    _a0_ = max((b for b in _backs if b <= _dm["y"] + _dm["h"] / 2 + 12), default=None)
+    _a1_ = min((f for f in _fronts if _a0_ is not None and f > _a0_ + 1), default=None)
+    if _a0_ is not None and _a1_ is not None:
+        _dm["y"] = round((_a0_ + _a1_) / 2 - _dm["h"] / 2, 1)
+        print("dumpster centred on its aisle:", _a0_, "to", _a1_, "-> y", _dm["y"])
+    # Square the south loop to the front of the Red House, with the sidewalk flush against it (owner, 2026-10-20). The
+    # front is the line of the house's westernmost wall and the front porch's outer edge (they are one line), about
+    # 0.4 degrees off the walls' average; the loop takes its angle from it (_Uf along the stall row, _Nf across). The
+    # one-way drive's outer edge sits 5' off the front, so the 5' sidewalk between them is flush with the house. The
+    # stall row turns about its north-west front corner (its joint with the west leg); the drive edge's north end slides
+    # along the edge it meets (its joint with the east leg); their corner is where the two lines meet. The nine angled
+    # stalls are redrawn on the row; the swale island's two diagonal sides follow the side they face. The horticulture
+    # area and the residence are set flush to the sidewalk's south corner.
+    _near = lambda q: min(range(len(_pk["outline"])), key=lambda k: (_pk["outline"][k][0] - q[0]) ** 2 + (_pk["outline"][k][1] - q[1]) ** 2)
+    _a0 = sorted(_ang, key=lambda q: q[0][0])
+    if _a0:
+        _r1 = lambda z: [round(z.real, 1), round(z.imag, 1)]
+        _cand = [complex(*q) for q in by_id["existing-red-house"]["outline"] + (by_id.get("existing-porch-nw") or {}).get("outline", [])]
+        _umin = min((z - _f0).real * _U.real + (z - _f0).imag * _U.imag for z in _cand)
+        _fr = sorted([z for z in _cand if (z - _f0).real * _U.real + (z - _f0).imag * _U.imag < _umin + 1.0],
+                     key=lambda z: (z - _f0).real * _N.real + (z - _f0).imag * _N.imag)
+        _Nf = (_fr[-1] - _fr[0]) / abs(_fr[-1] - _fr[0])
+        if (_Nf * _N.conjugate()).real < 0: _Nf = -_Nf
+        _Uf = _Nf * -1j                                                    # along the row, so that _Nf = _Uf * 1j
+        _F = complex(*_a0[0][0])                                           # stall row's north-west front corner
+        _drot = _cm.phase(_Uf) - _cm.phase(complex(*_a0[0][1]) - _F)
+        _kbw, _kce = _near(_a0[0][3]), _near(_a0[-1][2])
+        _kdn = (_kce + 1) % len(_pk["outline"]); _knx = (_kdn + 1) % len(_pk["outline"])
+        _D0, _DX = complex(*_pk["outline"][_kdn]), complex(*_pk["outline"][_knx])
+        _depth = abs(complex(*_a0[0][3]) - complex(*_a0[0][0]))
+        _BW = _F + _Nf * _depth
+        _L0 = _fr[0] - _Uf * 5                                             # a point on the drive edge (5' off the front)
+        _CE = _BW + _Uf * ((_L0 - _BW) * _Uf.conjugate()).real
+        _e = _DX - _D0                                                     # the drive edge's north end slides along this edge
+        _t = ((_L0 - _D0) * _Uf.conjugate()).real / ((_e * _Uf.conjugate()).real or 1e-9)
+        _D = _D0 + _e * _t
+        _pk["outline"][_kbw], _pk["outline"][_kce], _pk["outline"][_kdn] = _r1(_BW), _r1(_CE), _r1(_D)
+        _new = []
+        for q in _a0:
+            a0_, a1_ = abs(complex(*q[0]) - _F), abs(complex(*q[1]) - _F)
+            _new.append([_r1(_F + _Uf * a0_), _r1(_F + _Uf * a1_), _r1(_F + _Uf * a1_ + _Nf * _depth), _r1(_F + _Uf * a0_ + _Nf * _depth)])
+        _pk["stalls_extra"] = _stl + _new
+        _rowL, _drvL = _LS([_r1(_F), _r1(_CE)]), _LS([_r1(_CE), _r1(_D)])
+        def _turn(q):                                                      # a diagonal-side vertex follows the side it faces
+            if q[1] < _D0.imag + 0.2:
+                return q
+            if _rowL.distance(_Pt(*q)) < _drvL.distance(_Pt(*q)):
+                return _r1(_F + (complex(*q) - _F) * _cm.exp(1j * _drot))
+            return _r1(_D + (complex(*q) - _D0) * _cm.exp(1j * _drot))
+        _pk["holes"] = [[_turn(q) for q in h_] for h_ in _pk["holes"]]
+        if _pk.get("island_poly"):
+            _pk["island_poly"] = [_turn(q) for q in _pk["island_poly"]]
+        # horticulture and the residence, flush to the sidewalk's south corner, keeping their sizes
+        _SC = _CE + _Uf * 5 + _Nf * 5
+        _ho, _ro = by_id["horticulture"]["outline"], by_id["residence"]["outline"]
+        _hl, _hd = abs(complex(*_ho[1]) - complex(*_ho[0])), abs(complex(*_ho[2]) - complex(*_ho[1]))
+        _rw = abs(complex(*_ro[1]) - complex(*_ro[0]))
+        _HNW = _SC - _Uf * _hl
+        _hnew = [_r1(_HNW), _r1(_SC), _r1(_SC + _Nf * _hd), _r1(_HNW + _Nf * _hd)]
+        _rnew = [_r1(_HNW - _Uf * _rw), _r1(_HNW), _r1(_HNW + _Nf * _hd), _r1(_HNW - _Uf * _rw + _Nf * _hd)]
+        for id_, o_ in (("horticulture", _hnew), ("residence", _rnew)):
+            by_id[id_].update(outline=o_, x=min(q[0] for q in o_), y=min(q[1] for q in o_),
+                              w=round(max(q[0] for q in o_) - min(q[0] for q in o_), 1), h=round(max(q[1] for q in o_) - min(q[1] for q in o_), 1))
+        _WEST_END = _HNW - _Uf * _rw                                       # the sidewalk runs on along the residence's north side
+                                                                           # to its far corner (architect's edit, 2026-10-20)
+        print("south loop squared to the Red House front: turned", round(_mt.degrees(_drot), 2), "deg; corner", _r1(_CE), "| drive edge 5' off the front")
     # grass parking (architect, 2026-10-14): the north stall row and the two middle rows, from the lot's west stall
     # edge to its east edge, are grass over a base rather than pavement; the south row and the drive aisles stay paved
     _g = [36.5, by_id["parking"]["y"], 170.0, 324.0]
@@ -740,6 +836,10 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         outline=_poul, context=True)
     # walkway network as drawn
     _wk = _svg_pts(_re.search(r'<g id="walk">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
+    # the walk's apron west of the existing pens ends on the barn front line, like the holding block above it (owner,
+    # 2026-10-20); the architect's file has it 3.6' short of the line
+    _wk = [[by_id["existing-barn"]["x"] if abs(px - 196.0) < 0.6 and by_id["existing-pens"]["y"] - 0.6 <= py <= by_id["existing-pens"]["y"] + PEN_D + 0.6 else px, py]
+           for px, py in _wk]
     _wkp = _Poly(_wk).buffer(0)
     _poly_p = _Poly(_poul)
     _ys0 = by_id["existing-barn"]["y"] - 8                            # the network's strip north of the existing barn
@@ -790,6 +890,45 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     add("walk-2", "", _b2["x"], _b2["y"], _b2["w"], _b2["h"], "circulation", 2, kind="walk", note="", outline=_o2, context=True)
     by_id["walk-2"] = E[-1]
     print("walks by Level: 1 =", round(_wk1.area), "sf, 2 =", round(_wk2.area), "sf | cut at x", _xcut)
+    # the south sidewalk (owner, 2026-10-20), 5' wide, Level 1: flush with the parking loop's outer pavement edge, from
+    # the walk network's stub by the dumpster, down the one-way drive's east edge past the Red House's front porch, and
+    # round the corner along the heads of the stall row in front of the horticulture area to the row's west end. It is
+    # the band 5' outside the pavement along that run; the horticulture area and the residence butt up to it.
+    _pave = _Poly(by_id["parking"]["outline"]).buffer(0)
+    _run = [q for q in by_id["parking"]["outline"]]
+    _k0 = min(range(len(_run)), key=lambda k: (_run[k][0] - 170.0) ** 2 + (_run[k][1] - 344.3) ** 2)     # the east leg's foot by the stub
+    _k1 = min(range(len(_run)), key=lambda k: (_run[k][0] - _xy(_u0, STALL_D)[0]) ** 2 + (_run[k][1] - _xy(_u0, STALL_D)[1]) ** 2)  # stall row's west head corner
+    # and on round the loop's turn at the row's west end (owner, 2026-10-20): back along the pavement edge past the
+    # row's end and round the curve to where it straightens onto the entry drive
+    # (it stops at the residence: carried on west from the row's end along the heads' line to the residence, below)
+    _path = [tuple(_run[k % len(_run)]) for k in range(_k1, _k0 + 1)] if _k1 <= _k0 else [tuple(q) for q in _run[_k1:] + _run[:_k0 + 1]]
+    _band = _pave.buffer(5, join_style=2, mitre_limit=3).difference(_pave)
+    _sw = _band.intersection(_LS(_path).buffer(5.5, cap_style=2, join_style=2))
+    _sw = max(getattr(_sw, "geoms", [_sw]), key=lambda g: g.area)
+    if "_WEST_END" in dir():                                          # from the row's end on to the residence
+        _bw_ = complex(*_run[_k1])
+        _uw = ((_WEST_END - _bw_) * _Uf.conjugate()).real              # negative: west of the row's end
+        if _uw < -0.1:
+            _ext = _Poly([_r1(_bw_), _r1(_bw_ + _Uf * _uw), _r1(_bw_ + _Uf * _uw + _Nf * 5), _r1(_bw_ + _Nf * 5)])
+            _sw = _union([_sw, _ext.buffer(0.05)]).buffer(-0.05)
+            _sw = max(getattr(_sw, "geoms", [_sw]), key=lambda g: g.area)
+    _wk1u = _union([_Poly(by_id["walk"]["outline"]).buffer(0), _sw.buffer(0.05)]).buffer(-0.05)
+    # clean corner at the dumpster apron (owner, 2026-10-20): the network's stub there poked past the sidewalk's outer
+    # edge; everything south of the apron's south edge and beyond the sidewalk's outer line is trimmed off, so the
+    # outline runs straight from the apron's south edge down the sidewalk
+    _pa, _pb = complex(*_path[-1]), complex(*_path[-2])                  # the pavement edge's first leg from the stub
+    _d = (_pb - _pa) / abs(_pb - _pa); _out = _d * -1j if ((complex(*_xy(_ue + 10, -60)) - _pa) * (_d * -1j).conjugate()).real > 0 else _d * 1j
+    _o0 = _pa + _out * 5                                                   # the sidewalk's outer line
+    _yap = max(q[1] for q in by_id["walk"]["outline"] if q[0] > _pa.real + 3 and q[1] < _pa.imag + 6)   # apron's south edge
+    _tq = (_yap - _o0.imag) / _d.imag
+    _oq = _o0 + _d * _tq                                                   # outer line meets the apron's south edge
+    _cut = _Poly([(_oq.real, _yap), (_oq.real + 400, _yap), (_oq.real + 400, _yap + 400),
+                  ((_oq + _d * 400 / abs(_d.imag)).real, (_oq + _d * 400 / abs(_d.imag)).imag)])
+    _cut = _cut.intersection(_box(_oq.real - 30, _yap, _oq.real + 60, _yap + 30))   # only at the apron corner
+    _wk1u = _wk1u.difference(_cut).buffer(0)
+    _o1 = _ring(_wk1u)
+    by_id["walk"].update(outline=_o1, **_bb(_o1))
+    print("south sidewalk ft:", round(_LS(_path).length), "| along the pavement edge from", _path[0], "to", _path[-1])
     # circulation as drawn: the loop is two-way, so its runs carry arrowheads at both ends
     _circ = []
     for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="(st\d+)" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _sv):
@@ -805,6 +944,41 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         if c["id"] == "aisle-cattle":
             c["pts"] = [[q[0], by_id["cattle-a"]["y"] + PEN_D + CATTLE_AISLE / 2] for q in c["pts"]]
     E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)
+    # ---- the architect's edits of 2026-10-20 (drawings/ag-area-diagram3.svg, an Illustrator export of this script's
+    # generated diagram; its coordinates are this diagram's feet less (-118, 11)). Taken from it: the circulation arrows
+    # as redrawn (the loop's north leg split off as an aisle arrow, the middle aisle arrow redrawn, an arrow on the
+    # entry drive, a third animal arrow at small animal barn B's turnout, the pens' arrow centred in the alley), the
+    # compost area as moved, and the walk from the Red House to the addition's entry canopy (Level 3).
+    AG_EDIT3 = os.path.join(ROOT, "drawings", "ag-area-diagram3.svg")
+    if os.path.exists(AG_EDIT3):
+        _s3 = open(AG_EDIT3).read()
+        _o3 = lambda q: [round(q[0] - 118, 2), round(q[1] + 11, 2)]
+        _raw3 = lambda txt: (lambda v: [[v[i], v[i + 1]] for i in range(0, len(v), 2)])([float(x) for x in txt.replace(",", " ").split()])   # this file's own coordinates
+        _cg = _s3[_s3.index('<g id="circulation"'):_s3.index("</g>", _s3.index('<g id="circulation"'))]
+        _c3 = []
+        for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="[^"]*" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _cg):
+            tag, id_, name, pts_, x1, y1, x2, y2 = m.groups()
+            pts = [_o3(q) for q in _raw3(pts_ if pts_ else f"{x1} {y1} {x2} {y2}")]
+            base = name or id_
+            _c3.append(dict(id=id_, kind="animal" if base.startswith("an-") else "service",
+                            label={"loop-parking": "Two-way loop", "aisle-cattle": "Tractor aisle"}.get(id_, ""), pts=pts))
+        if _c3:
+            C[:] = _c3
+        _cm3 = _re.search(r'<g id="compost">\s*<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _s3)
+        if _cm3:
+            _x3, _y3, _w3, _h3 = map(float, _cm3.groups())
+            next(e for e in E if e["id"] == "compost").update(x=round(_x3 - 118, 1), y=round(_y3 + 11, 1), w=_w3, h=_h3)
+        # the walk to the addition was drawn in the names layer, in the walk's style (class of the walk polygon)
+        _wcls = _re.search(r'<g id="walk">\s*<polygon class="([^"]+)"', _s3)
+        _nm = _s3[_s3.index('<g id="names"'):]
+        _w3 = [_raw3(m.group(1)) for m in _re.finditer(r'<polygon class="%s" points="([^"]+)"' % (_wcls.group(1) if _wcls else "st10"), _nm)]
+        if _w3:
+            _o = [_o3(q) for q in max(_w3, key=lambda q: len(q))]
+            _xs3, _ys3 = [q[0] for q in _o], [q[1] for q in _o]
+            add("walk-3", "", min(_xs3), min(_ys3), max(_xs3) - min(_xs3), max(_ys3) - min(_ys3), "circulation", 3, kind="walk", note="",
+                outline=_o, context=True)
+            by_id["walk-3"] = E[-1]
+        print("architect's edits of 2026-10-20 imported:", os.path.basename(AG_EDIT3), "| circulation runs", len(C), "| walk to the addition", bool(_w3))
     print("architect's edits imported:", os.path.basename(AG_EDIT), "| stalls", n_stalls, "| dogtrot ft", _dog, "| circulation runs", len(C))
 def _on(pt_, c2):
     q = c2["pts"]
@@ -834,9 +1008,11 @@ view = None   # set once the dimension strings exist (below)
 def dim(label, x1, y1, x2, y2):
     return {"label": label, "x1": x1, "y1": y1, "x2": x2, "y2": y2}
 yt = Y_ROW1 - TURN_D - 14
-xe = _ex + 12
+_he = HOLD_E if "HOLD_E" in dir() else _ex                     # the holding block's east edge (the dog-ear line, Option B)
+xe = _he + 12
 dims = [dim(f"{MOD}'", XB, yt, XB + MOD, yt), dim(f"{GAP}'", XB + MOD, yt, XA, yt), dim(f"{MOD}'", XA, yt, X_HOLD, yt),
-        dim(f"{_ex - X_HOLD:g}'", X_HOLD, yt, _ex, yt),
+        *([dim(f"{_front - X_HOLD:g}'", X_HOLD, yt, _front, yt), dim(f"{_he - _front:g}'", _front, yt, _he, yt)]
+          if "HOLD_E" in dir() and _front - X_HOLD > 0.5 else [dim(f"{_he - X_HOLD:g}'", X_HOLD, yt, _he, yt)]),   # lane, then the holding block
         dim(f"{TURN_D}'", x_sa_b - TURN_D, y_sa - 10, x_sa_b, y_sa - 10), dim(f"{SMALL_W}'", x_sa_b, y_sa - 10, x_sa_b + SMALL_W, y_sa - 10),
         dim(f"{GAP}'", x_sa_b + SMALL_W, y_sa - 10, x_sa_a, y_sa - 10)]
 by_id = {e["id"]: e for e in E}

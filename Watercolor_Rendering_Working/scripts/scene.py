@@ -155,21 +155,22 @@ def build():
     G = Obj('ground', cast_shadow=False, ground=True)
     # site grass (big) is drawn separately; paving and dirt here (order = paint order)
     # drive coming from south up to barn & service lane
-    ground_poly(G, 303 / 1, -520, 333, -254, 'asphalt')            # main service drive (from photo)
+    ground_poly(G, 303 / 1, -362, 333, -254, 'asphalt')            # service drive beside the existing barn, stopping short of the Red House (owner, 2026-10-19)
     ground_poly(G, 145.7, -600, 168.5, -246, 'asphalt')            # west parking drive (from entry road)
     ground_poly(G, 83, -245.8, 303, -230.5, 'concrete')            # E-W lane south of arena
     ground_poly(G, 168.5, -254, 303, -245.8, 'asphalt')
     ground_poly(G, 168.5, -339, 300, -254, 'grasspark')            # grass parking
     ground_poly(G, 194, -230.5, 218.6, -93.6, 'concrete')          # lane between cattle barns
-    ground_poly(G, 302.7, -254, 329.5, -93.6, 'concrete')          # service lane east of arena
+    ground_poly(G, 302.7, -254, 983 / S, -91.5, 'concrete')        # service lane east of arena, out to the barn front line (no grass strip)
     ground_poly(G, 329.5, -262.7, 499.6, -254.6, 'concrete')       # 8' walk north of barn, out to the unfinished barn (as the plan's walk)
     ground_poly(G, 333, -340, 420, -313.6, 'asphalt')              # apron in front of barn
-    for r in [R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
-              R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680)]:
+    for r in [R(983, 270, 1109, 415), R(983, 415, 1109, 555), R(1132.6, 270, 1258.5, 415),
+              R(1132.6, 415, 1258.5, 555), R(1132.6, 555, 1258.5, 680), R(983, 555, 1109, 680),
+              R(1109, 270, 1132.6, 680)]:                                  # and the alley between the pen columns
         ground_poly(G, *r, 'dirt')
     ground_poly(G, *R(645, 530, 893, 680), 'arenadirt')            # arena floor
-    ground_poly(G, *R(995, 935, 1140, 995), 'dirt')                # compost pad
-    for r in [R(245, 162, 608, 270), R(612, 162, 965, 270), R(138, 537, 245, 697.85), R(138, 697.85, 245, 858.5), R(138, 858.5, 245, 1001.3)]:
+    ground_poly(G, *R(983, 935, 1128, 995), 'dirt')                # compost pad
+    for r in [R(245, 162, 608, 270), R(612, 162, 983, 270), R(138, 537, 245, 697.85), R(138, 697.85, 245, 858.5), R(138, 858.5, 245, 1001.3)]:
         ground_poly(G, *r, 'turnout')
     # parking stall rows (light lines) handled as ground lines
     objs.append(G)
@@ -310,8 +311,20 @@ def build():
     # ---- Feed storage & bedding storage (small white sheds)
     o = Obj('feed'); x1, y1, x2, y2 = R(525, 560, 572, 680)
     gable(o, x1, y1, x2, y2, 9, 13, 'y', 'whitemetal', 'roof', ovh=1.0); objs.append(o)
-    o = Obj('bedding'); x1, y1, x2, y2 = R(893, 276, 965, 310)
-    gable(o, x1, y1, x2, y2, 9, 12, 'x', 'whitemetal', 'roof', ovh=1.0); objs.append(o)
+    # bedding storage: two open bins like the compost bins, three-sided concrete walls 5' high, open to the south
+    # (owner, 2026-10-19), with a pile of bedding in each
+    # it fills the north end of the lane between cattle barn A's 3' overhang and the holding pens (on the barn front
+    # line), its back wall just inside the turnout fence (owner, 2026-10-19)
+    o = Obj('bedding')
+    x1, x2 = 893 / S + 3.8, 983 / S - 1.0
+    y2 = -270 / S - 1.0; y1 = y2 - 12.0
+    ground_poly(G, x1, y1 - 4, x2, y2, 'concrete')
+    for xx in (x1, (x1 + x2) / 2, x2):
+        box(o, xx - 0.4, y1, xx + 0.4, y2, 0, 5.0, 'concrete_w', 'concrete_w')
+    box(o, x1 - 0.4, y2 - 0.8, x2 + 0.4, y2, 0, 5.0, 'concrete_w', 'concrete_w')
+    for bx0, bx1 in ((x1 + 1.2, (x1 + x2) / 2 - 1.2), ((x1 + x2) / 2 + 1.2, x2 - 1.2)):
+        box(o, bx0, y1 + 2.5, bx1, y2 - 1.6, 0, 2.6, 'arenadirt', 'arenadirt')
+    objs.append(o)
 
     # ---- Existing barn, from the architect's sheet "A2.0 Existing Barn" (Study Plan A2.1, 2025-08-20):
     # one-story wood-frame garage 80.4' x 50.4', symmetric gable E-W, eaves about 10.9', ridge about 19.6'
@@ -384,22 +397,33 @@ def build():
     objs.append(o)
 
     # ---- Outdoor pens 1–5 & chute: pipe fences, each segment its own object for sorting
-    pens = [R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
-            R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680)]
+    # pens 1 to 3 (the east column) run out to the existing pens' dog-ear, 93.4' from the barn front (1258.5 px;
+    # deck commit b9f2bcf), and the 8' alley is centred in the block: columns 42.7' wide each (3f83b7e; owner 2026-10-20)
+    pens = [R(983, 270, 1109, 415), R(983, 415, 1109, 555), R(1132.6, 270, 1258.5, 415),
+            R(1132.6, 415, 1258.5, 555), R(1132.6, 555, 1258.5, 680), R(983, 555, 1109, 680)]
     for i, (x1, y1, x2, y2) in enumerate(pens):
         for j, seg in enumerate([(x1, y1, x2, y1), (x2, y1, x2, y2), (x2, y2, x1, y2), (x1, y2, x1, y1)]):
             f = Obj(f'pen{i}_{j}', cast_shadow=False)
             fence(f, *seg, 5.0, [5.0, 3.6, 2.2, 0.9], 'pipe', post=10.0, w=0.9)
             objs.append(f)
+    # a pipe gate across the north end of the alley between the holding pen columns, where it meets the turnout line
+    ax1, ay1, ax2, ay2 = R(1109, 270, 1132.6, 680)
+    gt = Obj('alleygate', cast_shadow=False)
+    for xx in (ax1, ax2):
+        gt.line([(xx, ay2, 0), (xx, ay2, 5.6)], 'pipe', 1.6)
+    for z in (0.8, 1.7, 2.6, 3.5, 4.4):
+        gt.line([(ax1 + 0.4, ay2, z), (ax2 - 0.4, ay2, z)], 'pipe', 0.9)
+    gt.line([(ax1 + 0.4, ay2, 0.8), (ax2 - 0.4, ay2, 4.4)], 'pipe', 0.8)
+    objs.append(gt)
     # chute alley inside lead-up area
-    x1, y1, x2, y2 = R(965, 555, 1072, 680)
+    x1, y1, x2, y2 = R(983, 555, 1109, 680)
     f = Obj('chute', cast_shadow=False)
     fence(f, x1 + 16, y1, x1 + 16, y2 - 8, 5.5, [5.5, 3.5, 1.5], 'pipe', post=6)
     fence(f, x1 + 20, y1, x1 + 20, y2 - 8, 5.5, [5.5, 3.5, 1.5], 'pipe', post=6)
     objs.append(f)
 
     # ---- Turnout board fences (wood, 3 rails), split into short segments
-    tos = [R(245, 162, 608, 270), R(612, 162, 965, 270), R(138, 537, 245, 697.85), R(138, 697.85, 245, 858.5), R(138, 858.5, 245, 1001.3)]
+    tos = [R(245, 162, 608, 270), R(612, 162, 983, 270), R(138, 537, 245, 697.85), R(138, 697.85, 245, 858.5), R(138, 858.5, 245, 1001.3)]
     k = 0
     for (x1, y1, x2, y2) in tos:
         for seg in [(x1, y1, x2, y1), (x2, y1, x2, y2), (x2, y2, x1, y2), (x1, y2, x1, y1)]:
@@ -413,7 +437,7 @@ def build():
                 objs.append(f)
 
     # ---- compost bins (3 bays, low concrete walls)
-    x1, y1, x2, y2 = R(995, 935, 1140, 995)
+    x1, y1, x2, y2 = R(983, 935, 1128, 995)
     o = Obj('compost')
     for i in range(4):
         xx = x1 + 4 + i * (x2 - x1 - 8) / 3
@@ -421,8 +445,14 @@ def build():
     box(o, x1 + 3.5, y2 - 3, x2 - 3.5, y2 - 2, 0, 4.5, 'concrete_w', 'concrete_w')
     objs.append(o)
     # dumpsters
-    o = Obj('dumpsters'); x1, y1, x2, y2 = R(985, 1000, 1018, 1075)
-    box(o, x1, y1 + 2, x2, y1 + 8.5, 0, 5, 'dumpster', 'dumpster'); box(o, x1, y1 + 11, x2, y1 + 17.5, 0, 5, 'dumpster', 'dumpster')
+    # one dumpster in a 12' x 12' C-shaped enclosure, weathered wood 6' high, open to the west toward the drive, its
+    # west side on the existing barn's front line (owner, 2026-10-19)
+    o = Obj('dumpsters'); x1, y1, x2, y2 = R(983, 1001, 1019, 1037)
+    ground_poly(G, x1, y1, x2, y2, 'concrete')
+    box(o, x1, y2 - 0.5, x2, y2, 0, 6.0, 'oldwood', 'oldwood')          # north
+    box(o, x1, y1, x2, y1 + 0.5, 0, 6.0, 'oldwood', 'oldwood')          # south
+    box(o, x2 - 0.5, y1, x2, y2, 0, 6.0, 'oldwood', 'oldwood')          # east (back)
+    box(o, x2 - 7.4, y1 + 2.4, x2 - 1.0, y2 - 2.4, 0, 5.2, 'dumpster', 'dumpster')
     objs.append(o)
 
     # ---- a few cars in the grass parking / paved drive
