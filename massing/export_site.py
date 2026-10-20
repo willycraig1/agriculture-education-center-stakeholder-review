@@ -502,10 +502,11 @@ def main():
     out['campus']['stalls'] = stalls
 
     # The Red House's Level 3 teaching space, as the massing models it (owner, 2026-10-20): 72' x 36' on the 12' grid,
-    # same centre as the study plan's addition but square to the barnyard (the diagram's axes) instead of true north,
+    # near the study plan's addition but square to the barnyard (the diagram's axes) instead of true north,
     # entry centred on its west end. The walk is walk-3 from the plan, carried on to a landing at the new door.
     ao = ELEM['red-house-addition']['outline']
     acx, acy = sum(p[0] for p in ao) / 4, sum(p[1] for p in ao) / 4
+    acx += 5.0                     # moved 5' east (owner): about 12.9' clear from its floor band to the Red House's north-east porch
     L, W = 72.0, 36.0
     c0, c1 = d2s(acx, acy), d2s(acx + 1, acy)
     wx = acx - L / 2                                                         # west wall line (diagram x)
