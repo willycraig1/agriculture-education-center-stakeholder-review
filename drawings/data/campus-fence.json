@@ -1,7 +1,7 @@
 {
  "note": "The campus fence as redrawn to the barnyard's turnout yards; replaces this run of fences.json on the map.",
  "id": "fence-07",
- "length_ft": 1070,
+ "length_ft": 1084,
  "plan_length_ft": 1089,
  "diagram_ft": [
   [
@@ -21,15 +21,15 @@
    216
   ],
   [
-   280.0,
+   293.0,
    78.0
   ],
   [
-   194.0,
+   199.6,
    78.0
   ],
   [
-   194.0,
+   199.6,
    42.0
   ],
   [
@@ -67,16 +67,16 @@
    302.34
   ],
   [
-   1094.67,
-   286.38
+   1096.17,
+   281.59
   ],
   [
-   1084.72,
-   318.06
+   1085.37,
+   316.0
   ],
   [
-   1071.46,
-   313.9
+   1072.11,
+   311.84
   ],
   [
    1043.48,

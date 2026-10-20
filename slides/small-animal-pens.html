@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Small Animal Pens</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610192121">
-<link rel="stylesheet" href="../design/deck.css?v=202610192121">
+<link rel="stylesheet" href="../design/palette.css?v=202610201636">
+<link rel="stylesheet" href="../design/deck.css?v=202610201636">
 <style>
   .body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 34px; flex: 1; min-height: 0; }
   .levels { display: flex; flex-direction: column; gap: 18px; }
@@ -33,7 +33,7 @@
 </head>
 <body data-drivers="module">
 <div class="stage">
-  <div class="eyebrow" data-step="0">Act 3 · What the land can carry</div>
+  <div class="eyebrow" data-step="0">The plan</div>
   <h1 data-step="0">One barn for swine, sheep, and goats</h1>
   <p class="lede" data-step="0">One kind of pen for all three. The hogs move into the existing barn at Level 1, swap into
     a new barn at Level 2, and that barn grows south at Level 3.</p>
@@ -66,9 +66,9 @@
   </div>
 </div>
 
-<script src="data/levels.js?v=202610192121"></script>
-<script src="data/ag-area.js?v=202610192121"></script>
-<script src="../design/deck.js?v=202610192121"></script>
+<script src="data/levels.js?v=202610201636"></script>
+<script src="data/ag-area.js?v=202610201636"></script>
+<script src="../design/deck.js?v=202610201636"></script>
 <script>
 (function () {
   // Barn sizes and pen counts come from the barnyard diagram (tools/build_ag_area.py), so this slide follows the plan.
@@ -111,10 +111,10 @@
     3: `<b class="num">${sa[3]}</b><span>pens</span><em>${sa[2]} in A + ${sa[3] - sa[2]} in B</em>`,
   };
   const vbW = (aLen + b.h) * k + 12, vbH = Math.max(depth, ex.h) * k + 30;
-  document.getElementById("levels").innerHTML = [1, 2, 3].map(n => {
+  document.getElementById("levels").innerHTML = [3, 2, 1].map((n, pos) => {   // Level 3 first (owner, 2026-10-19)
     delay = 0;
     const lv = L.find(l => l.n === n);
-    return `<article class="card lv" data-step="${n}">
+    return `<article class="card lv" data-step="${pos + 1}">
       <div class="who"><span class="badge">${lv.name}</span><span>${lv.title}</span></div>
       <svg class="plan" viewBox="-6 ${-24 - (ex.h - depth) / 2 * k} ${vbW} ${vbH}" preserveAspectRatio="xMinYMid meet">${plans[n]()}</svg>
       <div class="total">${totals[n]}</div>

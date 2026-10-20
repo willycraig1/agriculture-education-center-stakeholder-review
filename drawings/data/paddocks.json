@@ -5,7 +5,7 @@
    "group": "site",
    "plan_acres": 2.1,
    "acres": 2.1,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 2.2,
    "dense": 0.0
   },
@@ -13,7 +13,7 @@
    "group": "site",
    "plan_acres": 12.4,
    "acres": 12.4,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 12.6,
    "dense": 1.0
   },
@@ -21,7 +21,7 @@
    "group": "site",
    "plan_acres": 8.0,
    "acres": 7.9,
-   "change_ac": -0.11,
+   "change_ac": -0.14,
    "measured_acres": 8.0,
    "dense": 1.0
   },
@@ -37,7 +37,7 @@
    "group": "site",
    "plan_acres": 4.8,
    "acres": 4.8,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 4.9,
    "dense": 0.0
   },
@@ -45,7 +45,7 @@
    "group": "site",
    "plan_acres": 2.0,
    "acres": 2.0,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 2.1,
    "dense": 0.0
   },
@@ -69,7 +69,7 @@
    "group": "site",
    "plan_acres": 5.2,
    "acres": 5.2,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 5.2,
    "dense": 0.0
   },
@@ -93,7 +93,7 @@
    "group": "bonus",
    "plan_acres": 14.4,
    "acres": 14.4,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 14.5,
    "dense": 1.0
   },
@@ -101,7 +101,7 @@
    "group": "bonus",
    "plan_acres": 8.2,
    "acres": 8.2,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 8.3,
    "dense": 0.5
   },
@@ -109,7 +109,7 @@
    "group": "bonus",
    "plan_acres": 10.2,
    "acres": 10.2,
-   "change_ac": 0.0,
+   "change_ac": -0.0,
    "measured_acres": 10.3,
    "dense": 0.7549
   },

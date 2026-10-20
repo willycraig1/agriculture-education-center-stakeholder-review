@@ -721,7 +721,7 @@ if _isl_d:
     print("trees in the swale island, drawn over it:", len(_isl_trees))
 BY_LABELS = {"cattle-a": "Cattle barn A", "cattle-b": "Cattle barn B", "small-a": "Small animal barn A", "small-b": "Small animal barn B", "feed": "Feed storage", "bedding": "Bedding", "compost": "Compost", "dumpster": "Dumpsters", "holding-5": "Pen 5",
              "arena": "Arena", "parking": "Parking", "handling": "Handling", "horticulture": "Horticulture", "residence": "RV / residence", "holding-1": "Pen 1", "holding-2": "Pen 2", "holding-3": "Pen 3", "holding-4": "Pen 4", "existing-barn": "Existing barn", "existing-pens": "Existing pens",
-             "red-house-classroom": "Classroom / event"}
+             "red-house-addition": "Classroom / event"}
 by_labels = ""
 for e in AG["elements"]:
     if e["id"] in BY_LABELS:
