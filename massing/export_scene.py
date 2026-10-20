@@ -59,12 +59,59 @@ META = {
     'compost':   ("Compost bins", 'circulation', 1, 'compost'),
     'dumpsters': ("Dumpster enclosure", 'circulation', 1, 'dumpster'),
     'chute':     ("Handling chute", 'cattle', 1, 'handling'),
+    'alleygate': ("Holding pens, alley gate", 'cattle', 1, 'holding'),
 }
 PENS = ["Holding pen"] * 5 + ["Handling yard"]
 
 # turnouts in scene order (scene.build's `tos` list)
 TURNOUTS = [("Cattle turnout B", 3), ("Cattle turnout A", 2), ("Small animal turnout A", 2), ("Small animal turnout A", 2),
             ("Small animal turnout B", 3)]       # barn A's turnout is two yards, divided at the dogtrot
+
+
+def animals():
+    """Scale figures for the viewer (owner, 2026-10-19): a student leading a steer south of cattle barn B and another in
+    the arena; a cow in every cattle pen (barns A and B, the 7 existing pens, and holding pens 1 to 5); pigs in the small animal barn and
+    its turnout. Each: [x, y, heading (radians, 0 = facing east), level]."""
+    S, R = scene.S, scene.R
+    rng = np.random.default_rng(9)
+    jit = lambda v=0.6: float(rng.uniform(-v, v))
+    cows, pigs, students = [], [], []
+    for (x1, y1, x2, y2), lvl in ((R(645, 270, 893, 460), 2), (R(322, 270, 572, 460), 3)):
+        ym = (y1 + y2) / 2; ai = 8.0 * (y2 - y1) / 64.0
+        bay = (x2 - x1) / 7
+        for i in range(7):
+            x = x1 + (i + 0.5) * bay
+            for side in (-1, 1):            # anywhere in its 12' x 24' pen, any way round (owner, 2026-10-19)
+                head = float(rng.uniform(0, 2 * np.pi))
+                along = abs(np.cos(head)) > 0.7                      # lying along the pen's 12' width: keep it in the middle
+                xx = x + jit(0.6 if along else 2.5)
+                d = float(rng.uniform(5, 20))                        # distance from the aisle edge into the pen
+                cows.append([round(xx, 2), round(ym + side * (ai + d), 2), round(head, 2), lvl])
+    ex1, ex2, eyn = 983 / S, 1220 / S, -775 / S
+    for i in range(7):                                                 # existing pens: at the feeders on the aisle
+        cows.append([round(ex1 + (i + 0.5) * (ex2 - ex1) / 7 + jit(1), 2), round(eyn + 14 + jit(2), 2), round(-np.pi / 2 + jit(.4), 2), 0])
+    for rc in (R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
+               R(1097, 415, 1220, 555), R(1097, 555, 1220, 680)):   # one in each holding pen (pens 1 to 5)
+        hx1, hy1, hx2, hy2 = rc
+        cows.append([round(float(rng.uniform(hx1 + 6, hx2 - 6)), 2), round(float(rng.uniform(hy1 + 6, hy2 - 6)), 2),
+                     round(float(rng.uniform(0, 2 * np.pi)), 2), 1])
+    sxm = (245 / S + 353 / S) / 2
+    for y_px, n in ((560, 2), (610, 1), (650, 1), (740, 1), (800, 1)):    # pigs in barn A's pens, both wings
+        for k in range(n):
+            side = 1 if (y_px + k) % 2 else -1
+            pigs.append([round(sxm + side * 9 + jit(1.5), 2), round(-y_px / S + jit(1.5), 2), round(float(rng.uniform(0, 6.28)), 2), 2])
+    tx1, ty1, tx2, ty2 = R(138, 537, 245, 697.85)
+    for _ in range(4):                                                 # and a few out in its north turnout
+        pigs.append([round(float(rng.uniform(tx1 + 5, tx2 - 5)), 2), round(float(rng.uniform(ty1 + 6, ty2 - 6)), 2), round(float(rng.uniform(0, 6.28)), 2), 2])
+    bx1, by1, bx2, by2 = R(322, 270, 572, 460)                         # south of cattle barn B, in the 24' gap
+    students.append([round((bx1 + bx2) / 2 - 10, 2), round(by1 - 12, 2), 0.0, 0])
+    ax1, ay1, ax2, ay2 = R(645, 530, 893, 680)                         # in the arena
+    students.append([round((ax1 + ax2) / 2 + 6, 2), round((ay1 + ay2) / 2 - 4, 2), 3.14, 3])
+    # a pickup with a 16' stock trailer on the lane between the arena and the Bud Box, heading north (owner, 2026-10-19)
+    hx1, hy1, hx2, hy2 = R(965, 555, 1072, 680)
+    lane_x = ((893 / S + 3.0) + hx1) / 2                              # between the arena's east overhang and the yard
+    vehicles = [[round(lane_x, 2), round(hy2 - 4, 2), round(np.pi / 2, 3), 1]]
+    return dict(cows=cows, pigs=pigs, students=students, vehicles=vehicles)
 
 
 def r(v, n=2):
@@ -134,6 +181,7 @@ def main():
         mat={k: r(v, 3) for k, v in rc['MAT'].items()},
         camera=rc['CAM'],
         cow=list(rc['COW_AT']), tractor=list(rc['TRACTOR_AT']),
+        animals=animals(),
         ground=ground,
         objects=out_objs,
         trees=[dict(x=round(x, 1), y=round(y, 1), kind=k, s=round(s, 2)) for x, y, k, s in scene.trees()],

@@ -165,7 +165,8 @@ def build():
     ground_poly(G, 329.5, -262.7, 499.6, -254.6, 'concrete')       # 8' walk north of barn, out to the unfinished barn (as the plan's walk)
     ground_poly(G, 333, -340, 420, -313.6, 'asphalt')              # apron in front of barn
     for r in [R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
-              R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680)]:
+              R(1097, 415, 1220, 555), R(1097, 555, 1220, 680), R(965, 555, 1072, 680),
+              R(1072, 270, 1097, 680)]:                                  # and the alley between the pen columns
         ground_poly(G, *r, 'dirt')
     ground_poly(G, *R(645, 530, 893, 680), 'arenadirt')            # arena floor
     ground_poly(G, *R(995, 935, 1140, 995), 'dirt')                # compost pad
@@ -310,8 +311,18 @@ def build():
     # ---- Feed storage & bedding storage (small white sheds)
     o = Obj('feed'); x1, y1, x2, y2 = R(525, 560, 572, 680)
     gable(o, x1, y1, x2, y2, 9, 13, 'y', 'whitemetal', 'roof', ovh=1.0); objs.append(o)
+    # bedding storage: two open bins like the compost bins, three-sided concrete walls 5' high, open to the south
+    # (owner, 2026-10-19), with a pile of bedding in each
     o = Obj('bedding'); x1, y1, x2, y2 = R(893, 276, 965, 310)
-    gable(o, x1, y1, x2, y2, 9, 12, 'x', 'whitemetal', 'roof', ovh=1.0); objs.append(o)
+    # squeezed in between cattle barn A's 3' overhang on the west and the turnout and holding pen fences (owner)
+    x1, x2, y2 = x1 + 3.8, x2 - 1.0, y2 - 1.6
+    ground_poly(G, x1, y1 - 4, x2, y2, 'concrete')
+    for xx in (x1, (x1 + x2) / 2, x2):
+        box(o, xx - 0.4, y1, xx + 0.4, y2, 0, 5.0, 'concrete_w', 'concrete_w')
+    box(o, x1 - 0.4, y2 - 0.8, x2 + 0.4, y2, 0, 5.0, 'concrete_w', 'concrete_w')
+    for bx0, bx1 in ((x1 + 1.2, (x1 + x2) / 2 - 1.2), ((x1 + x2) / 2 + 1.2, x2 - 1.2)):
+        box(o, bx0, y1 + 2.5, bx1, y2 - 1.6, 0, 2.6, 'arenadirt', 'arenadirt')
+    objs.append(o)
 
     # ---- Existing barn, from the architect's sheet "A2.0 Existing Barn" (Study Plan A2.1, 2025-08-20):
     # one-story wood-frame garage 80.4' x 50.4', symmetric gable E-W, eaves about 10.9', ridge about 19.6'
@@ -391,6 +402,15 @@ def build():
             f = Obj(f'pen{i}_{j}', cast_shadow=False)
             fence(f, *seg, 5.0, [5.0, 3.6, 2.2, 0.9], 'pipe', post=10.0, w=0.9)
             objs.append(f)
+    # a pipe gate across the north end of the alley between the holding pen columns, where it meets the turnout line
+    ax1, ay1, ax2, ay2 = R(1072, 270, 1097, 680)
+    gt = Obj('alleygate', cast_shadow=False)
+    for xx in (ax1, ax2):
+        gt.line([(xx, ay2, 0), (xx, ay2, 5.6)], 'pipe', 1.6)
+    for z in (0.8, 1.7, 2.6, 3.5, 4.4):
+        gt.line([(ax1 + 0.4, ay2, z), (ax2 - 0.4, ay2, z)], 'pipe', 0.9)
+    gt.line([(ax1 + 0.4, ay2, 0.8), (ax2 - 0.4, ay2, 4.4)], 'pipe', 0.8)
+    objs.append(gt)
     # chute alley inside lead-up area
     x1, y1, x2, y2 = R(965, 555, 1072, 680)
     f = Obj('chute', cast_shadow=False)

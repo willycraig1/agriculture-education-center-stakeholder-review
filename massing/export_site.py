@@ -188,6 +188,14 @@ def text_of(it):
     return ''.join(e.itertext()).strip()
 
 
+def scene_objects():
+    """The massing's objects (Watercolor_Rendering_Working/scripts/scene.py), for checks against what it already draws."""
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, 'Watercolor_Rendering_Working', 'scripts'))
+    import scene
+    return scene.build()
+
+
 # ---------------------------------------------------------------- unfinished barn
 def frame_of(o):
     """The unfinished (poultry) barn's frame from its surveyed roof outline: centre, long-axis angle, and the
@@ -376,6 +384,12 @@ def main():
     roads = unary_union([Polygon(p['o'], p['h']).buffer(0) for it in items('campus', 'path') if it['e'].get('id') == 'road-area'
                          for p in to_polys(rings(it))])
     keep_out = [built.buffer(8).union(roads.buffer(-5))]   # trunks may stand at a drive's edge, as along the existing drive
+    # The survey located every tree around the campus and the drive, so no filler trees there: none inside the surveyed
+    # area (the hull of the surveyed trees) or within 30' of a surveyed tree (owner, 2026-10-19)
+    from shapely.geometry import MultiPoint
+    _sv_pts = [Point(*apply(it['M'], [(float(it['e'].get('cx')), float(it['e'].get('cy')))])[0]) for it in items('trees', 'circle')]
+    if _sv_pts:
+        keep_out.append(MultiPoint(_sv_pts).convex_hull.union(unary_union([q.buffer(30) for q in _sv_pts])))
     rng = np.random.default_rng(5)
     scatter = []
     # the north triangle pasture: the site area between SR 72 and Cowpen Slough, north of the campus
@@ -398,6 +412,23 @@ def main():
                         kind = 0 if u < .6 else (2 if u < .98 else 1)
                     scatter.append([round(x, 1), round(y, 1), round(float(rng.uniform(.75, 1.35)), 2), kind])   # 0 oak, 1 pine, 2 palm
     out['canopy_trees'] = scatter
+
+    # a herd of 15 grazing the open pasture over the historic slough bed (owner, 2026-10-19): the largest open piece
+    # of the bed inside the site paddocks, clear of the woods; head-to-tail spacing at least 9'
+    hs = unary_union([Polygon(p['o'], p['h']).buffer(0) for w in water if w['kind'] == 'historic-slough' for p in w['polys']])
+    site_pads = unary_union([Polygon(p['o'], p['h']).buffer(0) for pd in pads if pd['kind'] == 'site' for p in pd['polys']])
+    graze = hs.intersection(site_pads).difference(unary_union([Polygon(c['o'], c['h']).buffer(0) for c in canopy]).buffer(10)).buffer(-6)
+    herd = []
+    if not graze.is_empty:
+        g = max(getattr(graze, 'geoms', [graze]), key=lambda q: q.area)
+        cx, cy = g.representative_point().coords[0]
+        hrng = np.random.default_rng(21)
+        for _ in range(4000):
+            if len(herd) == 15: break
+            x, y = cx + hrng.normal(0, 30), cy + hrng.normal(0, 30)
+            if g.contains(Point(x, y)) and all(math.dist((x, y), h[:2]) > 9 for h in herd):
+                herd.append([round(x, 1), round(y, 1), round(float(hrng.uniform(0, 6.283)), 2), int(hrng.uniform() < .3)])   # 1 = black
+    out['herd'] = herd
 
     # surveyed trees: [x, y, flag]; flag 0 = under a new building or yard (removed after Existing),
     # 1 = stands in the parking paving (kept, a conflict to resolve), none = clear
@@ -472,6 +503,24 @@ def main():
     walks_u = unary_union([Polygon(w['o']).buffer(0) for w in out['campus']['walks']])
 
     # fences stop at the pavement edge, with a pipe gate across the walk (owner, 2026-10-19)
+    # Where a pasture fence runs along a fence the massing already models (turnout boards, pen and barn panels, the
+    # existing pens' back fence), the wire fence is left out so the two don't overlap (owner, 2026-10-19).
+    panels = []
+    for o in scene_objects():
+        if o.name.startswith(('pen', 'to')) or o.name in ('expens', 'chute', 'arenarail') or o.name.endswith(('_gates', '_pens')):
+            for l in o.lines:
+                p = np.asarray(l['p'], float)
+                if len(p) >= 2 and p[:, 2].min() > 0.3 and np.ptp(p[:, 2]) < 0.3:
+                    panels.append(LineString([tuple(q[:2]) for q in p]))
+    zone = unary_union(panels).buffer(2.5) if panels else None
+    if zone is not None:
+        kept = []
+        for f in out['fences']:
+            rest = LineString(f['p']).difference(zone)
+            parts = [g for g in getattr(rest, 'geoms', [rest]) if g.length > 4]
+            for k, g in enumerate(parts):
+                kept.append(dict(f, id=f['id'] if len(parts) == 1 else f"{f['id']}-p{k}", p=rnd(g.coords)))
+        out['fences'] = kept
     gates, fences = [], []
     inner = walks_u.buffer(-0.3)        # cut only where a fence passes through a walk, not where it runs along an edge
     for f in out['fences']:
