@@ -894,3 +894,7 @@ Fit checks now skip context elements (walk etc.).
   skips it (it only takes `slides/` entries).
 - Owner: the bonus pasture stays in the model as context (its paddocks and fencing at Level 3), though the slides show
   the main parcel only.
+- Levels table, Level 3 first: `levels.html` shows the columns 3, 2, 1 and builds them in that order. `levels.js` stays
+  written up from Level 1; the slide resolves each "Same as Level n", then a cell matching the one to its left reads
+  "Same as Level 3 / 2". Where a Level 3 cell is only an add-on, its new `whole` text leads instead (cow & calf pens,
+  swine & small animals, Red House): drafted wording, for the owner to check.
