@@ -665,10 +665,22 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     for id_ in ("handling", "holding-4", "holding-5"):
         e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1)
         if e.get("outline"): e["outline"] = [[round(px + _dx, 1), py] for px, py in e["outline"]]
-    _east0 = by_id["holding-3"]["x"] + by_id["holding-3"]["w"]
+    # the 8' alley sits centred in the block (owner, 2026-10-20): two equal columns either side of it. The west column
+    # (pens 4 and 5, the handling yard) widens to the alley; the Bud Box, lead-up, and chute keep their size and place.
+    _col = round((HOLD_E - _front - 8) / 2, 1)
+    _aw, _ae = round(_front + _col, 1), round(_front + _col + 8, 1)
+    _hx_e = by_id["handling"]["x"] + by_id["handling"]["w"]            # handling yard's east edge, after the move
+    for id_ in ("holding-4", "holding-5"):
+        by_id[id_]["w"] = _col
+    _hd = by_id["handling"]
+    if _hd.get("outline"):
+        _ymax = max(py for _, py in _hd["outline"]); _xmid = _hd["x"] + 18
+        _hd["outline"] = [[_aw if abs(px - _hx_e) < 0.6 else (round(px + _aw - _hx_e, 1) if abs(py - _ymax) < 0.1 and px > _xmid else px), py]
+                          for px, py in _hd["outline"]]      # the east wall and the south-east chamfer's corner move together
+    _hd["w"] = _col
     for id_ in ("holding-1", "holding-2", "holding-3"):
-        e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1); e["w"] = round(HOLD_E - e["x"], 1)
-        if e.get("outline"): e["outline"] = [[HOLD_E if abs(px - _east0) < 0.6 else round(px + _dx, 1), py] for px, py in e["outline"]]
+        e = by_id[id_]; e["x"] = _ae; e["w"] = round(HOLD_E - _ae, 1)
+        if e.get("outline"): e["outline"] = [[min(max(px, _ae), HOLD_E), py] for px, py in e["outline"]]
     # the dog-ear itself, drawn as an open canopy so the line reads: the lean-to's roof over the pens' front 12.5'
     # (it covers the 8' aisle and 12.5' of the pens, 20.5' off the barn's north wall), past the barn's east wall
     _eb = by_id["existing-barn"]; _yd0, _yd1 = _eb["y"] - 20.5, _eb["y"] - 8.0
@@ -730,6 +742,10 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         outline=_poul, context=True)
     # walkway network as drawn
     _wk = _svg_pts(_re.search(r'<g id="walk">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
+    # the walk's apron west of the existing pens ends on the barn front line, like the holding block above it (owner,
+    # 2026-10-20); the architect's file has it 3.6' short of the line
+    _wk = [[by_id["existing-barn"]["x"] if abs(px - 196.0) < 0.6 and by_id["existing-pens"]["y"] - 0.6 <= py <= by_id["existing-pens"]["y"] + PEN_D + 0.6 else px, py]
+           for px, py in _wk]
     _wkp = _Poly(_wk).buffer(0)
     _poly_p = _Poly(_poul)
     _ys0 = by_id["existing-barn"]["y"] - 8                            # the network's strip north of the existing barn
