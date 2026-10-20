@@ -294,6 +294,42 @@ _r = [_near(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1] - _div
       _near(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1])]
 _ext("residence", "Residence", [_to_d((z.real, z.imag)) for z in _r], "education", "building", "Camper / RV hookups",
      becomes={"3": {"use": "education", "note": "Residence"}})
+# Red House Level 3: the instructional classroom / event building (51' x 31' with restrooms and storage), from the
+# Red House study sheet (slides/data/red-house.js, Level 3 program). The sheet is placed on the site by fitting the
+# house's footprint on the sheet (Level 3 rooms, porches left out) to the architect's outline of the house: scale
+# fixed by the two drawings, rotation and offset fitted. The fit lands at 51.2 deg, which puts the sheet's north
+# (141 deg counter-clockwise from up) exactly at the plans' north-left, a check on the result.
+import re as _re
+from shapely.geometry import Point as _Pt, Polygon as _Poly
+from shapely.ops import unary_union as _uu
+from shapely import affinity as _aff
+from scipy.optimize import minimize as _min
+_rsrc = open(os.path.join(_sf.ROOT, "slides", "data", "red-house.js")).read()
+_RH = json.loads(_rsrc[_rsrc.index("{"):_rsrc.rindex("}") + 1])
+_L3 = next(l for l in _RH["levels"] if l["name"] == "Level 3")
+_rooms = [_Poly(list(zip(n[0::2], n[1::2]))).buffer(0) for n in
+          ([float(v) for v in _re.findall(r"-?[\d.]+", d)] for _c, d in _re.findall(r'<path class="([^"]+)" d="([^"]+)"', _L3["program"]))]
+_porch = [_Pt(1213.7, 1180.5), _Pt(265.7, 803.6)]                                 # the PORCH labels on the sheet
+_house_s = _uu([p for p in _rooms if p.centroid.y >= 400 and p.centroid.x < 1700 and not any(p.contains(q) for q in _porch)]).buffer(3).buffer(-3)
+_wall = 0.5 / _RH["ft_per_pt"]                                                       # half an exterior wall, in sheet units
+_class_s = _uu([p for p in _rooms if p.centroid.x < 600 and p.centroid.y < 400]).buffer(10, join_style=2).buffer(-10, join_style=2).buffer(_wall, join_style=2)
+_kk = _RH["ft_per_pt"] / (_sf.FT_PER_PT / abs(_sf.M_FP))                             # sheet units -> site map units
+_site_rh = _Poly(_rh["pts"]).buffer(0)
+_place = lambda g, v: _aff.translate(_aff.rotate(_aff.scale(g, _kk, _kk, origin=(0, 0)), v[0], origin=(0, 0)), v[1], v[2])
+_fit = None
+for _th in range(-180, 180, 15):
+    _g = _place(_house_s, (_th, 0, 0))
+    _r0 = _min(lambda v: _place(_house_s, v).symmetric_difference(_site_rh).area,
+               [_th, _site_rh.centroid.x - _g.centroid.x, _site_rh.centroid.y - _g.centroid.y], method="Nelder-Mead",
+               options={"xatol": .01, "fatol": .01, "maxiter": 3000})
+    if _fit is None or _r0.fun < _fit.fun:
+        _fit = _r0
+_class_m = _place(_class_s, _fit.x).simplify(0.15)
+add("red-house-classroom", "Classroom / event", *(lambda b: (b[0], b[1], b[2] - b[0], b[3] - b[1]))(_Poly([_to_d(q) for q in _class_m.exterior.coords[:-1]]).bounds),
+    "education", 3, note="Red House Level 3",
+    outline=[_to_d(q) for q in _class_m.exterior.coords[:-1]])
+print("red house sheet on the site: rotation", round(_fit.x[0], 2), "| footprint mismatch sf", round(_fit.fun * (_sf.FT_PER_PT / abs(_sf.M_FP)) ** 2),
+      "| classroom building sf", round(_class_m.area * (_sf.FT_PER_PT / abs(_sf.M_FP)) ** 2))
 # ---- the parking lot's south loop, from the architect's CAD sketch of the lot (2026-10-12)
 # The sketch (pixel coordinates read off the screenshot) is placed by the Red House carport drawn on it: its four
 # corners are matched to the carport on the survey (BUILDING OH, 29' x 38'). That places the sketch to within about
