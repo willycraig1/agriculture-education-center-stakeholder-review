@@ -853,3 +853,12 @@ Fit checks now skip context elements (walk etc.).
   canopy). The patio and walkway between them are not drawn. It shows on the site plans too.
 - Dumpster enclosure centred on the drive aisle it opens onto (between the back of the double stall row, y 324, and
   the front of the row along the swale, y 348): now y 330 to 342.
+- Architect's edits of 2026-10-20, made in Illustrator on the generated `drawings/ag-area-diagram.svg` (which every
+  build rewrites): saved as `drawings/ag-area-diagram3.svg` and read by `build_ag_area.py` like ag-area-diagram2.
+  Illustrator's export restarts the frame at 0,0, so its coordinates read as this diagram's feet less (-118, 11);
+  nothing in the drawing moved. Taken from it: the circulation arrows as redrawn (the loop's north leg as its own
+  aisle arrow, the middle aisle arrow redrawn, an arrow on the entry drive, a third animal arrow at small animal barn
+  B's turnout, the pens' arrow centred in the alley), the compost area as moved (x 203.6, y 299, 44.5' x 19'), and
+  the walk from the Red House to the addition's entry canopy (`walk-3`, Level 3; it was drawn in the names layer).
+  The south sidewalk now runs on along the residence's north side to its far corner. The rebuilt diagram matches the
+  edited file group for group. For further edits, save the Illustrator file under a new name (ag-area-diagram4.svg).

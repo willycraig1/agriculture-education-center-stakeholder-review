@@ -814,7 +814,8 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         for id_, o_ in (("horticulture", _hnew), ("residence", _rnew)):
             by_id[id_].update(outline=o_, x=min(q[0] for q in o_), y=min(q[1] for q in o_),
                               w=round(max(q[0] for q in o_) - min(q[0] for q in o_), 1), h=round(max(q[1] for q in o_) - min(q[1] for q in o_), 1))
-        _WEST_END = _HNW                                                   # the sidewalk stops at the residence
+        _WEST_END = _HNW - _Uf * _rw                                       # the sidewalk runs on along the residence's north side
+                                                                           # to its far corner (architect's edit, 2026-10-20)
         print("south loop squared to the Red House front: turned", round(_mt.degrees(_drot), 2), "deg; corner", _r1(_CE), "| drive edge 5' off the front")
     # grass parking (architect, 2026-10-14): the north stall row and the two middle rows, from the lot's west stall
     # edge to its east edge, are grass over a base rather than pavement; the south row and the drive aisles stay paved
@@ -943,6 +944,41 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
         if c["id"] == "aisle-cattle":
             c["pts"] = [[q[0], by_id["cattle-a"]["y"] + PEN_D + CATTLE_AISLE / 2] for q in c["pts"]]
     E.sort(key=lambda e: 0 if e["id"].startswith("turnout") else 1)
+    # ---- the architect's edits of 2026-10-20 (drawings/ag-area-diagram3.svg, an Illustrator export of this script's
+    # generated diagram; its coordinates are this diagram's feet less (-118, 11)). Taken from it: the circulation arrows
+    # as redrawn (the loop's north leg split off as an aisle arrow, the middle aisle arrow redrawn, an arrow on the
+    # entry drive, a third animal arrow at small animal barn B's turnout, the pens' arrow centred in the alley), the
+    # compost area as moved, and the walk from the Red House to the addition's entry canopy (Level 3).
+    AG_EDIT3 = os.path.join(ROOT, "drawings", "ag-area-diagram3.svg")
+    if os.path.exists(AG_EDIT3):
+        _s3 = open(AG_EDIT3).read()
+        _o3 = lambda q: [round(q[0] - 118, 2), round(q[1] + 11, 2)]
+        _raw3 = lambda txt: (lambda v: [[v[i], v[i + 1]] for i in range(0, len(v), 2)])([float(x) for x in txt.replace(",", " ").split()])   # this file's own coordinates
+        _cg = _s3[_s3.index('<g id="circulation"'):_s3.index("</g>", _s3.index('<g id="circulation"'))]
+        _c3 = []
+        for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="[^"]*" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _cg):
+            tag, id_, name, pts_, x1, y1, x2, y2 = m.groups()
+            pts = [_o3(q) for q in _raw3(pts_ if pts_ else f"{x1} {y1} {x2} {y2}")]
+            base = name or id_
+            _c3.append(dict(id=id_, kind="animal" if base.startswith("an-") else "service",
+                            label={"loop-parking": "Two-way loop", "aisle-cattle": "Tractor aisle"}.get(id_, ""), pts=pts))
+        if _c3:
+            C[:] = _c3
+        _cm3 = _re.search(r'<g id="compost">\s*<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _s3)
+        if _cm3:
+            _x3, _y3, _w3, _h3 = map(float, _cm3.groups())
+            next(e for e in E if e["id"] == "compost").update(x=round(_x3 - 118, 1), y=round(_y3 + 11, 1), w=_w3, h=_h3)
+        # the walk to the addition was drawn in the names layer, in the walk's style (class of the walk polygon)
+        _wcls = _re.search(r'<g id="walk">\s*<polygon class="([^"]+)"', _s3)
+        _nm = _s3[_s3.index('<g id="names"'):]
+        _w3 = [_raw3(m.group(1)) for m in _re.finditer(r'<polygon class="%s" points="([^"]+)"' % (_wcls.group(1) if _wcls else "st10"), _nm)]
+        if _w3:
+            _o = [_o3(q) for q in max(_w3, key=lambda q: len(q))]
+            _xs3, _ys3 = [q[0] for q in _o], [q[1] for q in _o]
+            add("walk-3", "", min(_xs3), min(_ys3), max(_xs3) - min(_xs3), max(_ys3) - min(_ys3), "circulation", 3, kind="walk", note="",
+                outline=_o, context=True)
+            by_id["walk-3"] = E[-1]
+        print("architect's edits of 2026-10-20 imported:", os.path.basename(AG_EDIT3), "| circulation runs", len(C), "| walk to the addition", bool(_w3))
     print("architect's edits imported:", os.path.basename(AG_EDIT), "| stalls", n_stalls, "| dogtrot ft", _dog, "| circulation runs", len(C))
 def _on(pt_, c2):
     q = c2["pts"]
