@@ -330,7 +330,18 @@ _row_back = y_s_row + STALL_D + DY                                              
 # degrees off this diagram's grid. u runs along the stall row (south-east), n across it (south-west); the origin is
 # on the stall fronts. The sketch only sets where the stall fronts lie.
 _f0, _f1 = complex(*_sk(530, 962)), complex(*_sk(862, 1183))
-_U = (_f1 - _f0) / abs(_f1 - _f0); _N = _U * 1j                          # n points south-west, away from the island
+_U = (_f1 - _f0) / abs(_f1 - _f0)
+# The grid's angle comes from the Red House itself, not the sketch (owner, 2026-10-20: the south loop parallel and
+# perpendicular to the front of the house): the length-weighted mean direction of its walls, folded onto one quarter
+# turn. The sketch read about 0.7 degrees off. The origin stays on the sketch's stall fronts.
+import cmath as _cm, math as _mt
+_rh_o = by_id["existing-red-house"]["outline"]
+_vec = sum(_mt.hypot(b_[0] - a_[0], b_[1] - a_[1]) * _cm.exp(4j * _cm.phase(complex(b_[0] - a_[0], b_[1] - a_[1])))
+           for a_, b_ in zip(_rh_o, _rh_o[1:] + _rh_o[:1]))
+_Uh = _cm.exp(1j * _cm.phase(_vec) / 4)                                   # one of the four wall directions
+_Uh = max((_Uh * 1j ** k for k in range(4)), key=lambda z: (z * _U.conjugate()).real)   # the one nearest the sketch's u
+print("south loop grid: sketch", round(_mt.degrees(_cm.phase(_U)), 2), "deg -> Red House walls", round(_mt.degrees(_cm.phase(_Uh)), 2), "deg")
+_U = _Uh; _N = _U * 1j                                                    # n points south-west, away from the island
 _xy = lambda u, n: (lambda z: (round(z.real, 1), round(z.imag, 1)))(_f0 + _U * u + _N * n)
 _uv = lambda x, y: (lambda d: ((d * _U.conjugate()).real, (d * _N.conjugate()).real))(complex(x, y) - _f0)
 # The drive past the Red House is the one stretch of the loop that is one-way: 13' wide, 5' off the building to
@@ -723,6 +734,41 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     if _swl:
         _pk["island_poly"] = _svg_pts(_swl.group(1))
     n_stalls = len(_stl) + len(_ang)
+    # Square the south loop to the Red House (owner, 2026-10-20: parallel and perpendicular to the front of the house;
+    # the file has it about 0.6 degrees off). The stall row turns about its north-west front corner, where it meets the
+    # lot's west leg, and the one-way drive's outer edge about its north end, where it meets the east leg, so both
+    # joints with the rest of the lot stay put. The row runs along u (the Red House grid, _U), the drive edge along n;
+    # their corner is where the two lines meet, and the nine angled stalls are redrawn on the turned row. The swale
+    # island's two diagonal sides turn with whichever of the two they face.
+    _near = lambda q: min(range(len(_pk["outline"])), key=lambda k: (_pk["outline"][k][0] - q[0]) ** 2 + (_pk["outline"][k][1] - q[1]) ** 2)
+    _a0 = sorted(_ang, key=lambda q: q[0][0])
+    if _a0:
+        _F = complex(*_a0[0][0])                                               # stall row's north-west front corner
+        _drot = _cm.phase(_U) - _cm.phase(complex(*_a0[0][1]) - _F)           # the turn needed, radians
+        _kbw, _kce = _near(_a0[0][3]), _near(_a0[-1][2])                      # back-west corner; the row/drive corner
+        _kdn = (_kce + 1) % len(_pk["outline"])                               # the drive edge's north end
+        _D = complex(*_pk["outline"][_kdn])
+        _depth = abs(complex(*_a0[0][3]) - complex(*_a0[0][0]))
+        _BW = _F + _N * _depth
+        _CE = _BW + _U * ((_D - _BW) * _U.conjugate()).real
+        _r1 = lambda z: [round(z.real, 1), round(z.imag, 1)]
+        _pk["outline"][_kbw], _pk["outline"][_kce] = _r1(_BW), _r1(_CE)
+        _new = []
+        for q in _ang:
+            if q in _a0:
+                a0_, a1_ = abs(complex(*q[0]) - _F), abs(complex(*q[1]) - _F)
+                _new.append([_r1(_F + _U * a0_), _r1(_F + _U * a1_), _r1(_F + _U * a1_ + _N * _depth), _r1(_F + _U * a0_ + _N * _depth)])
+        _pk["stalls_extra"] = _stl + _new
+        _rowL, _drvL = _LS([_r1(_F), _r1(_CE)]), _LS([_r1(_CE), _r1(_D)])
+        def _turn(q):                                                          # a diagonal-side vertex turns with the line it faces
+            if q[1] < _D.imag + 0.2:
+                return q
+            piv = _F if _rowL.distance(_Pt(*q)) < _drvL.distance(_Pt(*q)) else _D
+            return _r1(piv + (complex(*q) - piv) * _cm.exp(1j * _drot))
+        _pk["holes"] = [[_turn(q) for q in h_] for h_ in _pk["holes"]]
+        if _pk.get("island_poly"):
+            _pk["island_poly"] = [_turn(q) for q in _pk["island_poly"]]
+        print("south loop squared to the Red House: turned", round(_mt.degrees(_drot), 2), "deg; corner", _r1(_CE))
     # grass parking (architect, 2026-10-14): the north stall row and the two middle rows, from the lot's west stall
     # edge to its east edge, are grass over a base rather than pavement; the south row and the drive aisles stay paved
     _g = [36.5, by_id["parking"]["y"], 170.0, 324.0]
@@ -809,6 +855,18 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _sw = _band.intersection(_LS(_path).buffer(5.5, cap_style=2, join_style=2))
     _sw = max(getattr(_sw, "geoms", [_sw]), key=lambda g: g.area)
     _wk1u = _union([_Poly(by_id["walk"]["outline"]).buffer(0), _sw.buffer(0.05)]).buffer(-0.05)
+    # clean corner at the dumpster apron (owner, 2026-10-20): the network's stub there poked past the sidewalk's outer
+    # edge; everything south of the apron's south edge and beyond the sidewalk's outer line is trimmed off, so the
+    # outline runs straight from the apron's south edge down the sidewalk
+    _pa, _pb = complex(*_path[-1]), complex(*_path[-2])                  # the pavement edge's first leg from the stub
+    _d = (_pb - _pa) / abs(_pb - _pa); _out = _d * -1j if ((complex(*_xy(_ue + 10, -60)) - _pa) * (_d * -1j).conjugate()).real > 0 else _d * 1j
+    _o0 = _pa + _out * 5                                                   # the sidewalk's outer line
+    _yap = max(q[1] for q in by_id["walk"]["outline"] if q[0] > _pa.real + 3 and q[1] < _pa.imag + 6)   # apron's south edge
+    _tq = (_yap - _o0.imag) / _d.imag
+    _oq = _o0 + _d * _tq                                                   # outer line meets the apron's south edge
+    _cut = _Poly([(_oq.real, _yap), (_oq.real + 400, _yap), (_oq.real + 400, _yap + 400),
+                  ((_oq + _d * 400 / abs(_d.imag)).real, (_oq + _d * 400 / abs(_d.imag)).imag)])
+    _wk1u = _wk1u.difference(_cut).buffer(0)
     _o1 = _ring(_wk1u)
     by_id["walk"].update(outline=_o1, **_bb(_o1))
     print("south sidewalk ft:", round(_LS(_path).length), "| along the pavement edge from", _path[0], "to", _path[-1])

@@ -830,3 +830,11 @@ Fit checks now skip context elements (walk etc.).
   House's front porch and round the corner along the heads of the stall row in front of the horticulture area to the
   row's west end (about 277 ft). The horticulture area and the residence stay where they were and butt up to it (the
   walk draws over their edge).
+- South loop squared to the Red House (owner): the architect's south lot ran about 0.4 to 0.6 degrees off the house.
+  The Red House grid (`_U`) now comes from the house's own walls (length-weighted, 33.65 deg) instead of the parking
+  sketch (33.03). In Option B the imported lot is corrected: the stall row turns about its north-west front corner
+  (the joint with the west leg) and the one-way drive's outer edge about its north end (the joint with the east leg),
+  so both meet the rest of the lot unchanged; their corner is recomputed, the nine angled stalls are redrawn on the
+  row, and the swale island's diagonal sides turn with the side they face. The south sidewalk follows.
+- Dumpster apron corner cleaned: the walk network's stub there is trimmed to the sidewalk's outer line, so the walk
+  runs straight from the apron's south edge down the sidewalk.
