@@ -898,3 +898,5 @@ Fit checks now skip context elements (walk etc.).
   written up from Level 1; the slide resolves each "Same as Level n", then a cell matching the one to its left reads
   "Same as Level 3 / 2". Where a Level 3 cell is only an add-on, its new `whole` text leads instead (cow & calf pens,
   swine & small animals, Red House): drafted wording, for the owner to check.
+- Paddocks, rotation first: step 1 is the nine paddocks in rotation (Levels 2 and 3, about 15 CE, the highlight
+  stepping through them), step 2 back to Level 1's conservative grazing (about 7 CE).
