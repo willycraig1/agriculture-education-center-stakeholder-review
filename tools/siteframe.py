@@ -191,6 +191,7 @@ def snapped_boundary(boundary, tol=30.0):
     65 ft off in the south. The run of boundary vertices lying within tol sheet units of the property line is
     swapped for the property line itself between the same two ends; the rest of the boundary is untouched.
     """
+    import math
     from shapely.geometry import LineString, Point
     from shapely.ops import linemerge, substring
     fp = os.path.join(OUT, "data", "fences.json")
@@ -212,7 +213,27 @@ def snapped_boundary(boundary, tol=30.0):
     B = B[k0:] + B[:k0]; near = near[k0:] + near[:k0]
     n = next((i for i, v in enumerate(near) if not v), len(B))                     # the run is B[0:n]
     seg = substring(W, W.project(Point(B[0])), W.project(Point(B[n - 1])))
-    return [list(c) for c in seg.coords] + [list(p) for p in B[n:]]
+    out = [list(c) for c in seg.coords] + [list(p) for p in B[n:]]
+    # The hand-drawn boundary also runs a steady 54-59 ft outside property line pl-01 (the long top edge of the
+    # north-left plans), which added about 4 ac to the main parcel (65.1 ac against the Property Appraiser's 60.83).
+    # Trim it to the inside of pl-01, extended past both ends.
+    top = [r["map"] for r in json.load(open(fp)).get("property_lines", []) if r["id"] == "pl-01"]
+    if top:
+        from shapely.geometry import Polygon
+        t = top[0]
+        (ax, ay), (bx, by) = t[0], t[-1]
+        L = math.hypot(bx - ax, by - ay); ux, uy = (bx - ax) / L, (by - ay) / L
+        line = [(ax - ux * 6000, ay - uy * 6000)] + [tuple(p) for p in t] + [(bx + ux * 6000, by + uy * 6000)]
+        poly = Polygon(out).buffer(0)
+        nx, ny = -uy, ux                                   # a normal; flip it toward the site
+        c = poly.representative_point()
+        if (c.x - ax) * nx + (c.y - ay) * ny < 0:
+            nx, ny = -nx, -ny
+        inner = Polygon(line + [(x + nx * 9000, y + ny * 9000) for x, y in reversed(line)]).buffer(0)
+        poly = poly.intersection(inner)
+        poly = max(getattr(poly, "geoms", [poly]), key=lambda g: g.area)
+        out = [list(c) for c in poly.exterior.coords[:-1]]
+    return out
 
 
 # ---------------------------------------------------------------- barnyard diagram on the map
