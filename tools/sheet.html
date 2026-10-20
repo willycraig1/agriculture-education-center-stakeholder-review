@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Site Plan Sheet</title>
+<!-- Arch D (36" x 24") print sheet of the deck's site plan at Level 3, drawn at a true scale.
+     ?sheet=existing (AS-0, the existing site on the aerial, 1" = 100'), ?sheet=site (AS-1, the main property at
+     Level 3, 1" = 100'), or ?sheet=campus (AS-2, the campus at Level 3, 1" = 40'). Printed to PDF by
+     tools/export_sheets.py. Existing as on slides/site.html (campus step); the plans as on slides/site-plan.html. -->
+<link rel="stylesheet" href="../design/palette.css">
+<style>
+  @page { size: 36in 24in; margin: 0; }
+  :root { --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+          --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  .sheet { position: relative; width: 36in; height: 24in; padding: .5in; font-family: var(--sans); color: var(--ink); overflow: hidden; }
+  .frame { position: relative; width: 100%; height: 100%; border: 2pt solid var(--ink); display: flex; flex-direction: column; }
+  .map { flex: 1; min-height: 0; border-bottom: 1.5pt solid var(--ink); overflow: hidden; background: var(--paper); }
+  .map > svg { display: block; }
+  .map #aerial.muted { filter: saturate(.45) brightness(1.06); }
+  .map.existing .pond.proposed { display: none; }
+  .map #campus { opacity: .55; }
+  .map.existing #campus { opacity: 1; }
+  .map #paddock-fills { display: none; }
+  .map .off, .map .future { display: none; }
+  .tb { height: 2.6in; display: flex; }
+  .tb > div { padding: .22in .3in; border-left: 1pt solid var(--line); }
+  .tb > div:first-child { border-left: 0; }
+  .lab { font: 600 9pt/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: .1in; }
+  .scale { width: 7.4in; display: flex; gap: .35in; align-items: center; }
+  .scale .n { flex: none; }
+  .scale .txt { font: 600 20pt/1.1 var(--serif); margin: 0 0 .12in; }
+  .legend { width: 9.4in; }
+  .legend ul { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: .3in; }
+  .legend li { display: flex; align-items: center; gap: .1in; font: 400 12.5pt/1.2 var(--sans); margin-bottom: .075in; break-inside: avoid; }
+  .legend i.line { height: 0; border-width: 0; border-top: 2.5pt solid; border-radius: 0; }
+  .legend i.dash { border-top-style: dashed; border-top-width: 3pt; }
+  .legend i.dot { width: .2in; border-radius: 50%; margin: 0 .11in; }
+  .legend i { flex: none; width: .42in; height: .2in; border: 1.5pt solid; border-radius: 2pt; }
+  .notes { flex: 1; font: 400 12pt/1.45 var(--sans); }
+  .notes p { margin: 0 0 .06in; }
+  .title { position: relative; width: 8.2in; display: flex; flex-direction: column; padding-right: .55in !important; }
+  .title .firm { position: absolute; right: .12in; bottom: .22in; writing-mode: vertical-rl; transform: rotate(180deg); font: 400 10.5pt/1 var(--sans); letter-spacing: .08em; color: var(--muted); }
+  .title .proj { font: 600 13pt/1.25 var(--serif); }
+  .title .addr { font: 400 10.5pt/1.3 var(--sans); color: var(--muted); margin-top: .04in; }
+  .title h1 { font: 600 30pt/1.05 var(--serif); margin: auto 0 .05in; letter-spacing: -.01em; }
+  .title .meta { display: flex; justify-content: space-between; font: 400 10.5pt/1.3 var(--sans); color: var(--muted); }
+  .title .meta b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="sheet"><div class="frame">
+  <div class="map" id="map"></div>
+  <div class="tb">
+    <div class="scale">
+      <svg class="n" width="1.3in" height="1.3in" viewBox="-50 -50 100 100" aria-label="North arrow, north to the left">
+        <circle r="44" fill="none" stroke="#2B2A26" stroke-width="2"/>
+        <path d="M-40 0 L14 -15 L6 0 L14 15 Z" fill="#2B2A26"/>
+        <text x="27" y="8" font-size="22" font-weight="700" font-family="Avenir Next, Helvetica, Arial, sans-serif" fill="#2B2A26">N</text>
+      </svg>
+      <div>
+        <div class="lab">Scale</div>
+        <p class="txt" id="scale-txt"></p>
+        <svg id="bar" height=".62in"></svg>
+      </div>
+    </div>
+    <div class="legend"><div class="lab">Legend</div><ul id="legend"></ul></div>
+    <div class="notes"><div class="lab">Notes</div><div id="notes"></div></div>
+    <div class="title">
+      <div class="proj">Agriculture Education Center</div>
+      <div class="addr">Clark Farm · 9600 SR-72, Sarasota, Florida</div>
+      <h1 id="sheet-title"></h1>
+      <div class="meta"><span id="status"></span><span><b id="date"></b></span><span>Sheet <b id="no"></b></span></div>
+      <div class="firm">SEIBERT ARCHITECTS</div>
+    </div>
+  </div>
+</div></div>
+
+<script src="../slides/data/site-map.js"></script>
+<script>
+(function () {
+  const M = window.SITE_MAP, K = M.barnyard.checks, FT = M.ft_per_unit;
+  const q = new URLSearchParams(location.search), which = q.get("sheet") || "site";
+  const campusBox = [Math.min(M.campus_box[0], K.barnyard_box[0]), Math.min(M.campus_box[1], K.barnyard_box[1]),
+                     Math.max(M.campus_box[2], K.barnyard_box[2]), Math.max(M.campus_box[3], K.barnyard_box[3])];
+  const SHEETS = {
+    existing: { title: "Existing site", no: "AS-0", ftPerIn: 100, box: M.view, status: "Stakeholder review draft · Existing conditions" },
+    site:     { title: "Site plan: overall", no: "AS-1", ftPerIn: 100, box: M.view, status: "Stakeholder review draft · Level 3" },
+    campus:   { title: "Site plan: campus", no: "AS-2", ftPerIn: 40, box: campusBox, status: "Stakeholder review draft · Level 3" },
+  };
+  const S = SHEETS[which], existing = which === "existing";
+  if (existing) document.getElementById("map").classList.add("existing");
+  document.title = S.title;
+  document.getElementById("sheet-title").textContent = S.title;
+  document.getElementById("no").textContent = S.no;
+  document.getElementById("status").textContent = S.status;
+  document.getElementById("date").textContent = q.get("date") || new Date().toISOString().slice(0, 10);
+  document.getElementById("scale-txt").textContent = `1" = ${S.ftPerIn}'-0"`;
+
+  // the map at a true scale: the map area's size in inches sets how many plan units it shows
+  const mapEl = document.getElementById("map");
+  mapEl.insertAdjacentHTML("afterbegin", M.svg);
+  const svg = mapEl.querySelector(":scope > svg");
+  const r = mapEl.getBoundingClientRect(), wIn = r.width / 96, hIn = r.height / 96;
+  const u = S.ftPerIn / FT;                                  // plan units per inch of paper
+  const vw = wIn * u, vh = hIn * u, B = 60;                  // M.view is the parcel's bounds plus 60 units
+  const clamp = (c, h, a, b) => (b - a < 2 * h ? (a + b) / 2 : Math.min(Math.max(c, a + h), b - h));
+  const cx = clamp((S.box[0] + S.box[2]) / 2, vw / 2, M.view[0] + B, M.view[2] - B),   // keep the frame on the parcel
+        cy = clamp((S.box[1] + S.box[3]) / 2, vh / 2, M.view[1] + B, M.view[3] - B);
+  svg.setAttribute("viewBox", [cx - vw / 2, cy - vh / 2, vw, vh].map(v => v.toFixed(3)).join(" "));
+  svg.setAttribute("width", wIn + "in"); svg.setAttribute("height", hIn + "in");
+  const fr = svg.querySelector("#frame rect");                               // the drawing's own clip frame grows to the sheet
+  if (fr) { fr.setAttribute("x", cx - vw / 2); fr.setAttribute("y", cy - vh / 2); fr.setAttribute("width", vw); fr.setAttribute("height", vh); }
+  const $ = sel => svg.querySelector(sel), hide = sel => svg.querySelectorAll(sel).forEach(e => e.classList.add("off"));
+  const label = (x, y, t, size = 4.2, fill = "#2B2A26") => `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" font-weight="700" fill="${fill}" stroke="#fff" stroke-width="${size * .26}" paint-order="stroke">${t}</text>`;
+  const [rx, ry] = M.red_house;
+  const uses = new Set();
+
+  if (existing) {
+    // existing conditions, as the site slide's campus step, on the full-colour aerial: property lines, water,
+    // surveyed trees, and the existing buildings and drive; nothing proposed
+    ["land", "soils", "canopy", "ground", "paddocks", "pasture-areas", "infrastructure", "infrastructure-labels", "site-retention",
+     "bioswale-label", "retention-label", "historic-slough-label", "historic-slough-floor", "compensation", "barnyard", "barnyard-labels", "swale-trees"]
+      .forEach(id => $("#" + id)?.classList.add("off"));
+    $("#historic-slough")?.setAttribute("fill-opacity", ".16");
+    [...($("#labels")?.children || [])].forEach((g, k) => { if (!/Cowpen Slough/.test(g.textContent)) g.classList.add("off"); });
+    const pens = $("#cattle-pens-canopy"), ub = $("#unfinished-barn"), cp = $("#carport");
+    const box = e => { if (!e) return null; const b = e.getBBox(); return [b.x + b.width / 2, b.y + b.height / 2, b]; };
+    const P = box(pens), U = box(ub), C = box(cp), ed = "#2B2A26";
+    $("#campus").insertAdjacentHTML("beforeend", `<g id="existing-labels">`
+      + label(rx, ry + 2, "Red House", 7, ed) + label(1162, 325, "Existing barn", 6, ed)
+      + (P ? label(P[2].x - 17, P[1] + 2, "Cattle pens", 6, ed) : "") + (U ? label(U[0], U[2].y - 3, "Unfinished barn", 6, ed) : "")
+      + (C ? label(C[2].x + C[2].width + 11, C[1] + 2, "Carport", 6, ed) : "")
+      + label(225.2, 156.6, "Entry Gate", 6) + `</g>`);
+  } else {
+    // layers as on the site plan slide, at Level 3
+    ["land", "soils", "labels", "aerial", "veil"].forEach(id => $("#" + id)?.classList.add("off"));
+    const n = 3;
+    svg.querySelectorAll(".by").forEach(g => {
+      g.classList.toggle("future", +g.dataset.level > n);
+      const use = g.dataset.use2 || g.dataset.use, sh = g.querySelector(".shape"), v = use.replace("_", "-");
+      sh.style.stroke = `var(--${v})`;
+      if (g.dataset.kind !== "yard") sh.style.fill = g.dataset.kind === "walk" ? "#fff" : `var(--${v}-tint)`;
+      if (+g.dataset.level <= n) uses.add(use);
+    });
+    svg.querySelectorAll("#barnyard-labels text").forEach(t => t.classList.toggle("future", +t.dataset.level > n));
+    // labels added by the architect on the 2026-10-20 sheets (Illustrator), read back to plan units
+    $("#barnyard-labels").insertAdjacentHTML("beforeend", label(1212.5, 367.2, "Red House") + label(1218.9, 334.4, "Addition")
+      + label(225.2, 156.6, "Entry Gate"));
+    if (which === "site") $("#historic-slough-label")?.setAttribute("transform", "translate(876.1 415.7)");   // moved off the fence (architect)
+  }
+  $("#aerial")?.classList.toggle("muted", !existing);
+
+  // labels (data-fixed) and line weights (data-w) are sized for the slide; on paper they keep one printed size
+  // on every sheet, taken from the 1" = 100' sheet (labels at 0.4 of their slide size there)
+  const inv = u / (100 / FT), invLabel = 0.4 * inv;
+  svg.querySelectorAll("[data-fixed]").forEach(e => { e.style.transform = `scale(${invLabel})`; });
+  svg.querySelectorAll("[data-w]").forEach(e => { e.style.strokeWidth = e.dataset.w * inv;
+    if (e.dataset.dash) e.style.strokeDasharray = e.dataset.dash.split(" ").map(v => v * inv).join(" "); });
+
+  // graphic scale: four divisions of one inch's worth, plus one subdivided
+  const bar = document.getElementById("bar"), step = S.ftPerIn, segs = 4, px = 96;
+  let b = "";
+  for (let i = 0; i < segs; i++) b += `<rect x="${12 + i * px}" y="6" width="${px}" height="12" fill="${i % 2 ? "#fff" : "#2B2A26"}" stroke="#2B2A26" stroke-width="1"/>`;
+  for (let i = 0; i <= segs; i++) b += `<text x="${12 + i * px}" y="40" text-anchor="middle" font-size="13" font-family="Avenir Next, Helvetica, Arial, sans-serif" fill="#2B2A26">${i * step}${i === segs ? " ft" : ""}</text>`;
+  bar.setAttribute("width", (segs * px + 44) / 96 + "in"); bar.setAttribute("viewBox", `0 0 ${segs * px + 44} 60`);
+  bar.innerHTML = b;
+
+  const li = (stroke, fill, label, cls = "") => `<li><i class="${cls}" style="border-color:${stroke};background:${fill}"></i>${label}</li>`;
+  let legend;
+  if (existing) {
+    legend = li("var(--education)", "var(--education)", "Existing buildings")
+      + li("var(--circulation)", "var(--circulation-tint)", "Existing drive")
+      + li("var(--woodland)", "var(--woodland)", "Surveyed trees", "dot")
+      + li("var(--water)", "var(--water-tint)", "Pond and Cowpen Slough")
+      + li("var(--water)", "none", "FEMA flood zone line", "line dash")
+      + `<li><svg width=".42in" height=".2in" viewBox="0 0 40 20" style="flex:none"><path d="M0 10 H40" stroke="#2B2A26" stroke-width="2.5" stroke-dasharray="10 4 2 4"/></svg>Property line</li>`;
+  } else {
+    const NAMES = { cattle: "Cattle", small_animal: "Small animals", swine: "Swine (small animal barn A)", arena: "Arena and events",
+                    horticulture: "Horticulture", education: "Red House: education and outreach", circulation: "Drives, parking, and service" };
+    const order = ["cattle", "small_animal", "swine", "arena", "horticulture", "education", "circulation"].filter(k => uses.has(k));
+    legend = order.map(k => { const v = k.replace("_", "-"); return li(`var(--${v})`, `var(--${v}-tint)`, NAMES[k]); }).join("")
+      + li("var(--woodland)", "var(--woodland-tint)", "Surveyed trees")
+      + li("var(--water)", "var(--water-tint)", "Water and stormwater");
+  }
+  document.getElementById("legend").innerHTML = legend;
+
+  const notes = existing ? [
+    "North is to the left.",
+    "Aerial: Sarasota County Property Appraiser, registered to the survey. Property lines, trees, and buildings: survey and Seibert Architects CAD sheets.",
+    `Main property only: ${Math.round(M.site_acres_footprint)} acres, the side of the parcel line the campus is on.`,
+    "Existing conditions for discussion. Not a survey.",
+  ] : [
+    "North is to the left.",
+    "The barnyard diagram is placed to scale on the survey, pinned to the existing barn's surveyed pen line.",
+    which === "site" ? `Main property only: ${Math.round(M.site_acres_footprint)} acres, the side of the parcel line the campus is on.` : "Building and pen sizes per the barnyard diagram at Level 3.",
+    "Planning study for discussion. Not for construction.",
+  ];
+  document.getElementById("notes").innerHTML = notes.map(t => `<p>${t}</p>`).join("");
+  window.SHEET_READY = true;
+})();
+</script>
+</body>
+</html>

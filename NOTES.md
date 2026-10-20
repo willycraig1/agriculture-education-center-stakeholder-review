@@ -862,3 +862,18 @@ Fit checks now skip context elements (walk etc.).
   the walk from the Red House to the addition's entry canopy (`walk-3`, Level 3; it was drawn in the names layer).
   The south sidewalk now runs on along the residence's north side to its far corner. The rebuilt diagram matches the
   edited file group for group. For further edits, save the Illustrator file under a new name (ag-area-diagram4.svg).
+
+## 2026-10-20: Arch D site plan sheets
+- `tools/export_sheets.py` prints `tools/sheet.html` with headless Chrome to 36" x 24" vector PDFs in `exports/`:
+  AS-0, the existing site on the full-colour aerial at 1" = 100'; AS-1, the main property at Level 3, 1" = 100';
+  AS-2, the campus at Level 3, 1" = 40'. `--date` sets the sheet date; name sheets (existing, site, campus) to print
+  only those. Title strip: north arrow, scale and graphic scale, legend, notes, project, sheet title, firm.
+- AS-0 follows the site slide's campus step: property lines, water and the FEMA line, surveyed trees, existing
+  buildings and drive, Cowpen Slough; nothing proposed. The County aerial is about 30 px per inch at this scale, so it
+  prints soft; a higher-resolution aerial would drop straight in.
+- The architect's Illustrator edits to the first AS-1 / AS-2 (main project `exports/`) are folded into the template:
+  project name "Agriculture Education Center", AS numbering, "Site plan: overall", the firm name in the title block,
+  labels Red House, Addition, and Entry Gate (read back to plan units), and the slough-bed label moved off the fence on AS-1.
+- The slide's screen-sized labels (`data-fixed`) and line weights (`data-w`) keep one printed size on every sheet
+  (labels at 0.4 of their slide size at 1" = 100'). The frame is kept on the parcel, so AS-2 runs to the parcel line.
+- Scale checked in the PDFs: existing barn 80.4', cattle barns 84' x 64'. Rerun after `build_site_map.py`.
