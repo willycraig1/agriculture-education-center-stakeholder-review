@@ -886,3 +886,11 @@ Fit checks now skip context elements (walk etc.).
   the left, Level 1 on the right, equal gaps. All three placed on Level 1's box (the Levels share one plan frame), so
   the house lines up across the sheet; Level 3's addition runs past the shared edge.
 - The architect cleans up unfilled program-colour corners in Illustrator; those edits do not flow back into the data.
+
+## 2026-10-20: the 3D model closes the deck
+- `index.html`: the massing viewer (`massing/index.html`) is slide 16, "The campus in 3D", after Over to you. It runs
+  live in the deck's iframe; it has no build steps, so the deck's ‹ › buttons (and a clicker's PageDown / PageUp) change
+  slides, while the arrow keys stay with the viewer for walking. F, Escape, Home, and End go to the deck. The PDF export
+  skips it (it only takes `slides/` entries).
+- Owner: the bonus pasture stays in the model as context (its paddocks and fencing at Level 3), though the slides show
+  the main parcel only.
