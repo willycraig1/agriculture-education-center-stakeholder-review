@@ -825,3 +825,7 @@ Fit checks now skip context elements (walk etc.).
   2,007 sf; pens 3/2/1: 2,092 / 2,007 / 1,793 sf). The handling yard's holding pen widens to the alley (its south-east
   chamfer moves with the wall; the Bud Box, lead-up, and chute keep their size). The walk's apron west of the existing
   pens now ends on the barn front line (the architect's file had it 3.6' short).
+- South sidewalk restored (owner): 5' wide, Level 1, part of `walk`; about 284 ft from the walk network's stub by the
+  dumpster down the 5' strip between the one-way drive and the Red House, past the front porch, then a 90-degree turn
+  along the heads of the stall row in front of the horticulture area to the row's west end (Red House grid). The
+  horticulture area and the residence move 5' south to make room behind the stalls.
