@@ -164,9 +164,9 @@ def build():
     ground_poly(G, 302.7, -254, 983 / S, -91.5, 'concrete')        # service lane east of arena, out to the barn front line (no grass strip)
     ground_poly(G, 329.5, -262.7, 499.6, -254.6, 'concrete')       # 8' walk north of barn, out to the unfinished barn (as the plan's walk)
     ground_poly(G, 333, -340, 420, -313.6, 'asphalt')              # apron in front of barn
-    for r in [R(983, 270, 1090, 415), R(983, 415, 1090, 555), R(1114, 270, 1220, 415),
-              R(1114, 415, 1220, 555), R(1114, 555, 1220, 680), R(983, 555, 1090, 680),
-              R(1090, 270, 1114, 680)]:                                  # and the alley between the pen columns
+    for r in [R(983, 270, 1109, 415), R(983, 415, 1109, 555), R(1132.6, 270, 1258.5, 415),
+              R(1132.6, 415, 1258.5, 555), R(1132.6, 555, 1258.5, 680), R(983, 555, 1109, 680),
+              R(1109, 270, 1132.6, 680)]:                                  # and the alley between the pen columns
         ground_poly(G, *r, 'dirt')
     ground_poly(G, *R(645, 530, 893, 680), 'arenadirt')            # arena floor
     ground_poly(G, *R(983, 935, 1128, 995), 'dirt')                # compost pad
@@ -397,15 +397,17 @@ def build():
     objs.append(o)
 
     # ---- Outdoor pens 1–5 & chute: pipe fences, each segment its own object for sorting
-    pens = [R(983, 270, 1090, 415), R(983, 415, 1090, 555), R(1114, 270, 1220, 415),
-            R(1114, 415, 1220, 555), R(1114, 555, 1220, 680), R(983, 555, 1090, 680)]
+    # pens 1 to 3 (the east column) run out to the existing pens' dog-ear, 93.4' from the barn front (1258.5 px;
+    # deck commit b9f2bcf), and the 8' alley is centred in the block: columns 42.7' wide each (3f83b7e; owner 2026-10-20)
+    pens = [R(983, 270, 1109, 415), R(983, 415, 1109, 555), R(1132.6, 270, 1258.5, 415),
+            R(1132.6, 415, 1258.5, 555), R(1132.6, 555, 1258.5, 680), R(983, 555, 1109, 680)]
     for i, (x1, y1, x2, y2) in enumerate(pens):
         for j, seg in enumerate([(x1, y1, x2, y1), (x2, y1, x2, y2), (x2, y2, x1, y2), (x1, y2, x1, y1)]):
             f = Obj(f'pen{i}_{j}', cast_shadow=False)
             fence(f, *seg, 5.0, [5.0, 3.6, 2.2, 0.9], 'pipe', post=10.0, w=0.9)
             objs.append(f)
     # a pipe gate across the north end of the alley between the holding pen columns, where it meets the turnout line
-    ax1, ay1, ax2, ay2 = R(1090, 270, 1114, 680)
+    ax1, ay1, ax2, ay2 = R(1109, 270, 1132.6, 680)
     gt = Obj('alleygate', cast_shadow=False)
     for xx in (ax1, ax2):
         gt.line([(xx, ay2, 0), (xx, ay2, 5.6)], 'pipe', 1.6)
@@ -414,7 +416,7 @@ def build():
     gt.line([(ax1 + 0.4, ay2, 0.8), (ax2 - 0.4, ay2, 4.4)], 'pipe', 0.8)
     objs.append(gt)
     # chute alley inside lead-up area
-    x1, y1, x2, y2 = R(983, 555, 1090, 680)
+    x1, y1, x2, y2 = R(983, 555, 1109, 680)
     f = Obj('chute', cast_shadow=False)
     fence(f, x1 + 16, y1, x1 + 16, y2 - 8, 5.5, [5.5, 3.5, 1.5], 'pipe', post=6)
     fence(f, x1 + 20, y1, x1 + 20, y2 - 8, 5.5, [5.5, 3.5, 1.5], 'pipe', post=6)
