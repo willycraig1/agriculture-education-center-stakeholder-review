@@ -821,3 +821,7 @@ Fit checks now skip context elements (walk etc.).
   North dimension string: 29.6' lane, then the 93.4' holding block; the east string moves out with it.
 - The massing model (`Watercolor_Rendering_Working/scripts/scene.py`, `massing/export_scene.py`) has its own pen
   coordinates and still shows pens 1 to 3 at the barn's east wall.
+- Same day: the 8' alley is centred in the 93.4' holding block, two 42.7' columns either side (pens 5/4: 2,092 /
+  2,007 sf; pens 3/2/1: 2,092 / 2,007 / 1,793 sf). The handling yard's holding pen widens to the alley (its south-east
+  chamfer moves with the wall; the Bud Box, lead-up, and chute keep their size). The walk's apron west of the existing
+  pens now ends on the barn front line (the architect's file had it 3.6' short).
