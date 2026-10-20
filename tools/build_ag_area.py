@@ -294,6 +294,19 @@ _r = [_near(min(_long, key=lambda sg: min(abs(sg[0] - _div[0]), abs(sg[1] - _div
       _near(min(_long, key=lambda sg: min(abs(sg[0] - _div[1]), abs(sg[1] - _div[1]))), _div[1])]
 _ext("residence", "Residence", [_to_d((z.real, z.imag)) for z in _r], "education", "building", "Camper / RV hookups",
      becomes={"3": {"use": "education", "note": "Residence"}})
+# The Red House's Level 3 addition (owner, 2026-10-20): the instructional classroom / event space with its restroom and
+# storage core, east of the house, square to true north, as placed on the study plan (sheet A0.1: the core's walls,
+# P-WALL, and the classroom's open-sided outline, P-BELOW-LIGHT; study-plan points), with the entry canopy on its west
+# side facing the house (P-ABOVE). The patio and walkway between them are not drawn.
+_stp = lambda x, y: _to_d((lambda z: (z.real, z.imag))(_sf.M_TP * complex(x, y) + _sf.T_TP))
+_add_o = [_stp(x, y) for x, y in ((1521.2, 1185.6), (1679.3, 1185.6), (1679.3, 1259.2), (1521.2, 1259.2))]
+_xs_a, _ys_a = [q[0] for q in _add_o], [q[1] for q in _add_o]
+add("red-house-addition", "Red House addition", min(_xs_a), min(_ys_a), max(_xs_a) - min(_xs_a), max(_ys_a) - min(_ys_a), "education", 3,
+    note="Classroom / event space", outline=_add_o)
+by_id["red-house-addition"] = E[-1]
+_cn_o = [_stp(x, y) for x, y in ((1503.5, 1212.8), (1521.2, 1212.8), (1521.2, 1233.1), (1503.5, 1233.1))]
+add("red-house-addition-canopy", "", min(q[0] for q in _cn_o), min(q[1] for q in _cn_o), max(q[0] for q in _cn_o) - min(q[0] for q in _cn_o),
+    max(q[1] for q in _cn_o) - min(q[1] for q in _cn_o), "education", 3, kind="canopy", note="", outline=_cn_o, context=True)
 # ---- the parking lot's south loop, from the architect's CAD sketch of the lot (2026-10-12)
 # The sketch (pixel coordinates read off the screenshot) is placed by the Red House carport drawn on it: its four
 # corners are matched to the carport on the survey (BUILDING OH, 29' x 38'). That places the sketch to within about
@@ -734,6 +747,15 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     if _swl:
         _pk["island_poly"] = _svg_pts(_swl.group(1))
     n_stalls = len(_stl) + len(_ang)
+    # the dumpster enclosure is centred on the drive aisle it opens onto (owner, 2026-10-20): the aisle between the back of
+    # the double stall row and the front of the row along the swale
+    _dm = next(e for e in E if e["id"] == "dumpster")
+    _backs = sorted({q[2][1] for q in _stl}); _fronts = sorted({q[0][1] for q in _stl})
+    _a0_ = max((b for b in _backs if b <= _dm["y"] + _dm["h"] / 2 + 12), default=None)
+    _a1_ = min((f for f in _fronts if _a0_ is not None and f > _a0_ + 1), default=None)
+    if _a0_ is not None and _a1_ is not None:
+        _dm["y"] = round((_a0_ + _a1_) / 2 - _dm["h"] / 2, 1)
+        print("dumpster centred on its aisle:", _a0_, "to", _a1_, "-> y", _dm["y"])
     # Square the south loop to the front of the Red House, with the sidewalk flush against it (owner, 2026-10-20). The
     # front is the line of the house's westernmost wall and the front porch's outer edge (they are one line), about
     # 0.4 degrees off the walls' average; the loop takes its angle from it (_Uf along the stall row, _Nf across). The

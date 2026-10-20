@@ -847,3 +847,9 @@ Fit checks now skip context elements (walk etc.).
   the edge it meets; the stall row still turns about its joint with the west leg. The sidewalk no longer goes round
   the turn: along the stall heads it stops at the residence. The horticulture area and the residence (sizes kept) are
   set flush to the sidewalk's south corner, the residence alongside horticulture as before.
+- Red House Level 3 addition on the plan (owner): `red-house-addition` (Level 3, education), the instructional
+  classroom / event space with its restroom and storage core, as placed on the study plan A0.1 (east of the house,
+  square to true north; about 71' x 33'), plus its entry canopy toward the house (`red-house-addition-canopy`, open
+  canopy). The patio and walkway between them are not drawn. It shows on the site plans too.
+- Dumpster enclosure centred on the drive aisle it opens onto (between the back of the double stall row, y 324, and
+  the front of the row along the swale, y 348): now y 330 to 342.
