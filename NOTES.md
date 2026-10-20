@@ -976,3 +976,22 @@ Fit checks now skip context elements (walk etc.).
   sheet's "as funding allows"); module card "A second barn can follow as funding allows and demand grows."
 - Over to you: "How would you use the site day to day?" (no "and your staff"); Barns and animals adds "How could the
   project maximize usability for livestock management?"
+
+## 2026-10-20: Red House teaching space in the massing (`massing/index.html` `teachingSpace()`)
+- Owner's brief: conceptually the Siesta Key Chapel, built on the barns' kit system. 72' x 36' on the 12' grid (six
+  bays, 8x8 wood columns, bar joists spanning the 36' with no interior columns). Same centre as the study plan's
+  addition (`red-house-addition`), but turned square to the existing barn and the barnyard instead of true north (a
+  departure from the site plan drawings, which still show the A0.1 placement; the plan has not been updated).
+- Section: floor 5.5' above grade; crawlspace closed with wood louvers on the column lines, the floor framing drawn as
+  a band outside the columns; 10' from the floor to the bearing of 18" bar joists (black) that follow the 4:12 roof;
+  galvalume roof, wood underside (reads as wood between the joists), 3' overhangs all round.
+- Envelope: side walls glass floor to eave, mullions at the columns and mid-bay (6' module). The end bays are solid
+  weathered wood: the west bay is the restroom and storage core (its inner wall one bay in, open in the middle third),
+  the east bay solid. East endwall: solid centre third, glass in the outer thirds up to the joists' bottom chord.
+  West endwall: solid, entry doors at its centre. East balcony deck 12' out at floor level, on posts, wood railing.
+- Access: the grade rises behind the house (owner), so the model fakes it: the walk (plan walk-3 carried on to a
+  landing at the new door) climbs from grade at the house to floor level at the door, about 40' at 1:7, with the
+  ground banked at about 1:2 around it. Not an accessible slope; the real topo will set it. A surveyed tree stands in
+  the walk (as on the plan).
+- Data: `massing/export_site.py` writes `campus.addition` (centre, axis, size, walk outline, walk ends). Viewer presets
+  "Teaching space" and "Inside the classroom". Level 3, education colour.

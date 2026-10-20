@@ -501,6 +501,25 @@ def main():
             if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
     out['campus']['stalls'] = stalls
 
+    # The Red House's Level 3 teaching space, as the massing models it (owner, 2026-10-20): 72' x 36' on the 12' grid,
+    # same centre as the study plan's addition but square to the barnyard (the diagram's axes) instead of true north,
+    # entry centred on its west end. The walk is walk-3 from the plan, carried on to a landing at the new door.
+    ao = ELEM['red-house-addition']['outline']
+    acx, acy = sum(p[0] for p in ao) / 4, sum(p[1] for p in ao) / 4
+    L, W = 72.0, 36.0
+    c0, c1 = d2s(acx, acy), d2s(acx + 1, acy)
+    wx = acx - L / 2                                                         # west wall line (diagram x)
+    landing = [(wx - 6, acy - 5), (wx, acy - 5), (wx, acy + 5), (wx - 6, acy + 5)]
+    w3 = ELEM['walk-3']['outline']
+    end = [(220.8, 428.4), (223.5, 437.1)]                                   # walk-3's east end (its edge at the plan's canopy)
+    link = [(wx - 6, acy + 5), (wx, acy + 5), end[1], end[0]]
+    walk = unary_union([Polygon(w3).buffer(0), Polygon(landing), Polygon(link).buffer(0)]).buffer(0.05).buffer(-0.05)
+    start = min(w3, key=lambda p: p[0])
+    out['campus']['addition'] = dict(
+        c=list(c0), ang=round(math.degrees(math.atan2(c1[1] - c0[1], c1[0] - c0[0])), 3), L=L, W=W,
+        walk=[list(d2s(x, y)) for x, y in list(walk.exterior.coords)[:-1]],
+        walk_from=list(d2s(*start)), walk_to=list(d2s(wx - 3, acy)))
+
     # the walk to the unfinished barn squares into its aisle in the deck's plan (tools/build_ag_area.py)
     walks_u = unary_union([Polygon(w['o']).buffer(0) for w in out['campus']['walks']])
 
