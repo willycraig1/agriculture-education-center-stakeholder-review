@@ -631,9 +631,10 @@ function redHouse(C) {
 // grade on a crawlspace closed with wood louvers, the floor framing a band outside the columns; 10' from the floor to
 // the bearing of 18" bar joists (black) that follow the 4:12 roof across the 36'; galvalume roof, wood underside, 3'
 // overhangs. Side walls glass from floor to eave except the end bays: the west bay is the restroom and storage core
-// (solid, weathered wood), the east bay is solid; the east endwall is glass in its outer thirds with a solid centre
-// panel; the west endwall is solid with the entry. A 12' balcony deck off the east end. The ground is faked up to the
-// entry (the grade rises behind the house) so the walk from the house (walk-3 on the plan) arrives at floor level.
+// (weathered wood, horizontal on the sides, vertical on the endwalls), the east bay is solid; the east endwall is glass
+// in its outer thirds with a solid centre panel; the west endwall is solid with the entry. A 12' balcony deck off the
+// east end, the crawlspace louvers carried round under it. 5' east of the plan's centre, about 12.9' clear of the Red
+// House's north-east porch. The ground is faked up to the entry (the grade rises behind the house) so the walk from the house (walk-3 on the plan) arrives at floor level.
 function teachingSpace(A) {
   const a = A.ang * Math.PI / 180, e = [Math.cos(a), Math.sin(a)], n = [-e[1], e[0]];
   const W = (u, v, z) => [A.c[0] + u * e[0] + v * n[0], A.c[1] + u * e[1] + v * n[1], z];
@@ -682,7 +683,7 @@ function teachingSpace(A) {
       const u0 = -HL + 12 * b + C8, u1 = -HL + 12 * (b + 1) - C8;
       if (b === 0 || b === 5) {
         box(u0, u1, v - WT / 2, v + WT / 2, FL, BEAR, 'oldwood');
-        for (let u = u0 + .75; u < u1; u += .75) seg(W(u, vo, FL), W(u, vo, BEAR));
+        for (let z = FL + .6; z < BEAR; z += .6) seg(W(u0, vo, z), W(u1, vo, z));     // horizontal siding on the sides
       } else {
         face([W(u0, v, FL), W(u1, v, FL), W(u1, v, BEAR), W(u0, v, BEAR)], 'glass');
         const um = (u0 + u1) / 2;
@@ -692,6 +693,7 @@ function teachingSpace(A) {
       }
     }
     box(-HL - C8, HL + C8, v - WT / 2, v + WT / 2, BEAR, BEAR + JD, 'oldwood');
+    for (let z = BEAR + .6; z < BEAR + JD; z += .6) seg(W(-HL - C8, v + Math.sign(v) * (WT / 2 + .02), z), W(HL + C8, v + Math.sign(v) * (WT / 2 + .02), z));
   }
   // gable friezes (the joists' depth, under the roof) at both ends
   for (const u of [-HL, HL]) for (const s of [-1, 1]) endWall(u, [[s * HW, BEAR], [0, zBC(0)], [0, zBC(0) + JD], [s * HW, BEAR + JD]], 'oldwood');
@@ -729,23 +731,37 @@ function teachingSpace(A) {
     face(top, 'metalroof'); face(bot.slice().reverse(), 'ceilwood');
     for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; face([top[i], top[j], bot[j], bot[i]], 'metalroof'); }
   }
-  // east balcony: a 12' deck at floor level on posts, its framing band, a wood railing with pickets
+  // east balcony: a 12' deck at floor level on posts, its framing band, the crawlspace louvers carried round under it,
+  // a wood railing with square welded wire mesh between the rails (all but invisible)
   const BU0 = HL + O2, BU1 = HL + 12, BV = HW + O2;
   box(BU0, BU1, -BV, BV, FL - .3, FL, 'deck');
   box(BU1 - BT, BU1, -BV, BV, SK, FL - .3, 'oldtimber');
   for (const s of [-1, 1]) box(BU0, BU1, s > 0 ? BV - BT : -BV, s > 0 ? BV : -BV + BT, SK, FL - .3, 'oldtimber');
   for (const v of [-HW, -6, 6, HW]) box(BU1 - .7, BU1 - .03, v - C8, v + C8, 0, SK, 'oldtimber');
+  const BS = BU1 - BT / 2;
+  face([W(BS, -BV, 0), W(BS, BV, 0), W(BS, BV, SK), W(BS, -BV, SK)], 'oldwood');
+  for (const s of [-1, 1]) face([W(BU0, s * BV, 0), W(BS, s * BV, 0), W(BS, s * BV, SK), W(BU0, s * BV, SK)], 'oldwood');
+  for (let z = .4; z < SK; z += .4) {
+    seg(W(BS + .05, -BV, z), W(BS + .05, BV, z));
+    for (const s of [-1, 1]) seg(W(BU0, s * (BV + .05), z), W(BS, s * (BV + .05), z));
+  }
+  const wire = [];
   const rail = [[BU0, -BV + .2], [BU1 - .2, -BV + .2], [BU1 - .2, BV - .2], [BU0, BV - .2]];
   for (let i = 0; i < 3; i++) {
     const [p, q] = [rail[i], rail[i + 1]], L = Math.hypot(q[0] - p[0], q[1] - p[1]);
     const lo = Math.min(p[0], q[0]) - .12, hi = Math.max(p[0], q[0]) + .12, vlo = Math.min(p[1], q[1]) - .12, vhi = Math.max(p[1], q[1]) + .12;
     box(lo, hi, vlo, vhi, FL + 3.25, FL + 3.5, 'oldtimber');
     box(lo, hi, vlo, vhi, FL + .3, FL + .45, 'oldtimber');
-    const np = Math.round(L / .45);
-    for (let k = 0; k <= np; k++) {
-      const uu = p[0] + (q[0] - p[0]) * k / np, vv = p[1] + (q[1] - p[1]) * k / np, w = k % Math.round(6 / .45) ? .07 : .25;
-      box(uu - w, uu + w, vv - w, vv + w, FL + .45, FL + 3.25, 'oldtimber');
+    const np = Math.round(L / 6), nm = Math.round(L / .33);
+    for (let k = 0; k <= np; k++) {                                   // rail posts at about 6'
+      const uu = p[0] + (q[0] - p[0]) * k / np, vv = p[1] + (q[1] - p[1]) * k / np;
+      box(uu - .25, uu + .25, vv - .25, vv + .25, FL + .45, FL + 3.25, 'oldtimber');
     }
+    for (let k = 1; k < nm; k++) {                                    // the mesh, about 4" square
+      const uu = p[0] + (q[0] - p[0]) * k / nm, vv = p[1] + (q[1] - p[1]) * k / nm;
+      wire.push(...W(uu, vv, FL + .45), ...W(uu, vv, FL + 3.25));
+    }
+    for (let z = FL + .45 + .33; z < FL + 3.25; z += .33) wire.push(...W(p[0], p[1], z), ...W(q[0], q[1], z));
   }
 
   const glassMat = new THREE.MeshLambertMaterial({ color: rgb(S.mat.glass), transparent: true, opacity: .34, depthWrite: false, side: THREE.DoubleSide });
@@ -759,6 +775,9 @@ function teachingSpace(A) {
   }
   const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(ink, 3));
   const sl = new THREE.LineSegments(sg, new THREE.LineBasicMaterial({ color: rgb(S.mat.boardline) })); sl.userData.siding = true; grp.add(sl);
+  const mg = new THREE.BufferGeometry(); mg.setAttribute('position', new THREE.Float32BufferAttribute(wire, 3));
+  const ml = new THREE.LineSegments(mg, new THREE.LineBasicMaterial({ color: 0x3a3a3a, transparent: true, opacity: .14, depthWrite: false }));
+  ml.userData.siding = true; grp.add(ml);
   const jm = new THREE.MeshLambertMaterial({ color: rgb(S.mat.joist) }), im = new THREE.InstancedMesh(unitCyl, jm, rods.length);
   const M = new THREE.Matrix4(), q = new THREE.Quaternion(), zAxis = new THREE.Vector3(0, 0, 1);
   rods.forEach(([p0, p1], i) => {
@@ -1213,8 +1232,8 @@ const VIEWS = {
   campus:     { name: 'Campus', sub: 'Barnyard, Red House, parking', pos: [760, -1150, 620], tgt: [200, -330, 0], fov: 40 },
   pasture:    { name: 'Site pasture', sub: 'The paddocks, from the north', pos: [1500, 3300, 1500], tgt: [100, 500, 0], fov: 40 },
   fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
-  teaching:   { name: 'Teaching space', sub: 'Red House addition, from the south-east', pos: [505, -392, 48], tgt: [400, -440, 9], fov: 45 },
-  inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [372, -436, 11], tgt: [440, -436, 13], fov: 70 },
+  teaching:   { name: 'Teaching space', sub: 'Red House addition, from the north-east', pos: [522, -380, 50], tgt: [408, -442, 7], fov: 45 },
+  inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [378, -436, 11], tgt: [445, -436, 13], fov: 70 },
   site:       { name: 'Whole property', sub: 'Campus, pastures, slough', pos: [2300, -3300, 2300], tgt: [-350, -800, 0], fov: 40 },
 };
 const viewsEl = document.getElementById('views');
