@@ -850,6 +850,11 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _run = [q for q in by_id["parking"]["outline"]]
     _k0 = min(range(len(_run)), key=lambda k: (_run[k][0] - 170.0) ** 2 + (_run[k][1] - 344.3) ** 2)     # the east leg's foot by the stub
     _k1 = min(range(len(_run)), key=lambda k: (_run[k][0] - _xy(_u0, STALL_D)[0]) ** 2 + (_run[k][1] - _xy(_u0, STALL_D)[1]) ** 2)  # stall row's west head corner
+    # and on round the loop's turn at the row's west end (owner, 2026-10-20): back along the pavement edge past the
+    # row's end and round the curve to where it straightens onto the entry drive
+    _k1 -= 1                                                          # the row's end
+    while _k1 > 0 and ((_run[_k1 - 1][0] - _run[_k1][0]) ** 2 + (_run[_k1 - 1][1] - _run[_k1][1]) ** 2) ** 0.5 < 40:
+        _k1 -= 1                                                      # up the short edges and round the curve
     _path = [tuple(_run[k % len(_run)]) for k in range(_k1, _k0 + 1)] if _k1 <= _k0 else [tuple(q) for q in _run[_k1:] + _run[:_k0 + 1]]
     _band = _pave.buffer(5, join_style=2, mitre_limit=3).difference(_pave)
     _sw = _band.intersection(_LS(_path).buffer(5.5, cap_style=2, join_style=2))
@@ -866,6 +871,7 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     _oq = _o0 + _d * _tq                                                   # outer line meets the apron's south edge
     _cut = _Poly([(_oq.real, _yap), (_oq.real + 400, _yap), (_oq.real + 400, _yap + 400),
                   ((_oq + _d * 400 / abs(_d.imag)).real, (_oq + _d * 400 / abs(_d.imag)).imag)])
+    _cut = _cut.intersection(_box(_oq.real - 30, _yap, _oq.real + 60, _yap + 30))   # only at the apron corner
     _wk1u = _wk1u.difference(_cut).buffer(0)
     _o1 = _ring(_wk1u)
     by_id["walk"].update(outline=_o1, **_bb(_o1))
