@@ -4,240 +4,244 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Project Fact Sheet</title>
-<!-- Two-page letter fact sheet (front and back), a companion to the County's own fact sheet
-     (source/Clark Farm Project-Fact Sheet-PRINT 10-15-26.pdf): same green bands and type character.
+<!-- Two-page letter fact sheet (front and back) in the presentation's language: design/palette.css colours,
+     the deck's serif and sans (design/deck.css), Level badges, and the design-driver icons (design/deck.js).
      Program and Level figures follow slides/data/levels.js, ag-area.js, and pasture-capacity.js.
      The site plan is drawn live from slides/data/site-map.js. Print: python tools/export_factsheet.py -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..700&family=Lobster+Two:ital,wght@1,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../design/palette.css">
 <style>
   @page { size: letter; margin: 0; }
   :root {
-    --green: #416D34; --green-dk: #2F5226; --green-tint: #E8EFE2;
-    --wood: #7E5543; --wood-tint: #F3ECE4; --gold: #B7916F;
-    --ink: #2B2A26; --muted: #6E6A60; --rule: #CFC8BA; --paper: #FFFFFF;
-    --sans: "Archivo", "Acumin Pro", "Helvetica Neue", Arial, sans-serif;
-    --script: "Lobster Two", Georgia, serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --radius: 0.1in;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: #D9D5CC; color: var(--ink); font: 400 9.6pt/1.42 var(--sans); font-stretch: 100%;
+  html, body { margin: 0; background: #E9E4D8; color: var(--ink); font: 400 9.3pt/1.42 var(--sans);
                -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { width: 8.5in; height: 11in; margin: 0.25in auto; background: var(--paper); position: relative; overflow: hidden;
-          padding: 0.42in 0.45in 0; display: flex; flex-direction: column; }
+  .page { width: 8.5in; height: 11in; margin: 0.25in auto; background: #fff; position: relative; overflow: hidden;
+          padding: 0.45in 0.5in 0; display: flex; flex-direction: column; }
   @media print { html, body { background: none; } .page { margin: 0; break-after: page; } }
 
-  /* bands */
-  .band { background: var(--green); color: #fff; border-radius: 2px; }
-  .masthead { padding: 0.16in 0.24in 0.15in; display: flex; align-items: flex-end; justify-content: space-between; gap: 0.2in; }
-  .masthead h1 { font: 700 italic 26pt/1 var(--script); margin: 0; letter-spacing: .2px; text-shadow: 0 1.5px 3px rgba(0,0,0,.28); }
-  .masthead .kicker { text-align: right; font: 700 8pt/1.35 var(--sans); font-stretch: 112%; letter-spacing: .09em; text-transform: uppercase; opacity: .95; white-space: nowrap; }
-  .masthead .kicker b { display: block; font-size: 10.5pt; letter-spacing: .06em; }
-  .runner { padding: 0.1in 0.24in; display: flex; align-items: baseline; justify-content: space-between; }
-  .runner h1 { font: 700 italic 15pt/1 var(--script); margin: 0; }
-  .runner span { font: 700 8pt/1 var(--sans); letter-spacing: .06em; text-transform: lowercase; }
-  .foot { margin-top: auto; margin-bottom: 0.3in; padding: 0.11in 0.24in; display: flex; justify-content: space-between; align-items: center;
-          font: 400 8pt/1.3 var(--sans); }
-  .foot b { font-weight: 700; }
-
-  h2 { font: 800 11.5pt/1.1 var(--sans); font-stretch: 118%; color: var(--green); letter-spacing: .02em; text-transform: uppercase; margin: 0 0 4pt; }
-  h3 { font: 700 9.6pt/1.2 var(--sans); margin: 0; }
-  p { margin: 0 0 6pt; }
-  .muted { color: var(--muted); }
+  .eyebrow { font: 600 7.4pt/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  h1 { font: 600 23.5pt/1.04 var(--serif); letter-spacing: -.01em; margin: 6pt 0 4pt; }
+  .lede { font: 400 10.6pt/1.35 var(--sans); color: var(--muted); margin: 0; }
+  h2 { font: 600 14pt/1.1 var(--serif); margin: 0 0 5pt; letter-spacing: -.005em; }
+  h3 { font: 600 10.4pt/1.2 var(--serif); margin: 0; }
+  p { margin: 0 0 5pt; }
+  b { font-weight: 600; }
   figure { margin: 0; }
-  figcaption { font: italic 400 7.6pt/1.35 var(--sans); color: var(--muted); margin-top: 3pt; }
+  figcaption { font: 400 7.4pt/1.35 var(--sans); color: var(--muted); margin-top: 3pt; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+  .badge { font: 700 6.6pt/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: var(--ink);
+           padding: 3pt 5pt; border-radius: 3pt; white-space: nowrap; display: inline-block; }
+  .num { font-variant-numeric: tabular-nums lining-nums; }
+
+  /* running head and foot */
+  .head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 6pt; border-bottom: 1px solid var(--line); }
+  .foot { margin-top: auto; margin-bottom: 0.32in; padding-top: 6pt; border-top: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .foot .firm { font: 600 6.8pt/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
 
   /* front */
-  .hero { margin-top: 0.14in; border: 3px solid var(--green); border-radius: 2px; overflow: hidden; height: 3.72in; }
-  .hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 86%; }
-  .cols { display: grid; grid-template-columns: 1fr 2.85in; gap: 0.26in; margin-top: 0.15in; }
-  .thesis { font: 700 italic 12.5pt/1.25 var(--script); color: var(--wood); margin: 2pt 0 8pt; padding-left: 9pt; border-left: 3px solid var(--gold); }
-  .drivers { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 14pt; }
-  .drivers li { padding-top: 4pt; border-top: 1.5px solid var(--rule); }
-  .drivers p { margin: 1pt 0 0; font-size: 8.8pt; line-height: 1.36; }
+  .hero { margin-top: 0.14in; border-radius: var(--radius); overflow: hidden; height: 3.1in; border: 1px solid var(--line); }
+  .hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
 
-  .glance { background: var(--wood-tint); border-radius: 2px; overflow: hidden; align-self: start; }
-  .glance header { background: var(--wood); color: #fff; padding: 6pt 10pt 5pt; font: 700 italic 15pt/1.1 var(--script); }
-  .glance dl { margin: 0; padding: 4pt 10pt 7pt; }
-  .glance .row { display: grid; grid-template-columns: 0.98in 1fr; gap: 8pt; align-items: baseline; padding: 5pt 0; border-bottom: 1px solid #E2D6C8; }
-  .glance .row:last-child { border-bottom: 0; }
-  .glance dt { font: 800 15pt/1 var(--sans); font-stretch: 85%; color: var(--green-dk); white-space: nowrap; }
-  .glance dt small { font-size: 8.5pt; font-weight: 700; }
-  .glance dd { margin: 0; font-size: 8.4pt; line-height: 1.3; }
-  .glance dd b { font-weight: 700; }
+  .glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6pt; margin-top: 0.16in; }
+  .tile { display: grid; grid-template-columns: 0.46in 1fr; gap: 0 7pt; align-items: center; padding: 7pt 9pt 7pt 7pt;
+          background: var(--paper); border-radius: var(--radius); border-left: 4pt solid var(--c); }
+  .tile svg { width: 0.46in; height: 0.46in; grid-row: span 2; }
+  .tile .n { font: 600 17pt/1 var(--serif); }
+  .tile .n small { font: 600 8pt/1 var(--sans); letter-spacing: .06em; color: var(--muted); margin-left: 2pt; }
+  .tile .l { font-size: 7.8pt; line-height: 1.3; color: var(--ink); margin-top: 2pt; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.28in; margin-top: 0.18in; }
+  .drivers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7pt; }
+  .drivers li { display: grid; grid-template-columns: 0.42in 1fr; gap: 9pt; align-items: start; }
+  .drivers svg { width: 0.42in; height: 0.42in; }
+  .drivers p { margin: 1pt 0 0; font-size: 8.6pt; line-height: 1.36; }
 
   /* back */
-  .planrow { display: grid; grid-template-columns: 1fr 1.62in; gap: 0.1in; margin-top: 0.06in; }
-  .plan { border: 1.5px solid var(--rule); border-radius: 2px; position: relative; background: #FAF7F0; overflow: hidden; }
+  .plan { margin-top: 0.04in; border: 1px solid var(--line); border-radius: var(--radius); position: relative; background: var(--paper); overflow: hidden; }
   .plan svg.site { display: block; width: 100%; height: auto; }
   .plan .site #land, .plan .site #soils, .plan .site #labels, .plan .site #aerial, .plan .site #veil, .plan .site #paddock-fills { display: none; }
   .plan .site #campus { opacity: .55; }
-  .plan .north { position: absolute; left: 7pt; top: 7pt; width: 30pt; height: 30pt; }
-  .plan .legend { position: absolute; left: 8pt; bottom: 7pt; display: flex; flex-direction: column; gap: 2.5pt; font: 500 7pt/1 var(--sans);
-                  background: rgba(255,255,255,.9); padding: 5pt 7pt; border-radius: 3px; }
+  .plan .north { position: absolute; left: 7pt; top: 7pt; width: 28pt; height: 28pt; }
+  .plan .legend { position: absolute; left: 8pt; bottom: 7pt; display: flex; flex-direction: column; gap: 2.5pt; font: 500 6.8pt/1 var(--sans);
+                  background: rgba(255,255,255,.92); padding: 5pt 7pt; border-radius: 4pt; }
   .plan .legend i { display: inline-block; width: 9pt; height: 7pt; margin-right: 4pt; vertical-align: -1pt; border: 1px solid; }
-  .inset { position: relative; background: #FAF7F0; border: 1.5px solid var(--green); border-radius: 2px; overflow: hidden; }
+  .plan .legend svg.line { margin-right: 4pt; vertical-align: 0; width: 13pt; height: 5pt; }
+  .features { display: grid; grid-template-columns: 2.05in 1fr; gap: 0.24in; margin-top: 0.16in; }
+  .feat { list-style: none; margin: 2pt 0 0; padding: 0; columns: 2; column-gap: 0.22in; }
+  .feat li { break-inside: avoid; padding: 2.6pt 0 2.6pt 12pt; position: relative; font-size: 8.7pt; line-height: 1.32; }
+  .feat li::before { content: ""; position: absolute; left: 0; top: 6.2pt; width: 6pt; height: 6pt; border-radius: 50%; background: var(--c); }
+  .inset { aspect-ratio: 205 / 294; position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .inset svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-  .inset .tag { position: absolute; left: 0; bottom: 0; background: var(--green); color: #fff; font: 700 6.6pt/1 var(--sans); letter-spacing: .05em;
-                text-transform: uppercase; padding: 3pt 5pt; }
+  .inset .badge { position: absolute; left: 6pt; bottom: 6pt; }
 
-  table.levels { width: 100%; border-collapse: collapse; margin-top: 2pt; font-size: 8.3pt; line-height: 1.28; table-layout: fixed; }
-  .levels th, .levels td { text-align: left; vertical-align: top; padding: 3.4pt 6pt; border-bottom: 1px solid var(--rule); }
-  .levels thead th { background: var(--green); color: #fff; font-weight: 700; padding: 4pt 6pt; border: 0; }
-  .levels thead th small { display: block; font-weight: 400; font-size: 7.4pt; opacity: .9; }
-  .levels thead th:first-child { background: none; color: var(--ink); width: 1.42in; vertical-align: bottom; font-size: 7.4pt; font-weight: 400; color: var(--muted); }
-  .levels tbody th { font-weight: 700; }
-  .levels tbody th i { display: inline-block; width: 7pt; height: 7pt; border-radius: 50%; margin-right: 5pt; vertical-align: 0; }
-  .levels td.same { color: var(--muted); font-style: italic; }
-  .levels tbody tr:nth-child(odd) td, .levels tbody tr:nth-child(odd) th { background: #F7F5F0; }
-  .levels td b { font-weight: 700; }
-
-  .program { display: grid; grid-template-columns: 1fr 1fr; gap: 0.26in; margin-top: 0.14in; }
+  .program { display: grid; grid-template-columns: 1fr 1fr; gap: 0.28in; margin-top: 0.15in; }
   .program ul { list-style: none; margin: 0; padding: 0; }
-  .program li { padding: 3pt 0 3pt 11pt; position: relative; font-size: 8.7pt; line-height: 1.34; }
-  .program li::before { content: ""; position: absolute; left: 0; top: 7pt; width: 5pt; height: 5pt; background: var(--gold); transform: rotate(45deg); }
-  .program h3 { color: var(--wood); font-size: 9.4pt; margin-bottom: 1pt; text-transform: uppercase; letter-spacing: .05em; font-stretch: 112%; }
-  .note { font-size: 8pt; color: var(--muted); margin: 6pt 0 0; }
+  .program li { padding: 2.6pt 0 2.6pt 12pt; position: relative; font-size: 8.5pt; line-height: 1.34; }
+  .program li::before { content: ""; position: absolute; left: 0; top: 6.4pt; width: 6pt; height: 6pt; border-radius: 50%; background: var(--c, var(--muted)); }
+  .program .eyebrow { margin: 3pt 0 3pt; }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- from slides/pasture-capacity.html -->
+    <symbol id="cow" viewBox="0 0 64 40">
+      <path fill="currentColor" d="M12 11c0-2 2-3.5 4-3.5h25c3 0 4.5 1 6 3l2-3.5c.6-1 2-1 2.6 0l.8 1.6h3.2c2 0 3.4 1.6 3.4 3.4v6.6c0 1.6-1.2 2.9-2.8 2.9h-5.4l-2.3 2.7V35a1.5 1.5 0 0 1-1.5 1.5h-1.8A1.5 1.5 0 0 1 43.7 35v-7.6H21V35a1.5 1.5 0 0 1-1.5 1.5h-1.8A1.5 1.5 0 0 1 16.2 35V25.6C13.6 24 12 21.4 12 18.4z"/>
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12.5 12.5c-3 1-4.5 4.5-4 10.5"/>
+      <circle cx="56.3" cy="14.2" r="1.3" fill="#fff"/>
+    </symbol>
+  </defs>
+</svg>
 
 <!-- ============================== FRONT ============================== -->
 <section class="page">
-  <header class="band masthead">
-    <h1>Sarasota County<br>Agriculture Education Center</h1>
-    <div class="kicker"><b>Project Fact Sheet</b>Master Plan Study<br>Clark Farm · Clark Road (SR-72)</div>
-  </header>
+  <div class="eyebrow">Master plan study</div>
+  <h1>Sarasota County Agriculture Education Center</h1>
+  <p class="lede">Beginning Farmer and 4-H Youth Agriculture Complex, Sarasota County, Florida</p>
 
   <figure class="hero">
-    <img src="rendering.jpg" alt="Watercolor of the barnyard at Level 3: new white barns and the open arena beside the weathered existing barn, a student leading a steer across the pasture">
+    <img src="rendering.jpg" alt="Aerial watercolor of the campus: barns, cattle pens, and the open-sided arena among live oaks, with cattle on pasture">
   </figure>
-  <figcaption>The barnyard at Level 3, seen from the pasture: new barns and the open-sided arena beside the existing barn. Watercolor study.</figcaption>
+  <figcaption>Potential conceptual rendering of the Sarasota County Agriculture Education Center facilities and infrastructure.</figcaption>
+
+  <div class="glance">
+    <div class="tile" style="--c:var(--pasture)">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--pasture-tint)"/><path fill="none" stroke="var(--pasture)" stroke-width="3" stroke-linejoin="round" d="M9 17l27-6 4 21-29 5z"/><path fill="none" stroke="var(--pasture)" stroke-width="2" stroke-dasharray="3 2.5" d="M22 14l3 20M10 26l29-5"/></svg>
+      <div class="n num">60.8<small>ACRES</small></div><div class="l"><b>Property</b> with about 45 acres of fenced pasture in nine paddocks</div>
+    </div>
+    <div class="tile" style="--c:var(--pasture)">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--pasture-tint)"/><use href="#cow" x="7" y="13" width="34" height="22" style="color:var(--cattle)"/></svg>
+      <div class="n num">7–15<small>CE</small></div><div class="l"><b>Pasture herd</b> for the Beginning Rancher program, in mature-cow equivalents (CE)</div>
+    </div>
+    <div class="tile" style="--c:var(--cattle)">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--cattle-tint)"/><g fill="none" stroke="var(--cattle)" stroke-width="3" stroke-linejoin="round"><rect x="10" y="20" width="8" height="14"/><rect x="20" y="20" width="8" height="14"/><rect x="30" y="20" width="8" height="14" stroke-dasharray="3 3"/></g><path d="M34 11v8M30 15h8" stroke="var(--cattle)" stroke-width="3" stroke-linecap="round"/></svg>
+      <div class="n num">7–35</div><div class="l"><b>4-H cow and calf pens</b>, 12' × 24', added in 14-pen barns as funding allows</div>
+    </div>
+    <div class="tile" style="--c:var(--swine)">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--swine-tint)"/><g fill="none" stroke="var(--swine)" stroke-width="2.6" stroke-linejoin="round"><path d="M10 13h28v8H10zM17 13v8M24 13v8M31 13v8M10 27h28v8H10zM17 27v8M24 27v8M31 27v8"/></g></svg>
+      <div class="n num">32–48</div><div class="l"><b>Small animal pens</b>, 6' × 10', for swine, sheep, or goats</div>
+    </div>
+    <div class="tile" style="--c:var(--education)">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--education-tint)"/><g fill="none" stroke="var(--education)" stroke-width="2.8" stroke-linecap="round"><circle cx="15" cy="20" r="3.6"/><circle cx="24" cy="17" r="4"/><circle cx="33" cy="20" r="3.6"/><path d="M9 33c0-5 2.6-7.5 6-7.5M39 33c0-5-2.6-7.5-6-7.5M17 34c0-6 3-9 7-9s7 3 7 9"/></g></svg>
+      <div class="n num">50</div><div class="l"><b>Classroom seats</b> in the Red House, plus a conference room for 20 to 25 and a demonstration kitchen</div>
+    </div>
+    <div class="tile" style="--c:var(--ink)">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#ECE8DF"/><g fill="var(--ink)"><rect x="12" y="28" width="7" height="8" rx="1"/><rect x="20.5" y="21" width="7" height="15" rx="1"/><rect x="29" y="13" width="7" height="23" rx="1"/></g></svg>
+      <div class="n num">3</div><div class="l"><b>Levels of investment</b>, from the lightest touch needed to open, to the full program</div>
+    </div>
+  </div>
 
   <div class="cols">
     <div>
-      <h2>The Project</h2>
-      <p>A Beginning Farmer and 4-H Youth Agriculture Complex on the County's Clark Farm property. The 65-acre main
-        parcel already has a farmhouse (the Red House), barns, cattle pens, and pasture. The master plan puts them back
-        to work as a teaching farm, with room to add barns, an arena, and an event space as programs grow.</p>
-      <p>The plan serves two cattle programs (a Beginning Rancher herd on pasture and 4-H cow and calf projects in pens),
-        swine, sheep, goats, and poultry, horticulture, and the people who teach, learn, and visit.</p>
-      <div class="thesis">The land sets the herd, the programs set the buildings, and the Levels let it grow.</div>
-      <h2 style="margin-top:9pt">Design Drivers</h2>
+      <div class="eyebrow">The project</div>
+      <h2 style="margin-top:4pt">A teaching farm that grows with its programs</h2>
+      <p>The 60.83-acre parcel already has a farmhouse (the Red House), barns, cattle pens, and pasture.
+        The master plan puts them back to work as a teaching farm for beginning farmers and ranchers and 4-H youth,
+        with room to add barns, an arena, and an event space as programs grow.</p>
+      <p>It serves two programs, 4-H youth and adult beginning ranchers, with infrastructure for cattle, swine, sheep,
+        goats, poultry, and horticulture. It also provides teaching and meeting spaces for the agriculture industry and
+        the public to visit and learn.</p>
+    </div>
+    <div>
+      <div class="eyebrow">Design drivers</div>
+      <h2 style="margin-top:4pt">Four goals shape the plan</h2>
       <ul class="drivers">
-        <li><h3>Pasture is scarce</h3><p>The herd is sized to the pasture the site has, the resource this community is short on.</p></li>
-        <li><h3>Reuse first</h3><p>The Red House and existing barns go back to work first, keeping the Old Florida character and limiting costs.</p></li>
-        <li><h3>Grow by module</h3><p>Pens and barns are added in modules as programs fill up, not locked to a fixed animal count.</p></li>
-        <li><h3>Protect the water</h3><p>Water quality is built into the design and daily operations: grazing, washdown, and manure management.</p></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--pasture-tint)"/><path fill="none" stroke="var(--pasture)" stroke-width="3" stroke-linecap="round" d="M14 36c0-7 1-12 4-17M22 36c0-9 0-15 2-22M30 36c0-8 2-13 6-17M18 36c-1-5-3-8-6-10M34 36c1-4 3-6 6-8"/></svg>
+          <div><h3>Pasture is scarce</h3><p>The herd is sized to the pasture the site has, a resource this community is short on.</p></div></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--education-tint)"/><path fill="none" stroke="var(--education)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" d="M11 25l13-11 13 11M15 23v12h18V23M21 35v-7h6v7"/></svg>
+          <div><h3>Reuse first</h3><p>The Red House and existing barns go back to work first, keeping the Old Florida character and limiting costs.</p></div></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--cattle-tint)"/><g fill="none" stroke="var(--cattle)" stroke-width="3" stroke-linejoin="round"><rect x="10" y="20" width="8" height="14"/><rect x="20" y="20" width="8" height="14"/><rect x="30" y="20" width="8" height="14" stroke-dasharray="3 3"/></g><path d="M34 11v8M30 15h8" stroke="var(--cattle)" stroke-width="3" stroke-linecap="round"/></svg>
+          <div><h3>Grow by module</h3><p>Pens and barns can be added in modules as funding allows and programs fill up, not locked to a fixed animal count.</p></div></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="var(--water-tint)"/><path fill="none" stroke="var(--water)" stroke-width="3" stroke-linecap="round" d="M10 20c4-4 7 4 11 0s7 4 11 0 5 2 6 1M10 29c4-4 7 4 11 0s7 4 11 0 5 2 6 1"/></svg>
+          <div><h3>Protect the water</h3><p>Water quality is built into the design and daily operations, applying best practices to grazing, washdown, and manure management.</p></div></li>
       </ul>
     </div>
-
-    <aside class="glance">
-      <header>At a Glance</header>
-      <dl>
-        <div class="row"><dt>65 <small>ac</small></dt><dd><b>Main parcel</b>, with about 45 acres of fenced pasture in nine paddocks</dd></div>
-        <div class="row"><dt>7–15 <small>CE</small></dt><dd><b>Pasture herd</b> for the Beginning Rancher program, in mature-cow equivalents (UF/IFAS stocking rates)</dd></div>
-        <div class="row"><dt>7–35</dt><dd><b>4-H cow and calf pens</b>, 12' × 24', added in 14-pen barns as enrollment grows</dd></div>
-        <div class="row"><dt>32–48</dt><dd><b>Small animal pens</b>, 6' × 10', for swine, sheep, or goats</dd></div>
-        <div class="row"><dt>50</dt><dd><b>Classroom seats</b> in the Red House, plus a conference room for 20 to 25, offices, and a demonstration kitchen</dd></div>
-        <div class="row"><dt>3</dt><dd><b>Levels of investment</b>, from the lightest touch needed to open to the full program</dd></div>
-      </dl>
-    </aside>
   </div>
 
-  <footer class="band foot">
-    <span><b>Sarasota County Agriculture Education Center</b> · Clark Farm, Sarasota, Florida</span>
-    <span>Master plan study · Draft for discussion · October 2026</span>
+  <footer class="foot">
+    <span class="eyebrow">Draft for discussion · October 2026</span>
+    <span class="firm">Seibert Architects</span>
   </footer>
 </section>
 
 <!-- ============================== BACK ============================== -->
 <section class="page">
-  <header class="band runner">
-    <h1>Sarasota County Agriculture Education Center</h1>
-    <span>continued</span>
+  <header class="head">
+    <span class="eyebrow">Sarasota County Agriculture Education Center</span>
   </header>
 
-  <h2 style="margin-top:0.14in">The Site Plan</h2>
+  <div class="eyebrow" style="margin-top:0.16in">The conceptual site plan</div>
+  <h2 style="margin-top:4pt">The barnyard grows from the existing barns</h2>
   <figure>
-    <div class="planrow">
     <div class="plan" id="plan">
       <svg class="north" viewBox="-20 -20 40 40" aria-label="North arrow, pointing left">
         <circle r="18.5" fill="#fff" stroke="#B9B3A6" stroke-width="1.5"/>
         <path d="M-12 0 L6 -7 L2 0 L6 7Z" fill="#2B2A26"/>
-        <text x="11" y="3.6" font-family="Archivo, sans-serif" font-size="10" font-weight="700" fill="#2B2A26">N</text>
+        <text x="10" y="3.6" font-family="Avenir Next, Helvetica, sans-serif" font-size="10" font-weight="700" fill="#2B2A26">N</text>
       </svg>
       <div class="legend">
         <span><i style="background:var(--cattle-tint);border-color:var(--cattle)"></i>Cattle barns, pens, and handling</span>
         <span><i style="background:var(--swine-tint);border-color:var(--swine)"></i><i style="background:var(--small-animal-tint);border-color:var(--small-animal)"></i>Small animal barns and poultry</span>
         <span><i style="background:var(--arena-tint);border-color:var(--arena)"></i>Arena and grooming</span>
-        <span><i style="background:var(--education-tint);border-color:var(--education)"></i>Red House</span>
-        <span><i style="background:#fff;border:1.5px dashed #2B2A26"></i>Paddock fences</span>
+        <span><i style="background:var(--education-tint);border-color:var(--education)"></i>Red House, classroom, and event space</span>
+        <span><i style="background:var(--horticulture-tint);border-color:var(--horticulture)"></i>Horticulture</span>
       </div>
     </div>
-    <div class="inset" id="inset"><span class="tag">Barnyard, Level 3</span></div>
-    </div>
-    <figcaption>The 65-acre main parcel, north to the left. The barnyard sits beside the existing barn near the entry; the
-      paddocks wrap around it. Right: the barnyard at Level 3.</figcaption>
+    <figcaption>Conceptual site plan for the 60.83-acre parcel.</figcaption>
   </figure>
 
-  <h2 style="margin-top:0.13in">Three Levels of Investment</h2>
-  <table class="levels">
-    <thead>
-      <tr>
-        <th>Each Level builds on the one before it.</th>
-        <th>Level 1 <small>Lightest touch: open the doors</small></th>
-        <th>Level 2 <small>Better management: grow with demand</small></th>
-        <th>Level 3 <small>Best case: the full program</small></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><th><i style="background:var(--pasture)"></i>Pasture herd</th>
-        <td>About <b>7 CE</b>, conservative grazing</td><td colspan="2">About <b>15 CE</b> with rotational grazing on the same pasture</td></tr>
-      <tr><th><i style="background:var(--cattle)"></i>4-H cattle pens</th>
-        <td>Reuse the <b>7</b> existing pens</td><td>Add cattle barn A: <b>21</b> pens</td><td>Add cattle barn B: <b>35</b> pens</td></tr>
-      <tr><th><i style="background:var(--cattle)"></i>Pasture-stock handling</th>
-        <td colspan="3">New holding pens, Bud Box, squeeze chute, and scale from Level 1</td></tr>
-      <tr><th><i style="background:var(--swine)"></i>Swine, sheep, and goats</th>
-        <td>About <b>32</b> pens in the existing barn</td><td>Small animal barn A: <b>32</b> pens; the existing barn becomes storage</td><td>Barn B extends it: <b>48</b> pens</td></tr>
-      <tr><th><i style="background:var(--small-animal)"></i>Poultry</th>
-        <td colspan="3">In the unfinished barn at every Level</td></tr>
-      <tr><th><i style="background:var(--arena)"></i>Arena and demonstration</th>
-        <td>Use the turnout yards</td><td>Grooming area</td><td>Arena, 84' × 50', around the grooming area</td></tr>
-      <tr><th><i style="background:var(--education)"></i>Red House</th>
-        <td>Renovate: classroom for 50, conference room, 4 offices, and demonstration kitchen</td><td>Add a fifth office and men's and women's restrooms</td><td>Add a classroom and event building and an equipment carport</td></tr>
-      <tr><th><i style="background:var(--horticulture)"></i>Horticulture</th>
-        <td>Raised beds and pots</td><td>Beds with irrigation</td><td>Shade structure, planting tables, and irrigation</td></tr>
-      <tr><th><i style="background:var(--circulation)"></i>Site work</th>
-        <td colspan="3">Permitting and stormwater are done for the whole plan at Level 1; the Levels phase what is built inside it.</td></tr>
-    </tbody>
-  </table>
-
-  <div class="program">
+  <div class="features">
+    <div class="inset" id="inset"><span class="badge">Barnyard, full build-out</span></div>
     <div>
-      <h2>The Program</h2>
-      <h3>Animals</h3>
-      <ul>
-        <li><b>Beginning Rancher herd:</b> lives on pasture, with fencing, water, and a corral with chute and scale.</li>
-        <li><b>4-H cow and calf projects:</b> one project per 12' × 24' pen, with turnout, washdown, and feed and tack storage.</li>
-        <li><b>Swine, sheep, and goats:</b> shaded, well-ventilated 6' × 10' pens; any pen can take any of the three.</li>
-        <li><b>Poultry:</b> predator-safe housing, apart from the other animals.</li>
-      </ul>
-    </div>
-    <div>
-      <h3 style="margin-top:15.5pt">People</h3>
-      <ul>
-        <li><b>Teaching:</b> a classroom and workshop for about 50, and a demonstration kitchen.</li>
-        <li><b>Meeting:</b> a conference room for 20 to 25, near the lobby and restrooms.</li>
-        <li><b>Staff:</b> offices for 5 staff, with sight of the entry.</li>
-        <li><b>Growing and showing:</b> a horticulture teaching area, and space for demonstrations, turnout, and community events.</li>
+      <div class="eyebrow">The facilities</div>
+      <h2 style="margin-top:4pt">Potential infrastructure and features</h2>
+      <ul class="feat">
+        <li style="--c:var(--pasture)">Pasture</li>
+        <li style="--c:var(--cattle)">Cattle pens</li>
+        <li style="--c:var(--cattle)">Pasture-stock handling: holding pens, Bud Box, squeeze chute, and scale</li>
+        <li style="--c:var(--small-animal)">Poultry coop</li>
+        <li style="--c:var(--swine)">Smaller livestock pens for swine, sheep, and goats</li>
+        <li style="--c:var(--arena)">Grooming area</li>
+        <li style="--c:var(--arena)">Arena</li>
+        <li style="--c:var(--horticulture)">Horticulture area: raised beds and shade structure</li>
+        <li style="--c:var(--education)">Training classroom and event space</li>
+        <li style="--c:var(--education)">Conference room</li>
+        <li style="--c:var(--education)">Offices</li>
+        <li style="--c:var(--education)">Demonstration kitchen</li>
       </ul>
     </div>
   </div>
 
-  <footer class="band foot">
-    <span><b>Sarasota County Agriculture Education Center</b> · Clark Farm, Sarasota, Florida</span>
-    <span>Master plan study by Seibert Architects · Draft for discussion</span>
+  <div class="program">
+    <div>
+      <div class="eyebrow">The program</div>
+      <h2 style="margin-top:4pt">Animals</h2>
+      <ul>
+        <li style="--c:var(--pasture)"><b>Beginning Rancher herd:</b> pasture with fencing, water, and a corral with chute and scale.</li>
+        <li style="--c:var(--cattle)"><b>Cattle pens:</b> 12' × 24', with turnout, washdown, and feed and tack storage.</li>
+        <li style="--c:var(--swine)"><b>Swine, sheep, and goats:</b> shaded, well-ventilated 6' × 10' pens; any pen can take any of the three.</li>
+        <li style="--c:var(--small-animal)"><b>Poultry:</b> predator-safe housing, apart from the other animals.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="eyebrow">&nbsp;</div>
+      <h2 style="margin-top:4pt">People</h2>
+      <ul>
+        <li style="--c:var(--education)"><b>Teaching:</b> a classroom for about 50, and a demonstration kitchen.</li>
+        <li style="--c:var(--education)"><b>Meeting:</b> a conference room for 20 to 25.</li>
+        <li style="--c:var(--education)"><b>Staff:</b> offices for up to 5 staff, with sight of the entry.</li>
+        <li style="--c:var(--horticulture)"><b>Growing and showing:</b> a horticulture teaching area, and space for demonstrations and community events.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span class="eyebrow">Draft for discussion · October 2026</span>
+    <span class="firm">Seibert Architects</span>
   </footer>
 </section>
 
@@ -255,6 +259,10 @@
     sh.style.stroke = `var(--${v})`;
     if (g.dataset.kind !== "yard") sh.style.fill = g.dataset.kind === "walk" ? "#fff" : `var(--${v}-tint)`;
   });
+  // conceptual plan (owner, 2026-10-20): no paddock fences, acreage tags, flood zone line, or slough bed label
+  svg.querySelector("#paddocks").remove();
+  svg.querySelector("#historic-slough-label")?.remove();
+  svg.querySelectorAll("#water [stroke-dasharray]:not(.pond)").forEach(e => e.remove());   // the FEMA line (a dashed group)
   const [vx0, vy0, vx1, vy1] = M.view;
   svg.setAttribute("viewBox", `${vx0} ${vy0} ${vx1 - vx0} ${vy1 - vy0}`);
   svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
@@ -264,8 +272,8 @@
   const g = document.createElementNS(NS, "g");
   g.innerHTML = `<rect x="${x - 10}" y="${y - 26}" width="${len + 20}" height="40" rx="5" fill="#fff" fill-opacity=".9"/>
     <rect x="${x}" y="${y}" width="${len / 2}" height="5" fill="#2B2A26"/><rect x="${x + len / 2}" y="${y}" width="${len / 2}" height="5" fill="#fff" stroke="#2B2A26" stroke-width="1"/>
-    <text x="${x}" y="${y - 6}" font-size="14" font-family="Archivo, sans-serif" fill="#2B2A26">0</text>
-    <text x="${x + len}" y="${y - 6}" font-size="14" font-family="Archivo, sans-serif" fill="#2B2A26" text-anchor="end">${ft} ft</text>`;
+    <text x="${x}" y="${y - 6}" font-size="14" font-family="Avenir Next, Helvetica, sans-serif" fill="#2B2A26">0</text>
+    <text x="${x + len}" y="${y - 6}" font-size="14" font-family="Avenir Next, Helvetica, sans-serif" fill="#2B2A26" text-anchor="end">${ft} ft</text>`;
   svg.appendChild(g);
 
   // inset: the barnyard close up
@@ -277,10 +285,11 @@
   copy.querySelectorAll("[id]").forEach(e => { e.id = "inset-" + e.id; });   // keep ids unique; inset hides layers by class below
   copy.classList.remove("site"); copy.classList.add("site-inset");
   // keep the main names; the small ones (pens, bedding, compost) crowd at this size
-  const keep = ["Existing barn", "Parking", "Horticulture", "Cattle barn A", "Cattle barn B", "Arena", "Small animal barn A", "Small animal barn B", "Poultry", "Holding pens"];
+  const keep = ["Existing barn", "Parking", "Horticulture", "Classroom / event", "Cattle barn A", "Cattle barn B", "Arena", "Small animal barn A", "Small animal barn B", "Poultry", "Holding pens"];
   const pen1 = [...copy.querySelectorAll("#inset-barnyard-labels text")].find(t => t.textContent === "Pen 1");
   copy.querySelectorAll("#inset-barnyard-labels text").forEach(t => {
     if (t.textContent === "Pen 3") { t.textContent = "Holding pens"; t.setAttribute("text-anchor", "start"); }
+    else if (t.textContent === "Classroom / event") { t.setAttribute("text-anchor", "end"); t.setAttribute("x", +t.getAttribute("x") + 6); t.setAttribute("y", +t.getAttribute("y") - 20); }   // above the building, clear of the existing barn
     else if (!keep.includes(t.textContent)) t.remove();
   });
   if (M.red_house) {                                     // the Red House has no name in the barnyard labels
