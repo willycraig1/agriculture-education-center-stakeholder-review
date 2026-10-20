@@ -14,7 +14,7 @@ window.AG_AREA = {
    "label": "Turnout",
    "x": 75.0,
    "y": 42.0,
-   "w": 119.0,
+   "w": 124.6,
    "h": 36.0,
    "use": "arena",
    "level": 2,
@@ -2126,7 +2126,7 @@ window.AG_AREA = {
   {
    "id": "handling",
    "label": "",
-   "x": 194,
+   "x": 199.6,
    "y": 174,
    "w": 36,
    "h": 42,
@@ -2137,31 +2137,31 @@ window.AG_AREA = {
    "assumed": false,
    "outline": [
     [
-     230.0,
+     235.6,
      174.0
     ],
     [
-     194.0,
+     199.6,
      174.0
     ],
     [
-     194.0,
+     199.6,
      207.5
     ],
     [
-     202.5,
+     208.1,
      216.0
     ],
     [
-     221.5,
+     227.1,
      216.0
     ],
     [
-     230.0,
+     235.6,
      207.5
     ],
     [
-     230.0,
+     235.6,
      174.0
     ]
    ],
@@ -2267,7 +2267,7 @@ window.AG_AREA = {
   {
    "id": "holding-5",
    "label": "Pen 5",
-   "x": 194.0,
+   "x": 199.6,
    "y": 78.0,
    "w": 36.0,
    "h": 49.0,
@@ -2280,7 +2280,7 @@ window.AG_AREA = {
   {
    "id": "holding-4",
    "label": "Pen 4",
-   "x": 194.0,
+   "x": 199.6,
    "y": 127.0,
    "w": 36.0,
    "h": 47.0,
@@ -2293,49 +2293,49 @@ window.AG_AREA = {
   {
    "id": "holding-3",
    "label": "Pen 3",
-   "x": 238.0,
+   "x": 243.6,
    "y": 78.0,
-   "w": 42.0,
+   "w": 36.4,
    "h": 49.0,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "2,058 sf",
+   "note": "1,784 sf",
    "assumed": false
   },
   {
    "id": "holding-2",
    "label": "Pen 2",
-   "x": 238.0,
+   "x": 243.6,
    "y": 127.0,
-   "w": 42.0,
+   "w": 36.4,
    "h": 47.0,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "1,974 sf",
+   "note": "1,711 sf",
    "assumed": false
   },
   {
    "id": "holding-1",
    "label": "Pen 1",
-   "x": 238.0,
+   "x": 243.6,
    "y": 174.0,
-   "w": 42.0,
+   "w": 36.4,
    "h": 42.0,
    "use": "cattle",
    "level": 1,
    "kind": "yard",
-   "note": "1,764 sf",
+   "note": "1,529 sf",
    "assumed": false
   },
   {
    "id": "bedding",
    "label": "Bedding storage",
    "x": 170.0,
-   "y": 80.0,
-   "w": 24.0,
-   "h": 12,
+   "y": 78.0,
+   "w": 29.6,
+   "h": 12.0,
    "use": "circulation",
    "level": 2,
    "kind": "building",
@@ -2399,7 +2399,7 @@ window.AG_AREA = {
   {
    "id": "compost",
    "label": "Compost",
-   "x": 204.1,
+   "x": 199.6,
    "y": 302.0,
    "w": 48.5,
    "h": 19.0,
@@ -2411,11 +2411,11 @@ window.AG_AREA = {
   },
   {
    "id": "dumpster",
-   "label": "Dumpsters",
+   "label": "Dumpster",
    "x": 199.6,
    "y": 324.0,
    "w": 12.0,
-   "h": 24.0,
+   "h": 12.0,
    "use": "circulation",
    "level": 1,
    "kind": "building",

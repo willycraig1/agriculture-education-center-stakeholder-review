@@ -221,7 +221,8 @@ const PROG = {   // design/palette.json
   pasture: ['#5F8A3A', '#DCE8CF', 'Turnouts'], education: ['#A63A2B', '#F1D6D1', 'Red House and residence'],
   small_animal: ['#D19A2E', '#F6E6C2', 'Poultry'], existing: ['#77736A', '#D9D4C9', 'Existing buildings'],
 };
-S.mat.redwall = [0.62, 0.30, 0.25]; S.mat.metalroof = [0.80, 0.81, 0.80]; S.mat.galv = [0.74, 0.75, 0.74];
+S.mat.redwall = [0.50, 0.24, 0.18];   // red-stained board siding (photos/Red House)
+S.mat.stone = [0.62, 0.57, 0.48]; S.mat.foundation = [0.42, 0.38, 0.34]; S.mat.deck = [0.58, 0.40, 0.28]; S.mat.metalroof = [0.80, 0.81, 0.80]; S.mat.galv = [0.74, 0.75, 0.74];
 const LVL = ['#77736A', '#5F8A3A', '#D19A2E', '#B8657A'];
 const LVLNAME = ['Existing', 'Level 1', 'Level 2', 'Level 3'];
 const ROOFY = new Set(['roof', 'roofflat', 'rustroof', 'metalroof']);
@@ -490,6 +491,138 @@ function framedBarn(F, { name, label, level = 0, program, id }) {
   return ob;
 }
 
+
+// The Red House, from photos/Red House and its roof aerial, on the surveyed outline (local axes: u along the house
+// from its north-east end, v across from its north-west face). Main block about 41' x 66' on a crawlspace (floor 2.5'
+// up, 8' walls), a 3.5:12 galvanized metal gable along its length; the north-west porch (44' x 12', wood railing)
+// under a 1.5:12 extension of the roof; a screened porch across the north-east end (8.4'); the south-west wing
+// (43' x 34') under its own lower 3:12 gable; a stone chimney on the south-east side. Heights are estimated from the
+// photos. The carport: an open wood-post shed with a 4:12 gable, south-west of the house.
+function redHouse(C) {
+  const O = C.red_house;
+  let best = null;                                                    // the house's long axis: its longest wall
+  for (let i = 0; i < O.length; i++) {
+    const a = O[i], b = O[(i + 1) % O.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (!best || L > best.L) best = { a, b, L };
+  }
+  let u = [(best.b[0] - best.a[0]) / best.L, (best.b[1] - best.a[1]) / best.L], v = [-u[1], u[0]];
+  const cx = O.reduce((t, p) => t + p[0], 0) / O.length, cy = O.reduce((t, p) => t + p[1], 0) / O.length;
+  if ((cx - best.a[0]) * v[0] + (cy - best.a[1]) * v[1] < 0) v = [-v[0], -v[1]];
+  let org = best.a;
+  if ((cx - org[0]) * u[0] + (cy - org[1]) * u[1] < 0) { u = [-u[0], -u[1]]; org = best.b; }
+  const loc = p => [(p[0] - org[0]) * u[0] + (p[1] - org[1]) * u[1], (p[0] - org[0]) * v[0] + (p[1] - org[1]) * v[1]];
+  const W = (uu, vv, z) => [org[0] + uu * u[0] + vv * v[0], org[1] + uu * u[1] + vv * v[1], z];
+  const Lp = O.map(loc), us = Lp.map(p => p[0]), vs = Lp.map(p => p[1]);
+  const U1 = Math.max(...us), V0 = Math.min(...vs), V1 = Math.max(...vs);   // ~100.6, -12.1, 41
+  const FLOOR = 2.5, PLATE = 10.5, OV = 1.5;
+  const VR = 20.5, P1 = 3.5 / 12, RIDGE = PLATE + VR * P1;          // main ridge on the block's centre line
+  const U_MAIN = 66.4, U_PORCH = 77.7, U_NE = -8.4;                 // main block's south-west end, NW porch end, NE porch
+  const WV0 = V0, WV1 = 30.7, WVR = (WV0 + WV1) / 2, P2 = 3 / 12, WRIDGE = PLATE + (WV1 - WVR) * P2;
+
+  const grp = new THREE.Group(), meshes = [], ob = { name: 'redhouse', label: 'Red House', level: 0, program: 'education', id: 'existing-red-house', faces: [], lines: [] };
+  const byMat = {};
+  const face = (pts, m) => (byMat[m] = byMat[m] || []).push(pts);
+  const quad = (a, b, c, d, m) => face([a, b, c, d], m);
+  const boxL = (u0, u1, v0, v1, z0, z1, m) => {                      // a box in local axes
+    const c = [[u0, v0], [u1, v0], [u1, v1], [u0, v1]];
+    for (let i = 0; i < 4; i++) { const [a, b] = [c[i], c[(i + 1) % 4]]; quad(W(a[0], a[1], z0), W(b[0], b[1], z0), W(b[0], b[1], z1), W(a[0], a[1], z1), m); }
+    face(c.map(q => W(q[0], q[1], z1)), m); face(c.map(q => W(q[0], q[1], z0)).reverse(), m);
+  };
+  const slabL = (pts, m = 'metalroof', t = 0.4) => {                // a roof plane in local axes, t thick
+    const top = pts.map(([a, b, z]) => W(a, b, z)), bot = pts.map(([a, b, z]) => W(a, b, z - t));
+    face(top, m); face(bot.slice().reverse(), 'deck');
+    for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; quad(top[i], top[j], bot[j], bot[i], m); }
+  };
+  // walls on the surveyed outline, on a crawlspace skirt
+  const wallTop = PLATE;
+  for (let i = 0; i < O.length; i++) {
+    const a = O[i], b = O[(i + 1) % O.length];
+    quad([...a, 0], [...b, 0], [...b, FLOOR], [...a, FLOOR], 'foundation');
+    quad([...a, FLOOR], [...b, FLOOR], [...b, wallTop], [...a, wallTop], 'redwall');
+  }
+  face(O.map(p => [...p, wallTop]), 'redwall');                       // ceiling cap (hidden under the roofs)
+  // gable ends: the main block at its north-east wall and at its south-west end (above the wing), the wing's south-west end
+  face([W(0, 0, PLATE), W(0, V1, PLATE), W(0, VR, RIDGE)], 'redwall');
+  face([W(U_MAIN, 0, PLATE), W(U_MAIN, V1, PLATE), W(U_MAIN, VR, RIDGE)], 'redwall');
+  face([W(U1, WV0, PLATE), W(U1, WV1, PLATE), W(U1, WVR, WRIDGE)], 'redwall');
+  // roofs: main gable (over the NE porch too), the NW porch's lower-pitch extension, the wing's gable
+  const zAt = (d, p) => PLATE - d * p;                                // roof top d beyond the wall line
+  slabL([[U_NE - OV, V1 + OV, zAt(OV, P1)], [U_MAIN + OV, V1 + OV, zAt(OV, P1)], [U_MAIN + OV, VR, RIDGE], [U_NE - OV, VR, RIDGE]]);
+  slabL([[U_MAIN + OV, 0, PLATE], [U_NE - OV, 0, PLATE], [U_NE - OV, VR, RIDGE], [U_MAIN + OV, VR, RIDGE]]);
+  const PP = 1.5 / 12;
+  slabL([[U_NE - OV, 0, PLATE], [U_PORCH, 0, PLATE], [U_PORCH, V0 - OV, PLATE - (-V0 + OV) * PP], [U_NE - OV, V0 - OV, PLATE - (-V0 + OV) * PP]]);
+  slabL([[U_MAIN, WV0 - OV, zAt(OV, P2)], [U1 + OV, WV0 - OV, zAt(OV, P2)], [U1 + OV, WVR, WRIDGE], [U_MAIN, WVR, WRIDGE]]);
+  slabL([[U1 + OV, WV1 + OV, zAt(OV, P2)], [U_MAIN, WV1 + OV, zAt(OV, P2)], [U_MAIN, WVR, WRIDGE], [U1 + OV, WVR, WRIDGE]]);
+  // stone chimney on the south-east side, up past the ridge
+  boxL(32.9, 39.0, 40.9, 44.4, 0, RIDGE + 2.5, 'stone');
+  // north-west porch: deck, posts, wood railing, steps at its middle
+  boxL(33.6, U_PORCH, V0, 0, FLOOR - 0.3, FLOOR, 'deck');
+  const porchZ = v_ => PLATE - (-v_) * PP;
+  for (let uu = 33.6; uu <= U_PORCH + 0.1; uu += (U_PORCH - 33.6) / 5) boxL(uu - 0.3, uu + 0.3, V0, V0 + 0.6, FLOOR, porchZ(V0) - 0.4, 'deck');
+  boxL(33.6, U_PORCH, V0, V0 + 0.3, FLOOR + 2.9, FLOOR + 3.2, 'deck');
+  boxL(33.6, U_PORCH, V0, V0 + 0.15, FLOOR + 0.4, FLOOR + 0.6, 'deck');
+  for (let uu = 34.4; uu < U_PORCH; uu += 0.9) boxL(uu, uu + 0.12, V0, V0 + 0.12, FLOOR + 0.6, FLOOR + 2.9, 'deck');
+  const st = (33.6 + U_PORCH) / 2;
+  for (let k = 0; k < 4; k++) boxL(st - 2.5, st + 2.5, V0 - 1.1 * (k + 1), V0 - 1.1 * k, 0, FLOOR - 0.6 * k, 'deck');
+  // north-east screened porch: deck, kneewall, posts, screen
+  boxL(U_NE, 0, 0, V1, FLOOR - 0.3, FLOOR, 'deck');
+  const sc = [];
+  for (const [a, b] of [[[U_NE, 0], [U_NE, V1]], [[U_NE, 0], [0, 0]], [[U_NE, V1], [0, V1]]]) {
+    quad(W(a[0], a[1], FLOOR), W(b[0], b[1], FLOOR), W(b[0], b[1], FLOOR + 2.6), W(a[0], a[1], FLOOR + 2.6), 'redwall');
+    sc.push([W(a[0], a[1], FLOOR + 2.6), W(b[0], b[1], FLOOR + 2.6), W(b[0], b[1], PLATE - 0.6), W(a[0], a[1], PLATE - 0.6)]);
+  }
+  for (let vv = 0; vv <= V1 + 0.1; vv += V1 / 4) boxL(U_NE, U_NE + 0.5, vv - 0.25, vv + 0.25, FLOOR, PLATE, 'deck');
+  // windows: dark glass in white frames, on the long south-east wall, the wing's ends and west face
+  const win = (uu, vv, nU, nV, w = 3, h = 4.2) => {
+    const tU = -nV, tV = nU, off = 0.08;
+    const pts = (ww, hh, o) => [[-ww / 2, 0], [ww / 2, 0], [ww / 2, hh], [-ww / 2, hh]].map(([t, z]) =>
+      W(uu + nU * o + tU * t, vv + nV * o + tV * t, FLOOR + 2.6 + z - (hh - h) / 2));
+    face(pts(w + 0.6, h + 0.6, off), 'doorwhite'); face(pts(w, h, off + 0.04), 'darkglass');
+  };
+  for (const uu of [6, 15, 24, 46, 56]) win(uu, V1, 0, 1);
+  for (const vv of [-2, 8, 18]) win(U1, vv, 1, 0);
+  for (const uu of [85, 94]) win(uu, WV0, 0, -1);
+  for (const vv of [8, 30]) win(0, vv, -1, 0, 3, 6.6);                // doors and windows onto the screened porch
+
+  for (const m in byMat) {
+    const g = polyGeom(byMat[m]);
+    const mat = new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(g, mat); mesh.castShadow = mesh.receiveShadow = true;
+    if (m === 'metalroof') { mesh.castShadow = false; mesh.userData.noCast = true; }   // the underside casts; no acne on the low-pitch tops
+    mesh.userData = { ...mesh.userData, m, solid: mat }; grp.add(mesh); meshes.push(mesh);
+    if (!['deck', 'darkglass', 'doorwhite'].includes(m)) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 20), inkMat); e.userData.edge = true; grp.add(e); }
+  }
+  const sg = polyGeom(sc), sm = new THREE.MeshLambertMaterial({ color: 0x5f625f, transparent: true, opacity: .4, depthWrite: false, side: THREE.DoubleSide });
+  const smesh = new THREE.Mesh(sg, sm); smesh.userData = { m: 'pipe', solid: sm }; grp.add(smesh);
+  ob.fp = { w: U1 - U_NE, d: V1 - V0, h: RIDGE, area: areaOf(O), cx, cy, assumed: true };
+  scene.add(grp); objects.push({ ob, grp, meshes, isFence: false });
+
+  // carport: open wood-post shed, 4:12 gable along the house's axis, 9' eaves, on a concrete slab
+  const K = C.carport.map(loc), ku = K.map(p => p[0]), kv = K.map(p => p[1]);
+  const cu0 = Math.min(...ku), cu1 = Math.max(...ku), cv0 = Math.min(...kv), cv1 = Math.max(...kv), cvm = (cv0 + cv1) / 2;
+  const cg = new THREE.Group(), cm = [], cb = {};
+  const cf = (pts, m) => (cb[m] = cb[m] || []).push(pts);
+  const cbox = (u0, u1, v0, v1, z0, z1, m) => { const c = [[u0, v0], [u1, v0], [u1, v1], [u0, v1]];
+    for (let i = 0; i < 4; i++) { const [a, b] = [c[i], c[(i + 1) % 4]]; cf([W(a[0], a[1], z0), W(b[0], b[1], z0), W(b[0], b[1], z1), W(a[0], a[1], z1)], m); }
+    cf(c.map(q => W(q[0], q[1], z1)), m); };
+  const CE = 9.0, CR = CE + (cvm - cv0) * 4 / 12;
+  cbox(cu0, cu1, cv0, cv1, 0, 0.3, 'concrete');
+  for (let uu = cu0; uu <= cu1 + 0.1; uu += (cu1 - cu0) / 3) for (const vv of [cv0, cv1]) cbox(uu - 0.3, uu + 0.3, vv - 0.3, vv + 0.3, 0, CE, 'timber');
+  for (const [vE, sgn] of [[cv0, -1], [cv1, 1]]) {
+    const top = [W(cu0 - 1, vE + sgn * 1, CE - 4 / 12), W(cu1 + 1, vE + sgn * 1, CE - 4 / 12), W(cu1 + 1, cvm, CR), W(cu0 - 1, cvm, CR)];
+    cf(top, 'metalroof'); cf(top.map(p => [p[0], p[1], p[2] - 0.35]).reverse(), 'deck');
+  }
+  for (let uu = cu0; uu <= cu1 + 0.1; uu += (cu1 - cu0) / 3) cf([W(uu, cv0, CE), W(uu, cv1, CE), W(uu, cvm, CR - 0.4)], 'deck');   // trusses
+  for (const m in cb) {
+    const g = polyGeom(cb[m]), mat = new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(g, mat); mesh.castShadow = mesh.receiveShadow = true; mesh.userData = { m, solid: mat }; cg.add(mesh); cm.push(mesh);
+  }
+  const [kcx, kcy] = W((cu0 + cu1) / 2, cvm, 0);
+  const kob = { name: 'carport', label: 'Carport', level: 0, program: 'education', id: 'existing-carport', faces: [], lines: [],
+                fp: { w: cu1 - cu0, d: cv1 - cv0, h: CR, area: areaOf(C.carport), cx: kcx, cy: kcy, assumed: true } };
+  scene.add(cg); objects.push({ ob: kob, grp: cg, meshes: cm, isFence: false });
+}
+
 if (SITE) {
   const C_SITE = new THREE.Color('#9fb56b'), C_BONUS = new THREE.Color('#b9b779');
   // ground: the property, the aerial (off by default), paddocks, woods floor, water, roads
@@ -603,9 +736,7 @@ if (SITE) {
   for (const gi of groundItems) if (gi.f.m === 'grasspark') gi.mesh.userData.replaced = true;
 
   // campus buildings (heights assumed)
-  campusBuilding({ name: 'redhouse', label: 'Red House', program: 'education', o: C.red_house, h: 11, wall: 'redwall', id: 'existing-red-house' });
-  C.porches.forEach((o, i) => campusBuilding({ name: 'porch' + i, label: 'Red House porch', program: 'education', o, h: 9, canopy: true, notag: true }));
-  campusBuilding({ name: 'carport', label: 'Carport', program: 'education', o: C.carport, h: 10, canopy: true, id: 'existing-carport' });
+  redHouse(C);   // with its porches and the carport
   if (C.poultry_frame) framedBarn(C.poultry_frame, { name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', id: 'existing-poultry' });
   else campusBuilding({ name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', o: C.poultry, h: 12, wall: 'oldwood', roof: 'rustroof', id: 'existing-poultry' });
   campusBuilding({ name: 'residence', label: 'Residence', level: 3, program: 'education', o: C.residence, h: 11, wall: 'whitemetal', id: 'residence' });
@@ -690,7 +821,7 @@ if (SITE) {
   treeGroup.add(treeSet(keep.map(([x, y]) => [x, y, 'specimen', .9 + rnd() * .35])));
   const cutTrees = treeSet(cut.map(([x, y]) => [x, y, 'specimen', .9 + rnd() * .35]));
   treeGroup.add(cutTrees); reg(cutTrees, 0, null, 0);
-  if (cut.length) catalog.push({ label: `Removes ${cut.length} surveyed trees under new buildings and yards`, level: 1 });
+  if (cut.length) catalog.push({ label: `Removes ${cut.length} surveyed trees under new buildings, yards, and drive aisles`, level: 1 });
   const woods = treeSet(SITE.canopy_trees.map(([x, y, s, k]) => [x, y, ['oak', 'pine', 'palm'][k], k === 2 ? s * .85 : s]));
   woods.userData.layer = 'woods'; treeGroup.add(woods);
 } else {
@@ -794,7 +925,7 @@ function applyLevel() {
     o.grp.traverse(c => {
       if (c.userData.solid) {
         c.material = shown ? c.userData.solid : ghostMat;
-        c.castShadow = shown;
+        c.castShadow = shown && !c.userData.noCast;
         if (shown && !c.userData.fence) c.material.color.copy(faceColor(c.userData.m, o.ob, state.mode));
       }
       if (c.userData.edge) { c.material = shown ? inkMat : ghostInk; c.visible = state.edges || !shown; }
@@ -1109,7 +1240,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-window.massing = { camera, controls, setView };   // console hook for framing new views
+window.massing = { camera, controls, setView, scene, objects };   // console hook for framing new views
 setSun(10.5);
 resize();
 applyLevel();

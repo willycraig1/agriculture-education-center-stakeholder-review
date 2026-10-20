@@ -43,7 +43,7 @@ def fit_diagram_to_scene():
     pairs = [('cattle-a', (645, 270, 893, 460)), ('cattle-b', (322, 270, 572, 460)), ('arena', (645, 530, 893, 680)),
              ('small-a', (245, 537, 353, 680)), ('small-a2', (245, 715.7, 353, 858.5)), ('small-b', (245, 858.5, 353, 1001.3)),
              ('existing-barn', (983, 775, 1220, 925)), ('feed', (525, 560, 572, 680)),
-             ('holding-1', (1097, 555, 1220, 680)), ('existing-pens', (983, 680, 1220, 750))]   # pens flush with the barn's west face
+             ('holding-1', (1114, 555, 1220, 680)), ('existing-pens', (983, 680, 1220, 750))]   # pens flush with the barn's west face
     A, B = [], []
     for k, (a, b, c, d) in pairs:
         e = ELEM[k]
@@ -230,14 +230,13 @@ def road_embankment(roads, wet, elem):
     road_z, grade_z = float(np.mean(on_road)), float(np.median(grade))
     H = round(road_z - grade_z, 1)
     lot = Polygon([d2s(x, y) for x, y in elem['parking']['outline']]).buffer(0)
-    DRIVE_H = 0.8
+    RAMP = 80.0                      # the entry drive ramps from the road to grade over its first 80' (owner, 2026-10-19)
 
     def surface(x, y):
         p = Point(x, y)
         d = sr72.distance(p)
         if d < .05: return H
-        z = max(DRIVE_H, H - (H - DRIVE_H) * d / 60.0)
-        return z
+        return H * (1 - d / RAMP) if d < RAMP else -0.04
 
     def surf(x, y):
         p = Point(x, y)
@@ -263,7 +262,7 @@ def road_embankment(roads, wet, elem):
 
     top = mesh(R, surf, 10.0)
     # shoulders: 2:1 off SR 72, a short slope off the drive; outer edge at grade; not into the water features
-    band = sr72.buffer(2 * H).union(R.buffer(2.5)).difference(R).difference(wet).difference(lot)
+    band = sr72.buffer(2 * H).union(R.intersection(sr72.buffer(RAMP)).buffer(2.5)).difference(R).difference(wet).difference(lot)
     edge = R.boundary
     shoulder = mesh(band, lambda x, y: surf(*nearest_on(edge, x, y)) if edge.distance(Point(x, y)) < .05 else 0.0, 8.0)
     return dict(height_ft=H, road_elev=round(road_z, 2), grade_elev=round(grade_z, 2), n_road=len(on_road), n_grade=len(grade),
@@ -436,12 +435,15 @@ def main():
                              and not e['id'].startswith(('existing', 'turnout'))])
     pk = ELEM['parking']
     paving = Polygon([d2s(x, y) for x, y in pk['outline']], [[d2s(x, y) for x, y in h] for h in pk.get('holes', [])]).buffer(0)
+    stall_area = unary_union([Polygon([d2s(x, y) for x, y in q]).buffer(1.0) for q in pk.get('stalls_extra', [])])
     surveyed = []
     for it in items('trees', 'circle'):
         e = it['e']
         x, y = apply(it['M'], [(float(e.get('cx')), float(e.get('cy')))])[0]
         p = Point(x, y)
-        flag = [0] if new_built.contains(p) else ([1] if paving.contains(p) else [])
+        # a tree standing in a drive aisle of the lot (not a stall) is removed (owner, 2026-10-19)
+        in_aisle = paving.contains(p) and not stall_area.contains(p)
+        flag = [0] if new_built.contains(p) or in_aisle else ([1] if paving.contains(p) else [])
         surveyed.append([round(x, 1), round(y, 1)] + flag)
     out['surveyed_trees'] = surveyed
 

@@ -803,3 +803,12 @@ Fit checks now skip context elements (walk etc.).
   line, a syntax error that stopped the slide's script (not the 3D model work). Fixed.
 - `tools/check_slides.py` syntax-checks the inline scripts of every slide and index.html with Node; run it after
   editing slides or rebuilding data.
+
+## 2026-10-19: Red House massing (from photos)
+- `massing/index.html` `redHouse()`: built on the surveyed outline from `photos/Red House` (24 site photos and a roof
+  aerial). Main block ~41' x 66' on a crawlspace (floor ~2.5' up, 8' walls), red-stained board siding, a 3.5:12
+  galvanized metal gable along its length (ridge ~16.5'); the north-west porch (44' x 12', wood railing, steps) under a
+  1.5:12 extension of the main roof; a screened porch across the north-east end (8.4', solid kneewall); the
+  south-west wing (~43' x 34') under its own 3:12 gable (ridge ~16'); a stone chimney on the south-east side; windows in
+  white frames. The carport: an open wood-post shed with a 4:12 gable and exposed trusses. Heights and pitches
+  estimated from the photos; the Level 3 event space addition is not modelled yet.
