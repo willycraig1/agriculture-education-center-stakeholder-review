@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Investment Levels</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610201123">
-<link rel="stylesheet" href="../design/deck.css?v=202610201123">
+<link rel="stylesheet" href="../design/palette.css?v=202610201503">
+<link rel="stylesheet" href="../design/deck.css?v=202610201503">
 <style>
   .grid { display: grid; grid-template-columns: 300px repeat(3, 1fr); gap: 6px 14px; margin-top: 20px; align-content: start; }
   .colhead { padding: 0 4px 6px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
@@ -27,31 +27,37 @@
 <div class="stage">
   <div class="eyebrow" data-step="0">Getting there</div>
   <h1 data-step="0">What each Level provides</h1>
-  <p class="lede" data-step="0">Planned from the best case down. Level 1 is the lightest touch that meets the program,
-    and each Level above adds facilities as funding and demand allow.</p>
+  <p class="lede" data-step="0">Planned from the best case down. Level 3 is the full program; Level 1 is the lightest touch that meets it,
+    and each step up adds facilities as funding and demand allow.</p>
   <div class="grid" id="grid"></div>
   <div class="key" data-step="4"><span id="tbc-key" hidden><span class="sw tbc"></span>Dashed outline: proposed placement, to confirm with the Owner</span>
     <span>CE from the pasture worksheet (UF/IFAS AN155); pens on the 7-pen module</span></div>
 </div>
 
-<script src="data/pasture-capacity.js?v=202610201123"></script>
-<script src="data/levels.js?v=202610201123"></script>
-<script src="../design/deck.js?v=202610201123"></script>
+<script src="data/pasture-capacity.js?v=202610201503"></script>
+<script src="data/levels.js?v=202610201503"></script>
+<script src="../design/deck.js?v=202610201503"></script>
 <script>
 (function () {
   const L = window.LEVELS, C = window.PASTURE_CAPACITY;
   const pens = n => { const b = L.pens.byLevel.find(x => x.level === n); return L.pens.existing + b.newBarns * L.pens.barn; };
-  let html = `<div></div>` + L.levels.map(l =>
-    `<div class="colhead" data-step="${l.n}"><span class="badge">${l.name}</span><h2>${l.title}</h2><p>${l.note}</p></div>`).join("");
+  // Level 3 first, walking back to Level 1 (owner, 2026-10-19). levels.js is written up from Level 1 ("Same as Level 1"),
+  // so each cell's text is resolved first, then a cell that matches the one to its left reads "Same as Level n".
+  const order = L.levels.slice().reverse();
+  const resolve = (r, n) => { const t = r.cells[n - 1].text, m = t.match(/^Same as Level (\d)/); return m ? resolve(r, +m[1]) : t; };
+  let html = `<div></div>` + order.map((l, k) =>
+    `<div class="colhead" data-step="${k + 1}"><span class="badge">${l.name}</span><h2>${l.title}</h2><p>${l.note}</p></div>`).join("");
   L.rows.forEach(r => {
     html += `<div class="rowhead" data-step="1"><i style="background:var(--${r.key.replace("_", "-")})"></i>${r.label}</div>`;
-    r.cells.forEach((c, i) => {
-      const same = /^Same as|^None$/.test(c.text);
+    order.forEach((l, k) => {
+      const c = r.cells[l.n - 1], left = order[k - 1];
+      const text = left && resolve(r, l.n) === resolve(r, left.n) ? `Same as ${left.name}` : (!left && c.whole) || resolve(r, l.n);
+      const same = /^Same as|^None$/.test(text);
       let fig = "";
       if (c.ce) fig = `<span class="fig num" style="color:var(--pasture)">≈ ${C.levels[c.ce - 1].ce_planning} CE</span>`;
       if (c.pens) fig = `<span class="fig num" style="color:var(--cattle)">${pens(c.pens)} pens</span>`;
-      html += `<div class="cell${same ? " same" : ""}${c.confirmed ? "" : " tbc"}" data-step="${i + 1}"
-        style="border-left-color:var(--${r.key.replace("_", "-")})">${c.confirmed ? "" : '<span class="tbc-tag">to confirm</span>'}${c.text}${fig}</div>`;
+      html += `<div class="cell${same ? " same" : ""}${c.confirmed ? "" : " tbc"}" data-step="${k + 1}"
+        style="border-left-color:var(--${r.key.replace("_", "-")})">${c.confirmed ? "" : '<span class="tbc-tag">to confirm</span>'}${text}${fig}</div>`;
     });
   });
   document.getElementById("grid").innerHTML = html;
