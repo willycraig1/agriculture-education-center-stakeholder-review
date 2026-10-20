@@ -615,7 +615,9 @@ function redHouse(C) {
   for (let uu = cu0; uu <= cu1 + 0.1; uu += (cu1 - cu0) / 3) cf([W(uu, cv0, CE), W(uu, cv1, CE), W(uu, cvm, CR - 0.4)], 'deck');   // trusses
   for (const m in cb) {
     const g = polyGeom(cb[m]), mat = new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
-    const mesh = new THREE.Mesh(g, mat); mesh.castShadow = mesh.receiveShadow = true; mesh.userData = { m, solid: mat }; cg.add(mesh); cm.push(mesh);
+    const mesh = new THREE.Mesh(g, mat); mesh.castShadow = mesh.receiveShadow = true;
+    mesh.userData = { m, solid: mat, noCast: m === 'metalroof' }; if (m === 'metalroof') mesh.castShadow = false;   // the underside casts
+    cg.add(mesh); cm.push(mesh);
   }
   const [kcx, kcy] = W((cu0 + cu1) / 2, cvm, 0);
   const kob = { name: 'carport', label: 'Carport', level: 0, program: 'education', id: 'existing-carport', faces: [], lines: [],

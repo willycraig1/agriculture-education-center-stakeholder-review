@@ -90,8 +90,8 @@ def animals():
     ex1, ex2, eyn = 983 / S, 1220 / S, -775 / S
     for i in range(7):                                                 # existing pens: at the feeders on the aisle
         cows.append([round(ex1 + (i + 0.5) * (ex2 - ex1) / 7 + jit(1), 2), round(eyn + 14 + jit(2), 2), round(-np.pi / 2 + jit(.4), 2), 0])
-    for rc in (R(983, 270, 1090, 415), R(983, 415, 1090, 555), R(1114, 270, 1220, 415),
-               R(1114, 415, 1220, 555), R(1114, 555, 1220, 680)):   # one in each holding pen (pens 1 to 5)
+    for rc in (R(983, 270, 1109, 415), R(983, 415, 1109, 555), R(1132.6, 270, 1258.5, 415),
+               R(1132.6, 415, 1258.5, 555), R(1132.6, 555, 1258.5, 680)):   # one in each holding pen (pens 1 to 5)
         hx1, hy1, hx2, hy2 = rc
         cows.append([round(float(rng.uniform(hx1 + 6, hx2 - 6)), 2), round(float(rng.uniform(hy1 + 6, hy2 - 6)), 2),
                      round(float(rng.uniform(0, 2 * np.pi)), 2), 1])
@@ -108,7 +108,7 @@ def animals():
     ax1, ay1, ax2, ay2 = R(645, 530, 893, 680)                         # in the arena
     students.append([round((ax1 + ax2) / 2 + 6, 2), round((ay1 + ay2) / 2 - 4, 2), 3.14, 3])
     # a pickup with a 16' stock trailer on the lane between the arena and the Bud Box, heading north (owner, 2026-10-19)
-    hx1, hy1, hx2, hy2 = R(983, 555, 1090, 680)
+    hx1, hy1, hx2, hy2 = R(983, 555, 1109, 680)
     lane_x = ((893 / S + 3.0) + hx1) / 2                              # between the arena's east overhang and the yard
     vehicles = [[round(lane_x, 2), round(hy2 - 4, 2), round(np.pi / 2, 3), 1]]
     return dict(cows=cows, pigs=pigs, students=students, vehicles=vehicles)
