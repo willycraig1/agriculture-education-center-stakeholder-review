@@ -840,3 +840,8 @@ Fit checks now skip context elements (walk etc.).
 - Our readings where her marks were ambiguous: "a conference room for 20 to 25"; the second project paragraph as
   "It serves two programs, 4-H youth and adult beginning ranchers, with infrastructure for cattle, swine, sheep,
   goats, poultry, and horticulture. It also provides … for the agriculture industry and the public …".
+- Follow-up (architect): no campus labels on the full-width plan (too small to read). The barnyard close-up is now
+  square (2.75") and closer in (196 site units across, framed on the barnyard, Red House, and classroom building),
+  with its badge allowed over the drive. Its labels are placed by the fact sheet itself at the centre of each
+  building's shape (or group: "Small animal barns" for barns A and B, "Holding pens" for pens 1 to 5), with
+  "Classroom / event" on two lines on its building.
