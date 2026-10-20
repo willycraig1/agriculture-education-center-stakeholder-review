@@ -796,24 +796,22 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     add("walk-2", "", _b2["x"], _b2["y"], _b2["w"], _b2["h"], "circulation", 2, kind="walk", note="", outline=_o2, context=True)
     by_id["walk-2"] = E[-1]
     print("walks by Level: 1 =", round(_wk1.area), "sf, 2 =", round(_wk2.area), "sf | cut at x", _xcut)
-    # the south sidewalk (owner, 2026-10-20), 5' wide, Level 1: from the walk network's stub by the dumpster down the 5'
-    # strip between the one-way drive and the Red House, past its front porch, then turning 90 degrees to run along the
-    # heads of the stall row in front of the horticulture area, to the row's west end. On the Red House grid. The
-    # horticulture area and the residence move 5' south to make room for it behind the stalls.
-    _stub = [q for q in by_id["walk"]["outline"] if q[0] >= _xcut - 0.1 and q[1] > 340]
-    _s0 = (sum(q[0] for q in _stub) / len(_stub), sum(q[1] for q in _stub) / len(_stub)) if _stub else _xy(_ue + 2.5, BANK_N0 + 5.5)
-    _sw_pts = [_s0, _xy(_ue + 2.5, _uv(*_s0)[1]), _xy(_ue + 2.5, STALL_D + 2.5), _xy(_u0, STALL_D + 2.5)]
-    _sw = _LS(_sw_pts).buffer(2.5, cap_style=2, join_style=2)
-    _wk1u = _union([_Poly(by_id["walk"]["outline"]).buffer(0), _sw]).buffer(0.01).buffer(-0.01)
+    # the south sidewalk (owner, 2026-10-20), 5' wide, Level 1: flush with the parking loop's outer pavement edge, from
+    # the walk network's stub by the dumpster, down the one-way drive's east edge past the Red House's front porch, and
+    # round the corner along the heads of the stall row in front of the horticulture area to the row's west end. It is
+    # the band 5' outside the pavement along that run; the horticulture area and the residence butt up to it.
+    _pave = _Poly(by_id["parking"]["outline"]).buffer(0)
+    _run = [q for q in by_id["parking"]["outline"]]
+    _k0 = min(range(len(_run)), key=lambda k: (_run[k][0] - 170.0) ** 2 + (_run[k][1] - 344.3) ** 2)     # the east leg's foot by the stub
+    _k1 = min(range(len(_run)), key=lambda k: (_run[k][0] - _xy(_u0, STALL_D)[0]) ** 2 + (_run[k][1] - _xy(_u0, STALL_D)[1]) ** 2)  # stall row's west head corner
+    _path = [tuple(_run[k % len(_run)]) for k in range(_k1, _k0 + 1)] if _k1 <= _k0 else [tuple(q) for q in _run[_k1:] + _run[:_k0 + 1]]
+    _band = _pave.buffer(5, join_style=2, mitre_limit=3).difference(_pave)
+    _sw = _band.intersection(_LS(_path).buffer(5.5, cap_style=2, join_style=2))
+    _sw = max(getattr(_sw, "geoms", [_sw]), key=lambda g: g.area)
+    _wk1u = _union([_Poly(by_id["walk"]["outline"]).buffer(0), _sw.buffer(0.05)]).buffer(-0.05)
     _o1 = _ring(_wk1u)
     by_id["walk"].update(outline=_o1, **_bb(_o1))
-    _dn = (lambda a_, b_: (b_[0] - a_[0], b_[1] - a_[1]))(_xy(0, 0), _xy(0, 5))
-    for id_ in ("horticulture", "residence"):
-        e_ = by_id.get(id_)
-        if e_ and e_.get("outline"):
-            e_["outline"] = [[round(x + _dn[0], 1), round(y + _dn[1], 1)] for x, y in e_["outline"]]
-            e_.update(x=round(e_["x"] + _dn[0], 1), y=round(e_["y"] + _dn[1], 1))
-    print("south sidewalk ft:", round(_LS(_sw_pts).length), "| horticulture and residence moved 5' south")
+    print("south sidewalk ft:", round(_LS(_path).length), "| along the pavement edge from", _path[0], "to", _path[-1])
     # circulation as drawn: the loop is two-way, so its runs carry arrowheads at both ends
     _circ = []
     for m in _re.finditer(r'<(polyline|line) id="([^"]+)"(?: data-name="([^"]+)")? class="(st\d+)" (?:points="([^"]+)"|x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)")', _sv):
