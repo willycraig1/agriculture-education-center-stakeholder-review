@@ -223,10 +223,11 @@ const PROG = {   // design/palette.json
 };
 S.mat.redwall = [0.50, 0.24, 0.18];   // red-stained board siding (photos/Red House)
 S.mat.stone = [0.62, 0.57, 0.48]; S.mat.foundation = [0.42, 0.38, 0.34]; S.mat.deck = [0.58, 0.40, 0.28]; S.mat.metalroof = [0.80, 0.81, 0.80]; S.mat.galv = [0.74, 0.75, 0.74];
+S.mat.glass = [0.62, 0.72, 0.78]; S.mat.ceilwood = [0.86, 0.66, 0.44];
 const LVL = ['#77736A', '#5F8A3A', '#D19A2E', '#B8657A'];
 const LVLNAME = ['Existing', 'Level 1', 'Level 2', 'Level 3'];
 const ROOFY = new Set(['roof', 'roofflat', 'rustroof', 'metalroof']);
-const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain']);
+const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain', 'glass']);
 const rgb = a => new THREE.Color(a[0], a[1], a[2]);
 
 function faceColor(m, ob, mode) {
@@ -625,8 +626,182 @@ function redHouse(C) {
   scene.add(cg); objects.push({ ob: kob, grp: cg, meshes: cm, isFence: false });
 }
 
+// The Red House's Level 3 teaching space (owner, 2026-10-20), on the barns' kit system, after the Siesta Key Chapel:
+// 72' x 36' on the 12' grid (six bays, 8x8 wood columns), square to the barnyard, east of the house. Floor 5.5' above
+// grade on a crawlspace closed with wood louvers, the floor framing a band outside the columns; 10' from the floor to
+// the bearing of 18" bar joists (black) that follow the 4:12 roof across the 36'; galvalume roof, wood underside, 3'
+// overhangs. Side walls glass from floor to eave except the end bays: the west bay is the restroom and storage core
+// (solid, weathered wood), the east bay is solid; the east endwall is glass in its outer thirds with a solid centre
+// panel; the west endwall is solid with the entry. A 12' balcony deck off the east end. The ground is faked up to the
+// entry (the grade rises behind the house) so the walk from the house (walk-3 on the plan) arrives at floor level.
+function teachingSpace(A) {
+  const a = A.ang * Math.PI / 180, e = [Math.cos(a), Math.sin(a)], n = [-e[1], e[0]];
+  const W = (u, v, z) => [A.c[0] + u * e[0] + v * n[0], A.c[1] + u * e[1] + v * n[1], z];
+  const HL = A.L / 2, HW = A.W / 2, FL = 5.5, BEAR = FL + 10, JD = 1.5, RT = 0.5, P = 4 / 12, OV = 3;
+  const ZC = BEAR + JD + RT;                                          // roof top at the column lines
+  const zBC = v => BEAR + (HW - Math.abs(v)) * P;                     // joists' bottom chord over v
+  const C8 = 0.667 / 2, BAND = 1.25, BT = 0.35, WT = 0.5;            // column half-width, floor band depth and thickness, wall
+  const grp = new THREE.Group(), meshes = [], byMat = {}, ink = [], rods = [];
+  const face = (pts, m) => (byMat[m] = byMat[m] || []).push(pts);
+  const box = (u0, u1, v0, v1, z0, z1, m) => {
+    const c = [[u0, v0], [u1, v0], [u1, v1], [u0, v1]];
+    for (let i = 0; i < 4; i++) { const p = c[i], q = c[(i + 1) % 4]; face([W(p[0], p[1], z0), W(q[0], q[1], z0), W(q[0], q[1], z1), W(p[0], p[1], z1)], m); }
+    face(c.map(q => W(q[0], q[1], z1)), m); face(c.map(q => W(q[0], q[1], z0)).reverse(), m);
+  };
+  const endWall = (uu, vz, m, t = WT) => {                            // a convex (v, z) polygon in the plane u = uu, t thick
+    const f = vz.map(([v, z]) => W(uu - t / 2, v, z)), b = vz.map(([v, z]) => W(uu + t / 2, v, z));
+    face(f, m); face(b.slice().reverse(), m);
+    for (let i = 0; i < vz.length; i++) { const j = (i + 1) % vz.length; face([f[i], f[j], b[j], b[i]], m); }
+  };
+  const seg = (p, q) => ink.push(...p, ...q);
+  const rod = (p, q) => rods.push([p, q]);
+
+  // columns on the 12' grid, grade to the joist bearing; the endwalls' columns at the third points up to the chord
+  for (let u = -HL; u <= HL + .1; u += 12) for (const v of [-HW, HW]) box(u - C8, u + C8, v - C8, v + C8, 0, BEAR, 'oldtimber');
+  for (const u of [-HL, HL]) for (const v of [-6, 6]) box(u - C8, u + C8, v - C8, v + C8, 0, zBC(v), 'oldtimber');
+  // crawlspace: wood louvers on the column lines, the floor framing as a band outside the columns, the floor
+  const SK = FL - BAND;
+  for (const v of [-HW, HW]) {
+    face([W(-HL, v, 0), W(HL, v, 0), W(HL, v, SK), W(-HL, v, SK)], 'oldwood');
+    for (let z = .4; z < SK; z += .4) seg(W(-HL, v + Math.sign(v) * .05, z), W(HL, v + Math.sign(v) * .05, z));
+  }
+  for (const u of [-HL, HL]) {
+    face([W(u, -HW, 0), W(u, HW, 0), W(u, HW, SK), W(u, -HW, SK)], 'oldwood');
+    for (let z = .4; z < SK; z += .4) seg(W(u + Math.sign(u) * .05, -HW, z), W(u + Math.sign(u) * .05, HW, z));
+  }
+  const O1 = C8, O2 = C8 + BT;
+  for (const s of [-1, 1]) {
+    box(-HL - O2, HL + O2, s > 0 ? HW + O1 : -HW - O2, s > 0 ? HW + O2 : -HW - O1, SK, FL, 'oldtimber');
+    box(s > 0 ? HL + O1 : -HL - O2, s > 0 ? HL + O2 : -HL - O1, -HW - O1, HW + O1, SK, FL, 'oldtimber');
+  }
+  box(-HL, HL, -HW, HW, FL - 1, FL, 'deck');
+  // side walls: glass bays (mullions at mid-bay, sill and head frames), solid end bays, a wood frieze over the bearing
+  for (const v of [-HW, HW]) {
+    const vo = v + Math.sign(v) * (WT / 2 + .02);
+    for (let b = 0; b < 6; b++) {
+      const u0 = -HL + 12 * b + C8, u1 = -HL + 12 * (b + 1) - C8;
+      if (b === 0 || b === 5) {
+        box(u0, u1, v - WT / 2, v + WT / 2, FL, BEAR, 'oldwood');
+        for (let u = u0 + .75; u < u1; u += .75) seg(W(u, vo, FL), W(u, vo, BEAR));
+      } else {
+        face([W(u0, v, FL), W(u1, v, FL), W(u1, v, BEAR), W(u0, v, BEAR)], 'glass');
+        const um = (u0 + u1) / 2;
+        box(um - .12, um + .12, v - .15, v + .15, FL, BEAR, 'joist');
+        box(u0, u1, v - .15, v + .15, FL, FL + .25, 'joist');
+        box(u0, u1, v - .15, v + .15, BEAR - .25, BEAR, 'joist');
+      }
+    }
+    box(-HL - C8, HL + C8, v - WT / 2, v + WT / 2, BEAR, BEAR + JD, 'oldwood');
+  }
+  // gable friezes (the joists' depth, under the roof) at both ends
+  for (const u of [-HL, HL]) for (const s of [-1, 1]) endWall(u, [[s * HW, BEAR], [0, zBC(0)], [0, zBC(0) + JD], [s * HW, BEAR + JD]], 'oldwood');
+  // east endwall: glass in the outer thirds up to the chord, a solid centre panel
+  for (const s of [-1, 1]) {
+    const v6 = s * (6 + C8), v18 = s * (HW - C8), v12 = s * 12;
+    face([W(HL, v6, FL), W(HL, v18, FL), W(HL, v18, zBC(HW)), W(HL, v6, zBC(6))], 'glass');
+    box(HL - .15, HL + .15, v12 - .12, v12 + .12, FL, zBC(12), 'joist');
+    box(HL - .15, HL + .15, Math.min(v6, v18), Math.max(v6, v18), FL, FL + .25, 'joist');
+  }
+  endWall(HL, [[-6, FL], [6, FL], [6, zBC(6)], [0, zBC(0)], [-6, zBC(6)]], 'oldwood');
+  for (let v = -5.25; v < 6; v += .75) seg(W(HL + WT / 2 + .02, v, FL), W(HL + WT / 2 + .02, v, zBC(v)));
+  // west endwall: solid, the entry doors at its centre; the core's inner wall one bay in, open in its middle third
+  endWall(-HL, [[-HW, FL], [HW, FL], [HW, BEAR], [0, zBC(0)], [-HW, BEAR]], 'oldwood');
+  for (let v = -HW + .75; v < HW; v += .75) if (Math.abs(v) > 3.6) seg(W(-HL - WT / 2 - .02, v, FL), W(-HL - WT / 2 - .02, v, zBC(v)));
+  const ud = -HL - WT / 2 - .03;
+  face([W(ud, -3.5, FL), W(ud, 3.5, FL), W(ud, 3.5, FL + 8.6), W(ud, -3.5, FL + 8.6)], 'oldtimber');
+  face([W(ud - .02, -3, FL), W(ud - .02, 3, FL), W(ud - .02, 3, FL + 8.2), W(ud - .02, -3, FL + 8.2)], 'darkglass');
+  for (const s of [-1, 1]) endWall(-HL + 12, [[s * 6, FL], [s * HW, FL], [s * HW, zBC(HW)], [s * 6, zBC(6)]], 'oldwood', .4);
+  // bar joists on every column line, following the roof, Warren webs at about 2.5'
+  for (let u = -HL; u <= HL + .1; u += 12) for (const s of [-1, 1]) {
+    const t0 = W(u, s * HW, ZC - RT), t1 = W(u, 0, zBC(0) + JD), b0 = W(u, s * HW, BEAR), b1 = W(u, 0, zBC(0));
+    rod(t0, t1); rod(b0, b1); rod(t0, b0);
+    const N = 7, lerp = (p, q, k) => p.map((x, i) => x + (q[i] - x) * k);
+    for (let k = 0; k < N; k++) {
+      const p = k % 2 ? lerp(b0, b1, k / N) : lerp(t0, t1, k / N), q = k % 2 ? lerp(t0, t1, (k + 1) / N) : lerp(b0, b1, (k + 1) / N);
+      rod(p, q);
+    }
+  }
+  // roof: two 4:12 planes with 3' overhangs, galvalume over a wood underside
+  const ze = ZC - OV * P, zr = ZC + HW * P;
+  for (const s of [-1, 1]) {
+    const pts = [[-HL - OV, s * (HW + OV), ze], [HL + OV, s * (HW + OV), ze], [HL + OV, 0, zr], [-HL - OV, 0, zr]];
+    const top = pts.map(([u, v, z]) => W(u, v, z)), bot = pts.map(([u, v, z]) => W(u, v, z - RT));
+    face(top, 'metalroof'); face(bot.slice().reverse(), 'ceilwood');
+    for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; face([top[i], top[j], bot[j], bot[i]], 'metalroof'); }
+  }
+  // east balcony: a 12' deck at floor level on posts, its framing band, a wood railing with pickets
+  const BU0 = HL + O2, BU1 = HL + 12, BV = HW + O2;
+  box(BU0, BU1, -BV, BV, FL - .3, FL, 'deck');
+  box(BU1 - BT, BU1, -BV, BV, SK, FL - .3, 'oldtimber');
+  for (const s of [-1, 1]) box(BU0, BU1, s > 0 ? BV - BT : -BV, s > 0 ? BV : -BV + BT, SK, FL - .3, 'oldtimber');
+  for (const v of [-HW, -6, 6, HW]) box(BU1 - .7, BU1 - .03, v - C8, v + C8, 0, SK, 'oldtimber');
+  const rail = [[BU0, -BV + .2], [BU1 - .2, -BV + .2], [BU1 - .2, BV - .2], [BU0, BV - .2]];
+  for (let i = 0; i < 3; i++) {
+    const [p, q] = [rail[i], rail[i + 1]], L = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    const lo = Math.min(p[0], q[0]) - .12, hi = Math.max(p[0], q[0]) + .12, vlo = Math.min(p[1], q[1]) - .12, vhi = Math.max(p[1], q[1]) + .12;
+    box(lo, hi, vlo, vhi, FL + 3.25, FL + 3.5, 'oldtimber');
+    box(lo, hi, vlo, vhi, FL + .3, FL + .45, 'oldtimber');
+    const np = Math.round(L / .45);
+    for (let k = 0; k <= np; k++) {
+      const uu = p[0] + (q[0] - p[0]) * k / np, vv = p[1] + (q[1] - p[1]) * k / np, w = k % Math.round(6 / .45) ? .07 : .25;
+      box(uu - w, uu + w, vv - w, vv + w, FL + .45, FL + 3.25, 'oldtimber');
+    }
+  }
+
+  const glassMat = new THREE.MeshLambertMaterial({ color: rgb(S.mat.glass), transparent: true, opacity: .34, depthWrite: false, side: THREE.DoubleSide });
+  for (const m in byMat) {
+    const g = polyGeom(byMat[m]);
+    const mat = m === 'glass' ? glassMat : new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(g, mat);
+    mesh.castShadow = m !== 'glass' && m !== 'metalroof'; mesh.receiveShadow = true;   // the roof's underside casts
+    mesh.userData = { m, solid: mat, noCast: m === 'glass' || m === 'metalroof' }; grp.add(mesh); meshes.push(mesh);
+    if (!['glass', 'darkglass', 'deck', 'joist'].includes(m)) { const ed = new THREE.LineSegments(new THREE.EdgesGeometry(g, 20), inkMat); ed.userData.edge = true; grp.add(ed); }
+  }
+  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(ink, 3));
+  const sl = new THREE.LineSegments(sg, new THREE.LineBasicMaterial({ color: rgb(S.mat.boardline) })); sl.userData.siding = true; grp.add(sl);
+  const jm = new THREE.MeshLambertMaterial({ color: rgb(S.mat.joist) }), im = new THREE.InstancedMesh(unitCyl, jm, rods.length);
+  const M = new THREE.Matrix4(), q = new THREE.Quaternion(), zAxis = new THREE.Vector3(0, 0, 1);
+  rods.forEach(([p0, p1], i) => {
+    const a0 = new THREE.Vector3(...p0), d = new THREE.Vector3(...p1).sub(a0), L = d.length();
+    q.setFromUnitVectors(zAxis, d.normalize()); M.compose(a0, q, new THREE.Vector3(.1, .1, L)); im.setMatrixAt(i, M);
+  });
+  im.castShadow = true; im.userData = { m: 'joist', solid: jm, fence: true }; grp.add(im); meshes.push(im);
+  const ob = { name: 'teaching', label: 'Red House teaching space', level: 3, program: 'education', id: 'red-house-addition', faces: [], lines: [],
+               fp: { w: A.L, d: A.W, h: zr, area: A.L * A.W, cx: A.c[0], cy: A.c[1], assumed: false } };
+  scene.add(grp); objects.push({ ob, grp, meshes, isFence: false });
+  catalog.push({ label: 'Red House teaching space, 72\' x 36\', with an east balcony', level: 3 });
+
+  // the walk from the house rises to the door; the ground is banked up around it at about 1:2 (faked topo)
+  const P0 = A.walk_from, P1 = A.walk_to, dx = P1[0] - P0[0], dy = P1[1] - P0[1], dd = dx * dx + dy * dy;
+  const hWalk = (x, y) => FL * Math.min(1, Math.max(0, ((x - P0[0]) * dx + (y - P0[1]) * dy) / dd));
+  const WK = A.walk;
+  const inside = (x, y) => { let c = false; for (let i = 0, j = WK.length - 1; i < WK.length; j = i++) {
+    const [xi, yi] = WK[i], [xj, yj] = WK[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const dist = (x, y) => { if (inside(x, y)) return 0; let best = 1e9;
+    for (let i = 0; i < WK.length; i++) { const [ax, ay] = WK[i], [bx, by] = WK[(i + 1) % WK.length], ex = bx - ax, ey = by - ay;
+      const t = Math.max(0, Math.min(1, ((x - ax) * ex + (y - ay) * ey) / (ex * ex + ey * ey || 1)));
+      best = Math.min(best, Math.hypot(x - ax - t * ex, y - ay - t * ey)); } return best; };
+  const ground = (x, y) => { const dw = dist(x, y), z = dw === 0 ? hWalk(x, y) - .3 : hWalk(x, y) - .3 - dw / 2; return z > 0 ? z : -.5; };
+  const xs = WK.map(p => p[0]), ys = WK.map(p => p[1]), PAD = 13, STEP = 1;
+  const x0 = Math.min(...xs) - PAD, y0 = Math.min(...ys) - PAD, nx = Math.ceil((Math.max(...xs) + PAD - x0) / STEP), ny = Math.ceil((Math.max(...ys) + PAD - y0) / STEP);
+  const pos = [], idx = [];
+  for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) { const x = x0 + i * STEP, y = y0 + j * STEP; pos.push(x, y, ground(x, y)); }
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const k = j * (nx + 1) + i; idx.push(k, k + 1, k + nx + 2, k, k + nx + 2, k + nx + 1); }
+  const tg = new THREE.BufferGeometry(); tg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); tg.setIndex(idx); tg.computeVertexNormals();
+  const terrain = new THREE.Mesh(tg, new THREE.MeshLambertMaterial({ color: rgb(S.mat.grass) })); terrain.receiveShadow = true; siteGroup.add(terrain);
+  reg(terrain, 3);
+  const dense = [];
+  for (let i = 0; i < WK.length; i++) { const p = WK[i], r = WK[(i + 1) % WK.length], k = Math.max(1, Math.ceil(Math.hypot(r[0] - p[0], r[1] - p[1]) / 1.5));
+    for (let s = 0; s < k; s++) dense.push([p[0] + (r[0] - p[0]) * s / k, p[1] + (r[1] - p[1]) * s / k]); }
+  const wg = new THREE.ShapeGeometry(shapeOf(dense)), wp = wg.attributes.position;
+  for (let i = 0; i < wp.count; i++) wp.setZ(i, hWalk(wp.getX(i), wp.getY(i)) + .05);
+  wg.computeVertexNormals();
+  const walk = new THREE.Mesh(wg, new THREE.MeshLambertMaterial({ color: rgb(S.mat.concrete), side: THREE.DoubleSide })); walk.receiveShadow = true; siteGroup.add(walk);
+  reg(walk, 3);
+}
+
 if (SITE) {
-  const C_SITE = new THREE.Color('#9fb56b'), C_BONUS = new THREE.Color('#b9b779');
+  const C_SITE =new THREE.Color('#9fb56b'), C_BONUS = new THREE.Color('#b9b779');
   // ground: the property, the aerial (off by default), paddocks, woods floor, water, roads
   grass.visible = false;   // replaced by the ground outside the property, with the water features cut out
   reg(flat(SITE.outside, grass.material.color, -0.4));
@@ -739,6 +914,7 @@ if (SITE) {
 
   // campus buildings (heights assumed)
   redHouse(C);   // with its porches and the carport
+  if (C.addition) teachingSpace(C.addition);
   if (C.poultry_frame) framedBarn(C.poultry_frame, { name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', id: 'existing-poultry' });
   else campusBuilding({ name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', o: C.poultry, h: 12, wall: 'oldwood', roof: 'rustroof', id: 'existing-poultry' });
   campusBuilding({ name: 'residence', label: 'Residence', level: 3, program: 'education', o: C.residence, h: 11, wall: 'whitemetal', id: 'residence' });
@@ -1037,6 +1213,8 @@ const VIEWS = {
   campus:     { name: 'Campus', sub: 'Barnyard, Red House, parking', pos: [760, -1150, 620], tgt: [200, -330, 0], fov: 40 },
   pasture:    { name: 'Site pasture', sub: 'The paddocks, from the north', pos: [1500, 3300, 1500], tgt: [100, 500, 0], fov: 40 },
   fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
+  teaching:   { name: 'Teaching space', sub: 'Red House addition, from the south-east', pos: [505, -392, 48], tgt: [400, -440, 9], fov: 45 },
+  inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [372, -436, 11], tgt: [440, -436, 13], fov: 70 },
   site:       { name: 'Whole property', sub: 'Campus, pastures, slough', pos: [2300, -3300, 2300], tgt: [-350, -800, 0], fov: 40 },
 };
 const viewsEl = document.getElementById('views');
