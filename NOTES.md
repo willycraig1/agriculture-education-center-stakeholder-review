@@ -787,6 +787,64 @@ Fit checks now skip context elements (walk etc.).
 - Floodplain compensation is held back from this presentation (owner's concern about pastures as compensation; civil
   has new thoughts in its 2026-10-16 narrative, not to be introduced yet). The fact sheet is a separate task.
 
+## 2026-10-19: project fact sheet (`factsheet/`)
+- Two-page letter fact sheet, front and back. First drafted after the County's own sheet
+  (`source/Clark Farm Project-Fact Sheet-PRINT 10-15-26.pdf`); restyled the same day to the presentation's language
+  (architect): deck serif and sans, eyebrows, Level badges, palette colours, and the design-driver icons. No
+  "Clark Farm" anywhere on the sheet. No County or UF/IFAS logos.
+- Front: the Option B watercolour, an At a Glance grid (six figures, each with an icon in the deck's style: parcel,
+  herd, cattle pens, small animal pens, classroom, Levels), the project and thesis, and the four design drivers.
+  Back: site plan of the main parcel (drawn live from `slides/data/site-map.js`, Level 3 colours) with a barnyard
+  close-up, the three Levels table, and the program. Figures follow `levels.js`, `ag-area.js`, and `pasture-capacity.js`;
+  floodplain compensation and the bonus pasture are left out, as in the deck.
+- Main parcel area on the sheet is the Property Appraiser's published 60.83 ac (architect), not a measured figure.
+- Print: `python tools/export_factsheet.py` → `exports/agriculture-education-center-fact-sheet.pdf` (git-ignored).
+
+## 2026-10-19: main parcel 65.1 → 61.3 ac (site outline trimmed to property line pl-01)
+- The deck's main parcel measured 65.1 ac against the SCPA's published 60.83 ac. Cause: the architect's hand-drawn
+  site boundary (`site-edits-2026-10-13.ai`) runs a steady 54 to 59 ft outside property line pl-01, the long top
+  edge of the north-left plans, for its whole length. That strip was 4.0 ac. The property lines alone (pl-01, pl-04,
+  pl-02, with the 82 ft gap at the corner of pl-01 and pl-02 closed straight) enclose 61.1 ac.
+- `siteframe.snapped_boundary()` now also trims the boundary to the inside of pl-01 (extended past both ends), so
+  build_canopy, build_site_map, and build_retention_markup all use the trimmed site. Main parcel 61.3 ac (0.8% over
+  SCPA; the rest is likely the slough centreline and the corner closure). Whole property 154.9 → 149.4 ac.
+- Figures that follow: canopy 28.1 → 26.6 ac (still 43%), very poorly drained still 13%, slough bed 2.4 ac, paddock
+  acres unchanged (fenced pasture 45.3 ac, 7 / 15 CE). Slides compute these from site-map.js, so no text changed; the
+  site slide's "The land" now reads about 61 acres. Massing `site-data.js` re-exported (boundary and canopy only);
+  the published 3D artifact has not been republished. The report reference archive keeps the old figures.
+
+## 2026-10-19: Level 3 classroom on the site plans; fact sheet legend and close-up fences
+- Red House Level 3's instructional classroom / event building (51' x 31' with restrooms and storage, about
+  2,200 sf with walls) is now an element of the barnyard plan (`build_ag_area.py`, id `red-house-classroom`, Level 3,
+  education), so it appears on the barnyard diagram, on the site map's barnyard layer (fading in at Level 3 on the
+  site-plan slide), in the massing site data, and on the fact sheet. Placed by fitting the Red House study sheet to
+  the architect's outline of the house: the house footprint on the Level 3 sheet (porches left out) against the
+  outline, scale fixed by the two drawings, rotation and offset fitted. Fit: 51.2 deg (the sheet's north lands
+  exactly at the plans' north-left), 542 sf mismatch on a 4,000 sf house. The building lands east of the house
+  across the patio, as on the sheet. Site map label "Classroom / event".
+- Fact sheet: FEMA flood zone line added to the site plan legend; in the barnyard close-up the pasture fences are
+  drawn at 0.8 with 4.5 / 2.5 dashes (casing 2) instead of the full plan's 2 with 14 / 6, since the close-up is at
+  about twice the scale.
+
+## 2026-10-20: fact sheet, owner's comments (`source/agriculture-education-center-fact-sheet _LHB.pdf`, kept local)
+- Carried over the architect's Illustrator edits to the export: the aerial watercolour (`exports/Watercolor Campus
+  with Tractor Outside Cattle Pen.png` → `factsheet/rendering.jpg`), "60.8 ACRES / Property", the thesis box removed,
+  and the back heading "The barnyard grows from the existing barns".
+- Owner's edits: no "Project fact sheet" in the heads; "Sarasota County, Florida"; rendering caption "Potential
+  conceptual rendering of …"; "(CE)"; pens "as funding allows"; project paragraphs and driver wording rewritten; back
+  label "The conceptual site plan", caption "Conceptual site plan for the 60.83-acre parcel."; program lines trimmed.
+- Back page restructured on her suggestion: the Levels table is gone; the site plan runs full width and the barnyard
+  close-up sits beside a "Potential infrastructure and features" list (her 12 items). The plan drops the paddock
+  fences, acreage tags, Feed + water labels, FEMA flood zone line, and the slough bed label ("for this version").
+  Close-up badge "Barnyard, full build-out" (readers don't know the Levels yet). Kept: the "3 Levels" tile.
+- Our readings where her marks were ambiguous: "a conference room for 20 to 25"; the second project paragraph as
+  "It serves two programs, 4-H youth and adult beginning ranchers, with infrastructure for cattle, swine, sheep,
+  goats, poultry, and horticulture. It also provides … for the agriculture industry and the public …".
+- Follow-up (architect): no campus labels on the full-width plan (too small to read). The barnyard close-up is now
+  square (2.75") and closer in (196 site units across, framed on the barnyard, Red House, and classroom building),
+  with its badge allowed over the drive. Its labels are placed by the fact sheet itself at the centre of each
+  building's shape (or group: "Small animal barns" for barns A and B, "Holding pens" for pens 1 to 5), with
+  "Classroom / event" on two lines on its building.
 ## 2026-10-19: vision-first restructure, part 1
 - New running order (index.html, 15 slides): cover, The vision (new `slides/vision.html`: the Level 3 picture in four
   points, the Option B watercolour, McIntosh Ag Center and Siesta Key Chapel comparatives, credited), drivers, the site
@@ -902,3 +960,12 @@ Fit checks now skip context elements (walk etc.).
 - Red House from Level 3 back: the steps run the house today (owner, 2026-10-20: existing first), then Level 3, 2, 1, with the list in that order and the
   plan's framing following; the static page (PDF) shows Level 3. Level 2 and 1 text reworded to read walking back
   (figures unchanged). The viewer's first preset is now "House + addition".
+
+## 2026-10-20: fact sheet branch merged with main
+- Main had added the same Level 3 building independently as `red-house-addition`, placed from study plan A0.1
+  (owner, 2026-10-20). Main's placement is kept; this branch's fitted `red-house-classroom` (fit to the Red House
+  sheet) is dropped. The site map's "Classroom / event" label and the fact sheet close-up now point at
+  `red-house-addition`.
+- Generated files taken from main and rebuilt with the parcel fix (build_canopy, build_ag_area, build_site_map,
+  build_retention_markup, build_site_map, massing/export_site, stamp). ag-area.js rebuilds identical to main's.
+  The Arch D site plan sheets (exports/, not tracked) predate the parcel fix; re-export them for 61.3 ac.
