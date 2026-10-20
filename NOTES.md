@@ -795,8 +795,7 @@ Fit checks now skip context elements (walk etc.).
   (Level 3 row first), Red House, Levels table, paddocks, water quality, over to you. Out of the order, kept for the
   report: three-levels, program, pasture-capacity, water-site. Eyebrows renamed (no "Act" numbers).
 - Images: photos/reference/ (1400px copies) and photos/vision-watercolor.jpg (from Watercolor_Rendering_Working).
-- Still to do: Red House steps from Level 3 back; Levels table with the Level 3 column first; paddocks with the
-  rotation step first; a full review pass.
+- Still to do: a full review pass (the rest of part 1's list is done in part 2, 2026-10-20, below).
 
 ## 2026-10-19: barnyard slide fix; slide script check
 - The barnyard slide came up blank: in the restructure, a comment inserted mid-line commented out the rest of the
@@ -886,3 +885,20 @@ Fit checks now skip context elements (walk etc.).
   the left, Level 1 on the right, equal gaps. All three placed on Level 1's box (the Levels share one plan frame), so
   the house lines up across the sheet; Level 3's addition runs past the shared edge.
 - The architect cleans up unfilled program-colour corners in Illustrator; those edits do not flow back into the data.
+
+## 2026-10-20: vision-first restructure, part 2; the 3D model closes the deck
+- `index.html`: the massing viewer (`massing/index.html`) is slide 16, "The campus in 3D", after Over to you. It runs
+  live in the deck's iframe; it has no build steps, so the deck's ‹ › buttons (and a clicker's PageDown / PageUp) change
+  slides, while the arrow keys stay with the viewer for walking. F, Escape, Home, and End go to the deck. The PDF export
+  skips it (it only takes `slides/` entries).
+- Owner: the bonus pasture stays in the model as context (its paddocks and fencing at Level 3), though the slides show
+  the main parcel only.
+- Levels table, Level 3 first: `levels.html` shows the columns 3, 2, 1 and builds them in that order. `levels.js` stays
+  written up from Level 1; the slide resolves each "Same as Level n", then a cell matching the one to its left reads
+  "Same as Level 3 / 2". Where a Level 3 cell is only an add-on, its new `whole` text leads instead (cow & calf pens,
+  swine & small animals, Red House): drafted wording, for the owner to check.
+- Paddocks, rotation first: step 1 is the nine paddocks in rotation (Levels 2 and 3, about 15 CE, the highlight
+  stepping through them), step 2 back to Level 1's conservative grazing (about 7 CE).
+- Red House from Level 3 back: the steps run the house today (owner, 2026-10-20: existing first), then Level 3, 2, 1, with the list in that order and the
+  plan's framing following; the static page (PDF) shows Level 3. Level 2 and 1 text reworded to read walking back
+  (figures unchanged). The viewer's first preset is now "House + addition".
