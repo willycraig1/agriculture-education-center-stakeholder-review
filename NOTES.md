@@ -797,3 +797,9 @@ Fit checks now skip context elements (walk etc.).
 - Images: photos/reference/ (1400px copies) and photos/vision-watercolor.jpg (from Watercolor_Rendering_Working).
 - Still to do: Red House steps from Level 3 back; Levels table with the Level 3 column first; paddocks with the
   rotation step first; a full review pass.
+
+## 2026-10-19: barnyard slide fix; slide script check
+- The barnyard slide came up blank: in the restructure, a comment inserted mid-line commented out the rest of the
+  line, a syntax error that stopped the slide's script (not the 3D model work). Fixed.
+- `tools/check_slides.py` syntax-checks the inline scripts of every slide and index.html with Node; run it after
+  editing slides or rebuilding data.
