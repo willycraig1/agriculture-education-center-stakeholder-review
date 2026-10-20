@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Red House</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610201504">
-<link rel="stylesheet" href="../design/deck.css?v=202610201504">
+<link rel="stylesheet" href="../design/palette.css?v=202610201510">
+<link rel="stylesheet" href="../design/deck.css?v=202610201510">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -73,9 +73,9 @@
   </div>
 </div>
 
-<script src="data/red-house.js?v=202610201504"></script>
-<script src="../design/deck.js?v=202610201504"></script>
-<script src="../design/viewer.js?v=202610201504"></script>
+<script src="data/red-house.js?v=202610201510"></script>
+<script src="../design/deck.js?v=202610201510"></script>
+<script src="../design/viewer.js?v=202610201510"></script>
 <script>
 (function () {
   const R = window.RED_HOUSE;
@@ -88,12 +88,12 @@
   // room names: scale up from sheet text size so they read at slide size
   document.querySelectorAll(".labels text").forEach(t => t.setAttribute("font-size", (+t.getAttribute("font-size") * 1.45).toFixed(1)));
 
-  // Level 3 first, walking back to the house today (owner, 2026-10-19). k is the Level (0 = existing); step n shows Level 3 - n.
+  // the house today, then Level 3 walking back to Level 1 (owner, 2026-10-19 and 10-20). k is the Level (0 = existing).
   const text = [
+    { k: 0, b: "Existing", h: "The house today", p: "A former residence with several floor levels, small rooms, and wraparound porches. The study keeps the shell and its Old Florida character." },
     { k: 3, b: "Level 3", h: "Best case", p: "A new 51' × 31' classroom and event building, with its own restrooms and storage, sits across a patio from the house. The old classroom bay becomes a 28' × 36' equipment carport, and the breakroom moves beside the commons." },
     { k: 2, b: "Level 2", h: "Better management", p: "Before the addition, the 28' × 40' classroom for about 50 sits under a new roof to the east, linked by a covered walkway, with Office 5 and separate men's and women's restrooms beside it." },
     { k: 1, b: "Level 1", h: "Lightest touch", p: "Opens up the plan: lobby, a 25' × 21' conference room for 20–25, a demo kitchen (dishwash, cooler, and pantry), four offices, commons, a breakroom, and two accessible restrooms, with the same classroom to the east." },
-    { k: 0, b: "Existing", h: "The house today", p: "A former residence with several floor levels, small rooms, and wraparound porches. The study keeps the shell and its Old Florida character." },
   ];
   document.getElementById("levels").innerHTML = text.map(t =>
     `<li data-step="0" data-k="${t.k}"><header><span class="badge">${t.b}</span><h3>${t.h}</h3></header><p>${t.p}</p></li>`).join("");
@@ -113,14 +113,15 @@
   });
   const viewer = Viewer(svgEl, { ftPerUnit: R.ft_per_pt, north: R.north_cw_from_up,
     presets: [{ label: "House + addition", box: frames[3] }, { label: "House", box: frames[1] }], base: frames[3], damp: 0.6 });
+  const ORDER = text.map(t => t.k);   // step -> Level
   function apply(step) {
-    const n = 3 - Math.min(step, 3);
+    const n = ORDER[Math.min(step, 3)];
     viewer.home(frames[n]);
     viewer.flyTo(frames[n], document.documentElement.classList.contains("static") ? 0 : 1100);
     document.querySelectorAll(".lvl").forEach(g => g.classList.toggle("on", +g.dataset.k === n));
     document.querySelectorAll("#levels li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === n);
-      li.classList.toggle("done", +li.dataset.k > n);
+      li.classList.toggle("done", ORDER.indexOf(+li.dataset.k) < ORDER.indexOf(n));
     });
   }
   // program key toggle: applies to whichever Level is showing
@@ -129,7 +130,7 @@
   btn.addEventListener("keydown", ev => { if (ev.key === " " || ev.key === "Enter") ev.stopPropagation(); });   // arrows still step the deck
   Deck.onStep(apply);
   Deck.start();
-  if (document.documentElement.classList.contains("static")) apply(0);   // the static page shows Level 3
+  if (document.documentElement.classList.contains("static")) apply(1);   // the static page shows Level 3
 })();
 </script>
 </body>
