@@ -969,3 +969,10 @@ Fit checks now skip context elements (walk etc.).
 - Generated files taken from main and rebuilt with the parcel fix (build_canopy, build_ag_area, build_site_map,
   build_retention_markup, build_site_map, massing/export_site, stamp). ag-area.js rebuilds identical to main's.
   The Arch D site plan sheets (exports/, not tracked) predate the parcel fix; re-export them for 61.3 ac.
+
+## 2026-10-20: owner's comments on the presentation (eve of the meeting)
+- Cow & calf pens: title "Pens scale with funding and demand"; the lede no longer says the Beginning Rancher herd lives
+  on pasture or ties growth to enrollment ("added in 7-pen modules as funding allows and demand grows", after the fact
+  sheet's "as funding allows"); module card "A second barn can follow as funding allows and demand grows."
+- Over to you: "How would you use the site day to day?" (no "and your staff"); Barns and animals adds "How could the
+  project maximize usability for livestock management?"
