@@ -838,3 +838,6 @@ Fit checks now skip context elements (walk etc.).
   row, and the swale island's diagonal sides turn with the side they face. The south sidewalk follows.
 - Dumpster apron corner cleaned: the walk network's stub there is trimmed to the sidewalk's outer line, so the walk
   runs straight from the apron's south edge down the sidewalk.
+- The south sidewalk carries on round the loop's turn at the stall row's west end, along the pavement edge up past the
+  row's end and round the curve to where it straightens onto the entry drive (about 339 ft in all). The apron-corner
+  trim is limited to the corner (it had cut the new stretch off).
