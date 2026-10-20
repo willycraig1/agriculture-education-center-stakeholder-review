@@ -899,6 +899,6 @@ Fit checks now skip context elements (walk etc.).
   swine & small animals, Red House): drafted wording, for the owner to check.
 - Paddocks, rotation first: step 1 is the nine paddocks in rotation (Levels 2 and 3, about 15 CE, the highlight
   stepping through them), step 2 back to Level 1's conservative grazing (about 7 CE).
-- Red House from Level 3 back: the steps run Level 3, 2, 1, then the house today, with the list in that order and the
+- Red House from Level 3 back: the steps run the house today (owner, 2026-10-20: existing first), then Level 3, 2, 1, with the list in that order and the
   plan's framing following; the static page (PDF) shows Level 3. Level 2 and 1 text reworded to read walking back
   (figures unchanged). The viewer's first preset is now "House + addition".
