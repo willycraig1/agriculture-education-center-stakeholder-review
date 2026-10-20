@@ -1242,6 +1242,25 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
+// ---------- inside the deck (index.html runs this page as its last slide, in an iframe) ----------
+// The deck's ‹ › buttons send next / prev: there are no build steps here, so they change slides. A clicker's
+// PageDown / PageUp does the same (the arrow keys stay free for walking); F, Escape, Home, and End go to the deck.
+if (window.parent !== window) {
+  const tell = msg => parent.postMessage(Object.assign({ deck: true }, msg), '*');
+  tell({ type: 'step', index: 0, count: 1 });
+  addEventListener('message', e => {
+    const d = e.data || {};
+    if (d.cmd === 'next') tell({ type: 'next-slide' });
+    else if (d.cmd === 'prev') tell({ type: 'prev-slide' });
+  });
+  addEventListener('keydown', e => {
+    if (e.target.closest?.('input, textarea')) return;
+    if (e.key === 'PageDown') { e.preventDefault(); tell({ type: 'next-slide' }); }
+    else if (e.key === 'PageUp') { e.preventDefault(); tell({ type: 'prev-slide' }); }
+    else if (e.key.toLowerCase() === 'f' || e.key === 'Escape' || e.key === 'Home' || e.key === 'End') tell({ type: 'key', key: e.key });
+  });
+}
+
 window.massing = { camera, controls, setView, scene, objects };   // console hook for framing new views
 setSun(10.5);
 resize();

@@ -45,7 +45,7 @@
 // Slide order. Add new slides here.
 const BUILD = "202610201123";   // set by tools/stamp.py
 const SLIDES = [
-  // vision first, then the plan from Level 3 back to Level 1 (owner, 2026-10-19). Out of this running order but kept
+  // vision first, then the plan from Level 3 back to Level 1 (owner, 2026-10-19), ending on the 3D model. Out of this running order but kept
   // for the report: three-levels, program, pasture-capacity, water-site (see archive/report-reference-2026-10-19).
   { file: "slides/title.html", title: "Title" },
   { file: "slides/vision.html", title: "The vision · Level 3" },
@@ -62,6 +62,7 @@ const SLIDES = [
   { file: "slides/paddocks.html", title: "Getting there · Paddocks and rotation" },
   { file: "slides/water-quality.html", title: "Water quality" },
   { file: "slides/input.html", title: "Over to you" },
+  { file: "massing/index.html", title: "The campus in 3D" },   // the massing viewer, live: no build steps, so ‹ › change slides
 ];
 const frame = document.getElementById("frame"), bar = document.getElementById("bar"), menu = document.getElementById("menu");
 let i = Math.max(0, Math.min(SLIDES.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
