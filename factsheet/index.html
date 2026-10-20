@@ -70,11 +70,11 @@
                   background: rgba(255,255,255,.92); padding: 5pt 7pt; border-radius: 4pt; }
   .plan .legend i { display: inline-block; width: 9pt; height: 7pt; margin-right: 4pt; vertical-align: -1pt; border: 1px solid; }
   .plan .legend svg.line { margin-right: 4pt; vertical-align: 0; width: 13pt; height: 5pt; }
-  .features { display: grid; grid-template-columns: 2.05in 1fr; gap: 0.24in; margin-top: 0.16in; }
+  .features { display: grid; grid-template-columns: 2.75in 1fr; gap: 0.24in; margin-top: 0.16in; }
   .feat { list-style: none; margin: 2pt 0 0; padding: 0; columns: 2; column-gap: 0.22in; }
   .feat li { break-inside: avoid; padding: 2.6pt 0 2.6pt 12pt; position: relative; font-size: 8.7pt; line-height: 1.32; }
   .feat li::before { content: ""; position: absolute; left: 0; top: 6.2pt; width: 6pt; height: 6pt; border-radius: 50%; background: var(--c); }
-  .inset { aspect-ratio: 205 / 294; position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .inset { aspect-ratio: 1; align-self: start; position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .inset svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
   .inset .badge { position: absolute; left: 6pt; bottom: 6pt; }
 
@@ -279,26 +279,43 @@
   // inset: the barnyard close up
   const copy = svg.cloneNode(true);
   copy.querySelector("g:last-child").remove();          // no scale bar in the inset
-  const [bx0, by0, bx1, by1] = M.barnyard.checks.barnyard_box, pad = 4;
-  copy.setAttribute("viewBox", `${bx0 - pad} ${by0 - pad} ${bx1 - bx0 + 2 * pad} ${by1 - by0 + 2 * pad}`);
-  copy.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  // a square frame on the barnyard, the Red House, and the classroom building, tighter than the barnyard box
+  const IB = [1046, 256, 196, 196];
+  copy.setAttribute("viewBox", IB.join(" "));
+  copy.setAttribute("preserveAspectRatio", "xMidYMid slice");
   copy.querySelectorAll("[id]").forEach(e => { e.id = "inset-" + e.id; });   // keep ids unique; inset hides layers by class below
   copy.classList.remove("site"); copy.classList.add("site-inset");
-  // keep the main names; the small ones (pens, bedding, compost) crowd at this size
-  const keep = ["Existing barn", "Parking", "Horticulture", "Classroom / event", "Cattle barn A", "Cattle barn B", "Arena", "Small animal barn A", "Small animal barn B", "Poultry", "Holding pens"];
-  const pen1 = [...copy.querySelectorAll("#inset-barnyard-labels text")].find(t => t.textContent === "Pen 1");
-  copy.querySelectorAll("#inset-barnyard-labels text").forEach(t => {
-    if (t.textContent === "Pen 3") { t.textContent = "Holding pens"; t.setAttribute("text-anchor", "start"); }
-    else if (t.textContent === "Classroom / event") { t.setAttribute("text-anchor", "end"); t.setAttribute("x", +t.getAttribute("x") + 6); t.setAttribute("y", +t.getAttribute("y") - 20); }   // above the building, clear of the existing barn
-    else if (!keep.includes(t.textContent)) t.remove();
+
+  // labels: placed here on each building (or group of buildings) instead of the site map's own, which are set for
+  // the full-site view; the small animal barns and the holding pens get one label per group
+  const inv = svg.getScreenCTM().inverse();
+  const box = ids => {                                   // union of the shapes' extents, in site map units
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    ids.forEach(id => {
+      const sh = svg.querySelector(`.by[data-id="${id}"] .shape`); if (!sh) return;
+      const b = sh.getBBox(), m = inv.multiply(sh.getScreenCTM());
+      [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]].forEach(([x, y]) => {
+        const q = new DOMPoint(x, y).matrixTransform(m); x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y);
+      });
+    });
+    return [(x0 + x1) / 2, (y0 + y1) / 2];
+  };
+  const at = name => { const t = [...svg.querySelectorAll("#barnyard-labels text")].find(e => e.textContent === name); return t ? [+t.getAttribute("x"), +t.getAttribute("y") - 1.4] : null; };
+  const L = [
+    ["Cattle barn A", box(["cattle-a"])], ["Cattle barn B", box(["cattle-b"])], ["Arena", box(["arena"])],
+    ["Existing barn", box(["existing-barn"])], ["Holding pens", box(["holding-1", "holding-2", "holding-3", "holding-4", "holding-5"])],
+    ["Small animal barns", box(["small-a", "small-a2", "small-b"])], ["Parking", at("Parking")], ["Poultry", at("Poultry")],
+    ["Horticulture", box(["horticulture"])], ["Red House", M.red_house, "#A63A2B"], ["Classroom /|event", box(["red-house-classroom"]), "#A63A2B"],
+  ];
+  const lg = copy.querySelector("#inset-barnyard-labels");
+  lg.innerHTML = "";
+  L.filter(([, p]) => p).forEach(([name, [x, y], fill]) => {
+    const lines = name.split("|"), t = document.createElementNS(NS, "text");
+    t.setAttribute("x", x); t.setAttribute("y", y + 2.2 - (lines.length - 1) * 3.3);
+    t.setAttribute("text-anchor", "middle"); t.setAttribute("fill", fill || "#2B2A26");
+    t.innerHTML = lines.map((l, i) => `<tspan x="${x}" dy="${i ? 6.6 : 0}">${l}</tspan>`).join("");
+    lg.appendChild(t);
   });
-  if (M.red_house) {                                     // the Red House has no name in the barnyard labels
-    const [rx, ry] = M.red_house, t = document.createElementNS(NS, "text");
-    t.setAttribute("x", rx - 12); t.setAttribute("y", ry + 16);
-    t.setAttribute("text-anchor", "middle"); t.setAttribute("font-weight", "700"); t.setAttribute("fill", "#A63A2B");
-    t.setAttribute("stroke", "#fff"); t.setAttribute("paint-order", "stroke"); t.textContent = "Red House";
-    copy.querySelector("#inset-barnyard-labels").appendChild(t);
-  }
   inset.insertBefore(copy, inset.firstChild);
 })();
 </script>
@@ -306,7 +323,8 @@
   /* inset copy: ids are prefixed, so hide the same layers by their new ids */
   .site-inset #inset-land, .site-inset #inset-soils, .site-inset #inset-labels, .site-inset #inset-aerial, .site-inset #inset-veil,
   .site-inset #inset-paddock-fills, .site-inset [data-fixed] { display: none; }
-  .site-inset #inset-barnyard-labels text { font-size: 7.6px; stroke-width: 2px; }
+  .site-inset #inset-barnyard-labels text { font: 700 6.2px/1 var(--sans); stroke: #fff; stroke-width: 1.8px; paint-order: stroke; stroke-linejoin: round; }
+  .plan .site #barnyard-labels { display: none; }   /* too small to read at the full-site scale */
 </style>
 </body>
 </html>
