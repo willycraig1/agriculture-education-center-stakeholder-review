@@ -656,18 +656,24 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     by_id["handling"]["outline"] = _svg_pts(_re.search(r'<g id="handling">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
     E[:] = [e for e in E if e["id"] != "trailer-stop"]
     # The holding block's west edge lines up with the existing barn's front (west face) (owner, 2026-10-19): the west
-    # column (handling yard and Bud Box, pens 4 and 5) and the 8' alley move east; the east column (pens 1 to 3)
-    # narrows, keeping its east edge on the existing pens' east edge.
+    # column (handling yard and Bud Box, pens 4 and 5) and the 8' alley move east. The east column (pens 1 to 3) runs
+    # out to the end of the existing pens' lean-to roof, the "dog-ear" that carries on 13' past the barn's east wall
+    # (93.4' from the barn front in all; architect's sheet A2.0 Existing Barn) (owner, 2026-10-20).
     _front = by_id["existing-barn"]["x"]
     _dx = round(_front - by_id["handling"]["x"], 1)
-    if abs(_dx) > 0.05:
-        for id_ in ("handling", "holding-4", "holding-5"):
-            e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1)
-            if e.get("outline"): e["outline"] = [[round(px + _dx, 1), py] for px, py in e["outline"]]
-        _east = by_id["holding-3"]["x"] + by_id["holding-3"]["w"]
-        for id_ in ("holding-1", "holding-2", "holding-3"):
-            e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1); e["w"] = round(_east - e["x"], 1)
-            if e.get("outline"): e["outline"] = [[min(round(px + _dx, 1), _east), py] for px, py in e["outline"]]
+    HOLD_E = round(_front + 93.4, 1)                                  # the dog-ear's east end
+    for id_ in ("handling", "holding-4", "holding-5"):
+        e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1)
+        if e.get("outline"): e["outline"] = [[round(px + _dx, 1), py] for px, py in e["outline"]]
+    _east0 = by_id["holding-3"]["x"] + by_id["holding-3"]["w"]
+    for id_ in ("holding-1", "holding-2", "holding-3"):
+        e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1); e["w"] = round(HOLD_E - e["x"], 1)
+        if e.get("outline"): e["outline"] = [[HOLD_E if abs(px - _east0) < 0.6 else round(px + _dx, 1), py] for px, py in e["outline"]]
+    # the dog-ear itself, drawn as an open canopy so the line reads: the lean-to's roof over the pens' front 12.5'
+    # (it covers the 8' aisle and 12.5' of the pens, 20.5' off the barn's north wall), past the barn's east wall
+    _eb = by_id["existing-barn"]; _yd0, _yd1 = _eb["y"] - 20.5, _eb["y"] - 8.0
+    add("existing-dogear", "", _eb["x"] + _eb["w"], _yd0, round(HOLD_E - (_eb["x"] + _eb["w"]), 1), 12.5, "cattle", 1, kind="canopy", note="",
+        outline=[[_eb["x"] + _eb["w"], _yd0], [HOLD_E, _yd0], [HOLD_E, _yd1], [_eb["x"] + _eb["w"], _yd1]], context=True)
     # cattle turnout A's east edge and the bedding storage follow the holding block to the barn front line: the bedding
     # fills the north end of the lane between cattle barn A and the holding pens, flush with the barns' north wall
     by_id["turnout-cattle-a"]["w"] = round(_front - by_id["turnout-cattle-a"]["x"], 1)
@@ -818,9 +824,11 @@ view = None   # set once the dimension strings exist (below)
 def dim(label, x1, y1, x2, y2):
     return {"label": label, "x1": x1, "y1": y1, "x2": x2, "y2": y2}
 yt = Y_ROW1 - TURN_D - 14
-xe = _ex + 12
+_he = HOLD_E if "HOLD_E" in dir() else _ex                     # the holding block's east edge (the dog-ear line, Option B)
+xe = _he + 12
 dims = [dim(f"{MOD}'", XB, yt, XB + MOD, yt), dim(f"{GAP}'", XB + MOD, yt, XA, yt), dim(f"{MOD}'", XA, yt, X_HOLD, yt),
-        dim(f"{_ex - X_HOLD:g}'", X_HOLD, yt, _ex, yt),
+        *([dim(f"{_front - X_HOLD:g}'", X_HOLD, yt, _front, yt), dim(f"{_he - _front:g}'", _front, yt, _he, yt)]
+          if "HOLD_E" in dir() and _front - X_HOLD > 0.5 else [dim(f"{_he - X_HOLD:g}'", X_HOLD, yt, _he, yt)]),   # lane, then the holding block
         dim(f"{TURN_D}'", x_sa_b - TURN_D, y_sa - 10, x_sa_b, y_sa - 10), dim(f"{SMALL_W}'", x_sa_b, y_sa - 10, x_sa_b + SMALL_W, y_sa - 10),
         dim(f"{GAP}'", x_sa_b + SMALL_W, y_sa - 10, x_sa_a, y_sa - 10)]
 by_id = {e["id"]: e for e in E}

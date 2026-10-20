@@ -812,3 +812,12 @@ Fit checks now skip context elements (walk etc.).
   south-west wing (~43' x 34') under its own 3:12 gable (ridge ~16'); a stone chimney on the south-east side; windows in
   white frames. The carport: an open wood-post shed with a 4:12 gable and exposed trusses. Heights and pitches
   estimated from the photos; the Level 3 event space addition is not modelled yet.
+
+## 2026-10-20: holding pens to the dog-ear
+- Holding block: west edge on the existing barn's front (as before); the east column (pens 1 to 3) now runs out to
+  the end of the existing pens' lean-to roof, the dog-ear that carries on 13' past the barn's east wall (93.4' from
+  the barn front, sheet A2.0 Existing Barn), instead of stopping at the barn's east wall. Pens 1 to 3 are 49.4' wide
+  (2,075 / 2,322 / 2,421 sf). The dog-ear is drawn as an open canopy (`existing-dogear`, over the pens' front 12.5').
+  North dimension string: 29.6' lane, then the 93.4' holding block; the east string moves out with it.
+- The massing model (`Watercolor_Rendering_Working/scripts/scene.py`, `massing/export_scene.py`) has its own pen
+  coordinates and still shows pens 1 to 3 at the barn's east wall.
