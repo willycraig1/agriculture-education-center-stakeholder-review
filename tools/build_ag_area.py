@@ -618,8 +618,6 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     for id_ in ("holding-5", "holding-3"):                     # their north edge stays flush with the barns' north wall
         if abs(by_id[id_]["y"] - (by_id["cattle-a"]["y"] + _grow)) < 0.5:
             by_id[id_].update(y=by_id["cattle-a"]["y"], h=round(by_id[id_]["h"] + _grow, 1))
-    for id_ in ("holding-2", "holding-3", "holding-4", "holding-5"):   # areas as drawn (pens 4 and 5 were narrowed to 36')
-        by_id[id_]["note"] = f'{round(by_id[id_]["w"] * by_id[id_]["h"]):,} sf'
     _fd = _svg_rects(_grp("feed"))                                   # feed storage, then bedding storage
     _set("feed", *_fd[0])
     add("bedding", "Bedding storage", round(_fd[1][0] + _EO[0], 1), round(_fd[1][1] + _EO[1], 1), _fd[1][2], round(_fd[1][3]), "circulation", 2, note="")
@@ -657,13 +655,35 @@ if OPTION == "B" and os.path.exists(AG_EDIT):
     by_id["handling"].update(label="", note="")                      # its zones name its parts; no overall label on the slide
     by_id["handling"]["outline"] = _svg_pts(_re.search(r'<g id="handling">\s*<polygon class="[^"]*" points="([^"]+)"', _sv).group(1))
     E[:] = [e for e in E if e["id"] != "trailer-stop"]
+    # The holding block's west edge lines up with the existing barn's front (west face) (owner, 2026-10-19): the west
+    # column (handling yard and Bud Box, pens 4 and 5) and the 8' alley move east; the east column (pens 1 to 3)
+    # narrows, keeping its east edge on the existing pens' east edge.
+    _front = by_id["existing-barn"]["x"]
+    _dx = round(_front - by_id["handling"]["x"], 1)
+    if abs(_dx) > 0.05:
+        for id_ in ("handling", "holding-4", "holding-5"):
+            e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1)
+            if e.get("outline"): e["outline"] = [[round(px + _dx, 1), py] for px, py in e["outline"]]
+        _east = by_id["holding-3"]["x"] + by_id["holding-3"]["w"]
+        for id_ in ("holding-1", "holding-2", "holding-3"):
+            e = by_id[id_]; e["x"] = round(e["x"] + _dx, 1); e["w"] = round(_east - e["x"], 1)
+            if e.get("outline"): e["outline"] = [[min(round(px + _dx, 1), _east), py] for px, py in e["outline"]]
+    # cattle turnout A's east edge and the bedding storage follow the holding block to the barn front line: the bedding
+    # fills the north end of the lane between cattle barn A and the holding pens, flush with the barns' north wall
+    by_id["turnout-cattle-a"]["w"] = round(_front - by_id["turnout-cattle-a"]["x"], 1)
+    _ca = by_id["cattle-a"]
+    next(e for e in E if e["id"] == "bedding").update(x=round(_ca["x"] + _ca["w"], 1), y=_ca["y"], w=round(_front - (_ca["x"] + _ca["w"]), 1), h=12.0)
+    for id_ in ("holding-1", "holding-2", "holding-3", "holding-4", "holding-5"):   # areas as drawn
+        by_id[id_]["note"] = f'{round(by_id[id_]["w"] * by_id[id_]["h"]):,} sf'
     # grooming area inside the arena; compost and dumpster by the existing barn
     _gm = _re.search(r'Grooming Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
     # the grooming area comes first, at Level 2, under a roof that the arena (Level 3) later grows from
     add("grooming", "Grooming", round(float(_gm[0]) + _EO[0], 1), round(float(_gm[1]) + _EO[1], 1), round(float(_gm[2]), 1), float(_gm[3]), "arena", 2, note="")
     _cp = _re.search(r'Compost Area.*?<rect class="[^"]*" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"', _sv, _re.S).groups()
-    add("compost", "Compost", round(float(_cp[0]) + _EO[0], 1), round(float(_cp[1]) + _EO[1], 1), round(float(_cp[2]), 1), float(_cp[3]), "circulation", 1, kind="yard", note="")
-    add("dumpster", "Dumpsters", 199.6, 324.0, 12.0, 24.0, "circulation", 1, note="enclosure")      # the rotated 12' x 24' rect in the file
+    # compost and the dumpster enclosure line up on the existing barn's front (owner, 2026-10-19); one dumpster in a
+    # 12' x 12' C-shaped enclosure open to the west, toward the drive
+    add("compost", "Compost", by_id["existing-barn"]["x"], round(float(_cp[1]) + _EO[1], 1), round(float(_cp[2]), 1), float(_cp[3]), "circulation", 1, kind="yard", note="")
+    add("dumpster", "Dumpster", by_id["existing-barn"]["x"], 324.0, 12.0, 12.0, "circulation", 1, note="enclosure")
     # parking: outline, island and stalls as drawn (the bank of five is gone)
     _pr = _svg_path(_re.search(r'<g id="parking">\s*<path class="[^"]*" d="([^"]+)"', _sv).group(1))
     _pkg = _grp("parking")

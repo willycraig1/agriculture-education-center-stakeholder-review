@@ -90,8 +90,8 @@ def animals():
     ex1, ex2, eyn = 983 / S, 1220 / S, -775 / S
     for i in range(7):                                                 # existing pens: at the feeders on the aisle
         cows.append([round(ex1 + (i + 0.5) * (ex2 - ex1) / 7 + jit(1), 2), round(eyn + 14 + jit(2), 2), round(-np.pi / 2 + jit(.4), 2), 0])
-    for rc in (R(965, 270, 1072, 415), R(965, 415, 1072, 555), R(1097, 270, 1220, 415),
-               R(1097, 415, 1220, 555), R(1097, 555, 1220, 680)):   # one in each holding pen (pens 1 to 5)
+    for rc in (R(983, 270, 1090, 415), R(983, 415, 1090, 555), R(1114, 270, 1220, 415),
+               R(1114, 415, 1220, 555), R(1114, 555, 1220, 680)):   # one in each holding pen (pens 1 to 5)
         hx1, hy1, hx2, hy2 = rc
         cows.append([round(float(rng.uniform(hx1 + 6, hx2 - 6)), 2), round(float(rng.uniform(hy1 + 6, hy2 - 6)), 2),
                      round(float(rng.uniform(0, 2 * np.pi)), 2), 1])
@@ -108,7 +108,7 @@ def animals():
     ax1, ay1, ax2, ay2 = R(645, 530, 893, 680)                         # in the arena
     students.append([round((ax1 + ax2) / 2 + 6, 2), round((ay1 + ay2) / 2 - 4, 2), 3.14, 3])
     # a pickup with a 16' stock trailer on the lane between the arena and the Bud Box, heading north (owner, 2026-10-19)
-    hx1, hy1, hx2, hy2 = R(965, 555, 1072, 680)
+    hx1, hy1, hx2, hy2 = R(983, 555, 1090, 680)
     lane_x = ((893 / S + 3.0) + hx1) / 2                              # between the arena's east overhang and the yard
     vehicles = [[round(lane_x, 2), round(hy2 - 4, 2), round(np.pi / 2, 3), 1]]
     return dict(cows=cows, pigs=pigs, students=students, vehicles=vehicles)
@@ -122,14 +122,14 @@ def ground_meta(face, mat):
     """Level for a ground face: turnouts, pen dirt and the arena floor phase with what they serve."""
     c = face['p'].mean(0)
     if mat == 'turnout':
-        for k, rc in enumerate([scene.R(245, 162, 608, 270), scene.R(612, 162, 965, 270),
+        for k, rc in enumerate([scene.R(245, 162, 608, 270), scene.R(612, 162, 983, 270),
                                 scene.R(138, 537, 245, 697.85), scene.R(138, 697.85, 245, 858.5), scene.R(138, 858.5, 245, 1001.3)]):
             if rc[0] <= c[0] <= rc[2] and rc[1] <= c[1] <= rc[3]:
                 return TURNOUTS[k][0], TURNOUTS[k][1]
     if mat == 'arenadirt':
         return "Arena floor", 3
     if mat == 'dirt':   # sand: the compost pad, the existing pens, cattle barns A and B, or the holding pens
-        for label, lvl, rc in [("Compost pad", 1, scene.R(995, 935, 1140, 995)), ("Existing cattle pens", 0, scene.R(983, 680, 1220, 775)),
+        for label, lvl, rc in [("Compost pad", 1, scene.R(983, 935, 1128, 995)), ("Existing cattle pens", 0, scene.R(983, 680, 1220, 775)),
                                ("Cattle barn A", 2, scene.R(645, 270, 893, 460)), ("Cattle barn B", 3, scene.R(322, 270, 572, 460))]:
             if rc[0] - 1 <= c[0] <= rc[2] + 1 and rc[1] - 1 <= c[1] <= rc[3] + 1:
                 return label, lvl
@@ -164,7 +164,7 @@ def main():
         out_objs.append(pack(name, faces, o.lines))
 
     # turnout fences take the Level of the turnout they bound
-    tos = [scene.R(245, 162, 608, 270), scene.R(612, 162, 965, 270), scene.R(138, 537, 245, 697.85), scene.R(138, 697.85, 245, 858.5), scene.R(138, 858.5, 245, 1001.3)]
+    tos = [scene.R(245, 162, 608, 270), scene.R(612, 162, 983, 270), scene.R(138, 537, 245, 697.85), scene.R(138, 697.85, 245, 858.5), scene.R(138, 858.5, 245, 1001.3)]
     for ob in out_objs:
         if ob.get('group') == 'turnoutfence':
             p = np.array([q for ln in ob['lines'] for q in ln['p']])
