@@ -841,3 +841,9 @@ Fit checks now skip context elements (walk etc.).
 - The south sidewalk carries on round the loop's turn at the stall row's west end, along the pavement edge up past the
   row's end and round the curve to where it straightens onto the entry drive (about 339 ft in all). The apron-corner
   trim is limited to the corner (it had cut the new stretch off).
+- South loop on the Red House front (owner): the loop now takes its angle from the house's front (its westernmost
+  wall and the front porch's outer edge, one line, about 0.4 deg off the walls' average) and the one-way drive's outer
+  edge sits 5' off it, so the 5' sidewalk is flush with the house and porch. The drive edge's north end slides along
+  the edge it meets; the stall row still turns about its joint with the west leg. The sidewalk no longer goes round
+  the turn: along the stall heads it stops at the residence. The horticulture area and the residence (sizes kept) are
+  set flush to the sidewalk's south corner, the residence alongside horticulture as before.
