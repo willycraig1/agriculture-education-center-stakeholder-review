@@ -1932,6 +1932,69 @@ window.AG_AREA = {
    }
   },
   {
+   "id": "red-house-addition",
+   "label": "Red House addition",
+   "x": 224.8,
+   "y": 393.4,
+   "w": 77.30000000000001,
+   "h": 52.400000000000034,
+   "use": "education",
+   "level": 3,
+   "kind": "building",
+   "note": "Classroom / event space",
+   "assumed": false,
+   "outline": [
+    [
+     224.8,
+     414.4
+    ],
+    [
+     292.3,
+     393.4
+    ],
+    [
+     302.1,
+     424.8
+    ],
+    [
+     234.6,
+     445.8
+    ]
+   ]
+  },
+  {
+   "id": "red-house-addition-canopy",
+   "label": "",
+   "x": 220.8,
+   "y": 426.0,
+   "w": 10.299999999999983,
+   "h": 11.100000000000023,
+   "use": "education",
+   "level": 3,
+   "kind": "canopy",
+   "note": "",
+   "assumed": false,
+   "outline": [
+    [
+     220.8,
+     428.4
+    ],
+    [
+     228.4,
+     426.0
+    ],
+    [
+     231.1,
+     434.7
+    ],
+    [
+     223.5,
+     437.1
+    ]
+   ],
+   "context": true
+  },
+  {
    "id": "cattle-a",
    "label": "Cattle barn A",
    "x": 86.0,
@@ -2409,7 +2472,7 @@ window.AG_AREA = {
    "id": "dumpster",
    "label": "Dumpster",
    "x": 199.6,
-   "y": 324.0,
+   "y": 330.0,
    "w": 12.0,
    "h": 12.0,
    "use": "circulation",
