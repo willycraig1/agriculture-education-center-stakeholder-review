@@ -877,3 +877,12 @@ Fit checks now skip context elements (walk etc.).
 - The slide's screen-sized labels (`data-fixed`) and line weights (`data-w`) keep one printed size on every sheet
   (labels at 0.4 of their slide size at 1" = 100'). The frame is kept on the parcel, so AS-2 runs to the parcel line.
 - Scale checked in the PDFs: existing barn 80.4', cattle barns 84' x 64'. Rerun after `build_site_map.py`.
+
+## 2026-10-20: sheet A-1, Red House Levels
+- `tools/export_red_house_sheet.py` prints `tools/red-house-sheet.html` to `exports/red-house-A-1.pdf` (Arch D,
+  vector) and saves its SVG (`red-house-A-1.svg`), whose top-level groups open in Illustrator as layers: Program
+  colors (one group per Level, under the plans), Plans, Room names, Plan titles, Titleblock.
+- 1/16" = 1'-0". Plans turned 90 deg counter-clockwise (read with the sheet's right edge as the bottom), Level 3 on
+  the left, Level 1 on the right, equal gaps. All three placed on Level 1's box (the Levels share one plan frame), so
+  the house lines up across the sheet; Level 3's addition runs past the shared edge.
+- The architect cleans up unfilled program-colour corners in Illustrator; those edits do not flow back into the data.
