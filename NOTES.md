@@ -1056,3 +1056,5 @@ Fit checks now skip context elements (walk etc.).
   awning, which now has a deck); porch columns on both porches stand on the clerestory's four mullion lines, and the
   glazed wall's mullions are on those lines and halfway between, the door in the last bay; steps down from both
   porches; the crawlspace skirt runs under both.
+- Follow-up (owner): residence steps removed (not designed yet); the end walls are 1' thick, like the north wall's
+  returns, and replace the outer porch columns, leaving columns on the clerestory's two inner mullion lines.
