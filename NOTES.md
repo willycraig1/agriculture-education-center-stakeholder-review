@@ -1085,3 +1085,12 @@ Fit checks now skip context elements (walk etc.).
 - Tractor (owner): moved off the holding pens' fence (the painting's spot, `render.py` TRACTOR_AT, kept for the
   watercolor) into the 3.7 ac paddock north of the barnyard, facing west, at least 25' from fences and panels, pulling a
   manure spreader with a load on.
+
+## 2026-10-20: viewer views (massing)
+- Owner: the Watercolor view no longer matches the model, so it is removed with its overlay slider (and the model
+  description no longer calls itself "the massing behind the watercolor"); the viewer opens on Bird's-eye.
+- Views are now grouped: overviews (Bird's-eye, Plan, Campus, Over the pens, Teaching space, Site pasture, Whole
+  property), then eye-level shots chosen to explain the concept: Arriving (palms and arena from the parking, was "Eye
+  level"), Leading a steer (a student and steer at cattle barn B), Between barns, From the pasture, The classroom (the
+  glass wall from the lawn, Red House beside it), Inside the classroom, The shade house (along the beds to the
+  residence). `window.massing` (camera, controls, setView) is the console hook used to frame them.
