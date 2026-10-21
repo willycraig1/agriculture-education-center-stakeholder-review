@@ -1145,6 +1145,6 @@ Fit checks now skip context elements (walk etc.).
   first design driver), eyebrow "The plan" (was "Getting there"). The campus slide's first step now names them:
   "nine paddocks, about 45 acres of pasture" (acres from pasture-capacity.js). Levels table is now slide 13.
 - Paddocks rotation animation: the two pinwheels turn together, one paddock a tick clockwise around their Feed + water
-  hubs (west 3.9 → 3.3 → 5.2 → 2 ac; east 4.8 → 12.4 → 7.8 → 3.7 ac), and the 2.1 ac paddock flashes on every other
-  tick. Groups and order are found from the drawing's `#pinwheel-labels` hubs (a hub's four nearest site paddocks,
+  hubs (west 3.9 → 3.3 → 5.2 → 2 ac; east 4.8 → 12.4 → 7.8 → 3.7 ac). The 2.1 ac paddock lights with its nearest
+  pinwheel paddock, the 3.7 ac (architect, 2026-10-21). Groups and order are found from the drawing's `#pinwheel-labels` hubs (a hub's four nearest site paddocks,
   all within 300 units, sorted by angle), so they follow the drawing if it changes.
