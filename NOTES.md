@@ -1013,3 +1013,14 @@ Fit checks now skip context elements (walk etc.).
   the viewer's data script tags with a content hash (`?v=`), so a reload always picks up new data. The watercolor's
   west parking drive (`scene.py`) ran on south past the lot into the south-west pasture; it now stops at the end of
   the lot's west leg (y -455).
+
+## 2026-10-20: Red House roof corrected (massing)
+- The north-east end is a cross gable, not the end of the main gable (roof aerial; photos 7, 9, 13, 19 in
+  `photos/Red House`): about 41' square from the screened porch's outer wall (u -8.4) to the chimney's north-east side
+  (u 32.9), its ridge across the house at the main ridge's height (pitch about 3.5:12), gable ends on the north-west
+  and south-east faces, the screened porch under its north-east eave. The main ridge runs into it in a T; valleys run
+  from the T down to the corners at the chimney line. The u extent is read from the photos (the chimney stands just
+  south-west of the south-east gable end); the aerial is too oblique to scale.
+- South-east wall windows: the wall line had been taken from the outline's widest point, which is the chimney's
+  bump (v 43.6), so the windows stood 2.7' off the wall; it is now the wall itself (v 40.8).
+- The north-west porch's roof now stops at its last column (u 33.6) instead of running on to the north-east end.

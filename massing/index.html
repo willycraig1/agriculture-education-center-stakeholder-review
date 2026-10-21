@@ -498,7 +498,7 @@ function framedBarn(F, { name, label, level = 0, program, id }) {
 // up, 8' walls), a 3.5:12 galvanized metal gable along its length; the north-west porch (44' x 12', wood railing)
 // under a 1.5:12 extension of the roof; a screened porch across the north-east end (8.4'); the south-west wing
 // (43' x 34') under its own lower 3:12 gable; a stone chimney on the south-east side. Heights are estimated from the
-// photos. The carport: an open wood-post shed with a 4:12 gable, south-west of the house.
+// photos. The north-east end is a cross gable over the screened porch (see the roofs below). The carport: an open wood-post shed with a 4:12 gable, south-west of the house.
 function redHouse(C) {
   const O = C.red_house;
   let best = null;                                                    // the house's long axis: its longest wall
@@ -514,7 +514,8 @@ function redHouse(C) {
   const loc = p => [(p[0] - org[0]) * u[0] + (p[1] - org[1]) * u[1], (p[0] - org[0]) * v[0] + (p[1] - org[1]) * v[1]];
   const W = (uu, vv, z) => [org[0] + uu * u[0] + vv * v[0], org[1] + uu * u[1] + vv * v[1], z];
   const Lp = O.map(loc), us = Lp.map(p => p[0]), vs = Lp.map(p => p[1]);
-  const U1 = Math.max(...us), V0 = Math.min(...vs), V1 = Math.max(...vs);   // ~100.6, -12.1, 41
+  const U1 = Math.max(...us), V0 = Math.min(...vs);                 // ~100.6, -12.1
+  const V1 = Math.max(...Lp.filter(p => p[0] < 1).map(p => p[1]));   // the south-east wall (~40.8), not the chimney's bump
   const FLOOR = 2.5, PLATE = 10.5, OV = 1.5;
   const VR = 20.5, P1 = 3.5 / 12, RIDGE = PLATE + VR * P1;          // main ridge on the block's centre line
   const U_MAIN = 66.4, U_PORCH = 77.7, U_NE = -8.4;                 // main block's south-west end, NW porch end, NE porch
@@ -542,16 +543,26 @@ function redHouse(C) {
     quad([...a, FLOOR], [...b, FLOOR], [...b, wallTop], [...a, wallTop], 'redwall');
   }
   face(O.map(p => [...p, wallTop]), 'redwall');                       // ceiling cap (hidden under the roofs)
-  // gable ends: the main block at its north-east wall and at its south-west end (above the wing), the wing's south-west end
-  face([W(0, 0, PLATE), W(0, V1, PLATE), W(0, VR, RIDGE)], 'redwall');
+  // The north-east end is a cross gable (roof aerial; photos 7, 9, 13, 19): about 41' square, from the screened porch's
+  // outer wall to the chimney, its ridge across the house, gable ends on the north-west and south-east faces, and an
+  // eave over the screened porch. Its ridge meets the main ridge in a T at the same height, valleys down to the
+  // chimney's corner.
+  const UX = 32.9, UR = (U_NE + UX) / 2, PX = (RIDGE - PLATE) / (UR - U_NE);
+  // gable ends: the cross gable's two, the main block's south-west end (above the wing), the wing's south-west end
+  for (const vv of [0, V1]) face([W(U_NE, vv, PLATE), W(UX, vv, PLATE), W(UR, vv, RIDGE)], 'redwall');
   face([W(U_MAIN, 0, PLATE), W(U_MAIN, V1, PLATE), W(U_MAIN, VR, RIDGE)], 'redwall');
   face([W(U1, WV0, PLATE), W(U1, WV1, PLATE), W(U1, WVR, WRIDGE)], 'redwall');
-  // roofs: main gable (over the NE porch too), the NW porch's lower-pitch extension, the wing's gable
+  // roofs: the cross gable, the main gable from its T to the south-west end, the NW porch's lower-pitch extension
+  // (from its last column), the wing's gable
   const zAt = (d, p) => PLATE - d * p;                                // roof top d beyond the wall line
-  slabL([[U_NE - OV, V1 + OV, zAt(OV, P1)], [U_MAIN + OV, V1 + OV, zAt(OV, P1)], [U_MAIN + OV, VR, RIDGE], [U_NE - OV, VR, RIDGE]]);
-  slabL([[U_MAIN + OV, 0, PLATE], [U_NE - OV, 0, PLATE], [U_NE - OV, VR, RIDGE], [U_MAIN + OV, VR, RIDGE]]);
-  const PP = 1.5 / 12;
-  slabL([[U_NE - OV, 0, PLATE], [U_PORCH, 0, PLATE], [U_PORCH, V0 - OV, PLATE - (-V0 + OV) * PP], [U_NE - OV, V0 - OV, PLATE - (-V0 + OV) * PP]]);
+  const zX = zAt(OV, PX);                                             // the cross gable's eaves
+  slabL([[U_NE - OV, -OV, zX], [UR, -OV, RIDGE], [UR, V1 + OV, RIDGE], [U_NE - OV, V1 + OV, zX]]);              // over the screened porch
+  slabL([[UR, -OV, RIDGE], [UX + OV, -OV, zX], [UX, 0, PLATE], [UR, VR, RIDGE]]);                                 // toward the main block, NW of the valley
+  slabL([[UR, VR, RIDGE], [UX, V1, PLATE], [UX + OV, V1 + OV, zX], [UR, V1 + OV, RIDGE]]);                         // and SE of it
+  slabL([[UR, VR, RIDGE], [UX, 0, PLATE], [U_MAIN + OV, 0, PLATE], [U_MAIN + OV, VR, RIDGE]]);                   // main, north-west slope
+  slabL([[UR, VR, RIDGE], [U_MAIN + OV, VR, RIDGE], [U_MAIN + OV, V1 + OV, zAt(OV, P1)], [UX + OV, V1 + OV, zAt(OV, P1)], [UX, V1, PLATE]]);   // south-east
+  const PP = 1.5 / 12, UP0 = 33.6 - 0.4;                              // the porch roof stops at its last column (33.6)
+  slabL([[UP0, 0, PLATE], [U_PORCH, 0, PLATE], [U_PORCH, V0 - OV, PLATE - (-V0 + OV) * PP], [UP0, V0 - OV, PLATE - (-V0 + OV) * PP]]);
   slabL([[U_MAIN, WV0 - OV, zAt(OV, P2)], [U1 + OV, WV0 - OV, zAt(OV, P2)], [U1 + OV, WVR, WRIDGE], [U_MAIN, WVR, WRIDGE]]);
   slabL([[U1 + OV, WV1 + OV, zAt(OV, P2)], [U_MAIN, WV1 + OV, zAt(OV, P2)], [U_MAIN, WVR, WRIDGE], [U1 + OV, WVR, WRIDGE]]);
   // stone chimney on the south-east side, up past the ridge
