@@ -1167,3 +1167,13 @@ Fit checks now skip context elements (walk etc.).
 - Architect's edits (same day): no pasture fencing (`#paddocks`) on this slide; Cowpen Slough, not SR-72 (the road
   is at the property's north end); cattle "immediately adjacent to the pasture"; parking avoids most existing trees and
   gives vehicles loading and unloading access to all these structures; the working center has central dumpster access.
+
+## 2026-10-21: PDF backup; picture blow-up on the vision slide
+- PDF backup exported from main at 33973fb: 38 pages, 10.0 MB (`exports/stakeholder-review-draft.pdf`, git-ignored; a
+  dated copy in the main checkout's `exports/stakeholder-review-2026-10-21.pdf`). `tools/export_pdf.py` needs
+  `websocket-client`, now in `tools/requirements.txt`.
+- Vision slide: click the watercolour or any reference photo for it full screen, with its caption and credit (the
+  watercolour reads "Potential conceptual rendering", the owner's phrase). ← → step through them; Escape or a click
+  closes. While open, keys and clicks go to it, and the deck's ‹ › buttons close it rather than change step: that
+  message guard is registered before deck.js, since messages reach a window's listeners in the order they were added.
+  Never shown in the static / PDF page.

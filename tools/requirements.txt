@@ -5,3 +5,4 @@ openpyxl
 shapely
 scikit-image
 pillow
+websocket-client
