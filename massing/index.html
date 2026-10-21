@@ -724,38 +724,51 @@ function localKit(o) {
 // shade cloth at 10'. Under it three lengthwise rows: hydroponic channel racks (north-north-east, Level 3), raised beds
 // (middle, Level 1), and tables for planting (south-south-west, Level 3).
 function horticultureArea(C) {
-  // ---- residence: a along the strip's axis (to the strip), w across (0 = north-north-east wall)
+  // ---- residence: a along the strip's axis (to the strip), w across (0 = north-north-east wall). Raised 2' above the
+  // first pass for the flood zone (floor 3.5'). The end walls run out under the roofs to close the sides of both
+  // porches: the 8' front porch under the main roof's low end and the back porch under the north awning. Porch columns
+  // stand on the clerestory's mullion lines.
   {
     const r = C.residence, K = localKit(r), { L, D, box, slab, seg, face, W } = K;
-    const FL = 1.5, P = 3 / 12, ZLOW = 10.0, PORCH = 8, WE = D - PORCH;          // porch's outer line at w = D
-    const zr = w => ZLOW + (D - w) * P;                                          // roof top over w
-    box(0, L, 0, WE, 0, FL, 'foundation');
-    box(0, L, WE, D, FL - .3, FL, 'deck');                                       // porch deck
-    for (const a of [0, L / 2, L]) box(Math.max(0, a - .3), Math.min(L, a + .3), D - .6, D, FL, zr(D) - .4, 'oldtimber');
-    // walls up to the roof (vertical boards), the north wall to the high end
+    const FL = 3.5, P = 3 / 12, ZLOW = 12.0, PORCH = 8, WE = D - PORCH;          // porch's outer line at w = D
+    const ZA = 12.8, AW = 6, PA = 1.5 / 12, za = w => ZA + w * PA;              // the awning (w < 0)
+    const zr = w => ZLOW + (D - w) * P;                                          // main roof top over w
+    const MUL = [0, 1, 2, 3].map(k => 2 + k * (L - 4) / 3);                     // clerestory mullion lines
+    box(0, L, -AW, D, 0, FL - .3, 'foundation');                                 // crawlspace, under both porches too
+    box(0, L, -AW, D, FL - .3, FL, 'deck');
+    // end walls (vertical boards) from the back porch's edge to the front porch's, up to the roof above them
     for (const a of [0, L]) {
-      face([W(a, 0, FL), W(a, WE, FL), W(a, WE, zr(WE) - .3), W(a, 0, zr(0) - .3)], 'oldwood');
-      for (let w = .7; w < WE; w += .7) seg(W(a + (a ? .04 : -.04), w, FL), W(a + (a ? .04 : -.04), w, zr(w) - .3));
+      const o = a ? .04 : -.04;
+      face([W(a, -AW, FL), W(a, 0, FL), W(a, 0, za(0) - .3), W(a, -AW, za(-AW) - .3)], 'oldwood');
+      face([W(a, 0, FL), W(a, D, FL), W(a, D, zr(D) - .3), W(a, 0, zr(0) - .3)], 'oldwood');
+      for (let w = -AW + .7; w < D; w += .7) seg(W(a + o, w, FL), W(a + o, w, (w < 0 ? za(w) : zr(w)) - .3));
     }
-    face([W(0, WE, FL), W(L, WE, FL), W(L, WE, zr(WE) - .3), W(0, WE, zr(WE) - .3)], 'oldwood');
-    face([W(0, 0, FL), W(L, 0, FL), W(L, 0, zr(0) - .3), W(0, 0, zr(0) - .3)], 'oldwood');
-    // north wall: glazed wall and door under the awning, a clerestory band above it
-    const ZA = 10.8, AW = 6;                                                     // awning at the wall, its depth
-    const gl = (a0, a1, z0, z1) => { face([W(a0, -.06, z0), W(a1, -.06, z0), W(a1, -.06, z1), W(a0, -.06, z1)], 'darkglass'); };
+    face([W(0, WE, FL), W(L, WE, FL), W(L, WE, zr(WE) - .3), W(0, WE, zr(WE) - .3)], 'oldwood');   // porch's back wall
+    face([W(0, 0, FL), W(L, 0, FL), W(L, 0, zr(0) - .3), W(0, 0, zr(0) - .3)], 'oldwood');      // the tall north wall
+    // north wall: glazed wall and door under the awning (mullions on the clerestory's lines and halfway between), the
+    // clerestory band above the awning
+    const gl = (a0, a1, z0, z1) => face([W(a0, -.06, z0), W(a1, -.06, z0), W(a1, -.06, z1), W(a0, -.06, z1)], 'darkglass');
     gl(2, L - 2, FL + .2, ZA - .6);
-    for (let a = 2; a <= L - 2 + .01; a += (L - 4) / 4) box(a - .12, a + .12, -.14, 0, FL, ZA - .5, 'oldtimber');
+    for (let k = 0; k <= 6; k++) { const a = 2 + k * (L - 4) / 6; box(a - .12, a + .12, -.14, 0, FL, ZA - .5, 'oldtimber'); }
     box(2, L - 2, -.14, 0, FL + 6.8, FL + 7.0, 'oldtimber');                    // transom bar
-    face([W(L - 5.4, -.1, FL), W(L - 2.2, -.1, FL), W(L - 2.2, -.1, FL + 6.8), W(L - 5.4, -.1, FL + 6.8)], 'oldtimber');   // the door
-    const ZC0 = ZA + 1.4, ZC1 = zr(0) - 1.2;                                    // clerestory band
+    face([W(MUL[2] + (L - 4) / 6 + .2, -.1, FL), W(MUL[3] - .2, -.1, FL), W(MUL[3] - .2, -.1, FL + 6.8), W(MUL[2] + (L - 4) / 6 + .2, -.1, FL + 6.8)], 'oldtimber');   // the door
+    const ZC0 = ZA + 1.4, ZC1 = zr(0) - 1.2;
     gl(2, L - 2, ZC0, ZC1);
-    for (let a = 2; a <= L - 2 + .01; a += (L - 4) / 3) box(a - .15, a + .15, -.14, 0, ZC0, ZC1, 'oldtimber');
+    for (const a of MUL) box(a - .15, a + .15, -.14, 0, ZC0, ZC1, 'oldtimber');
     for (let a = .7; a < L; a += .7) if (a < 1.9 || a > L - 1.9) seg(W(a, -.05, FL), W(a, -.05, zr(0) - .3));
-    slab([[-1, 0, ZA], [L + 1, 0, ZA], [L + 1, -AW, ZA - AW * 1.5 / 12], [-1, -AW, ZA - AW * 1.5 / 12]], 'metalroof', .35);
-    for (const a of [-0.5, L + .5]) box(a - .25, a + .25, -AW + .3, -AW + .8, 0, ZA - AW * 1.5 / 12 - .3, 'oldtimber');
-    // porch back wall: door and a window
+    slab([[0, 0, ZA], [L, 0, ZA], [L, -AW, za(-AW)], [0, -AW, za(-AW)]], 'metalroof', .35);
+    // porch columns on the mullion lines (the end ones stand against the end walls)
+    for (const a of MUL) {
+      box(a - .3, a + .3, -AW, -AW + .6, FL, za(-AW) - .35, 'oldtimber');
+      box(a - .3, a + .3, D - .6, D, FL, zr(D) - .4, 'oldtimber');
+    }
+    // steps: to the entry from the sidewalk side, and down from the front porch at its middle
+    const ad = (MUL[2] + MUL[3]) / 2 + (L - 4) / 12, n = 4, rs = FL / (n + 1);
+    for (let k = 0; k < n; k++) box(ad - 2, ad + 2, -AW - 1 * (k + 1), -AW - 1 * k, 0, FL - rs * (k + 1), 'deck');
+    for (let k = 0; k < n; k++) box(L / 2 - 2, L / 2 + 2, D + 1 * k, D + 1 * (k + 1), 0, FL - rs * (k + 1), 'deck');
+    // porch's back wall: door and a window; end-wall windows in the enclosed rooms
     face([W(L / 2 - 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL + 6.8), W(L / 2 - 1.5, WE + .06, FL + 6.8)], 'oldtimber');
     face([W(3, WE + .06, FL + 3), W(7, WE + .06, FL + 3), W(7, WE + .06, FL + 7), W(3, WE + .06, FL + 7)], 'darkglass');
-    // side windows
     for (const a of [0, L]) for (const w of [6, 15]) { const o = a ? .06 : -.06;
       face([W(a + o, w - 1.5, FL + 3), W(a + o, w + 1.5, FL + 3), W(a + o, w + 1.5, FL + 7), W(a + o, w - 1.5, FL + 7)], 'darkglass'); }
     // main roof: one 3:12 plane, 1.5' overhangs
@@ -765,13 +778,17 @@ function horticultureArea(C) {
                fp: { w: D, d: L, h: zr(0), area: L * D, cx: c[0], cy: c[1], assumed: true } });
   }
   // ---- shade structure and its rows: a along the strip (from the residence), w across (0 = north-north-east side)
-  const h = C.horticulture, ZS = 10;
+  // The far bay's south half is cut out around the surveyed oak there (owner): ground, frame, cloth, and rows.
+  const h = C.horticulture, ZS = 10, NA = 8;
   {
-    const K = localKit(h), { L, D, W, rod, face } = K, na = Math.round(L / 12.5), nw = 2;
-    for (let i = 0; i <= na; i++) for (let j = 0; j <= nw; j++) rod(W(i * L / na, j * D / nw, 0), W(i * L / na, j * D / nw, ZS));
-    for (let j = 0; j <= nw; j++) rod(W(0, j * D / nw, ZS), W(L, j * D / nw, ZS), .12);
-    for (let i = 0; i <= na; i++) rod(W(i * L / na, 0, ZS), W(i * L / na, D, ZS), .12);
-    face([W(0, 0, ZS + .15), W(L, 0, ZS + .15), W(L, D, ZS + .15), W(0, D, ZS + .15)], 'shadecloth');
+    const K = localKit(h), { L, D, W, rod, face } = K, na = NA, nw = 2, AN = (na - 1) * L / na, WN = D / 2;
+    const out = (a, w) => a > AN + .01 && w > WN + .01;
+    reg(flat([{ o: [[0, 0], [L, 0], [L, WN], [AN, WN], [AN, D], [0, D]].map(([a, w]) => W(a, w, 0).slice(0, 2)) }], new THREE.Color('#2f302d'), 0.3), 0);   // black weed fabric
+    for (let i = 0; i <= na; i++) for (let j = 0; j <= nw; j++) if (!out(i * L / na, j * D / nw)) rod(W(i * L / na, j * D / nw, 0), W(i * L / na, j * D / nw, ZS));
+    for (let j = 0; j <= nw; j++) rod(W(0, j * D / nw, ZS), W(j * D / nw > WN + .01 ? AN : L, j * D / nw, ZS), .12);
+    for (let i = 0; i <= na; i++) rod(W(i * L / na, 0, ZS), W(i * L / na, i * L / na > AN + .01 ? WN : D, ZS), .12);
+    face([W(0, 0, ZS + .15), W(L, 0, ZS + .15), W(L, WN, ZS + .15), W(0, WN, ZS + .15)], 'shadecloth');
+    face([W(0, WN, ZS + .15), W(AN, WN, ZS + .15), W(AN, D, ZS + .15), W(0, D, ZS + .15)], 'shadecloth');
     K.finish({ name: 'shade', label: 'Horticulture shade structure', level: 3, program: 'horticulture', id: 'horticulture' }, { h: ZS });
   }
   {   // hydroponic channel racks, north-north-east row
@@ -785,12 +802,12 @@ function horticultureArea(C) {
   }
   {   // raised beds, middle row
     const K = localKit(h), { L, D, box } = K, w0 = D / 2 - 2, w1 = D / 2 + 2;
-    for (let a = 4; a + 10 <= L - 3; a += 13) { box(a, a + 10, w0, w1, 0, 1.6, 'oldwood'); box(a + .2, a + 9.8, w0 + .2, w1 - .2, 1.6, 1.62, 'dirt'); }
+    for (let a = 4; a + 10 <= (NA - 1) * L / NA - 1.5; a += 13) { box(a, a + 10, w0, w1, 0, 1.6, 'oldwood'); box(a + .2, a + 9.8, w0 + .2, w1 - .2, 1.6, 1.62, 'dirt'); }
     K.finish({ name: 'beds', notag: true, label: 'Raised beds', level: 1, program: 'horticulture', id: 'horticulture' }, { h: 1.6 });
   }
   {   // tables for planting, south-south-west row, with flats on them
     const K = localKit(h), { L, D, box } = K, w0 = D - 7.5, w1 = D - 3.5;
-    for (let a = 4; a + 8 <= L - 3; a += 10.5) {
+    for (let a = 4; a + 8 <= (NA - 1) * L / NA - 1.5; a += 10.5) {
       for (const aa of [a + .3, a + 7.7]) for (const ww of [w0 + .3, w1 - .3]) box(aa - .08, aa + .08, ww - .08, ww + .08, 0, 2.9, 'galv');
       box(a, a + 8, w0, w1, 2.9, 3.05, 'alum');
       for (let k = 0; k < 3; k++) box(a + .4 + k * 2.6, a + 2.6 + k * 2.6, w0 + .4, w1 - .4, 3.05, 3.45, 'leaf');
@@ -1102,7 +1119,6 @@ if (SITE) {
   catalog.push({ label: 'Main parking lot, 57 spaces', level: 1 });
   for (const w of C.walks) reg(flat([{ o: w.o }], rgb(S.mat.concrete), 0.32), w.level);
   catalog.push({ label: 'Walkways east of the arena', level: 1 }, { label: 'Walkways west of the arena', level: 2 });
-  reg(flat([{ o: C.horticulture }], new THREE.Color('#c9bfdc'), 0.3), 0);
   // the parking lot replaces the painting's grass parking
   for (const gi of groundItems) if (gi.f.m === 'grasspark') gi.mesh.userData.replaced = true;
 
