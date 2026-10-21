@@ -1079,6 +1079,6 @@ Fit checks now skip context elements (walk etc.).
 ## 2026-10-20: grooming area (massing)
 - Owner: the grooming area is not a building, just an open space with panels to tie animals to while they are hosed
   down and blown out. `scene.py`: the white box inside the arena's west end is replaced by its own `grooming` object
-  (Level 2): a concrete wash pad (about 11' x 43'), a pipe tie rail along the west column line, and four short pipe
-  dividers. The arena rail now closes its west side too, between the arena floor and the grooming area.
+  (Level 2): a concrete wash pad (about 11' x 43'), four short pipe tie panels out from the west column line (no
+  rail along the line: owner). The arena rail now closes its west side too, between the arena floor and the grooming area.
   `export_scene.py` no longer splits the grooming faces out of the arena object.

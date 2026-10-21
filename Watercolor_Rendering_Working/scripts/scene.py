@@ -236,12 +236,11 @@ def build():
     posts_along(o, [(x, y1) for x in xs] + [(x, y2) for x in xs], 0, 14.0, w=0.75, mat='timber')
     objs.append(o)
     # grooming area (Level 2) at the arena's west end: not a building but an open wash area (owner, 2026-10-20), a
-    # concrete pad with a pipe tie rail along the west column line and short pipe dividers, so animals can be tied,
-    # hosed down, and blown out
+    # concrete pad with short pipe panels out from the west column line to tie animals to while they are hosed down
+    # and blown out (no rail along the column line: the panels alone, room to work around them; owner)
     gx1, gy1, gx2, gy2 = R(650, 545, 683, 672)
     og = Obj('grooming')
     box(og, gx1, gy1, gx2, gy2, 0, 0.25, 'concrete', 'concrete')
-    fence(og, gx1 + 0.8, gy1 + 1, gx1 + 0.8, gy2 - 1, 4.5, [4.5, 2.5], 'pipe', post=8.5)
     for k in range(1, 5):
         yk = gy1 + k * (gy2 - gy1) / 5
         fence(og, gx1 + 0.8, yk, gx1 + 5.8, yk, 4.5, [4.5, 2.5], 'pipe', post=5)
