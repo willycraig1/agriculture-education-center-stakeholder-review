@@ -519,7 +519,12 @@ function redHouse(C) {
   const FLOOR = 2.5, PLATE = 10.5, OV = 1.5;
   const VR = 20.5, P1 = 3.5 / 12, RIDGE = PLATE + VR * P1;          // main ridge on the block's centre line
   const U_MAIN = 66.4, U_PORCH = 77.7, U_NE = -8.4;                 // main block's south-west end, NW porch end, NE porch
-  const WV0 = V0, WV1 = 30.7, WVR = (WV0 + WV1) / 2, P2 = 3 / 12, WRIDGE = PLATE + (WV1 - WVR) * P2;
+  const WV1 = 30.5;                                                  // the wing's south-east wall
+  const PP = 1.5 / 12, UP0 = 33.6 - 0.4;                              // the porch's pitch; its roof stops at its last column (33.6)
+  const UX = 32.9;                                                   // the cross gable's south-west wall line (the chimney's side)
+  // roof top over a point of the main block and wing (south-west of the cross gable): the main gable, carried on as the
+  // porch's 1.5:12 beyond the north-west wall line (v < 0)
+  const roofZ = vv => vv < 0 ? PLATE + vv * PP : vv <= VR ? PLATE + vv * P1 : RIDGE - (vv - VR) * P1;
 
   const grp = new THREE.Group(), meshes = [], ob = { name: 'redhouse', label: 'Red House', level: 0, program: 'education', id: 'existing-red-house', faces: [], lines: [] };
   const byMat = {};
@@ -535,36 +540,44 @@ function redHouse(C) {
     face(top, m); face(bot.slice().reverse(), 'deck');
     for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; quad(top[i], top[j], bot[j], bot[i], m); }
   };
-  // walls on the surveyed outline, on a crawlspace skirt
-  const wallTop = PLATE;
+  // walls on the surveyed outline, on a crawlspace skirt. Under the cross gable they stop at the plate; south-west of it
+  // they run up to the roof (the wing sits under the porch's low-pitch roof, and the main gable's slope rides over the
+  // wing's south-east wall, so its eave is higher there), split where the roof's pitch changes.
+  const wallZ = (uu, vv) => uu < UX - 0.05 ? PLATE : roofZ(vv);
   for (let i = 0; i < O.length; i++) {
     const a = O[i], b = O[(i + 1) % O.length];
     quad([...a, 0], [...b, 0], [...b, FLOOR], [...a, FLOOR], 'foundation');
-    quad([...a, FLOOR], [...b, FLOOR], [...b, wallTop], [...a, wallTop], 'redwall');
+    const la = loc(a), lb = loc(b), ts = [0, 1];
+    for (const vk of [0, VR]) { const t = (vk - la[1]) / (lb[1] - la[1]); if (t > 0.001 && t < 0.999) ts.push(t); }
+    ts.sort((x, y) => x - y);
+    for (let k = 0; k < ts.length - 1; k++) {
+      const p = [la[0] + (lb[0] - la[0]) * ts[k], la[1] + (lb[1] - la[1]) * ts[k]], q = [la[0] + (lb[0] - la[0]) * ts[k + 1], la[1] + (lb[1] - la[1]) * ts[k + 1]];
+      quad(W(p[0], p[1], FLOOR), W(q[0], q[1], FLOOR), W(q[0], q[1], wallZ(...q)), W(p[0], p[1], wallZ(...p)), 'redwall');
+    }
   }
-  face(O.map(p => [...p, wallTop]), 'redwall');                       // ceiling cap (hidden under the roofs)
+  // crawlspace skirts carried round under both porches
+  for (const [u0, v0, u1, v1] of [[33.6, 0, 33.6, V0], [33.6, V0, U_PORCH, V0], [U_NE, 0, U_NE, V1], [U_NE, 0, 0, 0], [U_NE, V1, 0, V1]])
+    quad(W(u0, v0, 0), W(u1, v1, 0), W(u1, v1, FLOOR - 0.3), W(u0, v0, FLOOR - 0.3), 'foundation');
   // The north-east end is a cross gable (roof aerial; photos 7, 9, 13, 19): about 41' square, from the screened porch's
   // outer wall to the chimney, its ridge across the house, gable ends on the north-west and south-east faces, and an
   // eave over the screened porch. Its ridge meets the main ridge in a T at the same height, valleys down to the
   // chimney's corner.
-  const UX = 32.9, UR = (U_NE + UX) / 2, PX = (RIDGE - PLATE) / (UR - U_NE);
-  // gable ends: the cross gable's two, the main block's south-west end (above the wing), the wing's south-west end
+  const UR = (U_NE + UX) / 2, PX = (RIDGE - PLATE) / (UR - U_NE);
+  // the cross gable's two gable ends (the other walls run up to the roof)
   for (const vv of [0, V1]) face([W(U_NE, vv, PLATE), W(UX, vv, PLATE), W(UR, vv, RIDGE)], 'redwall');
-  face([W(U_MAIN, 0, PLATE), W(U_MAIN, V1, PLATE), W(U_MAIN, VR, RIDGE)], 'redwall');
-  face([W(U1, WV0, PLATE), W(U1, WV1, PLATE), W(U1, WVR, WRIDGE)], 'redwall');
-  // roofs: the cross gable, the main gable from its T to the south-west end, the NW porch's lower-pitch extension
-  // (from its last column), the wing's gable
+  // roofs: the cross gable; south-west of it one roof shape to the wing's far end: the main gable, its north-west slope
+  // carried on at 1.5:12 over the porch and the wing, its south-east slope stepping in with the wall at the wing, where
+  // its eave is higher
   const zAt = (d, p) => PLATE - d * p;                                // roof top d beyond the wall line
   const zX = zAt(OV, PX);                                             // the cross gable's eaves
   slabL([[U_NE - OV, -OV, zX], [UR, -OV, RIDGE], [UR, V1 + OV, RIDGE], [U_NE - OV, V1 + OV, zX]]);              // over the screened porch
   slabL([[UR, -OV, RIDGE], [UX + OV, -OV, zX], [UX, 0, PLATE], [UR, VR, RIDGE]]);                                 // toward the main block, NW of the valley
   slabL([[UR, VR, RIDGE], [UX, V1, PLATE], [UX + OV, V1 + OV, zX], [UR, V1 + OV, RIDGE]]);                         // and SE of it
-  slabL([[UR, VR, RIDGE], [UX, 0, PLATE], [U_MAIN + OV, 0, PLATE], [U_MAIN + OV, VR, RIDGE]]);                   // main, north-west slope
+  const UE = U1 + OV;                                                 // the far (south-west) rake
+  slabL([[UR, VR, RIDGE], [UX, 0, PLATE], [UE, 0, PLATE], [UE, VR, RIDGE]]);                                     // north-west slope
+  slabL([[UP0, 0, PLATE], [UE, 0, PLATE], [UE, V0 - OV, roofZ(V0 - OV)], [UP0, V0 - OV, roofZ(V0 - OV)]]);         // over the porch and the wing
   slabL([[UR, VR, RIDGE], [U_MAIN + OV, VR, RIDGE], [U_MAIN + OV, V1 + OV, zAt(OV, P1)], [UX + OV, V1 + OV, zAt(OV, P1)], [UX, V1, PLATE]]);   // south-east
-  const PP = 1.5 / 12, UP0 = 33.6 - 0.4;                              // the porch roof stops at its last column (33.6)
-  slabL([[UP0, 0, PLATE], [U_PORCH, 0, PLATE], [U_PORCH, V0 - OV, PLATE - (-V0 + OV) * PP], [UP0, V0 - OV, PLATE - (-V0 + OV) * PP]]);
-  slabL([[U_MAIN, WV0 - OV, zAt(OV, P2)], [U1 + OV, WV0 - OV, zAt(OV, P2)], [U1 + OV, WVR, WRIDGE], [U_MAIN, WVR, WRIDGE]]);
-  slabL([[U1 + OV, WV1 + OV, zAt(OV, P2)], [U_MAIN, WV1 + OV, zAt(OV, P2)], [U_MAIN, WVR, WRIDGE], [U1 + OV, WVR, WRIDGE]]);
+  slabL([[U_MAIN + OV, VR, RIDGE], [UE, VR, RIDGE], [UE, WV1 + OV, roofZ(WV1 + OV)], [U_MAIN + OV, WV1 + OV, roofZ(WV1 + OV)]]);   // its higher eave over the wing
   // stone chimney on the south-east side, up past the ridge
   boxL(32.9, 39.0, 40.9, 44.4, 0, RIDGE + 2.5, 'stone');
   // north-west porch: deck, posts, wood railing, steps at its middle
@@ -585,15 +598,15 @@ function redHouse(C) {
   }
   for (let vv = 0; vv <= V1 + 0.1; vv += V1 / 4) boxL(U_NE, U_NE + 0.5, vv - 0.25, vv + 0.25, FLOOR, PLATE, 'deck');
   // windows: dark glass in white frames, on the long south-east wall, the wing's ends and west face
-  const win = (uu, vv, nU, nV, w = 3, h = 4.2) => {
+  const win = (uu, vv, nU, nV, w = 3, h = 4.2, sill = 2.6) => {
     const tU = -nV, tV = nU, off = 0.08;
     const pts = (ww, hh, o) => [[-ww / 2, 0], [ww / 2, 0], [ww / 2, hh], [-ww / 2, hh]].map(([t, z]) =>
-      W(uu + nU * o + tU * t, vv + nV * o + tV * t, FLOOR + 2.6 + z - (hh - h) / 2));
+      W(uu + nU * o + tU * t, vv + nV * o + tV * t, FLOOR + sill + z - (hh - h) / 2));
     face(pts(w + 0.6, h + 0.6, off), 'doorwhite'); face(pts(w, h, off + 0.04), 'darkglass');
   };
   for (const uu of [6, 15, 24, 46, 56]) win(uu, V1, 0, 1);
   for (const vv of [-2, 8, 18]) win(U1, vv, 1, 0);
-  for (const uu of [85, 94]) win(uu, WV0, 0, -1);
+  for (const uu of [85, 94]) win(uu, V0, 0, -1, 3, 3.4, 2.2);        // under the porch roof's low eave
   for (const vv of [8, 30]) win(0, vv, -1, 0, 3, 6.6);                // doors and windows onto the screened porch
 
   for (const m in byMat) {

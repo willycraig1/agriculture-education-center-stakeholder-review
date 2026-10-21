@@ -1024,3 +1024,9 @@ Fit checks now skip context elements (walk etc.).
 - South-east wall windows: the wall line had been taken from the outline's widest point, which is the chimney's
   bump (v 43.6), so the windows stood 2.7' off the wall; it is now the wall itself (v 40.8).
 - The north-west porch's roof now stops at its last column (u 33.6) instead of running on to the north-east end.
+- Follow-up (owner): south-west of the cross gable the house is one roof shape to the wing's far end: the main gable,
+  its north-west slope carried on at 1.5:12 (the porch's pitch) over the porch and the wing, and its south-east slope
+  stepping in with the wall at the wing (v 30.5), so the eave there is higher (about 13.6'). The wing's own lower gable
+  is gone. Walls south-west of the cross gable run up to the roof (split where its pitch changes), so the wing's
+  north-west wall is low under the porch roof; its two windows there are shorter and lower to fit. Crawlspace skirts
+  now run round under both porches.
