@@ -1094,3 +1094,7 @@ Fit checks now skip context elements (walk etc.).
   level"), Leading a steer (a student and steer at cattle barn B), Between barns, From the pasture, The classroom (the
   glass wall from the lawn, Red House beside it), Inside the classroom, The shade house (along the beds to the
   residence). `window.massing` (camera, controls, setView) is the console hook used to frame them.
+- Stills from the viewer: `python tools/export_massing_view.py [view] [--size 4800x2000] [--labels] [--level 3]`
+  screenshots `tools/massing-shot.html` (the viewer without its control rail, from a named camera) with headless
+  Chrome to `exports/massing-<view>.png`. First view: `over-the-pens-wide`, "Over the pens" pulled back to 2.4:1 to
+  take in the unfinished (poultry) barn and the classroom building.

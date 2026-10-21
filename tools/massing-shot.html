@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Massing view export</title>
+<!-- Frames the 3D viewer (massing/index.html) for a still: the model only (no control rail, help, or compass), at the
+     window size, from the camera in the query. Printed by tools/export_massing_view.py with headless Chrome.
+     ?pos=x,y,z&tgt=x,y,z&fov=deg&level=0-3&labels=0|1 -->
+<style>html, body { margin: 0; height: 100%; overflow: hidden; } iframe { border: 0; width: 100%; height: 100%; display: block; }</style>
+<iframe id="f" src="../massing/index.html"></iframe>
+<script>
+const q = new URLSearchParams(location.search), num = k => (q.get(k) || '').split(',').map(Number);
+const f = document.getElementById('f');
+f.onload = () => {
+  const w = f.contentWindow, d = f.contentDocument;
+  const go = () => {
+    if (!w.massing) return setTimeout(go, 100);
+    d.head.insertAdjacentHTML('beforeend', '<style>html,body{margin:0!important;height:100%}.app{grid-template-columns:1fr!important}.rail,.help,.compass,.scalebar,.card{display:none!important}</style>');
+    if (q.has('level')) d.querySelector(`#levels [data-l="${q.get('level')}"]`).click();
+    const lab = d.getElementById('labels');
+    if (lab.checked !== (q.get('labels') === '1')) lab.click();
+    const { camera, controls } = w.massing;
+    setTimeout(() => {
+      camera.position.set(...num('pos')); controls.target.set(...num('tgt'));
+      camera.fov = +q.get('fov') || 40; camera.updateProjectionMatrix(); controls.update();
+      document.title = 'ready';
+    }, 300);
+  };
+  go();
+};
+</script>
