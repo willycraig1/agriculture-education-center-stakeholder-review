@@ -500,6 +500,11 @@ def main():
             r = rings(it)[0]
             if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
     out['campus']['stalls'] = stalls
+    # Sabal palms framing the parking's north and west sides (owner, 2026-10-20), in scene feet: nine down the 8'
+    # planting strip between the grass parking and the lane south of the arena (scene.py), about 15.6' apart, and six
+    # about 19.4' apart in the grass west of the lot's west leg (x 145.7), from the lane south toward the surveyed oak.
+    out['campus']['palms'] = ([[round(173 + k * (298 - 173) / 8, 1), -249.9] for k in range(9)] +
+                              [[139.7, round(-252 - k * 19.4, 1)] for k in range(6)])
 
     # The Red House's Level 3 teaching space, as the massing models it (owner, 2026-10-20): 72' x 36' on the 12' grid,
     # near the study plan's addition but square to the barnyard (the diagram's axes) instead of true north,
