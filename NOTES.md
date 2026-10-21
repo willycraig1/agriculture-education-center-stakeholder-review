@@ -1139,3 +1139,5 @@ Fit checks now skip context elements (walk etc.).
   "Unfinished barn", singular); "timber" is now "wood-framed" (architect: no heavy timber on site). Every caption is
   sized to the tallest (set in the page after fonts load), so the photos line up across both rows. The Red House
   porches are no longer "wraparound" (they are segmented), here and on the Red House slide.
+- Vision slide: a sticky note beside the title, from the first step: "Level 3 is the full build-out. The plan starts
+  here, so each earlier Level grows toward it as funding and demand allow." (Styled after the old Cow Pen Slough note.)
