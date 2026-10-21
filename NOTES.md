@@ -1141,3 +1141,6 @@ Fit checks now skip context elements (walk etc.).
   porches are no longer "wraparound" (they are segmented), here and on the Red House slide.
 - Vision slide: a sticky note beside the title, from the first step: "Level 3 is the full build-out. The plan starts
   here, so each earlier Level grows toward it as funding and demand allow." (Styled after the old Cow Pen Slough note.)
+- Running order: Paddocks and rotation moves up to slide 7, right after The campus (same full-site map; pasture is the
+  first design driver), eyebrow "The plan" (was "Getting there"). The campus slide's first step now names them:
+  "nine paddocks, about 45 acres of pasture" (acres from pasture-capacity.js). Levels table is now slide 13.
