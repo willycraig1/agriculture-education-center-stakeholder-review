@@ -1164,6 +1164,6 @@ Fit checks now skip context elements (walk etc.).
 - The grid and frame are measured from the drawing's own elements (`#barnyard .by[data-id]`, the existing barn's
   rect for the orientation), so they follow the plan if it changes. Labels are matched to moves by their text.
 - PDF export: one page per step (`STEPPED`).
-- Architect's edits (same day): pasture fencing (`#paddocks`) only on the last move; Cowpen Slough, not SR-72 (the road
+- Architect's edits (same day): no pasture fencing (`#paddocks`) on this slide; Cowpen Slough, not SR-72 (the road
   is at the property's north end); cattle "immediately adjacent to the pasture"; parking avoids most existing trees and
   gives vehicles loading and unloading access to all these structures; the working center has central dumpster access.
