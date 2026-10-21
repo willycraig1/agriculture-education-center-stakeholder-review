@@ -1101,7 +1101,7 @@ Fit checks now skip context elements (walk etc.).
   10' west, out of the feed storage container it stood in, and the viewer preset with it).
 - Cattle barns (owner): the monitor's clerestory sidewalls are open, louvered at most (not clad). `scene.py` draws them
   as horizontal louver blades (0.4' deep, about 0.55' apart, sloping down and out) from the shed roofs up to the
-  monitor roof, in the cladding colour (follows the red metal / wood toggle). Gable ends stay clad.
+  monitor roof, in weathered wood (owner, 2026-10-21; they had followed the red cladding). Gable ends stay clad.
 
 ## 2026-10-20: cover watercolour, "Leading a heifer"
 - Title slide: the architect's new watercolour (`exports/Leading a heifer watercolor.png` →
