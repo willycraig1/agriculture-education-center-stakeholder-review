@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610210949">
-<link rel="stylesheet" href="../design/deck.css?v=202610210949">
+<link rel="stylesheet" href="../design/palette.css?v=202610210953">
+<link rel="stylesheet" href="../design/deck.css?v=202610210953">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -65,10 +65,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610210949"></script>
-<script src="data/pasture-capacity.js?v=202610210949"></script>
-<script src="../design/deck.js?v=202610210949"></script>
-<script src="../design/viewer.js?v=202610210949"></script>
+<script src="data/site-map.js?v=202610210953"></script>
+<script src="data/pasture-capacity.js?v=202610210953"></script>
+<script src="../design/deck.js?v=202610210953"></script>
+<script src="../design/viewer.js?v=202610210953"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -103,11 +103,14 @@
   // anchors at the centre of each building; offsets set so the names keep their places at the campus framing
   const campusLabels = callout(1212, 370, 34, -67, "Red House", "start")
     + (cp ? callout(cp[0], cp[1], 48, 12, "Carport", "start") : "")
+    + callout(1253.5, 364, 30, 0, "Kennels", "start")                       // the small building south of the Red House
     + callout(1162, 324, 75, -12, "Existing barn", "start")                  // the barn east of the pens' lean-to
     + (ub ? callout(ub[0], ub[1], 58, -6, "Unfinished barn", "start") : "")
     + (pens ? callout(pens[0], pens[1], -57, -24, "Cattle pens", "end") : "")
     + callout(1122, 362, -34, 42, "Hog pens", "end");                       // the long open-sided shed out in the pasture
-  svg.querySelector("#campus").insertAdjacentHTML("beforeend",
+  // the names sit on top of the whole map, outside the campus layer: that layer is clipped at the main parcel line,
+  // which runs just past the kennels and would cut their name
+  svg.insertAdjacentHTML("beforeend",
     `<g id="campus-names"><g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -72" stroke="var(--education)" stroke-width="5.5" stroke-linecap="round" fill="none"/>
      <path d="M-15 -68 L0 -90 L15 -68 Z" fill="var(--education)"/></g>
      <text x="-18" y="-28" text-anchor="end" font-size="18" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="4.5" paint-order="stroke">ENTRY</text></g></g>
@@ -170,7 +173,7 @@
     });
     svg.querySelector("#aerial").classList.toggle("muted", !!s.muted);
     svg.querySelector("#paddocks").classList.toggle("dim", !!s.dim);
-    svg.querySelector("#campus-names").classList.toggle("off", s.names === false);   // names and entry only once zoomed in
+    svg.querySelector("#campus-names").classList.toggle("off", s.names === false || !s.show.includes("campus"));   // names and entry only once zoomed in
     document.querySelectorAll("#steps li").forEach(li => {
       const i = +li.dataset.i;
       li.classList.toggle("now", i === n);
