@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paddocks and Rotation</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610211030">
-<link rel="stylesheet" href="../design/deck.css?v=202610211030">
+<link rel="stylesheet" href="../design/palette.css?v=202610211035">
+<link rel="stylesheet" href="../design/deck.css?v=202610211035">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -50,10 +50,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610211030"></script>
-<script src="data/pasture-capacity.js?v=202610211030"></script>
-<script src="../design/deck.js?v=202610211030"></script>
-<script src="../design/viewer.js?v=202610211030"></script>
+<script src="data/site-map.js?v=202610211035"></script>
+<script src="data/pasture-capacity.js?v=202610211035"></script>
+<script src="../design/deck.js?v=202610211035"></script>
+<script src="../design/viewer.js?v=202610211035"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY.levels;
@@ -81,9 +81,9 @@
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.badge}</span><h3>${t.h}</h3></header><p>${t.p}</p>
      <div class="ce num">≈ ${C[t.ce].ce_planning} <small>CE</small></div></li>`).join("");
 
-  // rotation: the two pinwheels turn together, one paddock at a time clockwise around their feed + water hubs, while the
-  // 2.1 ac paddock off on its own flashes on and off within each turn (architect, 2026-10-21). The hubs are the drawing's
-  // "Feed + water" labels; a hub is a pinwheel when its four nearest site paddocks are all close by.
+  // rotation: the two pinwheels turn together, one paddock at a time clockwise around their feed + water hubs; the 2.1 ac
+  // paddock off on its own lights with its nearest pinwheel paddock, the 3.7 ac (architect, 2026-10-21). The hubs are the
+  // drawing's "Feed + water" labels; a hub is a pinwheel when its four nearest site paddocks are all close by.
   const tagXY = t => t.getAttribute("transform").match(/translate\(([-\d.]+)[ ,]+([-\d.]+)/).slice(1).map(Number);
   const hubs = [...svg.querySelectorAll("#pinwheel-labels > g")].map(tagXY);
   const pinwheels = [], left = new Set(siteTags);
@@ -94,7 +94,9 @@
     near.sort((p, q) => p.a - q.a).forEach(p => left.delete(p.t));   // by angle: clockwise on screen (y runs down)
     pinwheels.push(near.map(p => p.t));
   });
-  const solo = [...left];                                            // the 2.1 ac paddock
+  // each paddock left over (the 2.1 ac) rides along with the nearest pinwheel paddock
+  const partner = new Map([...left].map(t => { const [x, y] = tagXY(t);
+    return [t, pinwheels.flat().reduce((b, q) => { const [qx, qy] = tagXY(q); const d = Math.hypot(qx - x, qy - y); return d < b.d ? { q, d } : b; }, { d: Infinity }).q]; }));
   const light = (t, on) => {
     t.classList.toggle("hot", on);
     const p = svg.querySelector(`.pad[data-pad="${t.dataset.pad}"]`); if (p) p.classList.toggle("hot", on);
@@ -107,7 +109,7 @@
     const tick = () => {
       siteTags.forEach(t => light(t, false));
       pinwheels.forEach(w => light(w[at % 4], true));
-      solo.forEach(t => light(t, at % 2 === 0));
+      partner.forEach((q, t) => light(t, q.classList.contains("hot")));
       at++;
     };
     tick(); timer = setInterval(tick, 850);
