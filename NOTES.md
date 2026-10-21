@@ -1058,3 +1058,7 @@ Fit checks now skip context elements (walk etc.).
   porches; the crawlspace skirt runs under both.
 - Follow-up (owner): residence steps removed (not designed yet); the end walls are 1' thick, like the north wall's
   returns, and replace the outer porch columns, leaving columns on the clerestory's two inner mullion lines.
+- Follow-up (owner): the horticulture strip sits on a pad 6" up (timber edging, weed fabric on top), so the shade
+  frame's rails at 10' above it meet the residence's window and transom heads (10.5'). The residence's door moved to
+  the west bay of the glazed north wall; its siding runs down to the ground (no dark plinth), the crawlspace skirt
+  and porch decks sitting between the end walls.

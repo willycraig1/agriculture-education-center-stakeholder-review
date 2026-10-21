@@ -667,10 +667,10 @@ function redHouse(C) {
 
 // A small builder in a plan rectangle's own axes: o = the rectangle's corners, (a, w) measured from o[0] along o[0]->o[1]
 // and o[1]->o[2]. Faces by material, ink lines (siding), and rods (pipes); `finish` makes it one viewer object.
-function localKit(o) {
+function localKit(o, z0 = 0) {                                       // z0: lifts everything built with it
   const L = Math.hypot(o[1][0] - o[0][0], o[1][1] - o[0][1]), D = Math.hypot(o[2][0] - o[1][0], o[2][1] - o[1][1]);
   const ea = [(o[1][0] - o[0][0]) / L, (o[1][1] - o[0][1]) / L], ew = [(o[2][0] - o[1][0]) / D, (o[2][1] - o[1][1]) / D];
-  const W = (a, w, z) => [o[0][0] + a * ea[0] + w * ew[0], o[0][1] + a * ea[1] + w * ew[1], z];
+  const W = (a, w, z) => [o[0][0] + a * ea[0] + w * ew[0], o[0][1] + a * ea[1] + w * ew[1], z + z0];
   const byMat = {}, ink = [], rods = [];
   const face = (pts, m) => (byMat[m] = byMat[m] || []).push(pts);
   const box = (a0, a1, w0, w1, z0, z1, m) => {
@@ -734,8 +734,9 @@ function horticultureArea(C) {
     const ZA = 12.8, AW = 6, PA = 1.5 / 12, za = w => ZA + w * PA;              // the awning (w < 0)
     const zr = w => ZLOW + (D - w) * P;                                          // main roof top over w
     const MUL = [0, 1, 2, 3].map(k => 2 + k * (L - 4) / 3);                     // clerestory mullion lines
-    box(0, L, -AW, D, 0, FL - .3, 'foundation');                                 // crawlspace, under both porches too
-    box(0, L, -AW, D, FL - .3, FL, 'deck');
+    box(1, L - 1, -AW, D, 0, FL - .3, 'oldwood');                                // crawlspace, under both porches too, sided to the ground (between the end walls)
+    for (let a = 1.4; a < L - 1; a += .7) for (const w of [-AW - .04, D + .04]) seg(W(a, w, 0), W(a, w, FL - .3));
+    box(1, L - 1, -AW, D, FL - .3, FL, 'deck');
     // end walls (vertical boards), 1' thick like the north wall's returns, from the back porch's edge to the front
     // porch's, up to the roof above them
     const ET = 1;
@@ -746,9 +747,9 @@ function horticultureArea(C) {
     };
     for (const a of [0, L]) {
       const o = a ? .04 : -.04, a0 = a ? L - ET : 0, a1 = a ? L : ET;
-      prism(a0, a1, [[-AW, FL], [0, FL], [0, za(0) - .3], [-AW, za(-AW) - .3]]);
-      prism(a0, a1, [[0, FL], [D, FL], [D, zr(D) - .3], [0, zr(0) - .3]]);
-      for (let w = -AW + .7; w < D; w += .7) seg(W(a + o, w, FL), W(a + o, w, (w < 0 ? za(w) : zr(w)) - .3));
+      prism(a0, a1, [[-AW, 0], [0, 0], [0, za(0) - .3], [-AW, za(-AW) - .3]]);  // siding down to the ground
+      prism(a0, a1, [[0, 0], [D, 0], [D, zr(D) - .3], [0, zr(0) - .3]]);
+      for (let w = -AW + .7; w < D; w += .7) seg(W(a + o, w, 0), W(a + o, w, (w < 0 ? za(w) : zr(w)) - .3));
     }
     face([W(0, WE, FL), W(L, WE, FL), W(L, WE, zr(WE) - .3), W(0, WE, zr(WE) - .3)], 'oldwood');   // porch's back wall
     face([W(0, 0, FL), W(L, 0, FL), W(L, 0, zr(0) - .3), W(0, 0, zr(0) - .3)], 'oldwood');      // the tall north wall
@@ -758,7 +759,7 @@ function horticultureArea(C) {
     gl(2, L - 2, FL + .2, ZA - .6);
     for (let k = 0; k <= 6; k++) { const a = 2 + k * (L - 4) / 6; box(a - .12, a + .12, -.14, 0, FL, ZA - .5, 'oldtimber'); }
     box(2, L - 2, -.14, 0, FL + 6.8, FL + 7.0, 'oldtimber');                    // transom bar
-    face([W(MUL[2] + (L - 4) / 6 + .2, -.1, FL), W(MUL[3] - .2, -.1, FL), W(MUL[3] - .2, -.1, FL + 6.8), W(MUL[2] + (L - 4) / 6 + .2, -.1, FL + 6.8)], 'oldtimber');   // the door
+    face([W(MUL[0] + .2, -.1, FL), W(MUL[1] - (L - 4) / 6 - .2, -.1, FL), W(MUL[1] - (L - 4) / 6 - .2, -.1, FL + 6.8), W(MUL[0] + .2, -.1, FL + 6.8)], 'oldtimber');   // the door, in the west bay
     const ZC0 = ZA + 1.4, ZC1 = zr(0) - 1.2;
     gl(2, L - 2, ZC0, ZC1);
     for (const a of MUL) box(a - .15, a + .15, -.14, 0, ZC0, ZC1, 'oldtimber');
@@ -782,11 +783,15 @@ function horticultureArea(C) {
   }
   // ---- shade structure and its rows: a along the strip (from the residence), w across (0 = north-north-east side)
   // The far bay's south half is cut out around the surveyed oak there (owner): ground, frame, cloth, and rows.
-  const h = C.horticulture, ZS = 10, NA = 8;
+  // The strip sits on a pad 6" up, so the shade frame's rails (10' above it) meet the residence's window and transom
+  // heads (owner).
+  const h = C.horticulture, ZS = 10, NA = 8, HZ = 0.5;
   {
-    const K = localKit(h), { L, D, W, rod, face } = K, na = NA, nw = 2, AN = (na - 1) * L / na, WN = D / 2;
+    const K = localKit(h, HZ), { L, D, W, rod, face, box } = K, na = NA, nw = 2, AN = (na - 1) * L / na, WN = D / 2;
     const out = (a, w) => a > AN + .01 && w > WN + .01;
-    reg(flat([{ o: [[0, 0], [L, 0], [L, WN], [AN, WN], [AN, D], [0, D]].map(([a, w]) => W(a, w, 0).slice(0, 2)) }], new THREE.Color('#2f302d'), 0.3), 0);   // black weed fabric
+    reg(flat([{ o: [[0, 0], [L, 0], [L, WN], [AN, WN], [AN, D], [0, D]].map(([a, w]) => W(a, w, 0).slice(0, 2)) }], new THREE.Color('#2f302d'), HZ + .02), 0);   // black weed fabric
+    for (const [a0, a1, w0, w1] of [[0, L, 0, .4], [0, AN, D - .4, D], [0, .4, 0, D], [L - .4, L, 0, WN], [AN, L, WN, WN + .4], [AN - .4, AN, WN, D]])
+      box(a0, a1, w0, w1, -HZ, 0, 'oldtimber');                                 // the pad's timber edging
     for (let i = 0; i <= na; i++) for (let j = 0; j <= nw; j++) if (!out(i * L / na, j * D / nw)) rod(W(i * L / na, j * D / nw, 0), W(i * L / na, j * D / nw, ZS));
     for (let j = 0; j <= nw; j++) rod(W(0, j * D / nw, ZS), W(j * D / nw > WN + .01 ? AN : L, j * D / nw, ZS), .12);
     for (let i = 0; i <= na; i++) rod(W(i * L / na, 0, ZS), W(i * L / na, i * L / na > AN + .01 ? WN : D, ZS), .12);
@@ -795,7 +800,7 @@ function horticultureArea(C) {
     K.finish({ name: 'shade', label: 'Horticulture shade structure', level: 3, program: 'horticulture', id: 'horticulture' }, { h: ZS });
   }
   {   // hydroponic channel racks, north-north-east row
-    const K = localKit(h), { L, box } = K;
+    const K = localKit(h, HZ), { L, box } = K;
     for (let a0 = 4; a0 + 26 <= L - 3; a0 += 31) {
       for (const a of [a0, a0 + 13, a0 + 26]) for (const w of [2.5, 6.5]) box(a - .1, a + .1, w - .1, w + .1, 0, 3, 'galv');
       box(a0, a0 + 26, 2.3, 6.7, 2.9, 3.0, 'galv');
@@ -804,12 +809,12 @@ function horticultureArea(C) {
     K.finish({ name: 'hydro', notag: true, label: 'Hydroponic racks', level: 3, program: 'horticulture', id: 'horticulture' }, { h: 3.3 });
   }
   {   // raised beds, middle row
-    const K = localKit(h), { L, D, box } = K, w0 = D / 2 - 2, w1 = D / 2 + 2;
+    const K = localKit(h, HZ), { L, D, box } = K, w0 = D / 2 - 2, w1 = D / 2 + 2;
     for (let a = 4; a + 10 <= (NA - 1) * L / NA - 1.5; a += 13) { box(a, a + 10, w0, w1, 0, 1.6, 'oldwood'); box(a + .2, a + 9.8, w0 + .2, w1 - .2, 1.6, 1.62, 'dirt'); }
     K.finish({ name: 'beds', notag: true, label: 'Raised beds', level: 1, program: 'horticulture', id: 'horticulture' }, { h: 1.6 });
   }
   {   // tables for planting, south-south-west row, with flats on them
-    const K = localKit(h), { L, D, box } = K, w0 = D - 7.5, w1 = D - 3.5;
+    const K = localKit(h, HZ), { L, D, box } = K, w0 = D - 7.5, w1 = D - 3.5;
     for (let a = 4; a + 8 <= (NA - 1) * L / NA - 1.5; a += 10.5) {
       for (const aa of [a + .3, a + 7.7]) for (const ww of [w0 + .3, w1 - .3]) box(aa - .08, aa + .08, ww - .08, ww + .08, 0, 2.9, 'galv');
       box(a, a + 8, w0, w1, 2.9, 3.05, 'alum');
