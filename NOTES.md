@@ -1097,4 +1097,5 @@ Fit checks now skip context elements (walk etc.).
 - Stills from the viewer: `python tools/export_massing_view.py [view] [--size 4800x2000] [--labels] [--level 3]`
   screenshots `tools/massing-shot.html` (the viewer without its control rail, from a named camera) with headless
   Chrome to `exports/massing-<view>.png`. First view: `over-the-pens-wide`, "Over the pens" pulled back to 2.4:1 to
-  take in the unfinished (poultry) barn and the classroom building.
+  take in the unfinished (poultry) barn and the classroom building. Second: `leading-a-steer` (16:9; the camera moved
+  10' west, out of the feed storage container it stood in, and the viewer preset with it).
