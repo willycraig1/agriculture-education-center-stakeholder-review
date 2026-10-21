@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How the Plan Took Shape</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610211109">
-<link rel="stylesheet" href="../design/deck.css?v=202610211109">
+<link rel="stylesheet" href="../design/palette.css?v=202610211119">
+<link rel="stylesheet" href="../design/deck.css?v=202610211119">
 <style>
   /* How the design parameters led to the layout (architect, 2026-10-21): the Level 3 barnyard built up one move at a
      time on the site plan, starting from the grid the existing barn sets. */
@@ -14,7 +14,7 @@
   .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
   .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
   .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
-  .map [data-layer], .map .by, .map #barnyard-labels text, .map #logic-grid, .map #logic-axis { transition: opacity .8s var(--ease); }
+  .map #paddocks, .map [data-layer], .map .by, .map #barnyard-labels text, .map #logic-grid, .map #logic-axis { transition: opacity .8s var(--ease); }
   .map .off { opacity: 0; }
   .map #aerial { filter: saturate(.45) brightness(1.06); }
   .map .by.future, .map #barnyard-labels text.future { opacity: 0; }
@@ -50,9 +50,9 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610211109"></script>
-<script src="../design/deck.js?v=202610211109"></script>
-<script src="../design/viewer.js?v=202610211109"></script>
+<script src="data/site-map.js?v=202610211119"></script>
+<script src="../design/deck.js?v=202610211119"></script>
+<script src="../design/viewer.js?v=202610211119"></script>
 <script>
 (function () {
   const M = window.SITE_MAP;
@@ -65,17 +65,17 @@
 
   // the moves, in the order the design made them. ids: the barnyard elements (data-id); names: their map labels.
   const moves = [
-    { h: "Start from the existing barn", p: "The existing barn sits more or less perpendicular to SR-72 and parallel to the entry drive. Its orientation sets a new grid for the barnyard, and the unfinished barn already falls on its line.",
+    { h: "Start from the existing barn", p: "The existing barn sits more or less perpendicular to Cowpen Slough and parallel to the entry drive. Its orientation sets a new grid for the barnyard, and the unfinished barn already falls on its line.",
       ids: ["existing-barn", "existing-pens"], names: ["Existing barn", "Existing pens", "Poultry"] },
-    { h: "Cattle builds off the existing pens", p: "The holding pens, handling yard, and both cattle barns grow out from the existing pens, on the same grid.",
+    { h: "Cattle builds off the existing pens", p: "The holding pens, handling yard, and both cattle barns grow out from the existing pens, immediately adjacent to the pasture, on the same grid.",
       ids: ["handling", "holding-1", "holding-2", "holding-3", "holding-4", "holding-5", "cattle-a", "cattle-b", "turnout-cattle-a", "turnout-cattle-b", "bedding"],
       names: ["Handling", "Pen 1", "Pen 2", "Pen 3", "Pen 4", "Pen 5", "Cattle barn A", "Cattle barn B", "Bedding"] },
-    { h: "Parking at the center", p: "Parking sits central to the new barns and the Red House, with walks out to each.",
+    { h: "Parking at the center", p: "Parking sits central to the new barns and the Red House, avoiding most existing trees, with walks out to each. It gives vehicles access to all these structures, which will often need loading and unloading.",
       ids: ["parking", "walk"], names: ["Parking"] },
     { h: "Completing the shape", p: "The small animal barns complete the shape of the barnyard parking. The horticulture area frames the south edge of the drive loop, and the caretaker residence completes the central campus.",
       ids: ["small-a", "small-a2", "dogtrot", "small-b", "turnout-small-a", "turnout-small-a2", "turnout-small-b", "walk-2", "horticulture", "residence"],
       names: ["Small animal barn A", "Small animal barn B", "Horticulture", "RV / residence"] },
-    { h: "A working center", p: "The arena, grooming area, and feed storage sit in the middle, where vehicles reach them easily for daily use.",
+    { h: "A working center", p: "The arena, grooming area, and feed storage sit in the middle, where vehicles reach them easily for daily use, with central access to the dumpsters.",
       ids: ["arena", "grooming", "feed", "compost", "dumpster"], names: ["Arena", "Feed storage", "Compost", "Dumpsters"] },
     { h: "A classroom in the trees", p: "The new instructional classroom extends east from the Red House into the tree canopy: a working space that connects you with nature.",
       ids: ["red-house-addition", "walk-3"], names: ["Classroom / event"] },
@@ -161,6 +161,7 @@
     });
     svg.querySelector("#logic-grid").style.opacity = n === 0 || fin ? 1 : .45;
     svg.querySelector("#logic-axis").style.opacity = n === 0 || fin ? 1 : 0;
+    svg.querySelector("#paddocks").classList.toggle("off", n < moves.length - 1 && !fin);   // pasture fencing only on the last move (architect, 2026-10-21)
     if (first) { viewer.home(frame); viewer.flyTo(frame, 0); first = false; }
     document.querySelectorAll("#moves li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === n);
