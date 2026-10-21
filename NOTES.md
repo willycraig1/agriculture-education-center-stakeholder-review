@@ -1007,3 +1007,8 @@ Fit checks now skip context elements (walk etc.).
   feet, read off the owner's markup); Level 1 with the parking.
 - That strip was asphalt in `scene.py` (the watercolor's ground); it is now grass, so a re-rendered watercolor shows it
   green too.
+- Follow-up: the planted palms are drawn at half the woods' sabal height (kind `cabbage` in the viewer's `treeSet`).
+  The north strip had only looked grey because the browser kept the old `scene-data.js`; both exporters now stamp
+  the viewer's data script tags with a content hash (`?v=`), so a reload always picks up new data. The watercolor's
+  west parking drive (`scene.py`) ran on south past the lot into the south-west pasture; it now stops at the end of
+  the lot's west leg (y -455).

@@ -598,6 +598,7 @@ def main():
         fh.write('// ' + out['about'] + '\nwindow.SITE = ')
         json.dump(out, fh, separators=(',', ':'))
         fh.write(';\n')
+    stamp_viewer(path)
     allpts = np.array([q for b in out['boundary'] for q in b['o']])
     print(f"{path}: {os.path.getsize(path) / 1024:.0f} KB; frame fit {RESID:.2f} ft; "
           f"paddocks {len(pads)}, fences {len(out['fences'])}, canopy polys {len(canopy)}, canopy trees {len(scatter)}, "
@@ -607,6 +608,16 @@ def main():
           f"trees oak/pine/palm {[sum(t[3] == k for t in scatter) for k in (0, 1, 2)]}; basins {[(b['kind'], b['inset'], len(b['v']) // 3) for b in basins]}; "
           f"boundary x {allpts[:, 0].min():.0f}..{allpts[:, 0].max():.0f} y {allpts[:, 1].min():.0f}..{allpts[:, 1].max():.0f}")
     for pd in pads: print('  ', pd['kind'], pd['label'], round(Polygon(pd['polys'][0]['o']).area / 43560, 1), 'ac')
+
+
+def stamp_viewer(path):
+    """Version the viewer's script tag for this data file with its content hash, so a reload never runs stale data."""
+    import hashlib, re
+    name = os.path.basename(path)
+    v = hashlib.sha1(open(path, 'rb').read()).hexdigest()[:10]
+    html = os.path.join(HERE, 'index.html')
+    s = open(html).read()
+    open(html, 'w').write(re.sub(r'src="' + re.escape(name) + r'(\?v=\w+)?"', f'src="{name}?v={v}"', s))
 
 
 if __name__ == '__main__':
