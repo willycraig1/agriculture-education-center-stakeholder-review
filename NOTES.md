@@ -1070,3 +1070,8 @@ Fit checks now skip context elements (walk etc.).
   model drew a wire fence through that column of pens. `export_site.py` now cuts every pasture fence out of
   the holding pens' footprint (each pen's four side objects grouped, buffered 1.5'). The site plan itself
   (`build_fences.py` / `site-layers.svg`) still carries the askew line.
+- Site plan fixed at the source (owner): the campus fence (fence-07, redrawn in `build_site_map.py`) still jogged
+  back from the lean-to corner column to the existing pens' north-east corner (13' west) and then ran diagonally to
+  the holding pens' north-east corner. With the holding pens out to that column line (the dog-ear), it now runs
+  straight up it. One paddock beside the campus 7.9 -> 7.8 ac; fenced site pasture 45.3 -> 45.2 ac; CE unchanged
+  (7 / 15). Rebuilt: build_site_map, build_capacity_data, build_retention_markup, massing/export_site, stamp.

@@ -13,12 +13,12 @@ window.PASTURE_CAPACITY = {
       "split": {
         "site": {
           "open": 25.0,
-          "wooded": 20.3
+          "wooded": 20.2
         }
       },
-      "acres": 45.3,
+      "acres": 45.2,
       "open": 25.0,
-      "wooded": 20.3,
+      "wooded": 20.2,
       "rate_open": 4,
       "rate_wooded": 25,
       "ce_open": 6.2,
@@ -37,12 +37,12 @@ window.PASTURE_CAPACITY = {
       "split": {
         "site": {
           "open": 25.0,
-          "wooded": 20.3
+          "wooded": 20.2
         }
       },
-      "acres": 45.3,
+      "acres": 45.2,
       "open": 25.0,
-      "wooded": 20.3,
+      "wooded": 20.2,
       "rate_open": 2,
       "rate_wooded": 10,
       "ce_open": 12.5,
@@ -61,12 +61,12 @@ window.PASTURE_CAPACITY = {
       "split": {
         "site": {
           "open": 25.0,
-          "wooded": 20.3
+          "wooded": 20.2
         }
       },
-      "acres": 45.3,
+      "acres": 45.2,
       "open": 25.0,
-      "wooded": 20.3,
+      "wooded": 20.2,
       "rate_open": 2,
       "rate_wooded": 10,
       "ce_open": 12.5,
