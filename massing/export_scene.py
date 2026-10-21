@@ -149,10 +149,6 @@ def main():
             continue
         name = o.name
         faces = o.faces
-        if name == 'arena':  # the grooming box is drawn inside the arena object (bias 200); split it out
-            groom = [f for f in faces if f['bias'] == 200.0]
-            faces = [f for f in faces if f['bias'] != 200.0]
-            out_objs.append(pack('grooming', groom, []))
         if name.startswith('pen'):
             i = int(name[3:].split('_')[0])
             label, prog, lvl, gid = PENS[i], 'cattle', 1, 'holding'
@@ -191,6 +187,7 @@ def main():
         fh.write('// ' + data['about'] + '\nwindow.SCENE = ')
         json.dump(data, fh, separators=(',', ':'))
         fh.write(';\n')
+    stamp_viewer(path)
     nf = sum(len(o['faces']) for o in out_objs)
     nl = sum(len(o['lines']) for o in out_objs)
     print(f"{path}: {len(out_objs)} objects, {nf} faces, {nl} lines, {len(ground)} ground, "
@@ -208,6 +205,16 @@ def pack(name, faces, lines, meta=None, group=None):
     if group:
         d['group'] = group
     return d
+
+
+def stamp_viewer(path):
+    """Version the viewer's script tag for this data file with its content hash, so a reload never runs stale data."""
+    import hashlib, re
+    name = os.path.basename(path)
+    v = hashlib.sha1(open(path, 'rb').read()).hexdigest()[:10]
+    html = os.path.join(HERE, 'index.html')
+    s = open(html).read()
+    open(html, 'w').write(re.sub(r'src="' + re.escape(name) + r'(\?v=\w+)?"', f'src="{name}?v={v}"', s))
 
 
 if __name__ == '__main__':
