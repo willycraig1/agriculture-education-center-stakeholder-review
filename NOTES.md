@@ -1124,3 +1124,11 @@ Fit checks now skip context elements (walk etc.).
 - `slides/vision.html` hero: the architect's "Watercolor Campus Level3" (`exports/Watercolor Campus Level3.png` →
   `photos/vision-campus-level3.webp`) replaces `photos/vision-watercolor.jpg` (removed); label "The campus at Level 3"
   (was "The barnyard at Level 3"). Same crop (object-position centre 62%).
+
+## 2026-10-21: the site today, drawing step and callouts
+- `slides/site.html`: three steps now. From the air (aerial, full site); "The site, drawn" (new: the aerial off, our
+  base drawing at the same full-site framing, names and entry arrow hidden); the campus close-up.
+- Campus names are callouts: 15 px names set out in clear ground on leaders to their buildings (dot on the building),
+  counter-scaled with the zoom as one group so size and offset hold on screen. ENTRY arrow and text smaller.
+  "Hog pens" added on the long open-sided shed west of the cattle pens (about 26' x 60' on the drawing, matching the
+  hog enclosure photo). Checked in the browser: no name overlaps another name or a building.
