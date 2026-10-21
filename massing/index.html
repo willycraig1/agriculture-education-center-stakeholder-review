@@ -203,8 +203,8 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="scene-data.js"></script>
-<script src="site-data.js"></script>
+<script src="scene-data.js?v=25824c12f7"></script>
+<script src="site-data.js?v=a2fcf142bf"></script>
 <script>
 (() => {
 const S = window.SCENE, SITE = window.SITE, stage = document.getElementById('stage');
@@ -987,8 +987,8 @@ function treeSet(list) {   // [x, y, kind, s] -> group of instanced trunks and c
       add('pine_d', x, y, h - 4, 11 * s, 11 * s, 4.5 * s);
       add('pine_l', x + 3, y - 2, h + .5, 7 * s, 7 * s, 3 * s);
       add('pine_d', x - 4, y + 2, h - 13, 7 * s, 7 * s, 3.2 * s);
-    } else {   // sabal palm: slender trunk, fan-frond head
-      const h = 24 * s + 6;
+    } else {   // sabal palm: slender trunk, fan-frond head; planted cabbage palms at about half the height (owner, 2026-10-20)
+      const h = (24 * s + 6) * (kind === 'cabbage' ? .5 : 1);
       add('trunk', x, y, 0, .55, .55, h);
       add('palm_d', x, y, h, 6.5 * s, 6.5 * s, 6.5 * s);
       add('palm_l', x, y, h + .3, 4.6 * s, 4.6 * s, 4.6 * s);
@@ -1013,7 +1013,7 @@ const treeGroup = new THREE.Group(); scene.add(treeGroup);
 let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 if (SITE) {
   if (SITE.campus.palms) {                                            // sabal palms framing the parking's north and west sides
-    reg(treeSet(SITE.campus.palms.map(([x, y], i) => [x, y, 'palm', .85 + ((i * 7) % 5) * .05])), 1);
+    reg(treeSet(SITE.campus.palms.map(([x, y], i) => [x, y, 'cabbage', .85 + ((i * 7) % 5) * .05])), 1);
     catalog.push({ label: 'Sabal palms along the parking\'s north and west sides', level: 1 });
   }
   const keep = SITE.surveyed_trees.filter(t => t[2] !== 0), cut = SITE.surveyed_trees.filter(t => t[2] === 0);

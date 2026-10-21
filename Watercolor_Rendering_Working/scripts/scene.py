@@ -156,7 +156,7 @@ def build():
     # site grass (big) is drawn separately; paving and dirt here (order = paint order)
     # drive coming from south up to barn & service lane
     ground_poly(G, 303 / 1, -362, 333, -254, 'asphalt')            # service drive beside the existing barn, stopping short of the Red House (owner, 2026-10-19)
-    ground_poly(G, 145.7, -600, 168.5, -246, 'asphalt')            # west parking drive (from entry road)
+    ground_poly(G, 145.7, -455, 168.5, -246, 'asphalt')            # west parking drive, to the end of the lot's west leg (was carried on into the pasture)
     ground_poly(G, 83, -245.8, 303, -230.5, 'concrete')            # E-W lane south of arena
     ground_poly(G, 168.5, -254, 303, -245.8, 'grass')              # planting strip north of the parking, palms (owner, 2026-10-20)
     ground_poly(G, 168.5, -339, 300, -254, 'grasspark')            # grass parking
