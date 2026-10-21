@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paddocks and Rotation</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610211019">
-<link rel="stylesheet" href="../design/deck.css?v=202610211019">
+<link rel="stylesheet" href="../design/palette.css?v=202610211030">
+<link rel="stylesheet" href="../design/deck.css?v=202610211030">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -50,10 +50,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610211019"></script>
-<script src="data/pasture-capacity.js?v=202610211019"></script>
-<script src="../design/deck.js?v=202610211019"></script>
-<script src="../design/viewer.js?v=202610211019"></script>
+<script src="data/site-map.js?v=202610211030"></script>
+<script src="data/pasture-capacity.js?v=202610211030"></script>
+<script src="../design/deck.js?v=202610211030"></script>
+<script src="../design/viewer.js?v=202610211030"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY.levels;
@@ -81,18 +81,36 @@
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.badge}</span><h3>${t.h}</h3></header><p>${t.p}</p>
      <div class="ce num">≈ ${C[t.ce].ce_planning} <small>CE</small></div></li>`).join("");
 
-  // rotation: step the highlight from paddock to paddock while Level 2 or 3 is showing
+  // rotation: the two pinwheels turn together, one paddock at a time clockwise around their feed + water hubs, while the
+  // 2.1 ac paddock off on its own flashes on and off within each turn (architect, 2026-10-21). The hubs are the drawing's
+  // "Feed + water" labels; a hub is a pinwheel when its four nearest site paddocks are all close by.
+  const tagXY = t => t.getAttribute("transform").match(/translate\(([-\d.]+)[ ,]+([-\d.]+)/).slice(1).map(Number);
+  const hubs = [...svg.querySelectorAll("#pinwheel-labels > g")].map(tagXY);
+  const pinwheels = [], left = new Set(siteTags);
+  hubs.forEach(([hx, hy]) => {
+    const near = [...left].map(t => { const [x, y] = tagXY(t); return { t, d: Math.hypot(x - hx, y - hy), a: Math.atan2(y - hy, x - hx) }; })
+      .sort((p, q) => p.d - q.d).slice(0, 4);
+    if (near.length < 4 || near[3].d > 300) return;
+    near.sort((p, q) => p.a - q.a).forEach(p => left.delete(p.t));   // by angle: clockwise on screen (y runs down)
+    pinwheels.push(near.map(p => p.t));
+  });
+  const solo = [...left];                                            // the 2.1 ac paddock
+  const light = (t, on) => {
+    t.classList.toggle("hot", on);
+    const p = svg.querySelector(`.pad[data-pad="${t.dataset.pad}"]`); if (p) p.classList.toggle("hot", on);
+  };
   let timer, at = 0;
-  function rotate(tags) {
+  function rotate(on) {
     clearInterval(timer);
-    [...siteTags, ...bonusTags].forEach(t => t.classList.remove("hot"));
-    pads.forEach(p => p.classList.remove("hot"));
-    if (!tags || document.documentElement.classList.contains("static")) return;
-    timer = setInterval(() => {
-      tags.forEach(t => t.classList.remove("hot")); pads.forEach(p => p.classList.remove("hot"));
-      const t = tags[at++ % tags.length]; t.classList.add("hot");
-      const p = svg.querySelector(`.pad[data-pad="${t.dataset.pad}"]`); if (p) p.classList.add("hot");
-    }, 700);
+    siteTags.forEach(t => light(t, false));
+    if (!on || document.documentElement.classList.contains("static")) return;
+    const tick = () => {
+      siteTags.forEach(t => light(t, false));
+      pinwheels.forEach(w => light(w[at % 4], true));
+      solo.forEach(t => light(t, at % 2 === 0));
+      at++;
+    };
+    tick(); timer = setInterval(tick, 850);
   }
   let last = null;
   function apply(n) {
@@ -101,7 +119,7 @@
     n = Math.min(n, text.length - 1);
     const f = text[n].f;
     if (f !== last) { viewer.home(frames[f]); viewer.flyTo(frames[f], last === null || document.documentElement.classList.contains("static") ? 0 : 1300); last = f; }
-    rotate(n === 0 ? siteTags : null);
+    rotate(n === 0);
     document.querySelectorAll("#levels li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === n);
       li.classList.toggle("done", +li.dataset.k < n);
