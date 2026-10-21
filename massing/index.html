@@ -495,10 +495,10 @@ function framedBarn(F, { name, label, level = 0, program, id }) {
 
 // The Red House, from photos/Red House and its roof aerial, on the surveyed outline (local axes: u along the house
 // from its north-east end, v across from its north-west face). Main block about 41' x 66' on a crawlspace (floor 2.5'
-// up, 8' walls), a 3.5:12 galvanized metal gable along its length; the north-west porch (44' x 12', wood railing)
-// under a 1.5:12 extension of the roof; a screened porch across the north-east end (8.4'); the south-west wing
-// (43' x 34') under its own lower 3:12 gable; a stone chimney on the south-east side. Heights are estimated from the
-// photos. The north-east end is a cross gable over the screened porch (see the roofs below). The carport: an open wood-post shed with a 4:12 gable, south-west of the house.
+// up, 9.5' walls), a 3.5:12 galvanized metal gable along its length; the north-west porch (44' x 12', wood railing)
+// and the south-west wing (43' x 34') under a 1.5:12 extension of the roof; a screened porch across the north-east end
+// (8.4') under a cross gable; a stone chimney on the south-east side. Heights are estimated from the photos (the plate
+// raised 1.5' on the owner's review). The carport: an open wood-post shed with a 4:12 gable, south-west of the house.
 function redHouse(C) {
   const O = C.red_house;
   let best = null;                                                    // the house's long axis: its longest wall
@@ -516,7 +516,7 @@ function redHouse(C) {
   const Lp = O.map(loc), us = Lp.map(p => p[0]), vs = Lp.map(p => p[1]);
   const U1 = Math.max(...us), V0 = Math.min(...vs);                 // ~100.6, -12.1
   const V1 = Math.max(...Lp.filter(p => p[0] < 1).map(p => p[1]));   // the south-east wall (~40.8), not the chimney's bump
-  const FLOOR = 2.5, PLATE = 10.5, OV = 1.5;
+  const FLOOR = 2.5, PLATE = 12.0, OV = 1.5;             // plate 1.5' above the first estimate (owner, 2026-10-20)
   const VR = 20.5, P1 = 3.5 / 12, RIDGE = PLATE + VR * P1;          // main ridge on the block's centre line
   const U_MAIN = 66.4, U_PORCH = 77.7, U_NE = -8.4;                 // main block's south-west end, NW porch end, NE porch
   const WV1 = 30.5;                                                  // the wing's south-east wall
@@ -606,7 +606,7 @@ function redHouse(C) {
   };
   for (const uu of [6, 15, 24, 46, 56]) win(uu, V1, 0, 1);
   for (const vv of [-2, 8, 18]) win(U1, vv, 1, 0);
-  for (const uu of [85, 94]) win(uu, V0, 0, -1, 3, 3.4, 2.2);        // under the porch roof's low eave
+  for (const uu of [85, 94]) win(uu, V0, 0, -1);
   for (const vv of [8, 30]) win(0, vv, -1, 0, 3, 6.6);                // doors and windows onto the screened porch
 
   for (const m in byMat) {

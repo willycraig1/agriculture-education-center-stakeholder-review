@@ -1030,3 +1030,6 @@ Fit checks now skip context elements (walk etc.).
   is gone. Walls south-west of the cross gable run up to the roof (split where its pitch changes), so the wing's
   north-west wall is low under the porch roof; its two windows there are shorter and lower to fit. Crawlspace skirts
   now run round under both porches.
+- Follow-up (owner): the whole roof raised 1.5' (plate 12.0' above grade, was 10.5'; 9.5' walls on the 2.5' floor;
+  ridge about 18'). The higher eave over the wing's south-east wall is now about 14.6'; the wing's north-west wall
+  stands about 10.5' under the porch roof, so its windows are back to the standard size.
