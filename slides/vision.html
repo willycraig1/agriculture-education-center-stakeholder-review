@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Vision</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610211142">
-<link rel="stylesheet" href="../design/deck.css?v=202610211142">
+<link rel="stylesheet" href="../design/palette.css?v=202610211202">
+<link rel="stylesheet" href="../design/deck.css?v=202610211202">
 <style>
   /* The end vision first (owner, 2026-10-19): what the center is at Level 3, with the watercolour and comparative images */
   .body { display: grid; grid-template-columns: 600px 1fr; gap: 44px; margin-top: 30px; flex: 1; min-height: 0; }
@@ -30,6 +30,19 @@
   .sticky.in, .static .sticky { transform: rotate(-1.5deg); }
   .sticky b { display: block; font: 600 25px/1.2 var(--serif); margin-bottom: 6px; }
   .sticky span { display: block; font: 400 18px/1.4 var(--sans); }
+  /* blow-up of the pictures (2026-10-21): click one to see it full screen; live deck only, the PDF never opens it */
+  .pics img { cursor: zoom-in; }
+  .lightbox { position: fixed; inset: 0; z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+              background: rgba(24,23,21,.92); cursor: zoom-out; padding: 3vh 4vw; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 84vh; object-fit: contain; border-radius: 8px; box-shadow: 0 18px 50px rgba(0,0,0,.45); }
+  .lightbox p { margin: 0; color: #f3efe6; font: 600 clamp(14px, 1.6vw, 22px)/1.3 var(--sans); text-align: center; }
+  .lightbox p small { display: block; font-weight: 400; font-size: .75em; opacity: .7; margin-top: 3px; }
+  .lightbox button { all: unset; position: absolute; top: 50%; transform: translateY(-50%); cursor: pointer; color: #f3efe6;
+                     font: 400 clamp(28px, 4vw, 56px)/1 var(--sans); padding: 10px 16px; opacity: .7; }
+  .lightbox button:hover, .lightbox button:focus-visible { opacity: 1; }
+  .lightbox .prev { left: 1vw; } .lightbox .next { right: 1vw; }
+  .static .lightbox { display: none !important; }
 </style>
 </head>
 <body>
@@ -56,9 +69,21 @@
   </div>
 </div>
 
-<script src="data/ag-area.js?v=202610211142"></script>
-<script src="data/pasture-capacity.js?v=202610211142"></script>
-<script src="../design/deck.js?v=202610211142"></script>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Picture, enlarged">
+  <button class="prev" aria-label="Previous picture">‹</button><img alt=""><p></p><button class="next" aria-label="Next picture">›</button>
+</div>
+
+<script src="data/ag-area.js?v=202610211202"></script>
+<script src="data/pasture-capacity.js?v=202610211202"></script>
+<script>
+// registered before deck.js so it runs first: while a picture is blown up, the deck's ‹ › buttons close it instead of
+// changing the build step (messages to a window reach listeners in the order they were added)
+addEventListener("message", e => {
+  if (window.lightbox && window.lightbox.isOpen() && e.data && (e.data.cmd === "next" || e.data.cmd === "prev")) {
+    e.stopImmediatePropagation(); window.lightbox.close(); }
+});
+</script>
+<script src="../design/deck.js?v=202610211202"></script>
 <script>
 (function () {
   // figures from the plan data, so the vision reads the same as the plan slides
@@ -72,6 +97,32 @@
   document.getElementById("points").innerHTML = pts.map(([k, h, p], i) =>
     `<li data-step="${i + 1}"><i style="background:var(--${k})"></i><div><h3>${h}</h3><p>${p}</p></div></li>`).join("");
   Deck.start();
+
+  // ---- blow-up: click a picture for it full screen; ← → step through them, Escape or a click closes. While it is open,
+  // keys, clicks, and the deck's ‹ › buttons go to it rather than to the deck.
+  const box = document.getElementById("lightbox"), big = box.querySelector("img"), cap = box.querySelector("p");
+  const pics = [...document.querySelectorAll(".pics img")];
+  const credit = img => img.closest(".hero") ? "Potential conceptual rendering"
+    : /siesta/.test(img.src) ? "Siesta Key Chapel; photo courtesy of Siesta Key Chapel" : "McIntosh Middle School Ag Center, Seibert Architects; photo by Ryan Gamma Photography";
+  const title = img => img.closest(".hero") ? img.nextElementSibling.textContent
+    : img.closest("figure").querySelector("figcaption").firstChild.textContent + " · " + img.closest("figure").querySelector("small").textContent;
+  let cur = -1;
+  const show = k => { cur = (k + pics.length) % pics.length; const img = pics[cur];
+    big.src = img.src; big.alt = img.alt; cap.innerHTML = `${title(img)}<small>${credit(img)}</small>`; box.classList.add("open"); };
+  const close = () => { box.classList.remove("open"); cur = -1; };
+  const isOpen = () => box.classList.contains("open");
+  pics.forEach((img, k) => img.addEventListener("click", e => { e.stopPropagation(); show(k); }));
+  box.addEventListener("click", e => { e.stopPropagation(); close(); });
+  box.querySelector(".prev").addEventListener("click", e => { e.stopPropagation(); show(cur - 1); });
+  box.querySelector(".next").addEventListener("click", e => { e.stopPropagation(); show(cur + 1); });
+  addEventListener("keydown", e => {             // capture: ahead of the deck's own key handling
+    if (!isOpen()) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    if (e.key === "ArrowRight") show(cur + 1);
+    else if (e.key === "ArrowLeft") show(cur - 1);
+    else if (e.key === "Escape" || e.key === " " || e.key === "Enter") close();
+  }, true);
+  window.lightbox = { isOpen, close };          // for the deck-button guard registered ahead of deck.js, above
 })();
 </script>
 </body>
