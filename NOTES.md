@@ -1114,3 +1114,8 @@ Fit checks now skip context elements (walk etc.).
   watercolour (`exports/Watercolor Campus with Tractor Outside Cattle Pen.png` → `photos/campus-watercolor.webp`)
   alone, full height and centred, multiplied into the paper with feathered edges as on the cover. No text. The PDF
   export picks it up as a one-page slide.
+
+## 2026-10-20: vision slide, campus at Level 3 watercolour
+- `slides/vision.html` hero: the architect's "Watercolor Campus Level3" (`exports/Watercolor Campus Level3.png` →
+  `photos/vision-campus-level3.webp`) replaces `photos/vision-watercolor.jpg` (removed); label "The campus at Level 3"
+  (was "The barnyard at Level 3"). Same crop (object-position centre 62%).
