@@ -397,6 +397,11 @@ if os.path.exists(_fp):
             _eb, _epn = _el["existing-barn"], _el["existing-pens"]
             _yw, _xc = _epn["y"] + _epn["h"], _eb["x"] + _eb["w"] + 13.0
             _new_d = [(round(_to_d(_cf["map"][0]).real, 1), _yw), (_xc, _yw), (_xc, _epn["y"]), (_epn["x"] + _epn["w"], _epn["y"])] + _new_d
+            if "holding-3" in _el and abs(_el["holding-3"]["x"] + _el["holding-3"]["w"] - _xc) < 1:
+                # the holding pens now run out to that same column line (the dog-ear, 2026-10-20), so the fence goes
+                # straight up it to their north-east corner; the jog back to the existing pens' corner cut diagonally
+                # across the pens (owner, 2026-10-20)
+                _new_d = _new_d[:2] + _new_d[4:]
             _cf["map"] = [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
         else:
             _cf["map"] = _cf["map"][:2] + [_to_m(x, y) for x, y in _new_d] + _cf["map"][-1:]
