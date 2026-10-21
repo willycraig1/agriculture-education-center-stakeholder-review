@@ -1043,7 +1043,7 @@ if (SITE) {
     const c = pd.kind === 'bonus' ? C_BONUS : C_SITE;
     const fill = reg(flat(pd.polys, c, -0.2, .38), pd.level, 'paddockfill');
     reg(lines(pd.polys.map(p => p.o), c.clone().multiplyScalar(.7), 0.05), pd.level, 'paddocks');
-    if (pd.label) {
+    if (pd.label && pd.kind !== 'bonus') {                          // no acreage tags on the bonus pasture (owner)
       const pts = pd.polys[0].o, cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
       padTags.push({ text: pd.label.replace(/\s*ac$/i, ' ac') + (pd.kind === 'bonus' ? ' bonus' : ''), p: new THREE.Vector3(cx, cy, 2), level: pd.level });
     }
