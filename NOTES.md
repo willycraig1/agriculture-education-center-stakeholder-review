@@ -1049,3 +1049,10 @@ Fit checks now skip context elements (walk etc.).
   black shade cloth at 10'. Rows under it along the strip: hydroponic channel racks (north-north-east, Level 3), raised
   beds 4' x 10' (middle, Level 1), planting tables 4' x 8' with flats (south-south-west, Level 3). Only the shade
   structure is labelled. Row widths and counts are my layout, not from the sketch.
+- Follow-up (owner): the strip's ground is black weed fabric (was the program tint); the far bay's south half is cut
+  out around the surveyed oak standing there (ground, frame, cloth, beds and tables stop short of it). Residence raised
+  2' for the flood zone (floor 3.5', roofs with it: low eave 12', high wall about 19.6'); its end walls now run out
+  under the roofs to close the sides of both porches (front porch under the main roof, back porch under the north
+  awning, which now has a deck); porch columns on both porches stand on the clerestory's four mullion lines, and the
+  glazed wall's mullions are on those lines and halfway between, the door in the last bay; steps down from both
+  porches; the crawlspace skirt runs under both.
