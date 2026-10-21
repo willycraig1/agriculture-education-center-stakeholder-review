@@ -546,6 +546,15 @@ def main():
                 if len(p) >= 2 and p[:, 2].min() > 0.3 and np.ptp(p[:, 2]) < 0.3:
                     panels.append(LineString([tuple(q[:2]) for q in p]))
     zone = unary_union(panels).buffer(2.5) if panels else None
+    # The site plan's pasture fence east of the barnyard runs slightly askew through the holding pens (an error carried
+    # in from the fencing plan); nothing of it belongs inside the pens' pipe-rail block, so it is cut out there (owner).
+    pen_pts = {}                                                    # each pen is drawn as four side objects, penN_k
+    for o in scene_objects():
+        if o.name.startswith('pen'):
+            pen_pts.setdefault(o.name.split('_')[0], []).extend([q for l in o.lines for q in l['p']] + [q for f in o.faces for q in f['p']])
+    pens = [box(p[:, 0].min(), p[:, 1].min(), p[:, 0].max(), p[:, 1].max()) for p in (np.asarray(v, float) for v in pen_pts.values()) if len(p)]
+    if pens:
+        zone = unary_union([zone, unary_union(pens).buffer(1.5)]) if zone is not None else unary_union(pens).buffer(1.5)
     if zone is not None:
         kept = []
         for f in out['fences']:

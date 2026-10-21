@@ -1063,3 +1063,10 @@ Fit checks now skip context elements (walk etc.).
   the west bay of the glazed north wall; its siding runs down to the ground (no dark plinth), the crawlspace skirt
   and porch decks sitting between the end walls.
 - Follow-up (owner): both residence porches screened in between the end walls, screen on a 5" rail through the column line.
+
+## 2026-10-20: pasture fence through the holding pens (massing)
+- The site plan's pasture fence east of the barnyard (fence-07) runs a few degrees askew from the existing pens' corner
+  north through the east column of holding pens (about x 414 to 424 against the pens' east line at 426.6), so the
+  model drew a wire fence across pens 1, 2, and the handling side. `export_site.py` now cuts every pasture fence out of
+  the holding pens' footprint (each pen's four side objects grouped, buffered 1.5'). The site plan itself
+  (`build_fences.py` / `site-layers.svg`) still carries the askew line.
