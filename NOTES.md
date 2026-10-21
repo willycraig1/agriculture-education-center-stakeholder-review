@@ -1094,6 +1094,14 @@ Fit checks now skip context elements (walk etc.).
   level"), Leading a steer (a student and steer at cattle barn B), Between barns, From the pasture, The classroom (the
   glass wall from the lawn, Red House beside it), Inside the classroom, The shade house (along the beds to the
   residence). `window.massing` (camera, controls, setView) is the console hook used to frame them.
+- Stills from the viewer: `python tools/export_massing_view.py [view] [--size 4800x2000] [--labels] [--level 3]`
+  screenshots `tools/massing-shot.html` (the viewer without its control rail, from a named camera) with headless
+  Chrome to `exports/massing-<view>.png`. First view: `over-the-pens-wide`, "Over the pens" pulled back to 2.4:1 to
+  take in the unfinished (poultry) barn and the classroom building. Second: `leading-a-steer` (16:9; the camera moved
+  10' west, out of the feed storage container it stood in, and the viewer preset with it).
+- Cattle barns (owner): the monitor's clerestory sidewalls are open, louvered at most (not clad). `scene.py` draws them
+  as horizontal louver blades (0.4' deep, about 0.55' apart, sloping down and out) from the shed roofs up to the
+  monitor roof, in the cladding colour (follows the red metal / wood toggle). Gable ends stay clad.
 
 ## 2026-10-20: cover watercolour, "Leading a heifer"
 - Title slide: the architect's new watercolour (`exports/Leading a heifer watercolor.png` →
