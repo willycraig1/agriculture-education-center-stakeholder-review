@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610210946">
-<link rel="stylesheet" href="../design/deck.css?v=202610210946">
+<link rel="stylesheet" href="../design/palette.css?v=202610210949">
+<link rel="stylesheet" href="../design/deck.css?v=202610210949">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -65,10 +65,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610210946"></script>
-<script src="data/pasture-capacity.js?v=202610210946"></script>
-<script src="../design/deck.js?v=202610210946"></script>
-<script src="../design/viewer.js?v=202610210946"></script>
+<script src="data/site-map.js?v=202610210949"></script>
+<script src="data/pasture-capacity.js?v=202610210949"></script>
+<script src="../design/deck.js?v=202610210949"></script>
+<script src="../design/viewer.js?v=202610210949"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -91,20 +91,22 @@
   const pens = cb("cattle-pens-canopy"), ub = cb("unfinished-barn"), cp = cb("carport");
   // Callouts (2026-10-21, architect): small names set out in clear ground, each on a leader to its building. The leader
   // and name are counter-scaled together about the anchor (data-fixed), so they keep their size and offset on screen.
+  // The dot is white so it shows on the red buildings.
   // ax, ay: the point on the building (map units); dx, dy: where the name sits, relative to it (base units).
   const callout = (ax, ay, dx, dy, t, anchor) => {
     const len = Math.hypot(dx, dy), ex = dx * (len - 5) / len, ey = dy * (len - 5) / len;   // stop short of the name
     return `<g transform="translate(${ax.toFixed(1)} ${ay.toFixed(1)})" class="campus-label"><g data-fixed="1">
-      <circle r="2.6" fill="var(--education)" stroke="#fff" stroke-width="1.2"/>
       <line x1="0" y1="0" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="var(--education)" stroke-width="1.6" stroke-linecap="round"/>
+      <circle r="3" fill="#fff" stroke="var(--education)" stroke-width="1.6"/>
       <text x="${dx}" y="${dy}" text-anchor="${anchor}" dy="5" font-size="15" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="4.5" paint-order="stroke">${t}</text></g></g>`;
   };
-  const campusLabels = callout(1214, 350, 30, -26, "Red House", "start")
-    + (cp ? callout(cp[2].x + cp[2].width, cp[1], 30, 12, "Carport", "start") : "")
-    + callout(1176, 318, 46, 0, "Existing barn", "start")                    // the barn east of the pens' lean-to
-    + (ub ? callout(ub[2].x + ub[2].width, ub[1], 34, -6, "Unfinished barn", "start") : "")
-    + (pens ? callout(pens[2].x, pens[1] - 6, -40, -12, "Cattle pens", "end") : "")
-    + callout(1120, 374, -30, 18, "Hog pens", "end");                        // the long open-sided shed out in the pasture
+  // anchors at the centre of each building; offsets set so the names keep their places at the campus framing
+  const campusLabels = callout(1212, 370, 34, -67, "Red House", "start")
+    + (cp ? callout(cp[0], cp[1], 48, 12, "Carport", "start") : "")
+    + callout(1162, 324, 75, -12, "Existing barn", "start")                  // the barn east of the pens' lean-to
+    + (ub ? callout(ub[0], ub[1], 58, -6, "Unfinished barn", "start") : "")
+    + (pens ? callout(pens[0], pens[1], -57, -24, "Cattle pens", "end") : "")
+    + callout(1122, 362, -34, 42, "Hog pens", "end");                       // the long open-sided shed out in the pasture
   svg.querySelector("#campus").insertAdjacentHTML("beforeend",
     `<g id="campus-names"><g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -72" stroke="var(--education)" stroke-width="5.5" stroke-linecap="round" fill="none"/>
      <path d="M-15 -68 L0 -90 L15 -68 Z" fill="var(--education)"/></g>

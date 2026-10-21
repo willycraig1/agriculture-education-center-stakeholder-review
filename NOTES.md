@@ -1131,4 +1131,5 @@ Fit checks now skip context elements (walk etc.).
 - Campus names are callouts: 15 px names set out in clear ground on leaders to their buildings (dot on the building),
   counter-scaled with the zoom as one group so size and offset hold on screen. ENTRY arrow and text smaller.
   "Hog pens" added on the long open-sided shed west of the cattle pens (about 26' x 60' on the drawing, matching the
-  hog enclosure photo). Checked in the browser: no name overlaps another name or a building.
+  hog enclosure photo). Leaders run from the centre of each building (a white dot with a red ring, so it shows on the red
+  fill); checked in the browser that each dot lands on its own shape and no name overlaps another name or a building.
