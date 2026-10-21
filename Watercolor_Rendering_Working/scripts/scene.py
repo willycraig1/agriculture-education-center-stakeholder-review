@@ -156,9 +156,9 @@ def build():
     # site grass (big) is drawn separately; paving and dirt here (order = paint order)
     # drive coming from south up to barn & service lane
     ground_poly(G, 303 / 1, -362, 333, -254, 'asphalt')            # service drive beside the existing barn, stopping short of the Red House (owner, 2026-10-19)
-    ground_poly(G, 145.7, -600, 168.5, -246, 'asphalt')            # west parking drive (from entry road)
+    ground_poly(G, 145.7, -455, 168.5, -246, 'asphalt')            # west parking drive, to the end of the lot's west leg (was carried on into the pasture)
     ground_poly(G, 83, -245.8, 303, -230.5, 'concrete')            # E-W lane south of arena
-    ground_poly(G, 168.5, -254, 303, -245.8, 'asphalt')
+    ground_poly(G, 168.5, -254, 303, -245.8, 'grass')              # planting strip north of the parking, palms (owner, 2026-10-20)
     ground_poly(G, 168.5, -339, 300, -254, 'grasspark')            # grass parking
     ground_poly(G, 194, -230.5, 218.6, -93.6, 'concrete')          # lane between cattle barns
     ground_poly(G, 302.7, -254, 983 / S, -91.5, 'concrete')        # service lane east of arena, out to the barn front line (no grass strip)
@@ -234,16 +234,23 @@ def build():
     Z_COL = 14.0 + JD + RT                              # roof top at the column lines
     kit_gable(o, x1, y1, x2, y2, Z_COL, 'x', joist_lines=xs)
     posts_along(o, [(x, y1) for x in xs] + [(x, y2) for x in xs], 0, 14.0, w=0.75, mat='timber')
-    # grooming bay inside (west) – enclosed white box, painted before the roof
-    gx1, gy1, gx2, gy2 = R(650, 545, 683, 672)
-    o.bias = 200.0
-    box(o, gx1, gy1, gx2, gy2, 0, 10, 'whitemetal', 'roofflat')
-    o.bias = 0.0
     objs.append(o)
+    # grooming area (Level 2) at the arena's west end: not a building but an open wash area (owner, 2026-10-20), a
+    # concrete pad with short pipe panels out from the west column line to tie animals to while they are hosed down
+    # and blown out (no rail along the column line: the panels alone, room to work around them; owner)
+    gx1, gy1, gx2, gy2 = R(650, 545, 683, 672)
+    og = Obj('grooming')
+    box(og, gx1, gy1, gx2, gy2, 0, 0.25, 'concrete', 'concrete')
+    for k in range(1, 5):
+        yk = gy1 + k * (gy2 - gy1) / 5
+        fence(og, gx1 + 0.8, yk, gx1 + 5.8, yk, 4.5, [4.5, 2.5], 'pipe', post=5)
+    objs.append(og)
+    # arena rail, closed in on the west (between the arena and the grooming area)
     o3 = Obj('arenarail', cast_shadow=False)
     fence(o3, gx2 + 2, y1 + 3, x2 - 3, y1 + 3, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     fence(o3, gx2 + 2, y2 - 10, x2 - 3, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     fence(o3, x2 - 3, y1 + 3, x2 - 3, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
+    fence(o3, gx2 + 2, y1 + 3, gx2 + 2, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     objs.append(o3)
     # two 4-row x 24' fixed aluminium bleachers along the north side, inside the columns (owner, 2026-10-19), 12' in
     # from each end with 12' between: rows about 1.75' deep stepping up 0.75' toward the columns, from a 1.3' seat

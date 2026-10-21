@@ -500,6 +500,37 @@ def main():
             r = rings(it)[0]
             if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
     out['campus']['stalls'] = stalls
+    # Sabal palms framing the parking's north and west sides (owner, 2026-10-20), in scene feet. North: down the 8'
+    # planting strip between the grass parking and the lane south of the arena (scene.py, x 168.5 to 303), on the
+    # arena's 12' column grid so the trunks line up with its columns; the end palms are pulled in to sit inside the
+    # strip. West: six about 19.4' apart in the grass west of the lot's west leg (x 145.7), from the lane south toward
+    # the surveyed oak.
+    ax1, ax2 = 645 / 2.95, 893 / 2.95                                       # arena column lines (scene.py, R(645, ...))
+    step = (ax2 - ax1) / 7
+    grid = [ax1 + k * step for k in range(-5, 8) if 168.5 < ax1 + k * step < 303]
+    north = [min(max(x, 172.0), 300.0) for x in grid]
+    out['campus']['palms'] = ([[round(x, 1), -249.9] for x in north] +
+                              [[139.7, round(-252 - k * 19.4, 1)] for k in range(6)])
+
+    # The Red House's Level 3 teaching space, as the massing models it (owner, 2026-10-20): 72' x 36' on the 12' grid,
+    # near the study plan's addition but square to the barnyard (the diagram's axes) instead of true north,
+    # entry centred on its west end. The walk is walk-3 from the plan, carried on to a landing at the new door.
+    ao = ELEM['red-house-addition']['outline']
+    acx, acy = sum(p[0] for p in ao) / 4, sum(p[1] for p in ao) / 4
+    acx += 5.0                     # moved 5' east (owner): about 12.9' clear from its floor band to the Red House's north-east porch
+    L, W = 72.0, 36.0
+    c0, c1 = d2s(acx, acy), d2s(acx + 1, acy)
+    wx = acx - L / 2                                                         # west wall line (diagram x)
+    landing = [(wx - 6, acy - 5), (wx, acy - 5), (wx, acy + 5), (wx - 6, acy + 5)]
+    w3 = ELEM['walk-3']['outline']
+    end = [(220.8, 428.4), (223.5, 437.1)]                                   # walk-3's east end (its edge at the plan's canopy)
+    link = [(wx - 6, acy + 5), (wx, acy + 5), end[1], end[0]]
+    walk = unary_union([Polygon(w3).buffer(0), Polygon(landing), Polygon(link).buffer(0)]).buffer(0.05).buffer(-0.05)
+    start = min(w3, key=lambda p: p[0])
+    out['campus']['addition'] = dict(
+        c=list(c0), ang=round(math.degrees(math.atan2(c1[1] - c0[1], c1[0] - c0[0])), 3), L=L, W=W,
+        walk=[list(d2s(x, y)) for x, y in list(walk.exterior.coords)[:-1]],
+        walk_from=list(d2s(*start)), walk_to=list(d2s(wx - 3, acy)))
 
     # the walk to the unfinished barn squares into its aisle in the deck's plan (tools/build_ag_area.py)
     walks_u = unary_union([Polygon(w['o']).buffer(0) for w in out['campus']['walks']])
@@ -515,6 +546,15 @@ def main():
                 if len(p) >= 2 and p[:, 2].min() > 0.3 and np.ptp(p[:, 2]) < 0.3:
                     panels.append(LineString([tuple(q[:2]) for q in p]))
     zone = unary_union(panels).buffer(2.5) if panels else None
+    # The site plan's pasture fence east of the barnyard runs slightly askew through the holding pens (an error carried
+    # in from the fencing plan); nothing of it belongs inside the pens' pipe-rail block, so it is cut out there (owner).
+    pen_pts = {}                                                    # each pen is drawn as four side objects, penN_k
+    for o in scene_objects():
+        if o.name.startswith('pen'):
+            pen_pts.setdefault(o.name.split('_')[0], []).extend([q for l in o.lines for q in l['p']] + [q for f in o.faces for q in f['p']])
+    pens = [box(p[:, 0].min(), p[:, 1].min(), p[:, 0].max(), p[:, 1].max()) for p in (np.asarray(v, float) for v in pen_pts.values()) if len(p)]
+    if pens:
+        zone = unary_union([zone, unary_union(pens).buffer(1.5)]) if zone is not None else unary_union(pens).buffer(1.5)
     if zone is not None:
         kept = []
         for f in out['fences']:
@@ -573,6 +613,7 @@ def main():
         fh.write('// ' + out['about'] + '\nwindow.SITE = ')
         json.dump(out, fh, separators=(',', ':'))
         fh.write(';\n')
+    stamp_viewer(path)
     allpts = np.array([q for b in out['boundary'] for q in b['o']])
     print(f"{path}: {os.path.getsize(path) / 1024:.0f} KB; frame fit {RESID:.2f} ft; "
           f"paddocks {len(pads)}, fences {len(out['fences'])}, canopy polys {len(canopy)}, canopy trees {len(scatter)}, "
@@ -582,6 +623,16 @@ def main():
           f"trees oak/pine/palm {[sum(t[3] == k for t in scatter) for k in (0, 1, 2)]}; basins {[(b['kind'], b['inset'], len(b['v']) // 3) for b in basins]}; "
           f"boundary x {allpts[:, 0].min():.0f}..{allpts[:, 0].max():.0f} y {allpts[:, 1].min():.0f}..{allpts[:, 1].max():.0f}")
     for pd in pads: print('  ', pd['kind'], pd['label'], round(Polygon(pd['polys'][0]['o']).area / 43560, 1), 'ac')
+
+
+def stamp_viewer(path):
+    """Version the viewer's script tag for this data file with its content hash, so a reload never runs stale data."""
+    import hashlib, re
+    name = os.path.basename(path)
+    v = hashlib.sha1(open(path, 'rb').read()).hexdigest()[:10]
+    html = os.path.join(HERE, 'index.html')
+    s = open(html).read()
+    open(html, 'w').write(re.sub(r'src="' + re.escape(name) + r'(\?v=\w+)?"', f'src="{name}?v={v}"', s))
 
 
 if __name__ == '__main__':
