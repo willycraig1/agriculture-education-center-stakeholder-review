@@ -161,7 +161,7 @@ def build():
     ground_poly(G, 168.5, -254, 303, -245.8, 'grass')              # planting strip north of the parking, palms (owner, 2026-10-20)
     ground_poly(G, 168.5, -339, 300, -254, 'grasspark')            # grass parking
     ground_poly(G, 194, -230.5, 218.6, -93.6, 'concrete')          # lane between cattle barns
-    ground_poly(G, 302.7, -254, 983 / S, -91.5, 'concrete')        # service lane east of arena, out to the barn front line (no grass strip)
+    ground_poly(G, 302.7, -254, 983 / S, -91.5, 'grass2')          # service lane east of arena, out to the barn front line: grass over a drivable base, as the site plan (owner, 2026-10-21)
     ground_poly(G, 329.5, -262.7, 499.6, -254.6, 'concrete')       # 8' walk north of barn, out to the unfinished barn (as the plan's walk)
     ground_poly(G, 333, -340, 420, -313.6, 'asphalt')              # apron in front of barn
     for r in [R(983, 270, 1109, 415), R(983, 415, 1109, 555), R(1132.6, 270, 1258.5, 415),
