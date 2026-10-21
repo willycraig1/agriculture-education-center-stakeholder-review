@@ -1033,3 +1033,6 @@ Fit checks now skip context elements (walk etc.).
 - Follow-up (owner): the whole roof raised 1.5' (plate 12.0' above grade, was 10.5'; 9.5' walls on the 2.5' floor;
   ridge about 18'). The higher eave over the wing's south-east wall is now about 14.6'; the wing's north-west wall
   stands about 10.5' under the porch roof, so its windows are back to the standard size.
+- Follow-up (owner): the arched-top window in the cross gable's north-west end, behind the oak (photo 15; 3' wide,
+  round head, about 9.5' from the screened porch's wall); the north-west porch's railing now opens at the steps (newels
+  either side) and returns across the porch's open north-east end.
