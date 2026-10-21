@@ -1012,10 +1012,20 @@ _he = HOLD_E if "HOLD_E" in dir() else _ex                     # the holding blo
 xe = _he + 12
 dims = [dim(f"{MOD}'", XB, yt, XB + MOD, yt), dim(f"{GAP}'", XB + MOD, yt, XA, yt), dim(f"{MOD}'", XA, yt, X_HOLD, yt),
         *([dim(f"{_front - X_HOLD:g}'", X_HOLD, yt, _front, yt), dim(f"{_he - _front:g}'", _front, yt, _he, yt)]
-          if "HOLD_E" in dir() and _front - X_HOLD > 0.5 else [dim(f"{_he - X_HOLD:g}'", X_HOLD, yt, _he, yt)]),   # lane, then the holding block
-        dim(f"{TURN_D}'", x_sa_b - TURN_D, y_sa - 10, x_sa_b, y_sa - 10), dim(f"{SMALL_W}'", x_sa_b, y_sa - 10, x_sa_b + SMALL_W, y_sa - 10),
-        dim(f"{GAP}'", x_sa_b + SMALL_W, y_sa - 10, x_sa_a, y_sa - 10)]
+          if "HOLD_E" in dir() and _front - X_HOLD > 0.5 else [dim(f"{_he - X_HOLD:g}'", X_HOLD, yt, _he, yt)])]   # lane, then the holding block
 by_id = {e["id"]: e for e in E}
+# Small animal barns, from the barns as drawn (2026-10-21; the string here had been left on the side-by-side layout):
+# across the north end, the turnout and the barn; down the west side, barn A's wings either side of the dogtrot, then B.
+_sa_ = [by_id[k] for k in ("small-a", "dogtrot", "small-a2", "small-b") if k in by_id]
+if _sa_:
+    _t_, _n_ = by_id.get("turnout-small-a"), _sa_[0]
+    _yn = _n_["y"] - 10
+    if _t_:
+        dims.append(dim(f"{_t_['w']:g}'", _t_["x"], _yn, _t_["x"] + _t_["w"], _yn))
+    dims.append(dim(f"{_n_['w']:g}'", _n_["x"], _yn, _n_["x"] + _n_["w"], _yn))
+    _xw = (_t_["x"] if _t_ else _n_["x"]) - 12
+    for e_ in _sa_:
+        dims.append(dim(f"{e_['h']:g}'", _xw, e_["y"], _xw, e_["y"] + e_["h"]))
 string = [by_id["turnout-cattle-a"]["y"], by_id["holding-3"]["y"], by_id["holding-2"]["y"], by_id["holding-1"]["y"], _ep["y"], _ep["y"] + PEN_D, y_barn, SOUTH]
 for a_, b_ in zip(string, string[1:]):
     if b_ - a_ > 0.5:
