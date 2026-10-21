@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the Plan Took Shape</title>
+<link rel="stylesheet" href="../design/palette.css?v=202610211142">
+<link rel="stylesheet" href="../design/deck.css?v=202610211142">
+<style>
+  /* How the design parameters led to the layout (architect, 2026-10-21): the Level 3 barnyard built up one move at a
+     time on the site plan, starting from the grid the existing barn sets. */
+  .stage { padding-top: 60px; }
+  h1 { margin-bottom: 0; }
+  .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
+  .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
+  .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
+  .map [data-layer], .map .by, .map #barnyard-labels text, .map #logic-grid, .map #logic-axis { transition: opacity .8s var(--ease); }
+  .map .off { opacity: 0; }
+  .map #aerial { filter: saturate(.45) brightness(1.06); }
+  .map .by.future, .map #barnyard-labels text.future { opacity: 0; }
+  .map .by.past { opacity: .5; }
+  .map #barnyard-labels text.past { opacity: .6; }
+  .map #campus { opacity: .55; }
+  .map #paddock-fills { display: none; }
+  .moves { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; counter-reset: m; }
+  .moves li { display: grid; grid-template-columns: 34px 1fr; gap: 0 12px; padding: 11px 16px; border-radius: 12px; color: var(--muted);
+              transition: background .5s var(--ease), color .5s var(--ease); }
+  .moves li .n { width: 30px; height: 30px; border-radius: 50%; border: 2px solid currentColor; display: grid; place-items: center;
+                 font: 700 14px/1 var(--sans); margin-top: 1px; }
+  .moves li h3 { font: 600 21px/1.25 var(--serif); margin: 2px 0 0; }
+  .moves li p { grid-column: 2; font: 400 16px/1.45 var(--sans); margin: 7px 0 0; display: none; }
+  .moves li.now { background: #fff; color: var(--ink); box-shadow: 0 8px 26px -18px rgba(43,42,38,.35); }
+  .moves li.now .n { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .moves li.now p { display: block; }
+  .moves li.done { color: var(--ink); }
+  .src { font: 400 13px/1.45 var(--sans); color: var(--muted); margin-top: auto; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow" data-step="0">The plan</div>
+  <h1 data-step="0">How the plan took shape</h1>
+  <div class="body">
+    <div class="map card" data-step="0" id="map"></div>
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <ol class="moves" id="moves"></ol>
+      <p class="src" data-step="0">The Level 3 barnyard diagram placed to scale on the survey. The grid is 12', set square to the
+        existing barn. North is to the left.</p>
+    </div>
+  </div>
+</div>
+
+<script src="data/site-map.js?v=202610211142"></script>
+<script src="../design/deck.js?v=202610211142"></script>
+<script src="../design/viewer.js?v=202610211142"></script>
+<script>
+(function () {
+  const M = window.SITE_MAP;
+  const mapEl = document.getElementById("map");
+  mapEl.insertAdjacentHTML("afterbegin", M.svg);
+  const svg = mapEl.querySelector(":scope > svg");
+  ["land", "soils", "labels", "aerial", "veil"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
+  // the barnyard is the subject: no pasture fencing, paddock acreages, feed + water hubs, or slough name here
+  // (architect, 2026-10-21)
+  svg.querySelectorAll("#paddocks, #pinwheel-labels, #historic-slough-label").forEach(e => e.style.display = "none");
+
+  // the moves, in the order the design made them. ids: the barnyard elements (data-id); names: their map labels.
+  const moves = [
+    { h: "Start from the existing barn", p: "The existing barn sits more or less perpendicular to Cowpen Slough and parallel to the entry drive. Its orientation sets a new grid for the barnyard, and the unfinished barn already falls on its line.",
+      ids: ["existing-barn", "existing-pens"], names: ["Existing barn", "Existing pens", "Poultry"] },
+    { h: "Cattle builds off the existing pens", p: "The holding pens, handling yard, and both cattle barns grow out from the existing pens, immediately adjacent to the pasture, on the same grid.",
+      ids: ["handling", "holding-1", "holding-2", "holding-3", "holding-4", "holding-5", "cattle-a", "cattle-b", "turnout-cattle-a", "turnout-cattle-b", "bedding"],
+      names: ["Handling", "Pen 1", "Pen 2", "Pen 3", "Pen 4", "Pen 5", "Cattle barn A", "Cattle barn B", "Bedding"] },
+    { h: "Parking at the center", p: "Parking sits central to the new barns and the Red House, avoiding most existing trees, with walks out to each. It gives vehicles access to all these structures, which will often need loading and unloading.",
+      ids: ["parking", "walk"], names: ["Parking"] },
+    { h: "Completing the shape", p: "The small animal barns complete the shape of the barnyard parking. The horticulture area frames the south edge of the drive loop, and the caretaker residence completes the central campus.",
+      ids: ["small-a", "small-a2", "dogtrot", "small-b", "turnout-small-a", "turnout-small-a2", "turnout-small-b", "walk-2", "horticulture", "residence"],
+      names: ["Small animal barn A", "Small animal barn B", "Horticulture", "RV / residence"] },
+    { h: "A working center", p: "The arena, grooming area, and feed storage sit in the middle, where vehicles reach them easily for daily use, with central access to the dumpsters.",
+      ids: ["arena", "grooming", "feed", "compost", "dumpster"], names: ["Arena", "Feed storage", "Compost", "Dumpsters"] },
+    { h: "A classroom in the trees", p: "The new instructional classroom extends east from the Red House into the tree canopy: a working space that connects you with nature.",
+      ids: ["red-house-addition", "walk-3"], names: ["Classroom / event"] },
+  ];
+  const stepOf = new Map(), nameStep = new Map();
+  moves.forEach((m, k) => { m.ids.forEach(id => stepOf.set(id, k)); m.names.forEach(t => nameStep.set(t, k)); });
+
+  // ---- the grid, square to the existing barn, and the barn's axis carried up to the unfinished barn ----
+  const toMap = el => { const T = svg.getCTM().inverse().multiply(el.getCTM());
+    return (x, y) => { const q = new DOMPoint(x, y).matrixTransform(T); return [q.x, q.y]; }; };
+  const rect = svg.querySelector('#barnyard .by[data-id="existing-barn"] .shape');
+  const rx = +rect.getAttribute("x"), ry = +rect.getAttribute("y"), rw = +rect.getAttribute("width"), rh = +rect.getAttribute("height"), T = toMap(rect);
+  const c0 = T(rx, ry), cW = T(rx + rw, ry), cH = T(rx, ry + rh);
+  const unit = (a, b) => { const d = Math.hypot(b[0] - a[0], b[1] - a[1]); return [(b[0] - a[0]) / d, (b[1] - a[1]) / d]; };
+  let u = unit(c0, cW), v = unit(c0, cH);                                   // the barn's two directions
+  const lenU = Math.hypot(cW[0] - c0[0], cW[1] - c0[1]), lenV = Math.hypot(cH[0] - c0[0], cH[1] - c0[1]);
+  let axisDir = lenU > lenV ? u : v;                                        // the long axis, along the entry drive
+  const centre = T(rx + rw / 2, ry + rh / 2);
+  const ub = svg.querySelector("#unfinished-barn");
+  const ubc = ub ? (() => { const q = [...ub.points].map(p => toMap(ub)(p.x, p.y)); return [q.reduce((s, p) => s + p[0], 0) / q.length, q.reduce((s, p) => s + p[1], 0) / q.length]; })() : null;
+  if (ubc && (ubc[0] - centre[0]) * axisDir[0] + (ubc[1] - centre[1]) * axisDir[1] < 0) axisDir = [-axisDir[0], -axisDir[1]];   // point it at the unfinished barn
+  // the grid covers the barnyard only: the extent of its elements and the unfinished barn in the barn's own directions,
+  // plus two 12' modules
+  const step = 12 / M.ft_per_unit, inv = svg.getScreenCTM().inverse();
+  const at = (s, t) => [c0[0] + u[0] * s + v[0] * t, c0[1] + u[1] * s + v[1] * t];
+  let s0 = Infinity, s1 = -Infinity, t0 = Infinity, t1 = -Infinity;
+  const gridIds = ["existing-barn", "existing-pens", "handling", "holding-1", "holding-2", "holding-3", "holding-4", "holding-5", "bedding",
+    "cattle-a", "cattle-b", "turnout-cattle-a", "turnout-cattle-b", "arena", "grooming", "feed", "small-a", "small-a2", "small-b", "dogtrot"];
+  [...gridIds.map(id => svg.querySelector(`#barnyard .by[data-id="${id}"] .shape`)), ub].filter(Boolean).forEach(el => {
+    const r = el.getBoundingClientRect();
+    [[r.left, r.top], [r.right, r.top], [r.left, r.bottom], [r.right, r.bottom]].forEach(([x, y]) => {
+      const q = new DOMPoint(x, y).matrixTransform(inv), dx = q.x - c0[0], dy = q.y - c0[1];
+      const ps = dx * u[0] + dy * u[1], pt = dx * v[0] + dy * v[1];
+      s0 = Math.min(s0, ps); s1 = Math.max(s1, ps); t0 = Math.min(t0, pt); t1 = Math.max(t1, pt);
+    });
+  });
+  s0 = (Math.floor(s0 / step) - 2) * step; s1 = (Math.ceil(s1 / step) + 2) * step;
+  t0 = (Math.floor(t0 / step) - 2) * step; t1 = (Math.ceil(t1 / step) + 2) * step;
+  let g = "";
+  for (let s = s0; s <= s1 + 1e-6; s += step) { const a = at(s, t0), b = at(s, t1); g += `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`; }
+  for (let t = t0; t <= t1 + 1e-6; t += step) { const a = at(s0, t), b = at(s1, t); g += `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`; }
+  const back = 70, fwd = ubc ? Math.hypot(ubc[0] - centre[0], ubc[1] - centre[1]) + 22 : 90;
+  const a0 = [centre[0] - axisDir[0] * back, centre[1] - axisDir[1] * back], a1 = [centre[0] + axisDir[0] * fwd, centre[1] + axisDir[1] * fwd];
+  svg.querySelector("#barnyard").insertAdjacentHTML("afterbegin",
+    `<g id="logic-grid"><path d="${g}" fill="none" stroke="var(--muted)" stroke-opacity=".45" stroke-width=".4" data-w=".4"/></g>`);
+  svg.querySelector("#barnyard").insertAdjacentHTML("beforeend",
+    `<g id="logic-axis"><path d="M${a0[0].toFixed(1)} ${a0[1].toFixed(1)}L${a1[0].toFixed(1)} ${a1[1].toFixed(1)}" fill="none" stroke="var(--education)" stroke-width="1.4" data-w="1.4" stroke-dasharray="5 3" data-dash="5 3" stroke-linecap="round"/></g>`);
+
+  // frame: tight on the central campus, from the unfinished barn to the residence and the classroom (every barnyard
+  // element but the long walk and the parking loop, which run on past it)
+  let fx0 = Infinity, fy0 = Infinity, fx1 = -Infinity, fy1 = -Infinity;
+  [...svg.querySelectorAll("#barnyard .by:not([data-id=walk]):not([data-id=parking]) .shape"), ub].filter(Boolean).forEach(el => {
+    const r = el.getBoundingClientRect();
+    [[r.left, r.top], [r.right, r.bottom]].forEach(([x, y]) => { const q = new DOMPoint(x, y).matrixTransform(inv);
+      fx0 = Math.min(fx0, q.x); fy0 = Math.min(fy0, q.y); fx1 = Math.max(fx1, q.x); fy1 = Math.max(fy1, q.y); });
+  });
+  const frame = [fx0 - 12, fy0 - 10, fx1 - fx0 + 24, fy1 - fy0 + 20];
+  const [vx0, vy0, vx1, vy1] = M.view, full = [vx0, vy0, vx1 - vx0, vy1 - vy0];
+  const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full, damp: 0.6,
+    presets: [{ label: "Campus", box: frame }, { label: "Full site", box: full }] });
+
+  document.getElementById("moves").innerHTML = moves.map((m, k) =>
+    `<li data-step="0" data-k="${k}"><span class="n">${k + 1}</span><h3>${m.h}</h3><p>${m.p}</p></li>`).join("");
+  moves.slice(1).forEach((_, k) => mapEl.insertAdjacentHTML("beforeend", `<span data-step="${k + 1}" hidden></span>`));
+
+  const isStatic = () => document.documentElement.classList.contains("static");
+  let first = true;
+  function apply(n) {
+    n = Math.min(n, moves.length - 1);
+    const fin = isStatic();                                                 // the static page shows the finished plan, all at full strength
+    svg.querySelectorAll("#barnyard .by").forEach(el => {
+      const k = stepOf.has(el.dataset.id) ? stepOf.get(el.dataset.id) : moves.length - 1;
+      el.classList.toggle("future", k > n);
+      el.classList.toggle("past", k < n && !fin);
+      const use = el.dataset.use2 || el.dataset.use, sh = el.querySelector(".shape"), c = use.replace("_", "-");
+      sh.style.stroke = `var(--${c})`;
+      if (el.dataset.kind !== "yard") sh.style.fill = el.dataset.kind === "walk" ? "#fff" : `var(--${c}-tint)`;
+    });
+    svg.querySelectorAll("#barnyard-labels text").forEach(t => {
+      const k = nameStep.has(t.textContent) ? nameStep.get(t.textContent) : moves.length - 1;
+      t.classList.toggle("future", k > n);
+      t.classList.toggle("past", k < n && !fin);
+    });
+    svg.querySelector("#logic-grid").style.opacity = n === 0 || fin ? 1 : .45;
+    svg.querySelector("#logic-axis").style.opacity = n === 0 || fin ? 1 : 0;
+    if (first) { viewer.home(frame); viewer.flyTo(frame, 0); first = false; }
+    document.querySelectorAll("#moves li").forEach(li => {
+      li.classList.toggle("now", +li.dataset.k === n);
+      li.classList.toggle("done", +li.dataset.k < n);
+    });
+  }
+  Deck.onStep(apply);
+  Deck.start();
+  if (isStatic()) apply(moves.length - 1);
+})();
+</script>
+</body>
+</html>

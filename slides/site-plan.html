@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Barnyard on the Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610202344">
-<link rel="stylesheet" href="../design/deck.css?v=202610202344">
+<link rel="stylesheet" href="../design/palette.css?v=202610211142">
+<link rel="stylesheet" href="../design/deck.css?v=202610211142">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -54,12 +54,13 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610202344"></script>
-<script src="../design/deck.js?v=202610202344"></script>
-<script src="../design/viewer.js?v=202610202344"></script>
+<script src="data/site-map.js?v=202610211142"></script>
+<script src="data/pasture-capacity.js?v=202610211142"></script>
+<script src="../design/deck.js?v=202610211142"></script>
+<script src="../design/viewer.js?v=202610211142"></script>
 <script>
 (function () {
-  const M = window.SITE_MAP, K = M.barnyard.checks;
+  const M = window.SITE_MAP, K = M.barnyard.checks, acres = Math.round(window.PASTURE_CAPACITY.levels[0].acres);
   const mapEl = document.getElementById("map");
   mapEl.insertAdjacentHTML("afterbegin", M.svg);
   const svg = mapEl.querySelector(":scope > svg");
@@ -75,7 +76,7 @@
   // the campus at its full build-out, first as a whole and then the barnyard (owner, 2026-10-19: the end vision first;
   // the barnyard slide that follows walks back to Levels 2 and 1)
   const text = [
-    { b: "Level 3", h: "The whole campus", p: "The new barnyard sits beside the Red House and the existing barns, with the paddocks all around it.", f: full, n: 3 },
+    { b: "Level 3", h: "The whole campus", p: `The new barnyard sits beside the Red House and the existing barns, with nine paddocks, about ${acres} acres of pasture, all around it.`, f: full, n: 3 },   // the paddocks slide follows with the detail
     { b: "Level 3", h: "The barnyard", p: "Two cattle barns, the small animal barn, the covered arena, and the holding pens, set around the existing barn and its pens.", f: yard, n: 3 },
   ];
   document.getElementById("levels").innerHTML = text.map((t, k) =>
