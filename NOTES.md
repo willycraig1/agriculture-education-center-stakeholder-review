@@ -1137,4 +1137,5 @@ Fit checks now skip context elements (walk etc.).
   fill); checked in the browser that each dot lands on its own shape and no name overlaps another name or a building.
 - What is already built (`existing.html`): names match the site slide's callouts ("Cattle pens", "Hog pens",
   "Unfinished barn", singular); "timber" is now "wood-framed" (architect: no heavy timber on site). Every caption is
-  sized to the tallest (set in the page after fonts load), so the photos line up across both rows.
+  sized to the tallest (set in the page after fonts load), so the photos line up across both rows. The Red House
+  porches are no longer "wraparound" (they are segmented), here and on the Red House slide.
