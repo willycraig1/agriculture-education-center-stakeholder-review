@@ -1111,3 +1111,4 @@ Fit checks now skip context elements (walk etc.).
 - Residence front porch (owner, 2026-10-21): the porch's back wall is a full-width sliding glass door between the end walls (four panels, head at 10.5' with the window and transom heads), replacing the door and window.
 - "The shade house" view is now the owner's framing (2026-10-21): from above the south pond, the residence's porch end at left and the shade house running away to the right (camera -3, -538, 21 to 122, -506, 8; 27 deg vertical).
 - Service lane east of the arena (owner, 2026-10-21): grass over a drivable base, as on the site plan, not concrete (`scene.py` ground, `grass2`); the bedding storage pad at its north end stays concrete.
+- "Poultry barn" view (owner, 2026-10-21): the unfinished barn close in from the west, above the walk that leads to its aisle (camera 455, -262, 20 to 534, -280, 6; 45 deg).
