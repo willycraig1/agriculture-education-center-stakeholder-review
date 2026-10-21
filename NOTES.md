@@ -1075,3 +1075,10 @@ Fit checks now skip context elements (walk etc.).
   the holding pens' north-east corner. With the holding pens out to that column line (the dog-ear), it now runs
   straight up it. One paddock beside the campus 7.9 -> 7.8 ac; fenced site pasture 45.3 -> 45.2 ac; CE unchanged
   (7 / 15). Rebuilt: build_site_map, build_capacity_data, build_retention_markup, massing/export_site, stamp.
+
+## 2026-10-20: grooming area (massing)
+- Owner: the grooming area is not a building, just an open space with panels to tie animals to while they are hosed
+  down and blown out. `scene.py`: the white box inside the arena's west end is replaced by its own `grooming` object
+  (Level 2): a concrete wash pad (about 11' x 43'), a pipe tie rail along the west column line, and four short pipe
+  dividers. The arena rail now closes its west side too, between the arena floor and the grooming area.
+  `export_scene.py` no longer splits the grooming faces out of the arena object.
