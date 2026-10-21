@@ -219,15 +219,15 @@ const PROG = {   // design/palette.json
   cattle: ['#8B5A2B', '#E9D9C6', 'Cattle'], swine: ['#B8657A', '#F1DAE0', 'Swine, sheep, and goats'],
   arena: ['#C2A878', '#F3ECDD', 'Arena and grooming'], circulation: ['#6B6F73', '#E3E4E5', 'Storage and service'],
   pasture: ['#5F8A3A', '#DCE8CF', 'Turnouts'], education: ['#A63A2B', '#F1D6D1', 'Red House and residence'],
-  small_animal: ['#D19A2E', '#F6E6C2', 'Poultry'], existing: ['#77736A', '#D9D4C9', 'Existing buildings'],
+  small_animal: ['#D19A2E', '#F6E6C2', 'Poultry'], horticulture: ['#6E5C93', '#E2DCEE', 'Horticulture'], existing: ['#77736A', '#D9D4C9', 'Existing buildings'],
 };
 S.mat.redwall = [0.50, 0.24, 0.18];   // red-stained board siding (photos/Red House)
 S.mat.stone = [0.62, 0.57, 0.48]; S.mat.foundation = [0.42, 0.38, 0.34]; S.mat.deck = [0.58, 0.40, 0.28]; S.mat.metalroof = [0.80, 0.81, 0.80]; S.mat.galv = [0.74, 0.75, 0.74];
-S.mat.glass = [0.62, 0.72, 0.78]; S.mat.ceilwood = [0.86, 0.66, 0.44];
+S.mat.glass = [0.62, 0.72, 0.78]; S.mat.leaf = [0.42, 0.58, 0.30]; S.mat.shadecloth = [0.17, 0.18, 0.17]; S.mat.ceilwood = [0.86, 0.66, 0.44];
 const LVL = ['#77736A', '#5F8A3A', '#D19A2E', '#B8657A'];
 const LVLNAME = ['Existing', 'Level 1', 'Level 2', 'Level 3'];
 const ROOFY = new Set(['roof', 'roofflat', 'rustroof', 'metalroof']);
-const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain', 'glass']);
+const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain', 'glass', 'leaf', 'shadecloth']);
 const rgb = a => new THREE.Color(a[0], a[1], a[2]);
 
 function faceColor(m, ob, mode) {
@@ -665,6 +665,142 @@ function redHouse(C) {
   scene.add(cg); objects.push({ ob: kob, grp: cg, meshes: cm, isFence: false });
 }
 
+// A small builder in a plan rectangle's own axes: o = the rectangle's corners, (a, w) measured from o[0] along o[0]->o[1]
+// and o[1]->o[2]. Faces by material, ink lines (siding), and rods (pipes); `finish` makes it one viewer object.
+function localKit(o) {
+  const L = Math.hypot(o[1][0] - o[0][0], o[1][1] - o[0][1]), D = Math.hypot(o[2][0] - o[1][0], o[2][1] - o[1][1]);
+  const ea = [(o[1][0] - o[0][0]) / L, (o[1][1] - o[0][1]) / L], ew = [(o[2][0] - o[1][0]) / D, (o[2][1] - o[1][1]) / D];
+  const W = (a, w, z) => [o[0][0] + a * ea[0] + w * ew[0], o[0][1] + a * ea[1] + w * ew[1], z];
+  const byMat = {}, ink = [], rods = [];
+  const face = (pts, m) => (byMat[m] = byMat[m] || []).push(pts);
+  const box = (a0, a1, w0, w1, z0, z1, m) => {
+    const c = [[a0, w0], [a1, w0], [a1, w1], [a0, w1]];
+    for (let i = 0; i < 4; i++) { const p = c[i], q = c[(i + 1) % 4]; face([W(p[0], p[1], z0), W(q[0], q[1], z0), W(q[0], q[1], z1), W(p[0], p[1], z1)], m); }
+    face(c.map(q => W(q[0], q[1], z1)), m); face(c.map(q => W(q[0], q[1], z0)).reverse(), m);
+  };
+  const slab = (pts, m, t = 0.4, under = 'deck') => {             // a roof plane, pts [a, w, z], t thick
+    const top = pts.map(([a, w, z]) => W(a, w, z)), bot = pts.map(([a, w, z]) => W(a, w, z - t));
+    face(top, m); face(bot.slice().reverse(), under);
+    for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; face([top[i], top[j], bot[j], bot[i]], m); }
+  };
+  const seg = (p, q) => ink.push(...p, ...q);
+  const rod = (p, q, r = .15, m = 'galv') => rods.push([p, q, r, m]);
+  const finish = (ob, opts = {}) => {
+    const grp = new THREE.Group(), meshes = [];
+    for (const m in byMat) {
+      const g = polyGeom(byMat[m]);
+      const mat = m === 'shadecloth' ? new THREE.MeshLambertMaterial({ color: 0x2c2d2b, transparent: true, opacity: .8, side: THREE.DoubleSide, depthWrite: false })
+        : new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
+      const mesh = new THREE.Mesh(g, mat); mesh.castShadow = m !== 'metalroof'; mesh.receiveShadow = true;
+      mesh.userData = { m, solid: mat, noCast: m === 'metalroof' }; grp.add(mesh); meshes.push(mesh);
+      if (!['darkglass', 'shadecloth', 'leaf', 'whitemetal'].includes(m)) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 20), inkMat); e.userData.edge = true; grp.add(e); }
+    }
+    if (ink.length) {
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(ink, 3));
+      const l = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: rgb(S.mat.boardline) })); l.userData.siding = true; grp.add(l);
+    }
+    const byRM = {};
+    for (const r of rods) (byRM[r[3]] = byRM[r[3]] || []).push(r);
+    for (const m in byRM) {
+      const mat = new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]) }), im = new THREE.InstancedMesh(unitCyl, mat, byRM[m].length);
+      const M = new THREE.Matrix4(), q = new THREE.Quaternion(), z = new THREE.Vector3(0, 0, 1);
+      byRM[m].forEach(([p0, p1, r], i) => { const a0 = new THREE.Vector3(...p0), d = new THREE.Vector3(...p1).sub(a0), Ln = d.length();
+        q.setFromUnitVectors(z, d.normalize()); M.compose(a0, q, new THREE.Vector3(r, r, Ln)); im.setMatrixAt(i, M); });
+      im.castShadow = true; im.userData = { m, solid: mat, fence: true }; grp.add(im); meshes.push(im);
+    }
+    const c = W(L / 2, D / 2, 0);
+    ob.fp = ob.fp || { w: Math.max(L, D), d: Math.min(L, D), h: opts.h || 10, area: L * D, cx: c[0], cy: c[1], assumed: true };
+    scene.add(grp); objects.push({ ob: { faces: [], lines: [], ...ob }, grp, meshes, isFence: false });
+  };
+  return { L, D, W, face, box, slab, seg, rod, finish };
+}
+
+// The horticulture strip and the residence at its end (owner's sketch and shade-house photo, 2026-10-20).
+// Residence (Level 3; camper hookups before): a shed-roof cabin on the plan's 20' x 30' footprint. Its 3:12 roof rises
+// to the north-north-east, where the tall wall carries a clerestory band over a lower awning roof that shelters a glazed
+// wall and the entry, facing the sidewalk. The south-south-west end is an 8' porch open under the low end of the main
+// roof. Vertical weathered-wood board siding, galvalume roofs.
+// Shade structure (Level 3) over the whole 100' x 30' strip: galvanized pipe posts on about a 12.5' x 15' grid, black
+// shade cloth at 10'. Under it three lengthwise rows: hydroponic channel racks (north-north-east, Level 3), raised beds
+// (middle, Level 1), and tables for planting (south-south-west, Level 3).
+function horticultureArea(C) {
+  // ---- residence: a along the strip's axis (to the strip), w across (0 = north-north-east wall)
+  {
+    const r = C.residence, K = localKit(r), { L, D, box, slab, seg, face, W } = K;
+    const FL = 1.5, P = 3 / 12, ZLOW = 10.0, PORCH = 8, WE = D - PORCH;          // porch's outer line at w = D
+    const zr = w => ZLOW + (D - w) * P;                                          // roof top over w
+    box(0, L, 0, WE, 0, FL, 'foundation');
+    box(0, L, WE, D, FL - .3, FL, 'deck');                                       // porch deck
+    for (const a of [0, L / 2, L]) box(Math.max(0, a - .3), Math.min(L, a + .3), D - .6, D, FL, zr(D) - .4, 'oldtimber');
+    // walls up to the roof (vertical boards), the north wall to the high end
+    for (const a of [0, L]) {
+      face([W(a, 0, FL), W(a, WE, FL), W(a, WE, zr(WE) - .3), W(a, 0, zr(0) - .3)], 'oldwood');
+      for (let w = .7; w < WE; w += .7) seg(W(a + (a ? .04 : -.04), w, FL), W(a + (a ? .04 : -.04), w, zr(w) - .3));
+    }
+    face([W(0, WE, FL), W(L, WE, FL), W(L, WE, zr(WE) - .3), W(0, WE, zr(WE) - .3)], 'oldwood');
+    face([W(0, 0, FL), W(L, 0, FL), W(L, 0, zr(0) - .3), W(0, 0, zr(0) - .3)], 'oldwood');
+    // north wall: glazed wall and door under the awning, a clerestory band above it
+    const ZA = 10.8, AW = 6;                                                     // awning at the wall, its depth
+    const gl = (a0, a1, z0, z1) => { face([W(a0, -.06, z0), W(a1, -.06, z0), W(a1, -.06, z1), W(a0, -.06, z1)], 'darkglass'); };
+    gl(2, L - 2, FL + .2, ZA - .6);
+    for (let a = 2; a <= L - 2 + .01; a += (L - 4) / 4) box(a - .12, a + .12, -.14, 0, FL, ZA - .5, 'oldtimber');
+    box(2, L - 2, -.14, 0, FL + 6.8, FL + 7.0, 'oldtimber');                    // transom bar
+    face([W(L - 5.4, -.1, FL), W(L - 2.2, -.1, FL), W(L - 2.2, -.1, FL + 6.8), W(L - 5.4, -.1, FL + 6.8)], 'oldtimber');   // the door
+    const ZC0 = ZA + 1.4, ZC1 = zr(0) - 1.2;                                    // clerestory band
+    gl(2, L - 2, ZC0, ZC1);
+    for (let a = 2; a <= L - 2 + .01; a += (L - 4) / 3) box(a - .15, a + .15, -.14, 0, ZC0, ZC1, 'oldtimber');
+    for (let a = .7; a < L; a += .7) if (a < 1.9 || a > L - 1.9) seg(W(a, -.05, FL), W(a, -.05, zr(0) - .3));
+    slab([[-1, 0, ZA], [L + 1, 0, ZA], [L + 1, -AW, ZA - AW * 1.5 / 12], [-1, -AW, ZA - AW * 1.5 / 12]], 'metalroof', .35);
+    for (const a of [-0.5, L + .5]) box(a - .25, a + .25, -AW + .3, -AW + .8, 0, ZA - AW * 1.5 / 12 - .3, 'oldtimber');
+    // porch back wall: door and a window
+    face([W(L / 2 - 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL + 6.8), W(L / 2 - 1.5, WE + .06, FL + 6.8)], 'oldtimber');
+    face([W(3, WE + .06, FL + 3), W(7, WE + .06, FL + 3), W(7, WE + .06, FL + 7), W(3, WE + .06, FL + 7)], 'darkglass');
+    // side windows
+    for (const a of [0, L]) for (const w of [6, 15]) { const o = a ? .06 : -.06;
+      face([W(a + o, w - 1.5, FL + 3), W(a + o, w + 1.5, FL + 3), W(a + o, w + 1.5, FL + 7), W(a + o, w - 1.5, FL + 7)], 'darkglass'); }
+    // main roof: one 3:12 plane, 1.5' overhangs
+    slab([[-1.5, -1.5, zr(-1.5)], [L + 1.5, -1.5, zr(-1.5)], [L + 1.5, D + 1.5, zr(D + 1.5)], [-1.5, D + 1.5, zr(D + 1.5)]], 'metalroof');
+    const c = W(L / 2, D / 2, 0);
+    K.finish({ name: 'residence', label: 'Residence', level: 3, program: 'education', id: 'residence',
+               fp: { w: D, d: L, h: zr(0), area: L * D, cx: c[0], cy: c[1], assumed: true } });
+  }
+  // ---- shade structure and its rows: a along the strip (from the residence), w across (0 = north-north-east side)
+  const h = C.horticulture, ZS = 10;
+  {
+    const K = localKit(h), { L, D, W, rod, face } = K, na = Math.round(L / 12.5), nw = 2;
+    for (let i = 0; i <= na; i++) for (let j = 0; j <= nw; j++) rod(W(i * L / na, j * D / nw, 0), W(i * L / na, j * D / nw, ZS));
+    for (let j = 0; j <= nw; j++) rod(W(0, j * D / nw, ZS), W(L, j * D / nw, ZS), .12);
+    for (let i = 0; i <= na; i++) rod(W(i * L / na, 0, ZS), W(i * L / na, D, ZS), .12);
+    face([W(0, 0, ZS + .15), W(L, 0, ZS + .15), W(L, D, ZS + .15), W(0, D, ZS + .15)], 'shadecloth');
+    K.finish({ name: 'shade', label: 'Horticulture shade structure', level: 3, program: 'horticulture', id: 'horticulture' }, { h: ZS });
+  }
+  {   // hydroponic channel racks, north-north-east row
+    const K = localKit(h), { L, box } = K;
+    for (let a0 = 4; a0 + 26 <= L - 3; a0 += 31) {
+      for (const a of [a0, a0 + 13, a0 + 26]) for (const w of [2.5, 6.5]) box(a - .1, a + .1, w - .1, w + .1, 0, 3, 'galv');
+      box(a0, a0 + 26, 2.3, 6.7, 2.9, 3.0, 'galv');
+      for (let k = 0; k < 5; k++) box(a0, a0 + 26, 2.5 + k * .95, 2.5 + k * .95 + .35, 3.0, 3.3, 'whitemetal');
+    }
+    K.finish({ name: 'hydro', notag: true, label: 'Hydroponic racks', level: 3, program: 'horticulture', id: 'horticulture' }, { h: 3.3 });
+  }
+  {   // raised beds, middle row
+    const K = localKit(h), { L, D, box } = K, w0 = D / 2 - 2, w1 = D / 2 + 2;
+    for (let a = 4; a + 10 <= L - 3; a += 13) { box(a, a + 10, w0, w1, 0, 1.6, 'oldwood'); box(a + .2, a + 9.8, w0 + .2, w1 - .2, 1.6, 1.62, 'dirt'); }
+    K.finish({ name: 'beds', notag: true, label: 'Raised beds', level: 1, program: 'horticulture', id: 'horticulture' }, { h: 1.6 });
+  }
+  {   // tables for planting, south-south-west row, with flats on them
+    const K = localKit(h), { L, D, box } = K, w0 = D - 7.5, w1 = D - 3.5;
+    for (let a = 4; a + 8 <= L - 3; a += 10.5) {
+      for (const aa of [a + .3, a + 7.7]) for (const ww of [w0 + .3, w1 - .3]) box(aa - .08, aa + .08, ww - .08, ww + .08, 0, 2.9, 'galv');
+      box(a, a + 8, w0, w1, 2.9, 3.05, 'alum');
+      for (let k = 0; k < 3; k++) box(a + .4 + k * 2.6, a + 2.6 + k * 2.6, w0 + .4, w1 - .4, 3.05, 3.45, 'leaf');
+    }
+    K.finish({ name: 'tables', notag: true, label: 'Planting tables', level: 3, program: 'horticulture', id: 'horticulture' }, { h: 3.4 });
+  }
+  catalog.push({ label: 'Horticulture shade structure, hydroponic racks, and planting tables', level: 3 },
+               { label: 'Residence (camper hookups until then)', level: 3 });
+}
+
 // The Red House's Level 3 teaching space (owner, 2026-10-20), on the barns' kit system, after the Siesta Key Chapel:
 // 72' x 36' on the 12' grid (six bays, 8x8 wood columns), square to the barnyard, east of the house. Floor 5.5' above
 // grade on a crawlspace closed with wood louvers, the floor framing a band outside the columns; 10' from the floor to
@@ -975,8 +1111,7 @@ if (SITE) {
   if (C.addition) teachingSpace(C.addition);
   if (C.poultry_frame) framedBarn(C.poultry_frame, { name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', id: 'existing-poultry' });
   else campusBuilding({ name: 'poultry', label: 'Unfinished barn (poultry)', program: 'small_animal', o: C.poultry, h: 12, wall: 'oldwood', roof: 'rustroof', id: 'existing-poultry' });
-  campusBuilding({ name: 'residence', label: 'Residence', level: 3, program: 'education', o: C.residence, h: 11, wall: 'whitemetal', id: 'residence' });
-  catalog.push({ label: 'Residence (camper hookups until then)', level: 3 });
+  horticultureArea(C);   // the residence and the shade structure over the horticulture strip
   let removed = 0;
   SITE.survey_buildings.forEach((b, i) => {
     if (b.until === 0) removed++;
