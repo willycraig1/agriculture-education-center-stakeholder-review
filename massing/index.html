@@ -1301,14 +1301,25 @@ function student(x, y, heading, parent = people) {                   // a studen
   A.students.forEach(([x, y, h, lv]) => reg(student(x, y, h), lv));
   (A.vehicles || []).forEach(([x, y, h, lv]) => reg(truckTrailer(x, y, h), lv));
   if (SITE && SITE.herd) SITE.herd.forEach(([x, y, h, black]) => reg(cow(x, y, h, !!black), 0));
-  const [tx, ty] = S.tractor;
-  const tr = new THREE.Group(); tr.position.set(tx, ty, 0); people.add(tr);
+  // The tractor, out in the 3.7 ac paddock north of the barnyard pulling a manure spreader, clear of fences, trees,
+  // and panels (owner, 2026-10-20; the painting's spot, S.tractor, stood on the holding pens' fence). Facing west.
+  const [tx, ty, th] = [232, -14, Math.PI];
+  const tr = new THREE.Group(); tr.position.set(tx, ty, 0); tr.rotation.z = th; people.add(tr);
   boxAt(0, 0, 2.2, 7, 3.2, 2.6, rgb(S.mat.tractor), 0, tr);
   boxAt(-2.2, 0, 4.8, 2.4, 3, 2.6, rgb(S.mat.seat), 0, tr);
   const tire = new THREE.MeshLambertMaterial({ color: rgb(S.mat.tire) });
   for (const [wx, wy, r] of [[-2.2, 2.1, 2.6], [-2.2, -2.1, 2.6], [2.6, 1.9, 1.5], [2.6, -1.9, 1.5]]) {
     const w = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 14), tire);
     w.position.set(wx, wy, r); w.castShadow = true; tr.add(w);
+  }
+  // manure spreader behind: drawbar, a box on a single axle, its load, the beaters at the back
+  boxAt(-5.4, 0, 1.6, 3.6, .4, .3, rgb(S.mat.seat), 0, tr);
+  boxAt(-12.2, 0, 2.0, 10, 5.2, 2.6, new THREE.Color('#9c3a24'), 0, tr);
+  boxAt(-12.2, 0, 4.4, 9.4, 4.6, .5, new THREE.Color('#5a4630'), 0, tr);
+  boxAt(-17.5, 0, 2.2, .9, 5.4, 2.6, rgb(S.mat.seat), 0, tr);
+  for (const wy of [3.0, -3.0]) {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, .8, 14), tire);
+    w.position.set(-12.8, wy, 1.4); w.castShadow = true; tr.add(w);
   }
 })();
 
