@@ -1177,3 +1177,12 @@ Fit checks now skip context elements (walk etc.).
   closes. While open, keys and clicks go to it, and the deck's ‹ › buttons close it rather than change step: that
   message guard is registered before deck.js, since messages reach a window's listeners in the order they were added.
   Never shown in the static / PDF page.
+
+## 2026-10-21: final edits before the meeting
+- Title slide: "Draft, for discussion" removed from the meta row.
+- Barnyard slide, small animal barn dimensions (`build_ag_area.py`): the string over the barns had been left on the
+  side-by-side layout (36' / 36' / 24', 26' off and measuring a gap to a barn no longer there). Now taken from the barns
+  as drawn: across the north end, turnout 36' and barn 36'; down the west side, barn A's wings 48' and 48' either side
+  of the 12' dogtrot, then barn B 48'. Only `dims` and the drawing's `view` changed in `ag-area.js` (elements
+  identical); the site map does not read either, so it needs no rebuild. Like the cattle string, the dimensions show at
+  every Level.
