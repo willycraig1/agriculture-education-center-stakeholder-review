@@ -234,16 +234,24 @@ def build():
     Z_COL = 14.0 + JD + RT                              # roof top at the column lines
     kit_gable(o, x1, y1, x2, y2, Z_COL, 'x', joist_lines=xs)
     posts_along(o, [(x, y1) for x in xs] + [(x, y2) for x in xs], 0, 14.0, w=0.75, mat='timber')
-    # grooming bay inside (west) – enclosed white box, painted before the roof
-    gx1, gy1, gx2, gy2 = R(650, 545, 683, 672)
-    o.bias = 200.0
-    box(o, gx1, gy1, gx2, gy2, 0, 10, 'whitemetal', 'roofflat')
-    o.bias = 0.0
     objs.append(o)
+    # grooming area (Level 2) at the arena's west end: not a building but an open wash area (owner, 2026-10-20), a
+    # concrete pad with a pipe tie rail along the west column line and short pipe dividers, so animals can be tied,
+    # hosed down, and blown out
+    gx1, gy1, gx2, gy2 = R(650, 545, 683, 672)
+    og = Obj('grooming')
+    box(og, gx1, gy1, gx2, gy2, 0, 0.25, 'concrete', 'concrete')
+    fence(og, gx1 + 0.8, gy1 + 1, gx1 + 0.8, gy2 - 1, 4.5, [4.5, 2.5], 'pipe', post=8.5)
+    for k in range(1, 5):
+        yk = gy1 + k * (gy2 - gy1) / 5
+        fence(og, gx1 + 0.8, yk, gx1 + 5.8, yk, 4.5, [4.5, 2.5], 'pipe', post=5)
+    objs.append(og)
+    # arena rail, closed in on the west (between the arena and the grooming area)
     o3 = Obj('arenarail', cast_shadow=False)
     fence(o3, gx2 + 2, y1 + 3, x2 - 3, y1 + 3, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     fence(o3, gx2 + 2, y2 - 10, x2 - 3, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     fence(o3, x2 - 3, y1 + 3, x2 - 3, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
+    fence(o3, gx2 + 2, y1 + 3, gx2 + 2, y2 - 10, 4.5, [4.5, 2.5, 0.8], 'pipe', post=10)
     objs.append(o3)
     # two 4-row x 24' fixed aluminium bleachers along the north side, inside the columns (owner, 2026-10-19), 12' in
     # from each end with 12' between: rows about 1.75' deep stepping up 0.75' toward the columns, from a 1.3' seat

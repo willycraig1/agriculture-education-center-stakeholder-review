@@ -149,10 +149,6 @@ def main():
             continue
         name = o.name
         faces = o.faces
-        if name == 'arena':  # the grooming box is drawn inside the arena object (bias 200); split it out
-            groom = [f for f in faces if f['bias'] == 200.0]
-            faces = [f for f in faces if f['bias'] != 200.0]
-            out_objs.append(pack('grooming', groom, []))
         if name.startswith('pen'):
             i = int(name[3:].split('_')[0])
             label, prog, lvl, gid = PENS[i], 'cattle', 1, 'holding'
