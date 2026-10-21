@@ -78,8 +78,6 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
        background: rgba(250,247,240,.88); border: 1px solid rgba(43,42,38,.25); border-radius: 5px; padding: 2px 6px; }
 .tag.ghost { opacity: .55; font-weight: 500; font-style: italic; }
 .tag.pad { transform: translate(-50%, -50%); background: rgba(95,138,58,.85); color: #fff; border-color: transparent; }
-#wc { position: absolute; pointer-events: none; opacity: 0; transition: opacity .2s; }
-#frame { position: absolute; pointer-events: none; border: 1.5px dashed rgba(43,42,38,.55); display: none; }
 .card { position: absolute; right: 14px; top: 14px; width: min(290px, calc(100% - 28px)); background: var(--paper); color: var(--ink);
         border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; box-shadow: 0 8px 26px rgba(0,0,0,.18); }
 .card h3 { margin: 0 0 2px; font-size: 15px; }
@@ -102,7 +100,6 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
   .rail { border-right: 0; border-top: 1px solid var(--line); overflow: visible; }
   .help { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { #wc { transition: none; } }
 </style>
 
 <div class="app">
@@ -110,7 +107,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
     <header>
       <div class="eyebrow">MMS Ag Farm · Barnyard Option B</div>
       <h1>Campus massing model</h1>
-      <p>The 3D massing behind the watercolor, set on the campus site and phased by Level. Drag to orbit, right-drag or two fingers to pan, scroll to zoom. Arrow keys walk forward and strafe; hold Shift to hurry. Click a building for its size.</p>
+      <p>The campus in 3D, set on the site and phased by Level. Drag to orbit, right-drag or two fingers to pan, scroll to zoom. Arrow keys walk forward and strafe; hold Shift to hurry. Click a building for its size.</p>
     </header>
 
     <section>
@@ -128,12 +125,6 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
     <section>
       <h2>Views</h2>
       <div class="views" id="views"></div>
-    </section>
-
-    <section id="wcsec">
-      <h2>Watercolor overlay</h2>
-      <input type="range" id="wcop" min="0" max="100" value="0" aria-label="Watercolor opacity">
-      <p class="hint">Lays the watercolor over the model from its own camera, to check they line up.</p>
     </section>
 
     <section id="sitesec">
@@ -188,8 +179,6 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
 
   <main class="stage" id="stage">
     <canvas id="gl"></canvas>
-    <img id="wc" src="watercolor.jpg" alt="Watercolor rendering of the barnyard, Option B">
-    <div id="frame"></div>
     <div class="labels" id="tags"></div>
     <svg class="compass" id="compass" viewBox="-23 -23 46 46" aria-hidden="true">
       <circle r="21" fill="rgba(250,247,240,.85)" stroke="#2B2A26" stroke-width="1"/>
@@ -1324,7 +1313,7 @@ function student(x, y, heading, parent = people) {                   // a studen
 })();
 
 // ---------- state ----------
-const state = { level: 3, ghost: true, mode: 'mat', view: 'watercolor', wc: 0, edges: true, labels: true, clad: 'metal' };
+const state = { level: 3, ghost: true, mode: 'mat', view: 'aerial', edges: true, labels: true, clad: 'metal' };
 const CLAD = { metal: S.mat.cladding || [0.62, 0.24, 0.20], wood: S.mat.oldwood };
 try { Object.assign(state, JSON.parse(localStorage.getItem('massing-state') || '{}')); } catch (e) {}
 const save = () => { try { localStorage.setItem('massing-state', JSON.stringify({ level: state.level, ghost: state.ghost, mode: state.mode, clad: state.clad })); } catch (e) {} };
@@ -1390,7 +1379,7 @@ function renderLegend() {
   const el = document.getElementById('legend');
   if (state.mode === 'prog') el.innerHTML = Object.values(PROG).map(([b, , n]) => `<span><i style="--c:${b}"></i>${n}</span>`).join('');
   else if (state.mode === 'level') el.innerHTML = LVL.map((c, i) => `<span><i style="--c:${c}"></i>${LVLNAME[i]}</span>`).join('');
-  else el.innerHTML = '<span style="grid-column:1/-1;color:var(--muted)">Materials as painted in the watercolor.</span>';
+  else el.innerHTML = '<span style="grid-column:1/-1;color:var(--muted)">Materials as modelled.</span>';
 }
 
 // ---------- labels ----------
@@ -1440,37 +1429,29 @@ function placeTags() {
 }
 
 // ---------- views ----------
-const C = S.camera;
 // Eye-level views aim a touch below level: the orbit keeps the camera at least 0.02 rad above its target.
 const VIEWS = {
-  watercolor: { name: 'Watercolor', sub: 'The painting\'s camera', pos: C.pos, tgt: C.target, hfov: C.hfov_deg },
+  // overviews
   aerial:     { name: 'Bird\'s-eye', sub: 'From the south-west', pos: [-40, -600, 300], tgt: [235, -210, 0], fov: 40 },
   plan:       { name: 'Plan', sub: 'North up, from above', pos: [235, -214, 820], tgt: [235, -213, 0], fov: 40 },
-  lane:       { name: 'Eye level', sub: 'From the grass parking', pos: [232, -322, 5.5], tgt: [252, -170, 1.5], fov: 62 },
-  northeast:  { name: 'Over the pens', sub: 'From the north-east', pos: [560, 40, 150], tgt: [260, -210, 0], fov: 40 },
-  aisle:      { name: 'Between barns', sub: 'Up the 24\' tractor lane', pos: [206, -250, 5.5], tgt: [206, -60, 0.5], fov: 62 },
   campus:     { name: 'Campus', sub: 'Barnyard, Red House, parking', pos: [760, -1150, 620], tgt: [200, -330, 0], fov: 40 },
-  pasture:    { name: 'Site pasture', sub: 'The paddocks, from the north', pos: [1500, 3300, 1500], tgt: [100, 500, 0], fov: 40 },
-  fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
+  northeast:  { name: 'Over the pens', sub: 'From the north-east', pos: [560, 40, 150], tgt: [260, -210, 0], fov: 40 },
   teaching:   { name: 'Teaching space', sub: 'Red House addition, from the north-east', pos: [522, -380, 50], tgt: [408, -442, 7], fov: 45 },
-  inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [378, -436, 11], tgt: [445, -436, 13], fov: 70 },
+  pasture:    { name: 'Site pasture', sub: 'The paddocks, from the north', pos: [1500, 3300, 1500], tgt: [100, 500, 0], fov: 40 },
   site:       { name: 'Whole property', sub: 'Campus, pastures, slough', pos: [2300, -3300, 2300], tgt: [-350, -800, 0], fov: 40 },
+  // eye level (owner, 2026-10-20: compositions that explain the concept)
+  lane:       { name: 'Arriving', sub: 'Eye level, the palms and arena from the parking', pos: [232, -322, 5.5], tgt: [252, -170, 1.5], fov: 62 },
+  steer:      { name: 'Leading a steer', sub: 'Eye level, at cattle barn B', pos: [178, -196, 5.5], tgt: [138, -150, 5], fov: 58 },
+  aisle:      { name: 'Between barns', sub: 'Eye level, up the 24\' tractor lane', pos: [206, -250, 5.5], tgt: [206, -60, 0.5], fov: 62 },
+  fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
+  classroom:  { name: 'The classroom', sub: 'Eye level, the glass wall from the lawn', pos: [424, -499, 5.5], tgt: [396, -440, 11], fov: 64 },
+  inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [378, -436, 11], tgt: [445, -436, 13], fov: 70 },
+  shadehouse: { name: 'The shade house', sub: 'Eye level, along the beds to the residence', pos: [234.3, -539.3, 6], tgt: [118, -480, 8], fov: 52 },
 };
 const viewsEl = document.getElementById('views');
 viewsEl.innerHTML = Object.entries(VIEWS).map(([k, v]) => `<button data-v="${k}">${v.name}<small>${v.sub}</small></button>`).join('');
 
-const wcImg = document.getElementById('wc'), frameEl = document.getElementById('frame');
-function wcRect() {   // the watercolor fitted (contain) to the stage; its width spans the render's hfov
-  const W = canvas.clientWidth, H = canvas.clientHeight, ar = 5 / 3;
-  let w = W, h = W / ar; if (h > H) { h = H; w = H * ar; }
-  return { x: (W - w) / 2, y: (H - h) / 2, w, h };
-}
-function fovFor(v) {
-  if (!v.hfov) return v.fov;
-  const r = wcRect(), W = canvas.clientWidth, H = canvas.clientHeight;
-  const th = Math.tan(v.hfov * Math.PI / 360) * W / r.w;    // tan(half hfov) across the whole canvas
-  return 2 * Math.atan(th / (W / H)) * 180 / Math.PI;
-}
+const fovFor = v => v.fov;
 let tween = null;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function setView(k, instant) {
@@ -1479,20 +1460,10 @@ function setView(k, instant) {
   const to = { pos: new THREE.Vector3(...v.pos), tgt: new THREE.Vector3(...v.tgt), fov: fovFor(v) };
   if (instant || reduced) { camera.position.copy(to.pos); controls.target.copy(to.tgt); camera.fov = to.fov; camera.updateProjectionMatrix(); tween = null; }
   else tween = { t0: performance.now(), from: { pos: camera.position.clone(), tgt: controls.target.clone(), fov: camera.fov }, to };
-  syncOverlay();
-}
-function syncOverlay() {
-  const on = state.view === 'watercolor';
-  document.getElementById('wcsec').style.opacity = on ? 1 : .5;
-  document.getElementById('wcop').disabled = !on;
-  const r = wcRect();
-  for (const el of [wcImg, frameEl]) Object.assign(el.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
-  wcImg.style.opacity = on && !tween ? state.wc / 100 : 0;
-  frameEl.style.display = on && !tween ? 'block' : 'none';
 }
 function leaveView() {
   tween = null;
-  if (state.view) { state.view = null; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', false)); syncOverlay(); }
+  if (state.view) { state.view = null; document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-pressed', false)); }
 }
 controls.addEventListener('start', leaveView);
 
@@ -1614,7 +1585,6 @@ document.getElementById('mode').onclick = e => { const b = e.target.closest('but
 document.getElementById('clad').onclick = e => { const b = e.target.closest('button'); if (b) { state.clad = b.dataset.c; save(); applyLevel(); } };
 document.getElementById('ghost').onchange = e => { state.ghost = e.target.checked; save(); applyLevel(); };
 viewsEl.onclick = e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); };
-document.getElementById('wcop').oninput = e => { state.wc = +e.target.value; syncOverlay(); };
 document.getElementById('sun').oninput = e => setSun(+e.target.value);
 document.getElementById('shadows').onchange = e => { sun.castShadow = e.target.checked; };
 document.getElementById('edges').onchange = e => { state.edges = e.target.checked; applyLevel(); };
@@ -1634,9 +1604,7 @@ function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  if (state.view === 'watercolor') camera.fov = fovFor(VIEWS.watercolor);
   camera.updateProjectionMatrix();
-  syncOverlay();
 }
 new ResizeObserver(resize).observe(stage);
 
@@ -1651,7 +1619,7 @@ function frame(now) {
     camera.position.lerpVectors(tween.from.pos, tween.to.pos, e);
     controls.target.lerpVectors(tween.from.tgt, tween.to.tgt, e);
     camera.fov = tween.from.fov + (tween.to.fov - tween.from.fov) * e; camera.updateProjectionMatrix();
-    if (k === 1) { tween = null; syncOverlay(); }
+    if (k === 1) tween = null;
   }
   controls.update();
   renderer.render(scene, camera);
@@ -1682,7 +1650,7 @@ window.massing = { camera, controls, setView, scene, objects };   // console hoo
 setSun(10.5);
 resize();
 applyLevel();
-setView('watercolor', true);
+setView('aerial', true);
 requestAnimationFrame(frame);
 })();
 </script>
