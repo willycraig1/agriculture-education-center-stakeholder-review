@@ -1151,3 +1151,16 @@ Fit checks now skip context elements (walk etc.).
 - Paddocks back to Level 1 first (architect, 2026-10-21: "this one doesn't make sense going backwards"): step 1
   "Nine site paddocks" (Level 1, about 7 CE), step 2 "Rotate through them" (Levels 2 and 3, about 15 CE) with the
   rotation, which restarts from each pinwheel's first paddock (12.4 ac and 3.3 ac) every time it begins.
+
+## 2026-10-21: How the plan took shape (`slides/plan-logic.html`)
+- New slide 8, before the barnyard by Level (architect's design narrative): the Level 3 barnyard built up one design
+  move at a time on the site plan, framed tight on the central campus. Six steps, the current move at full strength and
+  the earlier ones faded: (1) the existing barn sets the grid (perpendicular to SR-72, parallel to the entry drive; a
+  12' grid square to the barn, and the barn's axis dashed up to the unfinished barn, which falls on it); (2) cattle
+  builds off the existing pens; (3) parking central to the new barns and the Red House; (4) small animal barns complete
+  the parking's shape, horticulture frames the south edge of the drive loop, the residence completes the central
+  campus; (5) arena, grooming, and feed storage central for vehicle access and daily use; (6) the classroom extends
+  east into the tree canopy.
+- The grid and frame are measured from the drawing's own elements (`#barnyard .by[data-id]`, the existing barn's
+  rect for the orientation), so they follow the plan if it changes. Labels are matched to moves by their text.
+- PDF export: one page per step (`STEPPED`).

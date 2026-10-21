@@ -16,7 +16,7 @@ import websocket
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 OUT = os.path.join(ROOT, "exports")
-STEPPED = {"site", "paddocks", "ag-area", "bud-box", "site-plan", "water-site", "red-house"}     # one page per step
+STEPPED = {"site", "paddocks", "plan-logic", "ag-area", "bud-box", "site-plan", "water-site", "red-house"}     # one page per step
 SCALE = 1.3
 
 
