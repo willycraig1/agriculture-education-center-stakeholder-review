@@ -1113,3 +1113,14 @@ Fit checks now skip context elements (walk etc.).
 - Service lane east of the arena (owner, 2026-10-21): grass over a drivable base, as on the site plan, not concrete (`scene.py` ground, `grass2`); the bedding storage pad at its north end stays concrete.
 - "Poultry barn" view (owner, 2026-10-21): the unfinished barn close in from the west, above the walk that leads to its aisle (camera 455, -262, 20 to 534, -280, 6; 45 deg).
 - Bonus pasture acreage labels removed from the viewer (owner, 2026-10-21); its paddocks and fencing still show at Level 3, and the site pasture keeps its labels.
+
+## 2026-10-20: campus watercolour slide
+- New `slides/campus-watercolor.html` ("The campus"), slide 15 of 17, just before Over to you: the architect's aerial
+  watercolour (`exports/Watercolor Campus with Tractor Outside Cattle Pen.png` → `photos/campus-watercolor.webp`)
+  alone, full height and centred, multiplied into the paper with feathered edges as on the cover. No text. The PDF
+  export picks it up as a one-page slide.
+
+## 2026-10-20: vision slide, campus at Level 3 watercolour
+- `slides/vision.html` hero: the architect's "Watercolor Campus Level3" (`exports/Watercolor Campus Level3.png` →
+  `photos/vision-campus-level3.webp`) replaces `photos/vision-watercolor.jpg` (removed); label "The campus at Level 3"
+  (was "The barnyard at Level 3"). Same crop (object-position centre 62%).
