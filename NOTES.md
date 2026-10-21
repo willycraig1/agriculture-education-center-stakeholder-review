@@ -1094,3 +1094,9 @@ Fit checks now skip context elements (walk etc.).
   level"), Leading a steer (a student and steer at cattle barn B), Between barns, From the pasture, The classroom (the
   glass wall from the lawn, Red House beside it), Inside the classroom, The shade house (along the beds to the
   residence). `window.massing` (camera, controls, setView) is the console hook used to frame them.
+
+## 2026-10-20: cover watercolour, "Leading a heifer"
+- Title slide: the architect's new watercolour (`exports/Leading a heifer watercolor.png` →
+  `photos/cover-heifer-watercolor.webp`) replaces `cover-watercolor.webp` (removed). The painting is 16:9 with its
+  subject left of centre, so it is shown whole on the right (1060 px wide), multiplied into the paper with its edges
+  feathered, and the text column narrows to 760 px (title on three lines).
