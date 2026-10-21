@@ -500,10 +500,16 @@ def main():
             r = rings(it)[0]
             if 150 < Polygon(r).area < 260: stalls.append(rnd(r))
     out['campus']['stalls'] = stalls
-    # Sabal palms framing the parking's north and west sides (owner, 2026-10-20), in scene feet: nine down the 8'
-    # planting strip between the grass parking and the lane south of the arena (scene.py), about 15.6' apart, and six
-    # about 19.4' apart in the grass west of the lot's west leg (x 145.7), from the lane south toward the surveyed oak.
-    out['campus']['palms'] = ([[round(173 + k * (298 - 173) / 8, 1), -249.9] for k in range(9)] +
+    # Sabal palms framing the parking's north and west sides (owner, 2026-10-20), in scene feet. North: down the 8'
+    # planting strip between the grass parking and the lane south of the arena (scene.py, x 168.5 to 303), on the
+    # arena's 12' column grid so the trunks line up with its columns; the end palms are pulled in to sit inside the
+    # strip. West: six about 19.4' apart in the grass west of the lot's west leg (x 145.7), from the lane south toward
+    # the surveyed oak.
+    ax1, ax2 = 645 / 2.95, 893 / 2.95                                       # arena column lines (scene.py, R(645, ...))
+    step = (ax2 - ax1) / 7
+    grid = [ax1 + k * step for k in range(-5, 8) if 168.5 < ax1 + k * step < 303]
+    north = [min(max(x, 172.0), 300.0) for x in grid]
+    out['campus']['palms'] = ([[round(x, 1), -249.9] for x in north] +
                               [[139.7, round(-252 - k * 19.4, 1)] for k in range(6)])
 
     # The Red House's Level 3 teaching space, as the massing models it (owner, 2026-10-20): 72' x 36' on the 12' grid,
