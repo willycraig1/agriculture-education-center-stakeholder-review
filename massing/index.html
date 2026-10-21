@@ -726,8 +726,8 @@ function localKit(o) {
 function horticultureArea(C) {
   // ---- residence: a along the strip's axis (to the strip), w across (0 = north-north-east wall). Raised 2' above the
   // first pass for the flood zone (floor 3.5'). The end walls run out under the roofs to close the sides of both
-  // porches: the 8' front porch under the main roof's low end and the back porch under the north awning. Porch columns
-  // stand on the clerestory's mullion lines.
+  // porches: the 8' front porch under the main roof's low end and the back porch under the north awning. The end
+  // walls are 1' thick; porch columns stand on the clerestory's two inner mullion lines. No steps yet (owner).
   {
     const r = C.residence, K = localKit(r), { L, D, box, slab, seg, face, W } = K;
     const FL = 3.5, P = 3 / 12, ZLOW = 12.0, PORCH = 8, WE = D - PORCH;          // porch's outer line at w = D
@@ -736,11 +736,18 @@ function horticultureArea(C) {
     const MUL = [0, 1, 2, 3].map(k => 2 + k * (L - 4) / 3);                     // clerestory mullion lines
     box(0, L, -AW, D, 0, FL - .3, 'foundation');                                 // crawlspace, under both porches too
     box(0, L, -AW, D, FL - .3, FL, 'deck');
-    // end walls (vertical boards) from the back porch's edge to the front porch's, up to the roof above them
+    // end walls (vertical boards), 1' thick like the north wall's returns, from the back porch's edge to the front
+    // porch's, up to the roof above them
+    const ET = 1;
+    const prism = (a0, a1, wz) => {                                             // a convex (w, z) outline, a0..a1 thick
+      const f = wz.map(([w, z]) => W(a0, w, z)), b = wz.map(([w, z]) => W(a1, w, z));
+      face(f, 'oldwood'); face(b.slice().reverse(), 'oldwood');
+      for (let i = 0; i < wz.length; i++) { const j = (i + 1) % wz.length; face([f[i], f[j], b[j], b[i]], 'oldwood'); }
+    };
     for (const a of [0, L]) {
-      const o = a ? .04 : -.04;
-      face([W(a, -AW, FL), W(a, 0, FL), W(a, 0, za(0) - .3), W(a, -AW, za(-AW) - .3)], 'oldwood');
-      face([W(a, 0, FL), W(a, D, FL), W(a, D, zr(D) - .3), W(a, 0, zr(0) - .3)], 'oldwood');
+      const o = a ? .04 : -.04, a0 = a ? L - ET : 0, a1 = a ? L : ET;
+      prism(a0, a1, [[-AW, FL], [0, FL], [0, za(0) - .3], [-AW, za(-AW) - .3]]);
+      prism(a0, a1, [[0, FL], [D, FL], [D, zr(D) - .3], [0, zr(0) - .3]]);
       for (let w = -AW + .7; w < D; w += .7) seg(W(a + o, w, FL), W(a + o, w, (w < 0 ? za(w) : zr(w)) - .3));
     }
     face([W(0, WE, FL), W(L, WE, FL), W(L, WE, zr(WE) - .3), W(0, WE, zr(WE) - .3)], 'oldwood');   // porch's back wall
@@ -757,15 +764,11 @@ function horticultureArea(C) {
     for (const a of MUL) box(a - .15, a + .15, -.14, 0, ZC0, ZC1, 'oldtimber');
     for (let a = .7; a < L; a += .7) if (a < 1.9 || a > L - 1.9) seg(W(a, -.05, FL), W(a, -.05, zr(0) - .3));
     slab([[0, 0, ZA], [L, 0, ZA], [L, -AW, za(-AW)], [0, -AW, za(-AW)]], 'metalroof', .35);
-    // porch columns on the mullion lines (the end ones stand against the end walls)
-    for (const a of MUL) {
+    // porch columns on the two inner mullion lines (the end walls take the place of the outer ones)
+    for (const a of MUL.slice(1, 3)) {
       box(a - .3, a + .3, -AW, -AW + .6, FL, za(-AW) - .35, 'oldtimber');
       box(a - .3, a + .3, D - .6, D, FL, zr(D) - .4, 'oldtimber');
     }
-    // steps: to the entry from the sidewalk side, and down from the front porch at its middle
-    const ad = (MUL[2] + MUL[3]) / 2 + (L - 4) / 12, n = 4, rs = FL / (n + 1);
-    for (let k = 0; k < n; k++) box(ad - 2, ad + 2, -AW - 1 * (k + 1), -AW - 1 * k, 0, FL - rs * (k + 1), 'deck');
-    for (let k = 0; k < n; k++) box(L / 2 - 2, L / 2 + 2, D + 1 * k, D + 1 * (k + 1), 0, FL - rs * (k + 1), 'deck');
     // porch's back wall: door and a window; end-wall windows in the enclosed rooms
     face([W(L / 2 - 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL + 6.8), W(L / 2 - 1.5, WE + .06, FL + 6.8)], 'oldtimber');
     face([W(3, WE + .06, FL + 3), W(7, WE + .06, FL + 3), W(7, WE + .06, FL + 7), W(3, WE + .06, FL + 7)], 'darkglass');
