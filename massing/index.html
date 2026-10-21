@@ -766,9 +766,12 @@ function horticultureArea(C) {
       box(1, L - 1, w - .1, w + .1, FL, FL + .4, 'oldtimber');
       face([W(1, w, FL + .4), W(L - 1, w, FL + .4), W(L - 1, w, zt), W(1, w, zt)], 'screen');
     }
-    // porch's back wall: door and a window; end-wall windows in the enclosed rooms
-    face([W(L / 2 - 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL + 6.8), W(L / 2 - 1.5, WE + .06, FL + 6.8)], 'oldtimber');
-    face([W(3, WE + .06, FL + 3), W(7, WE + .06, FL + 3), W(7, WE + .06, FL + 7), W(3, WE + .06, FL + 7)], 'darkglass');
+    // porch's back wall: a full-width sliding glass door between the end walls, four panels, its head on the window and
+    // transom heads (owner); end-wall windows in the enclosed rooms
+    face([W(1, WE + .06, FL), W(L - 1, WE + .06, FL), W(L - 1, WE + .06, FL + 7), W(1, WE + .06, FL + 7)], 'darkglass');
+    for (let k = 0; k <= 4; k++) { const a = 1 + k * (L - 2) / 4; box(a - .12, a + .12, WE, WE + .14, FL, FL + 7, 'oldtimber'); }
+    box(1, L - 1, WE, WE + .14, FL + 6.8, FL + 7, 'oldtimber');
+    box(1, L - 1, WE, WE + .14, FL, FL + .15, 'oldtimber');
     for (const a of [0, L]) for (const w of [6, 15]) { const o = a ? .06 : -.06;
       face([W(a + o, w - 1.5, FL + 3), W(a + o, w + 1.5, FL + 3), W(a + o, w + 1.5, FL + 7), W(a + o, w - 1.5, FL + 7)], 'darkglass'); }
     // main roof: one 3:12 plane, 1.5' overhangs
