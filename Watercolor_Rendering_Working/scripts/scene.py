@@ -180,9 +180,9 @@ def build():
     # (7 pens a side at 12'), columns at 12'. 1:12 shed roofs over the pens, about 10.4' at the outer columns and
     # 12.4' at the aisle; a 4:12 monitor over the aisle, about 16.3' at the eaves and 19' at the ridge (tops of roof).
     # Kit system: wood columns, black 18" bar joists on every column line following the roof, a 6" roof (2x6 framing,
-    # metal panels and trim), 3' overhangs. Gable ends and monitor walls clad (red metal panel, or vertical wood
-    # siding to match the existing barn), a 16' x 10' opening at each end of the aisle. Long sides open over pipe
-    # gate panels. Sand bedding in the pens, concrete in the aisle. No tack or feed rooms.
+    # metal panels and trim), 3' overhangs. Gable ends clad (red metal panel, or vertical wood siding to match the
+    # existing barn), a 16' x 10' opening at each end of the aisle; the monitor's sidewalls open, louvered. Long sides
+    # open over pipe gate panels. Sand bedding in the pens, concrete in the aisle. No tack or feed rooms.
     for nm, (x1, y1, x2, y2) in [('cattleA', R(645, 270, 893, 460)), ('cattleB', R(322, 270, 572, 460))]:
         o = Obj(nm)
         ym = (y1 + y2) / 2
@@ -199,8 +199,13 @@ def build():
         mz = M_EAVE - (M_RIDGE - M_EAVE) / AI * OVH
         slab(o, [(x1 - OVH, ya - OVH, mz), (x2 + OVH, ya - OVH, mz), (x2 + OVH, ym, M_RIDGE), (x1 - OVH, ym, M_RIDGE)])
         slab(o, [(x2 + OVH, yb + OVH, mz), (x1 - OVH, yb + OVH, mz), (x1 - OVH, ym, M_RIDGE), (x2 + OVH, ym, M_RIDGE)])
-        for yy in (ya, yb):                             # monitor walls, from the shed roofs to the monitor roof
-            thick_wall(o, [(x1, yy, Z_IN - RT), (x2, yy, Z_IN - RT), (x2, yy, M_EAVE - RT), (x1, yy, M_EAVE - RT)], (0, 1))
+        for yy, sg in ((ya, -1), (yb, 1)):              # monitor sidewalls: open, with louvers to shed rain (owner, 2026-10-20)
+            z0, z1 = Z_IN - RT + 0.3, M_EAVE - RT - 0.2  # from the shed roof up to the monitor roof
+            n = max(2, int(round((z1 - z0) / 0.55)))
+            for k in range(n):                          # blades sloping down and out, 0.4' deep
+                zb = z0 + (k + 0.5) * (z1 - z0) / n
+                o.face([(x1, yy - sg * 0.2, zb + 0.15), (x2, yy - sg * 0.2, zb + 0.15),
+                        (x2, yy + sg * 0.2, zb - 0.15), (x1, yy + sg * 0.2, zb - 0.15)], 'cladding')
         for xe in (x1, x2):                             # gable ends: pen bays, and the wall over the aisle opening
             thick_wall(o, [(xe, y1, 0), (xe, ya, 0), (xe, ya, Z_IN - RT), (xe, y1, Z_OUT - RT)], (1, 0))
             thick_wall(o, [(xe, yb, 0), (xe, y2, 0), (xe, y2, Z_OUT - RT), (xe, yb, Z_IN - RT)], (1, 0))
