@@ -1036,3 +1036,16 @@ Fit checks now skip context elements (walk etc.).
 - Follow-up (owner): the arched-top window in the cross gable's north-west end, behind the oak (photo 15; 3' wide,
   round head, about 9.5' from the screened porch's wall); the north-west porch's railing now opens at the steps (newels
   either side) and returns across the porch's open north-east end.
+
+## 2026-10-20: residence and horticulture shade structure (massing)
+- From the owner's sketch (shed-roof residence at the end of the strip, shade structure over it) and a photo of their
+  current shade house (galvanized pipe frame, black shade cloth). `horticultureArea()` in `massing/index.html`, on a
+  small shared builder (`localKit`) in each plan rectangle's own axes.
+- Residence (Level 3, on the plan's 20' x 30' footprint): one 3:12 shed roof rising to the north-north-east (sidewalk
+  side), where the tall wall has a clerestory band over a lower 1.5:12 awning (6' deep, corner posts) sheltering a
+  glazed wall and the entry door; an 8' porch open under the roof's low end on the south-south-west; floor 1.5' up;
+  vertical weathered-wood boards; galvalume. Heights are assumed (low eave 10', high wall about 17.6').
+- Shade structure (Level 3) over the whole 100' x 30' strip: pipe posts on about a 12.5' x 15' grid, rails both ways,
+  black shade cloth at 10'. Rows under it along the strip: hydroponic channel racks (north-north-east, Level 3), raised
+  beds 4' x 10' (middle, Level 1), planting tables 4' x 8' with flats (south-south-west, Level 3). Only the shade
+  structure is labelled. Row widths and counts are my layout, not from the sketch.
