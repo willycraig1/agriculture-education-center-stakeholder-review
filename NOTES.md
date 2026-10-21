@@ -1135,3 +1135,6 @@ Fit checks now skip context elements (walk etc.).
   names are drawn on top of the map, outside the campus layer, which is clipped at the main parcel line just past the
   kennels. Leaders run from the centre of each building (a white dot with a red ring, so it shows on the red
   fill); checked in the browser that each dot lands on its own shape and no name overlaps another name or a building.
+- What is already built (`existing.html`): names match the site slide's callouts ("Cattle pens", "Hog pens",
+  "Unfinished barn", singular); "timber" is now "wood-framed" (architect: no heavy timber on site). Every caption is
+  sized to the tallest (set in the page after fonts load), so the photos line up across both rows.
