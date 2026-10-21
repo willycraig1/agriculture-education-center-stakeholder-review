@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paddocks and Rotation</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610211035">
-<link rel="stylesheet" href="../design/deck.css?v=202610211035">
+<link rel="stylesheet" href="../design/palette.css?v=202610211043">
+<link rel="stylesheet" href="../design/deck.css?v=202610211043">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -50,10 +50,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610211035"></script>
-<script src="data/pasture-capacity.js?v=202610211035"></script>
-<script src="../design/deck.js?v=202610211035"></script>
-<script src="../design/viewer.js?v=202610211035"></script>
+<script src="data/site-map.js?v=202610211043"></script>
+<script src="data/pasture-capacity.js?v=202610211043"></script>
+<script src="../design/deck.js?v=202610211043"></script>
+<script src="../design/viewer.js?v=202610211043"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY.levels;
@@ -72,10 +72,10 @@
   const viewer = Viewer(svg, { ftPerUnit: M.ft_per_unit, north: -90, base: full,
     presets: [{ label: "Full site", box: frames.full }, { label: "Site pasture", box: frames.site }] });
 
-  // rotation first, then back to Level 1 (owner, 2026-10-19: lead with the best case and walk back)
+  // Level 1 first, then rotation (architect, 2026-10-21: this one reads forwards, unlike the Level 3-first slides)
   const text = [
-    { h: "Nine paddocks in rotation", badge: "Levels 2 and 3", ce: 1, p: `${C[0].acres} acres of site pasture, fenced into ${siteTags.length} paddocks around the campus and grazed in rotation so each one rests and regrows.`, f: "site" },
-    { h: "Starting out: graze them lightly", badge: C[0].name, ce: 0, p: `The same ${siteTags.length} paddocks, managed conservatively, carry the starting herd. Rotation roughly doubles that without adding land.`, f: "site" },
+    { h: "Nine site paddocks", badge: C[0].name, ce: 0, p: `${C[0].acres} acres of site pasture, fenced into ${siteTags.length} paddocks around the campus. Managed conservatively, they carry the starting herd.`, f: "site" },
+    { h: "Rotate through them", badge: "Levels 2 and 3", ce: 1, p: `The same ${siteTags.length} paddocks, grazed in rotation so each one rests and regrows. Capacity roughly doubles without adding land.`, f: "site" },
   ];                                   // no bonus pasture step in this presentation (owner, 2026-10-19)
   document.getElementById("levels").innerHTML = text.map((t, k) =>
     `<li data-step="0" data-k="${k}"><header><span class="badge">${t.badge}</span><h3>${t.h}</h3></header><p>${t.p}</p>
@@ -106,6 +106,7 @@
     clearInterval(timer);
     siteTags.forEach(t => light(t, false));
     if (!on || document.documentElement.classList.contains("static")) return;
+    at = 0;                              // each time it starts, from the first paddock of each pinwheel
     const tick = () => {
       siteTags.forEach(t => light(t, false));
       pinwheels.forEach(w => light(w[at % 4], true));
@@ -121,7 +122,7 @@
     n = Math.min(n, text.length - 1);
     const f = text[n].f;
     if (f !== last) { viewer.home(frames[f]); viewer.flyTo(frames[f], last === null || document.documentElement.classList.contains("static") ? 0 : 1300); last = f; }
-    rotate(n === 0);
+    rotate(n === 1);
     document.querySelectorAll("#levels li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === n);
       li.classList.toggle("done", +li.dataset.k < n);

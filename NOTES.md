@@ -1148,3 +1148,6 @@ Fit checks now skip context elements (walk etc.).
   hubs (west 3.9 → 3.3 → 5.2 → 2 ac; east 4.8 → 12.4 → 7.8 → 3.7 ac). The 2.1 ac paddock lights with its nearest
   pinwheel paddock, the 3.7 ac (architect, 2026-10-21). Groups and order are found from the drawing's `#pinwheel-labels` hubs (a hub's four nearest site paddocks,
   all within 300 units, sorted by angle), so they follow the drawing if it changes.
+- Paddocks back to Level 1 first (architect, 2026-10-21: "this one doesn't make sense going backwards"): step 1
+  "Nine site paddocks" (Level 1, about 7 CE), step 2 "Rotate through them" (Levels 2 and 3, about 15 CE) with the
+  rotation, which restarts from each pinwheel's first paddock (12.4 ac and 3.3 ac) every time it begins.
