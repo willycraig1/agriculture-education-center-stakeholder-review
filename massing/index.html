@@ -223,11 +223,11 @@ const PROG = {   // design/palette.json
 };
 S.mat.redwall = [0.50, 0.24, 0.18];   // red-stained board siding (photos/Red House)
 S.mat.stone = [0.62, 0.57, 0.48]; S.mat.foundation = [0.42, 0.38, 0.34]; S.mat.deck = [0.58, 0.40, 0.28]; S.mat.metalroof = [0.80, 0.81, 0.80]; S.mat.galv = [0.74, 0.75, 0.74];
-S.mat.glass = [0.62, 0.72, 0.78]; S.mat.leaf = [0.42, 0.58, 0.30]; S.mat.shadecloth = [0.17, 0.18, 0.17]; S.mat.ceilwood = [0.86, 0.66, 0.44];
+S.mat.glass = [0.62, 0.72, 0.78]; S.mat.leaf = [0.42, 0.58, 0.30]; S.mat.shadecloth = [0.17, 0.18, 0.17]; S.mat.screen = [0.37, 0.38, 0.37]; S.mat.ceilwood = [0.86, 0.66, 0.44];
 const LVL = ['#77736A', '#5F8A3A', '#D19A2E', '#B8657A'];
 const LVLNAME = ['Existing', 'Level 1', 'Level 2', 'Level 3'];
 const ROOFY = new Set(['roof', 'roofflat', 'rustroof', 'metalroof']);
-const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain', 'glass', 'leaf', 'shadecloth']);
+const KEEP = new Set(['openshade', 'darkglass', 'trussend', 'timber', 'oldtimber', 'pipe', 'board', 'oldboard', 'boardline', 'joist', 'roofunder', 'curtain', 'glass', 'leaf', 'shadecloth', 'screen']);
 const rgb = a => new THREE.Color(a[0], a[1], a[2]);
 
 function faceColor(m, ob, mode) {
@@ -690,10 +690,12 @@ function localKit(o, z0 = 0) {                                       // z0: lift
     for (const m in byMat) {
       const g = polyGeom(byMat[m]);
       const mat = m === 'shadecloth' ? new THREE.MeshLambertMaterial({ color: 0x2c2d2b, transparent: true, opacity: .8, side: THREE.DoubleSide, depthWrite: false })
+        : m === 'screen' ? new THREE.MeshLambertMaterial({ color: 0x5f625f, transparent: true, opacity: .4, side: THREE.DoubleSide, depthWrite: false })
         : new THREE.MeshLambertMaterial({ color: rgb(S.mat[m]), side: THREE.DoubleSide });
-      const mesh = new THREE.Mesh(g, mat); mesh.castShadow = m !== 'metalroof'; mesh.receiveShadow = true;
-      mesh.userData = { m, solid: mat, noCast: m === 'metalroof' }; grp.add(mesh); meshes.push(mesh);
-      if (!['darkglass', 'shadecloth', 'leaf', 'whitemetal'].includes(m)) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 20), inkMat); e.userData.edge = true; grp.add(e); }
+      const noCast = m === 'metalroof' || m === 'screen';
+      const mesh = new THREE.Mesh(g, mat); mesh.castShadow = !noCast; mesh.receiveShadow = true;
+      mesh.userData = { m, solid: mat, noCast }; grp.add(mesh); meshes.push(mesh);
+      if (!['darkglass', 'shadecloth', 'screen', 'leaf', 'whitemetal'].includes(m)) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 20), inkMat); e.userData.edge = true; grp.add(e); }
     }
     if (ink.length) {
       const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(ink, 3));
@@ -727,7 +729,7 @@ function horticultureArea(C) {
   // ---- residence: a along the strip's axis (to the strip), w across (0 = north-north-east wall). Raised 2' above the
   // first pass for the flood zone (floor 3.5'). The end walls run out under the roofs to close the sides of both
   // porches: the 8' front porch under the main roof's low end and the back porch under the north awning. The end
-  // walls are 1' thick; porch columns stand on the clerestory's two inner mullion lines. No steps yet (owner).
+  // walls are 1' thick; columns on the two inner mullion lines; both screened in. No steps yet.
   {
     const r = C.residence, K = localKit(r), { L, D, box, slab, seg, face, W } = K;
     const FL = 3.5, P = 3 / 12, ZLOW = 12.0, PORCH = 8, WE = D - PORCH;          // porch's outer line at w = D
@@ -769,6 +771,11 @@ function horticultureArea(C) {
     for (const a of MUL.slice(1, 3)) {
       box(a - .3, a + .3, -AW, -AW + .6, FL, za(-AW) - .35, 'oldtimber');
       box(a - .3, a + .3, D - .6, D, FL, zr(D) - .4, 'oldtimber');
+    }
+    // both porches screened in between the end walls, on a low rail
+    for (const [w, zt] of [[-AW + .3, za(-AW) - .35], [D - .3, zr(D) - .4]]) {
+      box(1, L - 1, w - .1, w + .1, FL, FL + .4, 'oldtimber');
+      face([W(1, w, FL + .4), W(L - 1, w, FL + .4), W(L - 1, w, zt), W(1, w, zt)], 'screen');
     }
     // porch's back wall: door and a window; end-wall windows in the enclosed rooms
     face([W(L / 2 - 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL + 6.8), W(L / 2 - 1.5, WE + .06, FL + 6.8)], 'oldtimber');

@@ -1062,3 +1062,4 @@ Fit checks now skip context elements (walk etc.).
   frame's rails at 10' above it meet the residence's window and transom heads (10.5'). The residence's door moved to
   the west bay of the glazed north wall; its siding runs down to the ground (no dark plinth), the crawlspace skirt
   and porch decks sitting between the end walls.
+- Follow-up (owner): both residence porches screened in between the end walls, screen on a 5" rail through the column line.
