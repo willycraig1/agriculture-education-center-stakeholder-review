@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Existing Buildings</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610202344">
-<link rel="stylesheet" href="../design/deck.css?v=202610202344">
+<link rel="stylesheet" href="../design/palette.css?v=202610211142">
+<link rel="stylesheet" href="../design/deck.css?v=202610211142">
 <style>
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 30px; flex: 1; min-height: 0; }
   .b { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
@@ -26,17 +26,17 @@
   <p class="lede" data-step="0">Six existing structures, all near the center of the site.</p>
   <div class="grid" id="grid"></div>
 </div>
-<script src="../design/deck.js?v=202610202344"></script>
+<script src="../design/deck.js?v=202610211142"></script>
 <script>
 // Site photos: drop images in /photos with these base names (.jpg, .jpeg or .png) and they replace the placeholders.
 const EXTS = [".jpg", ".jpeg", ".png", ".JPG", ".JPEG"];
 function nextExt(img) { const k = +img.dataset.try + 1; if (k >= EXTS.length) return img.remove(); img.dataset.try = k; img.src = img.dataset.base + EXTS[k]; }
 const ITEMS = [
-  { file: "red-house", key: "education", name: "The Red House", note: "Former residence under the oaks, with several floor levels and wraparound porches." },
+  { file: "red-house", key: "education", name: "The Red House", note: "Former residence under the oaks, with several floor levels and porches." },
   { file: "barn", key: "swine", name: "Existing barn", note: "Wood-sided barn with four roll-up doors and a concrete apron." },
-  { file: "cattle-pens", key: "cattle", name: "Seven cattle pens", note: "Timber pens along a covered aisle with fans overhead, on the east side of the existing barn." },
-  { file: "hog-enclosures", key: "swine", name: "Hog enclosures", note: "Long open-sided timber shed, out in the pasture." },
-  { file: "unfinished-barns", key: "small-animal", name: "Small unfinished barns", note: "Open timber frames with new metal roofs, not yet served by power or water." },
+  { file: "cattle-pens", key: "cattle", name: "Cattle pens", note: "Seven wood-framed pens along a covered aisle with fans overhead, on the east side of the existing barn." },
+  { file: "hog-enclosures", key: "swine", name: "Hog pens", note: "Long open-sided wood-framed shed, out in the pasture." },
+  { file: "unfinished-barns", key: "small-animal", name: "Unfinished barn", note: "Open wood-framed barn with a new metal roof, not yet served by power or water." },
   { file: "corral", key: "cattle", name: "Squeeze chute", note: "A chute and gates in a small holding pen, for working pasture cattle." },
 ];
 document.getElementById("grid").innerHTML = ITEMS.map((it, i) => `
@@ -45,6 +45,15 @@ document.getElementById("grid").innerHTML = ITEMS.map((it, i) => `
       <img src="../photos/${it.file}.jpg" alt="${it.name}" data-base="../photos/${it.file}" data-try="0" onerror="nextExt(this)"></div>
     <div class="cap" style="border-top-color:var(--${it.key})"><h2>${it.name}</h2><p>${it.note}</p></div>
   </article>`).join("");
+// every caption as tall as the tallest, so the photos above them line up across both rows
+function evenCaptions() {
+  const caps = [...document.querySelectorAll(".cap")];
+  caps.forEach(c => c.style.minHeight = "");
+  const h = Math.max(...caps.map(c => c.offsetHeight));
+  caps.forEach(c => c.style.minHeight = h + "px");
+}
+evenCaptions();
+document.fonts && document.fonts.ready.then(evenCaptions);
 Deck.start();
 </script>
 </body>

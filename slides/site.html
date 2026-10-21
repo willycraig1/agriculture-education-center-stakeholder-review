@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Site</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610202344">
-<link rel="stylesheet" href="../design/deck.css?v=202610202344">
+<link rel="stylesheet" href="../design/palette.css?v=202610211142">
+<link rel="stylesheet" href="../design/deck.css?v=202610211142">
 <style>
   .stage { padding-top: 60px; }
   h1 { margin-bottom: 0; }
@@ -20,6 +20,7 @@
   .map #historic-slough { fill-opacity: .16; }
   .map #historic-slough-label, .map #historic-slough-floor { display: none; }
   .map #paddocks.dim { opacity: .35; }
+  .map #campus-names { transition: opacity .8s var(--ease); }
   .north { position: absolute; left: 22px; top: 20px; display: flex; align-items: center; gap: 8px;
            font: 700 20px/1 var(--sans); color: var(--ink); background: rgba(250,247,240,.9); padding: 8px 12px; border-radius: 8px; }
   .scale { position: absolute; right: 22px; bottom: 18px; background: rgba(250,247,240,.9); padding: 8px 12px 6px; border-radius: 8px;
@@ -54,7 +55,7 @@
   <div class="body">
     <div class="map card" data-step="0" id="map">
       <ol class="steps" id="steps"></ol>
-      <span data-step="1" hidden></span>
+      <span data-step="1" hidden></span><span data-step="2" hidden></span>
     </div>
     <div style="display:flex;flex-direction:column;min-height:0">
       <div class="facts" id="facts"></div>
@@ -64,10 +65,10 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610202344"></script>
-<script src="data/pasture-capacity.js?v=202610202344"></script>
-<script src="../design/deck.js?v=202610202344"></script>
-<script src="../design/viewer.js?v=202610202344"></script>
+<script src="data/site-map.js?v=202610211142"></script>
+<script src="data/pasture-capacity.js?v=202610211142"></script>
+<script src="../design/deck.js?v=202610211142"></script>
+<script src="../design/viewer.js?v=202610211142"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, C = window.PASTURE_CAPACITY;
@@ -88,17 +89,32 @@
     return [b.x + b.width / 2, b.y + b.height / 2, b];
   };
   const pens = cb("cattle-pens-canopy"), ub = cb("unfinished-barn"), cp = cb("carport");
-  const lab = (x, y, t, size, anchor = "middle") => `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" class="campus-label"><text data-fixed="1" text-anchor="${anchor}" dy="${size * 0.35}" font-size="${size}" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">${t}</text></g>`;
-  const campusLabels = lab(rx, ry + 4, "Red House", 28)
-    + lab(1162, 324, "Existing barn", 24)                                   // the barn east of the pens' lean-to
-    + (pens ? lab(pens[2].x - 3, pens[1], "Cattle pens", 24, "end") : "")
-    + (ub ? lab(ub[0], ub[2].y - 7, "Unfinished barn", 24) : "")
-    + (cp ? lab(cp[2].x + cp[2].width + 3, cp[1], "Carport", 24, "start") : "");
-  svg.querySelector("#campus").insertAdjacentHTML("beforeend",
-    `<g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -96" stroke="var(--education)" stroke-width="7" stroke-linecap="round" fill="none"/>
-     <path d="M-20 -90 L0 -120 L20 -90 Z" fill="var(--education)"/></g>
-     <text x="-22" y="-34" text-anchor="end" font-size="26" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="6" paint-order="stroke">ENTRY</text></g></g>
-     ${campusLabels}`);
+  // Callouts (2026-10-21, architect): small names set out in clear ground, each on a leader to its building. The leader
+  // and name are counter-scaled together about the anchor (data-fixed), so they keep their size and offset on screen.
+  // The dot is white so it shows on the red buildings.
+  // ax, ay: the point on the building (map units); dx, dy: where the name sits, relative to it (base units).
+  const callout = (ax, ay, dx, dy, t, anchor) => {
+    const len = Math.hypot(dx, dy), ex = dx * (len - 5) / len, ey = dy * (len - 5) / len;   // stop short of the name
+    return `<g transform="translate(${ax.toFixed(1)} ${ay.toFixed(1)})" class="campus-label"><g data-fixed="1">
+      <line x1="0" y1="0" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="var(--education)" stroke-width="1.6" stroke-linecap="round"/>
+      <circle r="3" fill="#fff" stroke="var(--education)" stroke-width="1.6"/>
+      <text x="${dx}" y="${dy}" text-anchor="${anchor}" dy="5" font-size="15" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="4.5" paint-order="stroke">${t}</text></g></g>`;
+  };
+  // anchors at the centre of each building; offsets set so the names keep their places at the campus framing
+  const campusLabels = callout(1212, 370, 34, -67, "Red House", "start")
+    + (cp ? callout(cp[0], cp[1], 48, 12, "Carport", "start") : "")
+    + callout(1253.5, 364, 30, 0, "Kennels", "start")                       // the small building south of the Red House
+    + callout(1162, 324, 75, -12, "Existing barn", "start")                  // the barn east of the pens' lean-to
+    + (ub ? callout(ub[0], ub[1], 58, -6, "Unfinished barn", "start") : "")
+    + (pens ? callout(pens[0], pens[1], -57, -24, "Cattle pens", "end") : "")
+    + callout(1122, 362, -34, 42, "Hog pens", "end");                       // the long open-sided shed out in the pasture
+  // the names sit on top of the whole map, outside the campus layer: that layer is clipped at the main parcel line,
+  // which runs just past the kennels and would cut their name
+  svg.insertAdjacentHTML("beforeend",
+    `<g id="campus-names"><g transform="translate(${entry[0]} ${entry[1]})"><g data-fixed="1"><g transform="rotate(${entryDeg})"><path d="M0 0 L0 -72" stroke="var(--education)" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+     <path d="M-15 -68 L0 -90 L15 -68 Z" fill="var(--education)"/></g>
+     <text x="-18" y="-28" text-anchor="end" font-size="18" font-weight="700" fill="var(--education)" stroke="#fff" stroke-width="4.5" paint-order="stroke">ENTRY</text></g></g>
+     ${campusLabels}</g>`);
 
   // pan/zoom viewer with preset framings (map units = presentation frame, north left)
   const [vx0, vy0, vx1, vy1] = M.view;
@@ -133,12 +149,14 @@
     { t: "Woods and trees", p: `Tree canopy covers about ${Math.round(M.canopy_acres)} of the site's ${Math.round(M.site_acres_footprint)} acres, much of it oak hammock. ${M.trees} trees around the campus are surveyed individually. Wooded acres carry far fewer cattle than open pasture.`,
       lg: `<span><i style="background:var(--woodland);border-radius:50%;width:13px"></i>Surveyed tree</span><span><i style="background:var(--woodland);opacity:.35"></i>Tree canopy</span>`,
       show: ["ground", "property", "canopy", "water", "trees", "labels"], muted: true },
+    { t: "The site, drawn", p: "The same view without the photo: our base drawing of the site from the survey, with the tree canopy traced from the aerial, Cowpen Slough, and the existing buildings.",
+      show: ["ground", "property", "canopy", "water", "trees", "campus", "labels"], names: false },
     { t: "The campus", p: "The Red House and the existing barns sit near the center of the site. The drive comes in from the west, at the bottom of the map.",
       lg: `<span><i style="background:var(--education)"></i>Existing buildings</span>`, frame: "campus",
       show: ["ground", "property", "canopy", "water", "trees", "campus", "labels"], muted: true },
   ];
-  // the short version (owner, 2026-10-19): the site from the air, then the campus. Land, water, soils, and woods are in
-  // the report version (archive/report-reference-2026-10-19).
+  // the short version (owner, 2026-10-19): the site from the air, the same view as our drawing (architect, 2026-10-21),
+  // then the campus. Land, water, soils, and woods are in the report version (archive/report-reference-2026-10-19).
   steps.splice(1, 4);
   document.getElementById("steps").innerHTML = steps.map((s, i) =>
     `<li data-step="0" data-i="${i}"><span class="n">${i + 1}</span><h3>${s.t}</h3><p>${s.p}</p>${s.lg ? `<div class="lg">${s.lg}</div>` : ""}</li>`).join("");
@@ -155,6 +173,7 @@
     });
     svg.querySelector("#aerial").classList.toggle("muted", !!s.muted);
     svg.querySelector("#paddocks").classList.toggle("dim", !!s.dim);
+    svg.querySelector("#campus-names").classList.toggle("off", s.names === false || !s.show.includes("campus"));   // names and entry only once zoomed in
     document.querySelectorAll("#steps li").forEach(li => {
       const i = +li.dataset.i;
       li.classList.toggle("now", i === n);

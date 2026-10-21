@@ -1124,3 +1124,46 @@ Fit checks now skip context elements (walk etc.).
 - `slides/vision.html` hero: the architect's "Watercolor Campus Level3" (`exports/Watercolor Campus Level3.png` →
   `photos/vision-campus-level3.webp`) replaces `photos/vision-watercolor.jpg` (removed); label "The campus at Level 3"
   (was "The barnyard at Level 3"). Same crop (object-position centre 62%).
+
+## 2026-10-21: the site today, drawing step and callouts
+- `slides/site.html`: three steps now. From the air (aerial, full site); "The site, drawn" (new: the aerial off, our
+  base drawing at the same full-site framing, names and entry arrow hidden); the campus close-up.
+- Campus names are callouts: 15 px names set out in clear ground on leaders to their buildings (dot on the building),
+  counter-scaled with the zoom as one group so size and offset hold on screen. ENTRY arrow and text smaller.
+  "Hog pens" added on the long open-sided shed west of the cattle pens (about 26' x 60' on the drawing, matching the
+  hog enclosure photo). "Kennels" added on the small building south of the Red House (architect). The
+  names are drawn on top of the map, outside the campus layer, which is clipped at the main parcel line just past the
+  kennels. Leaders run from the centre of each building (a white dot with a red ring, so it shows on the red
+  fill); checked in the browser that each dot lands on its own shape and no name overlaps another name or a building.
+- What is already built (`existing.html`): names match the site slide's callouts ("Cattle pens", "Hog pens",
+  "Unfinished barn", singular); "timber" is now "wood-framed" (architect: no heavy timber on site). Every caption is
+  sized to the tallest (set in the page after fonts load), so the photos line up across both rows. The Red House
+  porches are no longer "wraparound" (they are segmented), here and on the Red House slide.
+- Vision slide: a sticky note beside the title, from the first step: "Level 3 is the full build-out. The plan starts
+  here, so each earlier Level grows toward it as funding and demand allow." (Styled after the old Cow Pen Slough note.)
+- Running order: Paddocks and rotation moves up to slide 7, right after The campus (same full-site map; pasture is the
+  first design driver), eyebrow "The plan" (was "Getting there"). The campus slide's first step now names them:
+  "nine paddocks, about 45 acres of pasture" (acres from pasture-capacity.js). Levels table is now slide 13.
+- Paddocks rotation animation: the two pinwheels turn together, one paddock a tick clockwise around their Feed + water
+  hubs (west 3.9 → 3.3 → 5.2 → 2 ac; east 4.8 → 12.4 → 7.8 → 3.7 ac). The 2.1 ac paddock lights with its nearest
+  pinwheel paddock, the 3.7 ac (architect, 2026-10-21). Groups and order are found from the drawing's `#pinwheel-labels` hubs (a hub's four nearest site paddocks,
+  all within 300 units, sorted by angle), so they follow the drawing if it changes.
+- Paddocks back to Level 1 first (architect, 2026-10-21: "this one doesn't make sense going backwards"): step 1
+  "Nine site paddocks" (Level 1, about 7 CE), step 2 "Rotate through them" (Levels 2 and 3, about 15 CE) with the
+  rotation, which restarts from each pinwheel's first paddock (12.4 ac and 3.3 ac) every time it begins.
+
+## 2026-10-21: How the plan took shape (`slides/plan-logic.html`)
+- New slide 8, before the barnyard by Level (architect's design narrative): the Level 3 barnyard built up one design
+  move at a time on the site plan, framed tight on the central campus. Six steps, the current move at full strength and
+  the earlier ones faded: (1) the existing barn sets the grid (perpendicular to Cowpen Slough, parallel to the entry drive; a
+  12' grid square to the barn, and the barn's axis dashed up to the unfinished barn, which falls on it); (2) cattle
+  builds off the existing pens; (3) parking central to the new barns and the Red House; (4) small animal barns complete
+  the parking's shape, horticulture frames the south edge of the drive loop, the residence completes the central
+  campus; (5) arena, grooming, and feed storage central for vehicle access and daily use; (6) the classroom extends
+  east into the tree canopy.
+- The grid and frame are measured from the drawing's own elements (`#barnyard .by[data-id]`, the existing barn's
+  rect for the orientation), so they follow the plan if it changes. Labels are matched to moves by their text.
+- PDF export: one page per step (`STEPPED`).
+- Architect's edits (same day): no pasture fencing (`#paddocks`) on this slide; Cowpen Slough, not SR-72 (the road
+  is at the property's north end); cattle "immediately adjacent to the pasture"; parking avoids most existing trees and
+  gives vehicles loading and unloading access to all these structures; the working center has central dumpster access.
