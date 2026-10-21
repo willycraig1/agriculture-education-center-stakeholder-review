@@ -1082,3 +1082,6 @@ Fit checks now skip context elements (walk etc.).
   (Level 2): a concrete wash pad (about 11' x 43'), four short pipe tie panels out from the west column line (no
   rail along the line: owner). The arena rail now closes its west side too, between the arena floor and the grooming area.
   `export_scene.py` no longer splits the grooming faces out of the arena object.
+- Tractor (owner): moved off the holding pens' fence (the painting's spot, `render.py` TRACTOR_AT, kept for the
+  watercolor) into the 3.7 ac paddock north of the barnyard, facing west, at least 25' from fences and panels, pulling a
+  manure spreader with a load on.
