@@ -1012,6 +1012,10 @@ const paintTrees = treeSet(S.trees.map(t => [t.x, t.y, t.kind, t.s]));
 const treeGroup = new THREE.Group(); scene.add(treeGroup);
 let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 if (SITE) {
+  if (SITE.campus.palms) {                                            // sabal palms framing the parking's north and west sides
+    reg(treeSet(SITE.campus.palms.map(([x, y], i) => [x, y, 'palm', .85 + ((i * 7) % 5) * .05])), 1);
+    catalog.push({ label: 'Sabal palms along the parking\'s north and west sides', level: 1 });
+  }
   const keep = SITE.surveyed_trees.filter(t => t[2] !== 0), cut = SITE.surveyed_trees.filter(t => t[2] === 0);
   const inPaving = SITE.surveyed_trees.filter(t => t[2] === 1).length;
   if (inPaving) catalog.push({ label: `${inPaving} surveyed trees stand in the parking paving as drawn; kept in the model`, level: 1 });

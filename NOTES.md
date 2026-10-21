@@ -999,3 +999,11 @@ Fit checks now skip context elements (walk etc.).
   of the Red House's north-east porch; the walk's link to the landing lengthens with it); the crawlspace louvers carried
   round under the balcony, in the same planes as the main skirt (the column lines) and on the balcony posts; the balcony railing is posts and rails with square welded wire mesh (about 4") that all but
   disappears, no pickets; siding horizontal on the side walls (solid bays and the frieze), vertical on the endwalls.
+
+## 2026-10-20: palms framing the parking (massing)
+- Owner: a line of sabal palms on the parking's north and west sides. Nine down the 8' strip between the grass parking
+  and the concrete lane south of the arena (about 15.6' apart), six in the grass west of the lot's west leg (about
+  19.4' apart, from the lane south toward the surveyed oak). Placed by `massing/export_site.py` (`campus.palms`, scene
+  feet, read off the owner's markup); Level 1 with the parking.
+- That strip was asphalt in `scene.py` (the watercolor's ground); it is now grass, so a re-rendered watercolor shows it
+  green too.
