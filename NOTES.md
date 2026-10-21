@@ -1109,3 +1109,4 @@ Fit checks now skip context elements (walk etc.).
   subject left of centre, so it is shown whole on the right (1060 px wide), multiplied into the paper with its edges
   feathered, and the text column narrows to 760 px (title on three lines).
 - Residence front porch (owner, 2026-10-21): the porch's back wall is a full-width sliding glass door between the end walls (four panels, head at 10.5' with the window and transom heads), replacing the door and window.
+- "The shade house" view is now the owner's framing (2026-10-21): from above the south pond, the residence's porch end at left and the shade house running away to the right (camera -3, -538, 21 to 122, -506, 8; 27 deg vertical).

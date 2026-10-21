@@ -1449,7 +1449,7 @@ const VIEWS = {
   fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
   classroom:  { name: 'The classroom', sub: 'Eye level, the glass wall from the lawn', pos: [424, -499, 5.5], tgt: [396, -440, 11], fov: 64 },
   inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [378, -436, 11], tgt: [445, -436, 13], fov: 70 },
-  shadehouse: { name: 'The shade house', sub: 'Eye level, along the beds to the residence', pos: [234.3, -539.3, 6], tgt: [118, -480, 8], fov: 52 },
+  shadehouse: { name: 'The shade house', sub: 'From the pond: the residence and the beds', pos: [-3, -538, 21], tgt: [122, -506, 8], fov: 27 },   // owner's framing
 };
 const viewsEl = document.getElementById('views');
 viewsEl.innerHTML = Object.entries(VIEWS).map(([k, v]) => `<button data-v="${k}">${v.name}<small>${v.sub}</small></button>`).join('');
