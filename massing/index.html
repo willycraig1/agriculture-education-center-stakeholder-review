@@ -580,14 +580,21 @@ function redHouse(C) {
   slabL([[U_MAIN + OV, VR, RIDGE], [UE, VR, RIDGE], [UE, WV1 + OV, roofZ(WV1 + OV)], [U_MAIN + OV, WV1 + OV, roofZ(WV1 + OV)]]);   // its higher eave over the wing
   // stone chimney on the south-east side, up past the ridge
   boxL(32.9, 39.0, 40.9, 44.4, 0, RIDGE + 2.5, 'stone');
-  // north-west porch: deck, posts, wood railing, steps at its middle
+  // north-west porch: deck, posts, wood railing (open at the steps at its middle, returning across its open north-east
+  // end), steps
   boxL(33.6, U_PORCH, V0, 0, FLOOR - 0.3, FLOOR, 'deck');
   const porchZ = v_ => PLATE - (-v_) * PP;
   for (let uu = 33.6; uu <= U_PORCH + 0.1; uu += (U_PORCH - 33.6) / 5) boxL(uu - 0.3, uu + 0.3, V0, V0 + 0.6, FLOOR, porchZ(V0) - 0.4, 'deck');
-  boxL(33.6, U_PORCH, V0, V0 + 0.3, FLOOR + 2.9, FLOOR + 3.2, 'deck');
-  boxL(33.6, U_PORCH, V0, V0 + 0.15, FLOOR + 0.4, FLOOR + 0.6, 'deck');
-  for (let uu = 34.4; uu < U_PORCH; uu += 0.9) boxL(uu, uu + 0.12, V0, V0 + 0.12, FLOOR + 0.6, FLOOR + 2.9, 'deck');
   const st = (33.6 + U_PORCH) / 2;
+  for (const [ua, ub] of [[33.6, st - 2.5], [st + 2.5, U_PORCH]]) {   // along the front, either side of the steps
+    boxL(ua, ub, V0, V0 + 0.3, FLOOR + 2.9, FLOOR + 3.2, 'deck');
+    boxL(ua, ub, V0, V0 + 0.15, FLOOR + 0.4, FLOOR + 0.6, 'deck');
+    for (let uu = ua + 0.8; uu < ub - 0.1; uu += 0.9) boxL(uu, uu + 0.12, V0, V0 + 0.12, FLOOR + 0.6, FLOOR + 2.9, 'deck');
+    boxL(ua === 33.6 ? ub - 0.4 : ua, ua === 33.6 ? ub : ua + 0.4, V0, V0 + 0.4, FLOOR, FLOOR + 3.2, 'deck');   // newel at the steps
+  }
+  boxL(33.6, 33.9, V0, 0, FLOOR + 2.9, FLOOR + 3.2, 'deck');                                 // across the open end
+  boxL(33.6, 33.75, V0, 0, FLOOR + 0.4, FLOOR + 0.6, 'deck');
+  for (let vv = V0 + 0.8; vv < -0.2; vv += 0.9) boxL(33.6, 33.72, vv, vv + 0.12, FLOOR + 0.6, FLOOR + 2.9, 'deck');
   for (let k = 0; k < 4; k++) boxL(st - 2.5, st + 2.5, V0 - 1.1 * (k + 1), V0 - 1.1 * k, 0, FLOOR - 0.6 * k, 'deck');
   // north-east screened porch: deck, kneewall, posts, screen
   boxL(U_NE, 0, 0, V1, FLOOR - 0.3, FLOOR, 'deck');
@@ -607,6 +614,14 @@ function redHouse(C) {
   for (const uu of [6, 15, 24, 46, 56]) win(uu, V1, 0, 1);
   for (const vv of [-2, 8, 18]) win(U1, vv, 1, 0);
   for (const uu of [85, 94]) win(uu, V0, 0, -1);
+  // the arched-top window in the cross gable's north-west end, behind the oak (photo 15): 3' wide, a round head
+  const arch = (uu, w, sill, h) => {                                  // h: to the spring of the arch
+    const shape = (ww, o, z0) => { const r = ww / 2, pts = [[-r, z0], [r, z0], [r, h]];
+      for (let k = 1; k < 12; k++) { const a = k * Math.PI / 12; pts.push([r * Math.cos(a), h + r * Math.sin(a)]); }
+      pts.push([-r, h]); return pts.map(([t, z]) => W(uu + t, -o, FLOOR + sill + z)); };
+    face(shape(w + 0.6, 0.08, -0.3), 'doorwhite'); face(shape(w, 0.12, 0), 'darkglass');
+  };
+  arch(9.5, 3, 2.8, 4.2);
   for (const vv of [8, 30]) win(0, vv, -1, 0, 3, 6.6);                // doors and windows onto the screened porch
 
   for (const m in byMat) {
