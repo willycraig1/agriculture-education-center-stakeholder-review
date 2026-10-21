@@ -1108,3 +1108,9 @@ Fit checks now skip context elements (walk etc.).
   `photos/cover-heifer-watercolor.webp`) replaces `cover-watercolor.webp` (removed). The painting is 16:9 with its
   subject left of centre, so it is shown whole on the right (1060 px wide), multiplied into the paper with its edges
   feathered, and the text column narrows to 760 px (title on three lines).
+
+## 2026-10-20: campus watercolour slide
+- New `slides/campus-watercolor.html` ("The campus"), slide 15 of 17, just before Over to you: the architect's aerial
+  watercolour (`exports/Watercolor Campus with Tractor Outside Cattle Pen.png` → `photos/campus-watercolor.webp`)
+  alone, full height and centred, multiplied into the paper with feathered edges as on the cover. No text. The PDF
+  export picks it up as a one-page slide.
