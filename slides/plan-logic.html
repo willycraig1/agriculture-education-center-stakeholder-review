@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How the Plan Took Shape</title>
-<link rel="stylesheet" href="../design/palette.css?v=202610211119">
-<link rel="stylesheet" href="../design/deck.css?v=202610211119">
+<link rel="stylesheet" href="../design/palette.css?v=202610211142">
+<link rel="stylesheet" href="../design/deck.css?v=202610211142">
 <style>
   /* How the design parameters led to the layout (architect, 2026-10-21): the Level 3 barnyard built up one move at a
      time on the site plan, starting from the grid the existing barn sets. */
@@ -14,7 +14,7 @@
   .body { display: grid; grid-template-columns: 1300px 1fr; gap: 34px; margin-top: 22px; flex: 1; min-height: 0; }
   .map { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--line); background: var(--paper); align-self: start; }
   .map > svg { display: block; width: 100%; height: auto; aspect-ratio: 2360 / 1500; }
-  .map #paddocks, .map [data-layer], .map .by, .map #barnyard-labels text, .map #logic-grid, .map #logic-axis { transition: opacity .8s var(--ease); }
+  .map [data-layer], .map .by, .map #barnyard-labels text, .map #logic-grid, .map #logic-axis { transition: opacity .8s var(--ease); }
   .map .off { opacity: 0; }
   .map #aerial { filter: saturate(.45) brightness(1.06); }
   .map .by.future, .map #barnyard-labels text.future { opacity: 0; }
@@ -50,9 +50,9 @@
   </div>
 </div>
 
-<script src="data/site-map.js?v=202610211119"></script>
-<script src="../design/deck.js?v=202610211119"></script>
-<script src="../design/viewer.js?v=202610211119"></script>
+<script src="data/site-map.js?v=202610211142"></script>
+<script src="../design/deck.js?v=202610211142"></script>
+<script src="../design/viewer.js?v=202610211142"></script>
 <script>
 (function () {
   const M = window.SITE_MAP;
@@ -60,8 +60,9 @@
   mapEl.insertAdjacentHTML("afterbegin", M.svg);
   const svg = mapEl.querySelector(":scope > svg");
   ["land", "soils", "labels", "aerial", "veil"].forEach(id => svg.querySelector("#" + id).classList.add("off"));
-  // the barnyard is the subject: no paddock acreages, feed + water hubs, or slough name here
-  svg.querySelectorAll("#paddocks .tag, #pinwheel-labels, #historic-slough-label").forEach(e => e.style.display = "none");
+  // the barnyard is the subject: no pasture fencing, paddock acreages, feed + water hubs, or slough name here
+  // (architect, 2026-10-21)
+  svg.querySelectorAll("#paddocks, #pinwheel-labels, #historic-slough-label").forEach(e => e.style.display = "none");
 
   // the moves, in the order the design made them. ids: the barnyard elements (data-id); names: their map labels.
   const moves = [
@@ -161,7 +162,6 @@
     });
     svg.querySelector("#logic-grid").style.opacity = n === 0 || fin ? 1 : .45;
     svg.querySelector("#logic-axis").style.opacity = n === 0 || fin ? 1 : 0;
-    svg.querySelector("#paddocks").classList.toggle("off", n < moves.length - 1 && !fin);   // pasture fencing only on the last move (architect, 2026-10-21)
     if (first) { viewer.home(frame); viewer.flyTo(frame, 0); first = false; }
     document.querySelectorAll("#moves li").forEach(li => {
       li.classList.toggle("now", +li.dataset.k === n);
