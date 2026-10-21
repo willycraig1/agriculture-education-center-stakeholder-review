@@ -192,7 +192,7 @@ input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; m
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="scene-data.js?v=0e2df4a293"></script>
+<script src="scene-data.js?v=8b59839ff7"></script>
 <script src="site-data.js?v=7f3586df19"></script>
 <script>
 (() => {
@@ -766,9 +766,12 @@ function horticultureArea(C) {
       box(1, L - 1, w - .1, w + .1, FL, FL + .4, 'oldtimber');
       face([W(1, w, FL + .4), W(L - 1, w, FL + .4), W(L - 1, w, zt), W(1, w, zt)], 'screen');
     }
-    // porch's back wall: door and a window; end-wall windows in the enclosed rooms
-    face([W(L / 2 - 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL), W(L / 2 + 1.5, WE + .06, FL + 6.8), W(L / 2 - 1.5, WE + .06, FL + 6.8)], 'oldtimber');
-    face([W(3, WE + .06, FL + 3), W(7, WE + .06, FL + 3), W(7, WE + .06, FL + 7), W(3, WE + .06, FL + 7)], 'darkglass');
+    // porch's back wall: a full-width sliding glass door between the end walls, four panels, its head on the window and
+    // transom heads (owner); end-wall windows in the enclosed rooms
+    face([W(1, WE + .06, FL), W(L - 1, WE + .06, FL), W(L - 1, WE + .06, FL + 7), W(1, WE + .06, FL + 7)], 'darkglass');
+    for (let k = 0; k <= 4; k++) { const a = 1 + k * (L - 2) / 4; box(a - .12, a + .12, WE, WE + .14, FL, FL + 7, 'oldtimber'); }
+    box(1, L - 1, WE, WE + .14, FL + 6.8, FL + 7, 'oldtimber');
+    box(1, L - 1, WE, WE + .14, FL, FL + .15, 'oldtimber');
     for (const a of [0, L]) for (const w of [6, 15]) { const o = a ? .06 : -.06;
       face([W(a + o, w - 1.5, FL + 3), W(a + o, w + 1.5, FL + 3), W(a + o, w + 1.5, FL + 7), W(a + o, w - 1.5, FL + 7)], 'darkglass'); }
     // main roof: one 3:12 plane, 1.5' overhangs
@@ -1040,7 +1043,7 @@ if (SITE) {
     const c = pd.kind === 'bonus' ? C_BONUS : C_SITE;
     const fill = reg(flat(pd.polys, c, -0.2, .38), pd.level, 'paddockfill');
     reg(lines(pd.polys.map(p => p.o), c.clone().multiplyScalar(.7), 0.05), pd.level, 'paddocks');
-    if (pd.label) {
+    if (pd.label && pd.kind !== 'bonus') {                          // no acreage tags on the bonus pasture (owner)
       const pts = pd.polys[0].o, cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
       padTags.push({ text: pd.label.replace(/\s*ac$/i, ' ac') + (pd.kind === 'bonus' ? ' bonus' : ''), p: new THREE.Vector3(cx, cy, 2), level: pd.level });
     }
@@ -1433,10 +1436,11 @@ function placeTags() {
 const VIEWS = {
   // overviews
   aerial:     { name: 'Bird\'s-eye', sub: 'From the south-west', pos: [-40, -600, 300], tgt: [235, -210, 0], fov: 40 },
-  plan:       { name: 'Plan', sub: 'North up, from above', pos: [235, -214, 820], tgt: [235, -213, 0], fov: 40 },
+  plan:       { name: 'Plan', sub: 'North up, from above', pos: [230, -291, 820], tgt: [230, -290, 0], fov: 40 },   // centred 77' south of the first, to take in the horticulture strip (owner)
   campus:     { name: 'Campus', sub: 'Barnyard, Red House, parking', pos: [760, -1150, 620], tgt: [200, -330, 0], fov: 40 },
   northeast:  { name: 'Over the pens', sub: 'From the north-east', pos: [560, 40, 150], tgt: [260, -210, 0], fov: 40 },
   teaching:   { name: 'Teaching space', sub: 'Red House addition, from the north-east', pos: [522, -380, 50], tgt: [408, -442, 7], fov: 45 },
+  poultry:    { name: 'Poultry barn', sub: 'The unfinished barn, from the west', pos: [455, -262, 20], tgt: [534, -280, 6], fov: 45 },
   pasture:    { name: 'Site pasture', sub: 'The paddocks, from the north', pos: [1500, 3300, 1500], tgt: [100, 500, 0], fov: 40 },
   site:       { name: 'Whole property', sub: 'Campus, pastures, slough', pos: [2300, -3300, 2300], tgt: [-350, -800, 0], fov: 40 },
   // eye level (owner, 2026-10-20: compositions that explain the concept)
@@ -1446,7 +1450,7 @@ const VIEWS = {
   fromfield:  { name: 'From the pasture', sub: 'Eye level, toward the barns', pos: [150, 250, 5.5], tgt: [200, -120, -3], fov: 55 },
   classroom:  { name: 'The classroom', sub: 'Eye level, the glass wall from the lawn', pos: [424, -499, 5.5], tgt: [396, -440, 11], fov: 64 },
   inside:     { name: 'Inside the classroom', sub: 'Toward the east window', pos: [378, -436, 11], tgt: [445, -436, 13], fov: 70 },
-  shadehouse: { name: 'The shade house', sub: 'Eye level, along the beds to the residence', pos: [234.3, -539.3, 6], tgt: [118, -480, 8], fov: 52 },
+  shadehouse: { name: 'The shade house', sub: 'From the pond: the residence and the beds', pos: [-3, -538, 21], tgt: [122, -506, 8], fov: 27 },   // owner's framing
 };
 const viewsEl = document.getElementById('views');
 viewsEl.innerHTML = Object.entries(VIEWS).map(([k, v]) => `<button data-v="${k}">${v.name}<small>${v.sub}</small></button>`).join('');
