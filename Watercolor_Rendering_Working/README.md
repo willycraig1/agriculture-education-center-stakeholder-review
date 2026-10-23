@@ -1,4 +1,4 @@
-# MMS Ag Farm – Option B (Level 3) rough watercolor
+# Clark Farm – Option B (Level 3) rough watercolor
 
 Procedural pen-and-wash rendering built from the "Barnyard, Level by Level – Option B" site plan.
 

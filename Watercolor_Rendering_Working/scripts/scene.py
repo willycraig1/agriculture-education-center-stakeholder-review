@@ -1,4 +1,4 @@
-"""3D massing of MMS Ag Farm Option B (Level 3) built from the site plan.
+"""3D massing of Clark Farm Option B (Level 3) built from the site plan.
 Units: feet. X east, Y north, Z up. Plan px -> ft: X = px/2.95, Y = -py/2.95
 """
 import numpy as np
