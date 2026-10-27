@@ -14,3 +14,6 @@ source/*
 !source/.gitkeep
 drawings/*.dwg
 drawings/*.bak
+# Public-record aerials the site map loads (County PA aerial, 1948 historic aerial)
+!source/Site Aerial from SCPA.jpg
+!source/1948 Aerial of historic Slough Bed.jpg

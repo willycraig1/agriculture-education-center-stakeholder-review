@@ -12,7 +12,7 @@ Read before changing anything:
 - `design/palette.json` is the color source of truth.
 - North is to the **left** in every graphic.
 - Slides are 1920×1080. Arrow keys step through builds, and `?static` shows the finished frame for PDF export.
-- **This repo is public.** `source/` (client drawings, survey, program drafts, reference books) and the CAD files (`drawings/*.dwg`, `*.bak`) are local only and gitignored. Never commit them or link to them from slides. Publish only generated drawings, photos and slides.
+- **This repo is public.** `source/` (client drawings, survey, program drafts, reference books) and the CAD files (`drawings/*.dwg`, `*.bak`) are local only and gitignored. Never commit them or link to them from slides. The only exceptions are the two public-record aerials the site map loads (`Site Aerial from SCPA.jpg`, `1948 Aerial of historic Slough Bed.jpg`). Check for 404s in the browser after any change to what's published. Publish only generated drawings, photos and slides.
 
 ## Run
 - Tools: `.venv/bin/python tools/<script>.py` (create the venv per the README).
