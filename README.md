@@ -4,7 +4,7 @@ An HTML slideshow for the owner's stakeholder review: animated site and floor pl
 
 ## Layout
 
-- `source/` – original drawings (CAD-exported vector PDFs; DXF optional for floor plans) and reference documents
+- `source/` – original drawings (CAD-exported vector PDFs; DXF optional for floor plans) and reference documents. **Local only, gitignored**: this repo is public, so client originals are never committed
 - `NOTES.md` – project log: program, site data, constraints, decisions, open questions
 - `slides/` – HTML slides (1920×1080, arrow keys step through builds, `?static` for the finished frame)
 - `docs/` – presentation narrative (outline of record) and gap list

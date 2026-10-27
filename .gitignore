@@ -7,3 +7,10 @@ photos/hog-enclosures.png
 exports/
 # owner's annotated review draft: internal County comments, kept local
 source/*_LHB.pdf
+
+# Client and reference originals: kept locally only, never published (this repo is public)
+# The deck uses only generated drawings/ and photos/. tools/ reads these locally.
+source/*
+!source/.gitkeep
+drawings/*.dwg
+drawings/*.bak
