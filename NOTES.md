@@ -1186,3 +1186,63 @@ Fit checks now skip context elements (walk etc.).
   of the 12' dogtrot, then barn B 48'. Only `dims` and the drawing's `view` changed in `ag-area.js` (elements
   identical); the site map does not read either, so it needs no rebuild. Like the cattle string, the dimensions show at
   every Level.
+
+## 2026-11-16: stakeholder feedback and owner direction (meetings of 10-21, 11-02, and 11-12)
+Sources: Seibert meeting notes in the project folder's `Meeting Notes/` (10-21 stakeholder review; 11-02 and 11-12
+progress meetings). Meeting notes are treated as final even where the file is labelled Draft (architect, 2026-11-16).
+The notes themselves are not committed; this entry summarizes them.
+
+**Stakeholder review, 10-21** (flip charts typed by the County, then clarified by Lee Hayes). No changes are approved
+unless the owner says so.
+- Flooding and pasture use are the main concern, especially during the October to March fair season. Lee Hayes asked
+  that the Level 3 site design deal with flooding as fully as it can, pasture flooding above all; civil to evaluate.
+- Livestock: gates and pasture links for safe movement, water throughout, wind or solar well pumps, vet and handling
+  facilities, beef breeding pasture, pest control (pasture mealybug), and the chute kept open as a public resource.
+- Uses suggested: aquaculture in the existing barn, poultry processing and storage, poultry tractors, a silviculture
+  demonstration lot, equine and equine therapy, an apiary, ag-technology demonstrations, and areas for dogs.
+- Shows (jackpot and invited), with parking and event operations; volunteer and full utility hookups.
+- Solar: grid-tied for the buildings and off-grid for remote loads; aquaponics tied to the stormwater system.
+- Name vote (stickers): Agriculture Education Center 5, SAGE Ranch 5, GROW Sarasota County 4, Fields of
+  Opportunity 2, Farm Futures 2, Roots 2, RANCH Center 2, Heritage Ranch 1. No name chosen yet.
+
+**Owner direction, 11-02** (Lee Hayes, Matt Ingram). Nothing was denied; everything depends on demand, funding, and
+phasing.
+- Poultry tractors at Level 1. Poultry processing and storage at Level 3. Look into floating "duck island" coops.
+- Separate budget line items, outside the Levels: innovation, a dog agility course, and an aquaculture system like the
+  MMS installation.
+- Site plan: a dedicated apiary location, a dedicated kennel location, one pen or paddock for equine projects, and the
+  north triangle pasture as a possible silvopasture demonstration area.
+- Overflow parking within walking distance; it may go onto Solid Waste property or onto widened road shoulders.
+  Access control from the south through Solid Waste property still to be coordinated.
+- "Volunteer hookups": assume the caretaker RV hookups cover them, pending confirmation of what was meant.
+- Report: two full-time staff minimum, four recommended. Operating procedures (escaped animals, storm preparation,
+  public use of the chute, project selection, maintenance, youth and adult separation, participant agreements, and
+  handling training) go in the report, and shape the facilities only where they need space, equipment, security, or
+  infrastructure.
+- Solar: battery backup only for off-grid systems.
+- Cost estimate: each Level carried separately, each improvement its own line item, so items can move between Levels
+  after pricing.
+
+**Owner direction, 11-12** (with Brad Gaubatz and Kate Traugott).
+- Horticulture programs add urban farming models (hydroponics and the like) and ECHO Farm principles (diverse,
+  year-round perennial crops and markets for them).
+- Apiary: well away from the core campus; mobile hives and electric fencing; bee suits stored in a climate-controlled
+  space; a place in the field to clean honey off suits.
+- Veterinary support is covered by the chute, medicine storage, and easy vehicle access across the campus. Kate will
+  supply procedure and policy documents.
+- Equine: a contingency only. 4-H has a mini-horse program, but the need for capacity here is unclear.
+- Beef breeding shade, fixed systems only (no canopies for staff to move in an emergency): fabric shade structures at
+  Level 1, a permanent pole barn at Level 2, in all central pasture service and circulation areas.
+- Schedule: to the cost consultant by 11-19; pricing back by 12-03; cost review meeting 12-07 at 4 pm. Resend the
+  renderings to Lee Hayes.
+
+**Deck not updated.** This direction goes to the cost estimator and the consultants for their reports and narratives;
+the 10-21 deck stays as presented (`slides/data/levels.js` unchanged). It is carried in the program's pricing draft
+and cover memo of 2026-11-16 (project folder, `Task 2 - Program and Site Analysis/`, not committed): line items by
+Level (L1-, L2-, L3-), items with no Level yet (A-), and items priced outside the Levels (S-).
+
+**Open**
+- Animal quarantine requirements (Kate): not settled at either meeting.
+- Levels for the apiary, kennel, silvopasture area, and horticulture additions.
+- What stakeholders meant by "volunteer hookups".
+- Project name.
