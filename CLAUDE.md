@@ -12,7 +12,12 @@ Read before changing anything:
 - `design/palette.json` is the color source of truth.
 - North is to the **left** in every graphic.
 - Slides are 1920×1080. Arrow keys step through builds, and `?static` shows the finished frame for PDF export.
-- **This repo is public.** `source/` (client drawings, survey, program drafts, reference books) and the CAD files (`drawings/*.dwg`, `*.bak`) are local only and gitignored. Never commit them or link to them from slides. The only exceptions are the two public-record aerials the site map loads (`Site Aerial from SCPA.jpg`, `1948 Aerial of historic Slough Bed.jpg`). Check for 404s in the browser after any change to what's published. Publish only generated drawings, photos and slides.
+- **This repo is public.** `source/` (client drawings, survey, program drafts, reference books) and the CAD files (`drawings/*.dwg`, `*.bak`) are local only and gitignored. Never commit them or link to them from slides. The only exceptions are the two public-record aerials the site map loads (`Site Aerial from SCPA.jpg`, `1948 Aerial of historic Slough Bed.jpg`). Check for 404s in the browser after any change to what's published. Publish only generated drawings, photos and slides. Draft documents (the civil engineer's drafts in `source/civil/`, the owner's annotated review `source/*_LHB.pdf`) stay local even if a final version is later cleared for publishing.
+
+## Style
+- Oxford comma in every list of three or more: slide text, data files (`levels.js` etc.), generated map labels, and notes ("Swine, sheep, and goats"). Compound items keep their inner "and" ("feed and tack storage").
+- Campus material look is weathered wood (the owner's choice): existing and farm structures default to `oldwood`/`oldtimber` in the massing model, renderings, and graphics.
+- Cattle areas (pens, partitions, back fences) are drawn as pipe-rail panels, never solid board.
 
 ## Run
 - Tools: `.venv/bin/python tools/<script>.py` (create the venv per the README).
