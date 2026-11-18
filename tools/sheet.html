@@ -79,6 +79,7 @@
 
 <script src="../slides/data/site-map.js"></script>
 <script src="../drawings/data/stormwater-concept.js"></script>
+<script src="../drawings/data/stormwater-meander-option.js"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, K = M.barnyard.checks, FT = M.ft_per_unit;
@@ -163,6 +164,8 @@
   // the owner's stormwater direction of 2026-11-18 (tools/build_stormwater_concept.py), on the plan sheets only;
   // ?stormwater=0 prints the plan as it stood before
   const SW = !existing && q.get("stormwater") !== "0" ? window.STORMWATER : null;
+  // ?option=meander adds the meandering low-flow channel (tools/build_meander_option.py); without it the sheets are the base plan
+  const OPT = SW && q.get("option") === "meander" ? window.MEANDER_OPTION : null;
   if (SW) {
     ["historic-slough", "historic-slough-floor", "historic-slough-label", "retention-label"].forEach(id => $("#" + id)?.classList.add("off"));
     svg.querySelectorAll(".pond.proposed").forEach(e => e.classList.add("off"));
@@ -181,7 +184,8 @@
       + SW.bands.map(b => b.areas.map(g => shape(g, `fill="${BAND[b.el]}" stroke="none"`)).join("")).join("")
       + SW.contours.map(c => c.lines.map(r => line(r, c.pool || c.el === E.nwl
           ? `stroke="#1F6FA3" stroke-width="${w(1.5)}"` : `stroke="#4F7A78" stroke-width="${w(c.el % 5 === 0 ? 1 : .6)}"`)).join("")).join("")
-      + SW.centerlines.map(r => line(r, `stroke="#2F7FA6" stroke-opacity=".45" stroke-width="${w(.7)}" stroke-dasharray="${w(9)} ${w(6)}"`)).join("")
+      + (OPT ? OPT.water.map(g => shape(g, `fill="#8FC3DC" stroke="#1F6FA3" stroke-width="${w(.7)}"`)).join("")
+             : SW.centerlines.map(r => line(r, `stroke="#2F7FA6" stroke-opacity=".45" stroke-width="${w(.7)}" stroke-dasharray="${w(9)} ${w(6)}"`)).join(""))
       + SW.basin.map(g => shape(g, `fill="none" stroke="#4F7A78" stroke-width="${w(.9)}"`)).join("")
       + SW.pad_contours.map(c => c.lines.map(r => line(r, `stroke="#4F7A78" stroke-width="${w(.6)}"`)).join("")).join("");
     $("#paddocks").insertAdjacentHTML("beforebegin", `<g id="stormwater-concept">${under}</g>`);
@@ -206,15 +210,21 @@
       for (let i = 0; i < L.length; i++) { if (d <= L[i]) return [r[i][0] + (r[i + 1][0] - r[i][0]) * d / L[i], r[i][1] + (r[i + 1][1] - r[i][1]) * d / L[i]]; d -= L[i]; } return r[r.length - 1]; };
     SW.paths.forEach(p => { const m = along(p.line, .32); over += t(m[0], m[1] + 2, p.name, 5.5, "#5C4A22"); });
     if (which === "site") {
-      over += t(868, 398, "Expanded slough-bed swale", 7.5) + t(590, 372, "North triangle swale", 7)
+      over += (OPT ? t(872, 346, "Expanded slough-bed swale", 6.2) : t(868, 398, "Expanded slough-bed swale", 7.5)) + t(590, 372, "North triangle swale", 7)
         + t(1228, 494, "Retention pond, open to the swale", 5.5);
     } else {
-      over += t(1228, 494, "Retention pond, open to the swale", 5.5) + t(1010, 455, "Expanded slough-bed swale", 7);
+      over += t(1228, 494, "Retention pond, open to the swale", 5.5) + (OPT ? t(868, 345, "Expanded slough-bed swale", 7) : t(1010, 455, "Expanded slough-bed swale", 7));
     }
     over += t(SW.pad_label[0], SW.pad_label[1], `Pad ${f2(E.pad)}`, which === "site" ? 4.4 : 3.6, "#2F5F5C");
     svg.querySelector("#map-content").insertAdjacentHTML("beforeend", `<g id="stormwater-labels">${over}</g>`);
     document.getElementById("sheet-title").textContent = which === "site" ? "Site plan: stormwater concept" : "Campus plan: stormwater concept";
     document.getElementById("status").textContent = "Owner stormwater direction · Level 3";
+    if (OPT) {
+      document.getElementById("sheet-title").textContent = (which === "site" ? "Site plan" : "Campus plan") + ": channel option";
+      document.getElementById("status").textContent = "Option for discussion · Level 3";
+      document.getElementById("no").textContent = S.no + " Option";
+      document.title = S.no + " meandering channel option";
+    }
   }
 
   // graphic scale: four divisions of one inch's worth, plus one subdivided
@@ -245,6 +255,7 @@
       + li("#4F7A78", "#BBDBC6", "Slough-bed swale, 1' contours")
       + li("#1F6FA3", "#8FC3DC", `Permanent pool, NWL ${SW.elevations.nwl.toFixed(2)}'`)
       + li("#A63A2B", "none", "Culvert", "line");
+    if (OPT) legend += li("#1F6FA3", "#8FC3DC", `Meandering low-flow channel, ${OPT.design.width_ft}' wide`);
   }
   document.getElementById("legend").innerHTML = legend;
   if (SW) document.querySelectorAll(".legend li").forEach(e => { e.style.fontSize = "10.5pt"; e.style.marginBottom = ".035in"; });
@@ -264,6 +275,8 @@
     `BFE ${SW.elevations.bfe.toFixed(2)}' (modelled 100-year). Raised pad at BFE + 1'. Assumed for civil to confirm: NWL ${SW.elevations.nwl.toFixed(2)}', littoral shelf ${SW.elevations.shelf.toFixed(2)}', pond bottom ${SW.elevations.pond_bottom.toFixed(2)}', north triangle pond NWL ${SW.elevations.tri_nwl.toFixed(2)}', swale banks ${SW.elevations.swale_side}:1, pond banks ${SW.elevations.pond_side}:1.`,
     `Of ${SW.areas_ac.open_pasture} acres of open pasture, ${Math.round(SW.swale_share_of_open * 100)}% becomes swale and ${100 - Math.round(SW.swale_share_of_open * 100)}% stays high ground. Surveyed trees are shown over the grading; about ${Math.round(SW.woods_cleared_ac)} acres of woods edge are trimmed for the swale.`,
     "Swale limits, culvert sizes, and cut and fill are subject to civil design and permitting.");
+  if (OPT) notes.splice(2, 1,
+    `Option: a low-flow channel ${OPT.design.width_ft}' wide and ${OPT.design.depth_ft}' below normal water, on ${OPT.design.radius_ft}' to ${OPT.design.wide_radius_ft}' radius bends where the swale floor has room. About ${OPT.stats.channel_ft.toLocaleString("en-US")} ft long, ${OPT.stats.added_pct}% longer than a straight run. Culverts on the channel are set lower to match.`);
   document.getElementById("notes").innerHTML = notes.map(t => `<p>${t}</p>`).join("");
   window.SHEET_READY = true;
 })();

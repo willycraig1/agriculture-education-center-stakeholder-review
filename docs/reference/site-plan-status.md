@@ -11,6 +11,21 @@ Sheets AS-1 (overall, 1" = 100') and AS-2 (campus, 1" = 40') carry the owner's s
 - The north triangle has its own swale and small retention pond, which discharges under the road to the bend in the main swale.
 - Paths A, B, and C stay on high ground and cross the swale centerlines on culverts.
 
+## Option under study: meandering low-flow channel
+
+A separate option adds a wet channel to the swale floor. The base plan, its figures, and the 11-18-26 pricing do not include it.
+
+| Item | Option as drawn (concept level) |
+|---|---|
+| Channel | 6' wide, 1' below normal water, about 4,590 ft long |
+| Bends | 15' design radius, 20' in the 4.8 ac paddock, about 10' at the tightest, on about 1,870 ft of the run |
+| Added length | About 770 ft, 20% longer than a straight channel |
+| Added excavation | About 1,010 cy |
+| Routing | Midway between the banks in tight swales, at least 29' clear of the tree island in the 3.9 ac paddock, and as sketched by the architect through the 7.8 ac paddock |
+| Culverts set lower | Paths A, B, and C, and the entry drive |
+
+The Ag Ed consultant advised that cattle manure in the channel is not a concern, because the cattle do not drink this water and it has enough time for treatment before leaving the property. The option therefore shows no fencing or buffers along the channel.
+
 ## Not yet updated for this plan
 
 | Item | Where | Note |
@@ -44,5 +59,6 @@ Sheets AS-1 (overall, 1" = 100') and AS-2 (campus, 1" = 40') carry the owner's s
 ## Latest deliverables
 
 - `exports/site-plan-AS-1.pdf` and `exports/site-plan-AS-2.pdf` (git-ignored)
+- Channel option: `exports/site-plan-AS-1-option-meander.pdf` and `exports/site-plan-AS-2-option-meander.pdf` (git-ignored)
 - Pricing program and cover memo dated 11-18-26, in the project folder's `Task 2 - Program and Site Analysis` (local only)
 - `tools/review.html`: both sheets on screen, with zoom and pan

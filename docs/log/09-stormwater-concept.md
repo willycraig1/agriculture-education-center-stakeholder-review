@@ -87,3 +87,28 @@ the north triangle pasture; add high-ground paths to the gates across the swale 
 ## 2026-11-18: stormwater sheets, final figures after the contour spacing pass (supersedes the entry above where they differ)
 - Typical swale banks are 7:1. The north triangle pond's assumed water level is 18.40', so the triangle's pasture floor stays above it
   and only the pond and its shelf hold water. The outlet falls about 0.3 ft to the swale invert at the bend.
+
+## 2026-11-18: meandering low-flow channel, drawn as a separate option
+The Ag Ed consultant asked whether the swale basin could wiggle at a 10' to 20' radius to lengthen the run and improve
+treatment. The architect asked for it as a new option, with the existing plans left alone.
+- `tools/build_meander_option.py` reads `stormwater-concept.js` and writes `drawings/data/stormwater-meander-option.js`.
+  `tools/sheet.html` draws it only with `?option=meander`. The base sheets, figures, and 11-18-26 pricing do not change.
+- Channel: 6' wide, 1' below normal water (inverts 17.00' main, 17.40' north triangle), 15' design radius. Bends swing 75
+  degrees where the floor allows and 60 or 45 degrees where it is narrower. Straight runs at culverts, junctions, and pools.
+- Result: about 3,990 ft of channel, 420 ft (12%) longer than a straight channel, with bends on about 1,530 ft. About 910 cy
+  of cut. The first estimate of 25% assumed more usable floor than the narrow arms and hold-backs leave.
+- Paths A, B, and C and the entry drive culverts would need lower inverts. All values are assumed until civil confirms them.
+- Consultant's position: cattle manure in the channel is not a concern, because the cattle do not drink this water and it
+  has enough time for treatment before leaving the property. No fencing or buffers are shown along the channel.
+## 2026-11-18: meandering channel option, architect's review
+Supersedes the figures in the entry above.
+- The 3.9 ac paddock's channel now goes around the tree island, at least 29' clear of it.
+- The channel follows the midpoint between the banks through the tight swales.
+- Wider bends at the two spots the architect named: the 4.8 ac paddock and the floor just east of Path A. Those use a 20' radius,
+  with straight legs between bends in the 4.8 ac paddock.
+- Result: about 4,320 ft of channel, 620 ft (17%) longer than a straight channel, with bends on about 1,690 ft. About 940 cy of cut.
+  The tightest radius is about 10', where bends fall on a curving stretch of the swale.
+## 2026-11-18: meandering channel option, 7.8 ac paddock as sketched
+Supersedes the figures in the entry above. The branch north of the Path A culvert now follows the architect's sketch: a wide S on
+the lower floor, then north through the neck into the upper floor of the 7.8 ac paddock. The alignment is held in `DRAWN` in
+`tools/build_meander_option.py`. Result: about 4,590 ft of channel, 770 ft (20%) longer than a straight channel, with about 1,010 cy of cut.

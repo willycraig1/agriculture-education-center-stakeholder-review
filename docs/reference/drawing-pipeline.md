@@ -28,6 +28,20 @@ Use this after changing `tools/stormwater_inputs.py`.
 .venv\Scripts\python tools\export_sheets.py site campus
 ```
 
+## Meandering channel option
+
+The option reads the stormwater concept and never changes it. Rebuild it after any stormwater rebuild. It prints to its own PDFs, `exports/site-plan-AS-1-option-meander.pdf` and `AS-2-option-meander.pdf`.
+
+```powershell
+.venv\Scripts\python tools\build_meander_option.py
+```
+
+```powershell
+.venv\Scripts\python tools\export_sheets.py --option meander site campus
+```
+
+Adding `?option=meander` to a sheet's address shows the option. Without it, the sheets show the base plan.
+
 ## Figures rebuild
 
 Use this after changing `tools/build_report_data.py`.

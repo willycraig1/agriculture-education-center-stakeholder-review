@@ -17,7 +17,10 @@ CHROME = next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Googl
 OUT = os.path.join(ROOT, "exports")
 SHEETS = [("existing", "site-plan-AS-0.pdf"), ("site", "site-plan-AS-1.pdf"), ("campus", "site-plan-AS-2.pdf")]
 ap = argparse.ArgumentParser(); ap.add_argument("--date", default=datetime.date.today().isoformat()); ap.add_argument("sheets", nargs="*")
+ap.add_argument("--option", choices=["meander"], help="print an option to its own PDFs (AS-1 and AS-2), leaving the base sheets alone")
 ARGS = ap.parse_args()
+if ARGS.option: SHEETS = [(k, n.replace(".pdf", f"-option-{ARGS.option}.pdf")) for k, n in SHEETS if k != "existing"]
+OPTION = f"&option={ARGS.option}" if ARGS.option else ""
 
 s = socket.socket(); s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]; s.close()
 handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=ROOT)
@@ -34,7 +37,7 @@ for key, name in SHEETS:
     subprocess.run([CHROME, "--headless=new", f"--user-data-dir={tempfile.mkdtemp(prefix='sheetpdf-')}",
                     "--force-color-profile=srgb", "--no-pdf-header-footer", "--window-size=3456,2304",
                     "--virtual-time-budget=8000", f"--print-to-pdf={path}",
-                    f"http://127.0.0.1:{port}/tools/sheet.html?sheet={key}&date={date}"],
+                    f"http://127.0.0.1:{port}/tools/sheet.html?sheet={key}&date={date}{OPTION}"],
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
     # On Windows chrome.exe hands off to a child process and returns at once: wait for the finished file.
     last, deadline = -1, time.time() + 180
