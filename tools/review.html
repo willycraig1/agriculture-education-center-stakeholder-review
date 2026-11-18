@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site Plan Review</title>
+<!-- On-screen review of the site plan sheets: the same tools/sheet.html pages that tools/export_sheets.py prints to PDF.
+     Drag to pan, scroll to zoom, double-click to fit. -->
+<style>
+  :root { --ink: #2B2A26; --muted: #6B675E; --line: #D8D3C7; --paper: #F4F1E9; --accent: #1F4E66; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.2 "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-bottom: 1px solid var(--line); }
+  .group { display: flex; gap: 4px; }
+  .spacer { flex: 1; }
+  button { min-height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #zoom { min-width: 52px; text-align: center; color: var(--muted); }
+  #view { position: relative; flex: 1; min-height: 0; overflow: hidden; cursor: grab; touch-action: none; }
+  #view.dragging { cursor: grabbing; }
+  #sheet { position: absolute; left: 0; top: 0; width: 3456px; height: 2304px; border: 0; background: #fff; transform-origin: 0 0; box-shadow: 0 2px 14px rgba(43, 42, 38, .25); pointer-events: none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="group" role="group" aria-label="Sheet">
+    <button type="button" data-sheet="site" aria-pressed="true">AS-1 Overall</button>
+    <button type="button" data-sheet="campus" aria-pressed="false">AS-2 Campus</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="group" role="group" aria-label="Zoom">
+    <button type="button" id="out" aria-label="Zoom out">&minus;</button>
+    <span id="zoom" style="align-self:center"></span>
+    <button type="button" id="in" aria-label="Zoom in">+</button>
+    <button type="button" id="fit">Fit</button>
+  </div>
+</header>
+<div id="view"><iframe id="sheet" title="Site plan sheet"></iframe></div>
+<script>
+(function () {
+  const W = 3456, H = 2304, view = document.getElementById("view"), sheet = document.getElementById("sheet"), zoomEl = document.getElementById("zoom");
+  let k = 1, x = 0, y = 0;
+  const draw = () => { sheet.style.transform = `translate(${x}px, ${y}px) scale(${k})`; zoomEl.textContent = Math.round(k * 100) + "%"; };
+  const fit = () => { const r = view.getBoundingClientRect(); k = Math.min(r.width / W, r.height / H) * .98; x = (r.width - W * k) / 2; y = (r.height - H * k) / 2; draw(); };
+  const zoomAt = (f, px, py) => { const n = Math.min(Math.max(k * f, .1), 3); x = px - (px - x) * n / k; y = py - (py - y) * n / k; k = n; draw(); };
+  const centre = f => { const r = view.getBoundingClientRect(); zoomAt(f, r.width / 2, r.height / 2); };
+  function show(name) {
+    sheet.src = `sheet.html?sheet=${name}&date=2026-11-18`;
+    document.querySelectorAll("[data-sheet]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sheet === name)));
+    fit();
+  }
+  document.querySelectorAll("[data-sheet]").forEach(b => b.addEventListener("click", () => show(b.dataset.sheet)));
+  document.getElementById("in").addEventListener("click", () => centre(1.3));
+  document.getElementById("out").addEventListener("click", () => centre(1 / 1.3));
+  document.getElementById("fit").addEventListener("click", fit);
+  view.addEventListener("wheel", e => { e.preventDefault(); const r = view.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+  view.addEventListener("dblclick", fit);
+  let drag = null;
+  view.addEventListener("pointerdown", e => { drag = [e.clientX - x, e.clientY - y]; view.setPointerCapture(e.pointerId); view.classList.add("dragging"); });
+  view.addEventListener("pointermove", e => { if (drag) { x = e.clientX - drag[0]; y = e.clientY - drag[1]; draw(); } });
+  const end = () => { drag = null; view.classList.remove("dragging"); };
+  view.addEventListener("pointerup", end); view.addEventListener("pointercancel", end);
+  window.addEventListener("resize", fit);
+  show("site");
+})();
+</script>
+</body>
+</html>

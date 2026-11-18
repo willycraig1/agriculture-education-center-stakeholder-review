@@ -78,6 +78,7 @@
 </div></div>
 
 <script src="../slides/data/site-map.js"></script>
+<script src="../drawings/data/stormwater-concept.js"></script>
 <script>
 (function () {
   const M = window.SITE_MAP, K = M.barnyard.checks, FT = M.ft_per_unit;
@@ -159,6 +160,63 @@
   svg.querySelectorAll("[data-w]").forEach(e => { e.style.strokeWidth = e.dataset.w * inv;
     if (e.dataset.dash) e.style.strokeDasharray = e.dataset.dash.split(" ").map(v => v * inv).join(" "); });
 
+  // the owner's stormwater direction of 2026-11-18 (tools/build_stormwater_concept.py), on the plan sheets only;
+  // ?stormwater=0 prints the plan as it stood before
+  const SW = !existing && q.get("stormwater") !== "0" ? window.STORMWATER : null;
+  if (SW) {
+    ["historic-slough", "historic-slough-floor", "historic-slough-label", "retention-label"].forEach(id => $("#" + id)?.classList.add("off"));
+    svg.querySelectorAll(".pond.proposed").forEach(e => e.classList.add("off"));
+    const E = SW.elevations, f2 = v => v.toFixed(2) + "'";
+    const pts = r => "M" + r.map(p => p.join(" ")).join("L") + "Z";
+    const area = g => [g.outer, ...g.holes].map(pts).join("");
+    const shape = (g, a) => `<path d="${area(g)}" fill-rule="evenodd" ${a}/>`;
+    const line = (r, a) => `<path d="M${r.map(p => p.join(" ")).join("L")}" fill="none" stroke-linecap="round" stroke-linejoin="round" ${a}/>`;
+    const w = v => (v * inv).toFixed(2);
+    const BAND = { 21: "#DFEACB", 20: "#D0E4C6", 19: "#BBDBC6", [SW.elevations.tri_nwl]: "#8FC3DC", 18: "#8FC3DC", 16: "#6FAFD3", 14: "#569CC6" };   // finished grade below each elevation
+    // paths and the pad are the same ground plane as the high ground: only their contours and culverts set them apart
+    const PLANE = `fill="#DDE6B8" stroke="none"`;
+    const under = SW.high_ground.map(g => shape(g, PLANE)).join("")
+      + SW.paths.map(p => shape(p.corridor, PLANE)).join("") + shape(SW.pad_toe, PLANE)
+      + SW.basin.map(g => shape(g, `fill="#E8EFD2" stroke="none"`)).join("")
+      + SW.bands.map(b => b.areas.map(g => shape(g, `fill="${BAND[b.el]}" stroke="none"`)).join("")).join("")
+      + SW.contours.map(c => c.lines.map(r => line(r, c.pool || c.el === E.nwl
+          ? `stroke="#1F6FA3" stroke-width="${w(1.5)}"` : `stroke="#4F7A78" stroke-width="${w(c.el % 5 === 0 ? 1 : .6)}"`)).join("")).join("")
+      + SW.centerlines.map(r => line(r, `stroke="#2F7FA6" stroke-opacity=".45" stroke-width="${w(.7)}" stroke-dasharray="${w(9)} ${w(6)}"`)).join("")
+      + SW.basin.map(g => shape(g, `fill="none" stroke="#4F7A78" stroke-width="${w(.9)}"`)).join("")
+      + SW.pad_contours.map(c => c.lines.map(r => line(r, `stroke="#4F7A78" stroke-width="${w(.6)}"`)).join("")).join("");
+    $("#paddocks").insertAdjacentHTML("beforebegin", `<g id="stormwater-concept">${under}</g>`);
+    svg.querySelectorAll("#gates line, #gates path").forEach(e => { e.style.strokeWidth = parseFloat(getComputedStyle(e).strokeWidth) / 2; });   // pasture gates at half weight
+    $("#stormwater-concept").after($("#trees"));                               // the surveyed trees stand over the new grading
+    const t = (x, y, s, size = 6, fill = "#1F4E66") => label(x, y, s, size * inv * (which === "site" ? 1 : 1.8), fill);
+    const culvert = r => line(r, `stroke="#fff" stroke-width="${w(6)}"`) + line(r, `stroke="#A63A2B" stroke-width="${w(3)}"`);
+    let over = SW.culverts.map(c => culvert(c.line)).join("") + culvert(SW.road_culvert) + culvert(SW.entry_culvert) + culvert(SW.outfall_link);
+    over += t(1128, 523, "Entry culvert, replaced", 5, "#A63A2B") + t(1252, 548, "To existing outfall", 5, "#A63A2B");
+    SW.contour_labels.filter(c => c.el >= E.nwl).forEach(c => { over += t(c.at[0], c.at[1] + 1.2 * inv, c.text || (c.el === E.nwl ? `NWL ${f2(E.nwl)}` : `${c.el}'`), 3.6, c.text || c.el === E.nwl ? "#1F6FA3" : "#2F5F5C"); });
+    const H = SW.holds;
+    over += t(H.east[0] + 22, H.east[1] + 7, "Designed pond edge held", 4.4, "#A63A2B")
+      + t(1228, 506, `Bottom ${f2(E.pond_bottom)}`, 4.2)
+      + t(H.shelf[0], H.shelf[1], "Swale as littoral shelf", 4.8);
+    const rc0 = SW.road_culvert[0], rc1 = SW.road_culvert[SW.road_culvert.length - 1];
+    over += t(rc1[0] + 30, rc1[1] - 4, "Pond outlet under road", 5, "#A63A2B")
+      + t(SW.tri_pond_label[0] - 24, SW.tri_pond_label[1] + 2, "Triangle retention pond", 4.8);
+    SW.ramp_labels.forEach(r => { over += t(r.at[0], r.at[1] + 1.2 * inv, r.text, 3.6, "#2F5F5C"); });
+    SW.culverts.forEach(c => { over += t(c.at[0] + 6 * inv, c.at[1] - 7 * inv, "Culvert", 5, "#A63A2B"); });
+    // each path's name sits a third of the way along it, clear of its culvert
+    const along = (r, f) => { const L = r.slice(1).map((q, i) => Math.hypot(q[0] - r[i][0], q[1] - r[i][1])); let d = L.reduce((a, b) => a + b, 0) * f;
+      for (let i = 0; i < L.length; i++) { if (d <= L[i]) return [r[i][0] + (r[i + 1][0] - r[i][0]) * d / L[i], r[i][1] + (r[i + 1][1] - r[i][1]) * d / L[i]]; d -= L[i]; } return r[r.length - 1]; };
+    SW.paths.forEach(p => { const m = along(p.line, .32); over += t(m[0], m[1] + 2, p.name, 5.5, "#5C4A22"); });
+    if (which === "site") {
+      over += t(868, 398, "Expanded slough-bed swale", 7.5) + t(590, 372, "North triangle swale", 7)
+        + t(1228, 494, "Retention pond, open to the swale", 5.5);
+    } else {
+      over += t(1228, 494, "Retention pond, open to the swale", 5.5) + t(1010, 455, "Expanded slough-bed swale", 7);
+    }
+    over += t(SW.pad_label[0], SW.pad_label[1], `Pad ${f2(E.pad)}`, which === "site" ? 4.4 : 3.6, "#2F5F5C");
+    svg.querySelector("#map-content").insertAdjacentHTML("beforeend", `<g id="stormwater-labels">${over}</g>`);
+    document.getElementById("sheet-title").textContent = which === "site" ? "Site plan: stormwater concept" : "Campus plan: stormwater concept";
+    document.getElementById("status").textContent = "Owner stormwater direction · Level 3";
+  }
+
   // graphic scale: four divisions of one inch's worth, plus one subdivided
   const bar = document.getElementById("bar"), step = S.ftPerIn, segs = 4, px = 96;
   let b = "";
@@ -183,8 +241,13 @@
     legend = order.map(k => { const v = k.replace("_", "-"); return li(`var(--${v})`, `var(--${v}-tint)`, NAMES[k]); }).join("")
       + li("var(--woodland)", "var(--woodland-tint)", "Surveyed trees")
       + li("var(--water)", "var(--water-tint)", "Water and stormwater");
+    if (SW) legend += li("#8A9A4A", "#DDE6B8", `High ground and paths ${SW.elevations.high_ground.toFixed(2)}', pad ${SW.elevations.pad.toFixed(2)}'`)
+      + li("#4F7A78", "#BBDBC6", "Slough-bed swale, 1' contours")
+      + li("#1F6FA3", "#8FC3DC", `Permanent pool, NWL ${SW.elevations.nwl.toFixed(2)}'`)
+      + li("#A63A2B", "none", "Culvert", "line");
   }
   document.getElementById("legend").innerHTML = legend;
+  if (SW) document.querySelectorAll(".legend li").forEach(e => { e.style.fontSize = "10.5pt"; e.style.marginBottom = ".035in"; });
 
   const notes = existing ? [
     "North is to the left.",
@@ -197,6 +260,10 @@
     which === "site" ? `Main property only: ${Math.round(M.site_acres_footprint)} acres, the side of the parcel line the campus is on.` : "Building and pen sizes per the barnyard diagram at Level 3.",
     "Planning study for discussion. Not for construction.",
   ];
+  if (SW) notes.splice(1, 2,
+    `BFE ${SW.elevations.bfe.toFixed(2)}' (modelled 100-year). Raised pad at BFE + 1'. Assumed for civil to confirm: NWL ${SW.elevations.nwl.toFixed(2)}', littoral shelf ${SW.elevations.shelf.toFixed(2)}', pond bottom ${SW.elevations.pond_bottom.toFixed(2)}', north triangle pond NWL ${SW.elevations.tri_nwl.toFixed(2)}', swale banks ${SW.elevations.swale_side}:1, pond banks ${SW.elevations.pond_side}:1.`,
+    `Of ${SW.areas_ac.open_pasture} acres of open pasture, ${Math.round(SW.swale_share_of_open * 100)}% becomes swale and ${100 - Math.round(SW.swale_share_of_open * 100)}% stays high ground. Surveyed trees are shown over the grading; about ${Math.round(SW.woods_cleared_ac)} acres of woods edge are trimmed for the swale.`,
+    "Swale limits, culvert sizes, and cut and fill are subject to civil design and permitting.");
   document.getElementById("notes").innerHTML = notes.map(t => `<p>${t}</p>`).join("");
   window.SHEET_READY = true;
 })();
