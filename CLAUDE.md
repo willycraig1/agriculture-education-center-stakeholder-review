@@ -2,10 +2,13 @@
 
 An HTML slideshow for the owner's stakeholder review of Clark Farm (Seibert project 2601). Hosted on GitHub Pages, and it also runs offline.
 
-Read before changing anything:
-1. `NOTES.md`: project log (program, site data, decisions, open questions). Add new decisions here.
-2. `docs/presentation-outline.md`: the narrative of record and the gap list.
-3. `README.md`: folder layout and the full drawing rebuild order.
+Start with `docs/README.md`. It says which short page to read for each kind of task. Open only what the task needs, and search the logs in `docs/log/` instead of reading them through.
+- Current plan and open items: `docs/reference/site-plan-status.md`
+- Site plan graphics: `docs/reference/drafting-standards.md`
+- Stormwater decisions: `tools/stormwater_inputs.py` and `docs/reference/stormwater-design-basis.md`
+- Figures for the report or pricing: `docs/reference/figures.md` (generated). Quote it, and do not retype values.
+- New decisions: add a dated entry to the matching log in `docs/log/`.
+- Deck narrative: `docs/presentation-outline.md`
 
 ## Rules
 - Generated files (`drawings/`, `slides/data/`, `design/palette.css`) are built by `tools/` from `source/`. Change the script or the source, never the output.
