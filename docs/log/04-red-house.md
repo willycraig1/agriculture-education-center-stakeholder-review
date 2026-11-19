@@ -34,4 +34,10 @@ Moved verbatim from the original NOTES.md. `<!-- from line n -->` marks where ea
 - Level 3: the addition inset's patio (label, roof edge, paving lines) reached past the inset's exclusion box and
   showed as a stray patio beside the house. The box now runs 620 pt left of the inset title; the patio label is kept
   out of the addition fit (fit unchanged: 98.6% of walls within 1 pt).
-
+
+## 2026-11-19: County interior standards summarized
+- Read the three County Standards PDFs in `From Owner/County Standards/` (Facilities Design Standard, Interior
+  Standards r1, and the Administration Center Furniture Specification R8) and summarized them in
+  `reference/county-interior-standards.md`: office and workstation sizes, furniture types, power and data, and finishes.
+- None of them sets room lighting (light levels, fixtures, or controls); only office task lights are named. Listed
+  as an open question for the County, with whether the historic offices may be smaller than 10' x 12'.

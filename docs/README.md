@@ -10,6 +10,7 @@ Read this page first, then open only the files your task needs. Each reference p
 | Move a swale, pond, path, or culvert | `reference/stormwater-design-basis.md`, `reference/drafting-standards.md` | `tools/stormwater_inputs.py` | Stormwater rebuild |
 | Change an elevation or bank slope | `reference/stormwater-design-basis.md` | `tools/stormwater_inputs.py` | Stormwater rebuild |
 | Change how the sheets look | `reference/drafting-standards.md` | `tools/sheet.html` | Export the sheets |
+| Lay out Red House rooms, furniture, or finishes | `reference/county-interior-standards.md`, `log/04-red-house.md` | `tools/build_red_house.py` | Full rebuild |
 | Change the barnyard or buildings | `log/03-barnyard-and-buildings.md`, `reference/drawing-pipeline.md` | `tools/build_ag_area.py` | Full rebuild |
 | Quote a number in the report or pricing | `reference/figures.md`, `reference/report-data-framework.md` | Nothing | Nothing |
 | Add a number to the register | `reference/report-data-framework.md` | `tools/build_report_data.py` | Figures rebuild |
@@ -24,6 +25,7 @@ The rebuild commands are in `reference/drawing-pipeline.md`.
 | `reference/site-plan-status.md` | What the plan shows today, what is open, and who has to answer |
 | `reference/stormwater-design-basis.md` | The owner's direction, how it is drawn, and which input controls it |
 | `reference/drafting-standards.md` | The architect's graphic rules for the site plan sheets |
+| `reference/county-interior-standards.md` | County furniture, office, and finish standards for the Red House, and what they leave out |
 | `reference/drawing-pipeline.md` | Which script makes which file, and in what order |
 | `reference/report-data-framework.md` | How figures reach the report, and what each status means |
 | `reference/figures.md` | Every current figure (generated) |
