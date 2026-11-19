@@ -8,6 +8,8 @@ What Sarasota County's furniture and interior standards ask for, boiled down so 
 | Sarasota County Interior Standards r1 | 12 | Workstation and office layouts, flooring, and finish colours |
 | Furniture Specification, County Administration Center, R8 (3 May 2024) | 68 | Every furniture type with product lines and finishes, written for the Administration Center |
 
+The furniture specification was prepared by Commercial Design Services (www.commercialdesignservices.com). Contact: Holly Hetherington, 941-915-5999, hhetherington@cdstampa.com.
+
 The furniture specification was written for one building, so its products and finishes are the County's preferred palette, not a rule for every site. Use the type codes below (OFC-1.1, TBL-5 and so on) on the plans so the County can match them to its standard.
 
 ## What the standards do not cover
